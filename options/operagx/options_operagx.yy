@@ -1,0 +1,18 @@
+{
+  "resourceType": "GMOperaGXOptions",
+  "resourceVersion": "1.0",
+  "name": "operagx",
+  "option_operagx_version": "0.0.0.0",
+  "option_operagx_next_version": "1.0.0.0",
+  "option_operagx_game_name": "GGMR Sample Project",
+  "option_operagx_interpolate_pixels": false,
+  "option_operagx_scale": 0,
+  "option_operagx_texture_page": "2048x2048",
+  "option_operagx_display_cursor": true,
+  "option_operagx_guid": "",
+  "option_operagx_team_name": "Springroll Games",
+  "option_operagx_team_id": "8daad19d-63cd-4d21-a14b-a568a0d26fa2",
+  "option_operagx_editUrl": "https://create.gx.games/game/9f47b9f6-bf12-4b0f-8e14-9e39a0fe05de/edit",
+  "option_operagx_internalShareUrl": "https://gx.games/games/mfvj9u/ggmr-sample-project/tracks/8a0b67ca-fe33-4ad6-90ab-95e0d69dcc5b/",
+  "option_operagx_publicShareUrl": "",
+}

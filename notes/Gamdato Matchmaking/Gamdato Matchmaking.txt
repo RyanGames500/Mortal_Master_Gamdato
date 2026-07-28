@@ -1,0 +1,253 @@
+========================================================================
+ GAMDATO — MATCHMAKING
+========================================================================
+
+Empareja jugadores por internet y los conecta entre si, aunque esten en
+redes distintas.
+
+El plugin no impone netcode: te entrega los rivales con una direccion a la
+que se puede llegar, y de ahi en adelante conecta tu propio codigo de red.
+En este proyecto ese codigo es GGMR.
+
+Requisitos:
+  - gmda_setController() con tu Game Id y Api Key
+  - gmda_Updatefunction() en un Step, y gmda_manageResponses() para leer
+    los eventos
+  - Regiones y modos son OPCIONALES. Sin ellos todos van a un pool global y
+    no hay nada que configurar. Si los declaras, esas claves si tienen que
+    existir en la configuracion del juego en el panel.
+
+
+------------------------------------------------------------------------
+ EL FLUJO MINIMO
+------------------------------------------------------------------------
+
+  1. gmda_matchmakingSetSocket(socket, puerto)   una vez, al arrancar
+  2. gmda_matchmakingJoin()                      entrar a la cola
+  3. evento matchmaking_found                    hay rival
+  4. gmda_matchmakingConfirm()                   aceptar (o auto_accept)
+  5. evento con all_ready                        aceptaron todos
+  6. conectas con tu netcode
+  7. gmda_matchmakingMatchStarted()              arranco el combate
+  8. gmda_matchmakingMatchEnded()                termino
+
+Entre el 7 y el 8 el plugin late solo contra el servidor y vigila la
+conexion de todos. No tenes que llamar nada mas.
+
+
+------------------------------------------------------------------------
+ COLA
+------------------------------------------------------------------------
+
+gmda_matchmakingJoin([options])
+    Entra a la cola. options es un struct y TODO en el es opcional:
+      { team_size: 2, region: "eu", mode: "ranked",
+        metadata: {...}, auto_accept: true }
+
+    team_size es por equipo: 1 = 1v1, 2 = 2v2, hasta 8. Default 1.
+
+    Sin region ni mode vas al pool GLOBAL: emparejas con cualquiera del juego.
+    Son filtros, no requisitos — declaralos solo si de verdad queres separar
+    jugadores. Las claves que si declares tienen que existir en el panel.
+
+    Las formas viejas siguen funcionando:
+      gmda_matchmakingJoin(team_size, options)
+      gmda_matchmakingJoin(team_size, region, [mode], [metadata], [auto_accept])
+    auto_accept true confirma el match sin preguntar; false (default)
+    espera a que llames a gmda_matchmakingConfirm() antes de que se acabe
+    la cuenta regresiva del servidor.
+    Es una eleccion de cada cliente: jugar contra alguien con el ajuste
+    contrario funciona igual.
+    -> evento matchmaking_joined
+
+gmda_matchmakingLeave()
+    Sale de la cola. Seguro de llamar aunque no estes encolado.
+    -> evento matchmaking_left
+
+gmda_matchmakingCancel()
+    Cancela un match ya encontrado. A diferencia de Leave, esto tumba el
+    match para todos los participantes.
+    -> evento matchmaking_cancelled
+
+gmda_matchmakingStatus()
+    Pregunta el estado. Se llama solo mientras estas en cola, asi que rara
+    vez hace falta invocarlo a mano salvo al abrir el juego, para saber
+    si quedaste encolado de una sesion anterior.
+    -> evento matchmaking_status, o matchmaking_found si ya hay rival
+
+gmda_matchmakingIsInQueue()      1 si estas buscando
+gmda_matchmakingGetTicket()      id del ticket, "" si no hay
+gmda_matchmakingGetPosition()    lugar en la cola (1 = primero)
+gmda_matchmakingGetTeamSize()    jugadores por equipo
+gmda_matchmakingGetRegion()      region del ticket actual
+gmda_matchmakingGetMode()        modo del ticket actual
+gmda_matchmakingGetAutoAccept()  1 si este cliente confirma solo
+
+gmda_matchmakingClear()
+    Olvida la busqueda local: sin ticket, sin cola, sin match. Para cuando
+    el servidor dejo de responder y el estado viejo bloquearia una busqueda
+    nueva. NO habla con el servidor: acompanalo de Leave o Cancel para
+    liberar el ticket tambien.
+
+
+------------------------------------------------------------------------
+ MATCH ENCONTRADO Y ACEPTACION
+------------------------------------------------------------------------
+
+gmda_matchmakingIsFound()        1 si hay match esperando
+gmda_matchmakingConfirm()        acepta el match
+gmda_matchmakingIsConfirmed()    1 si YA aceptaste
+gmda_matchmakingIsReady()        1 cuando aceptaron todos: se puede jugar
+
+gmda_matchmakingConfirmTimeLeft()
+    Milisegundos que quedan para aceptar. El valor lo mide el servidor
+    desde que se creo el match, asi que todos los jugadores ven la misma
+    cuenta sin importar cuando preguntaron ni como este su reloj.
+
+gmda_matchmakingGetConfirmedPlayers()
+    Array con los player_id que ya aceptaron. Sirve para tildar a cada
+    jugador en pantalla en vez de mostrar solo un contador.
+
+gmda_matchmakingPlayersReady()   cuantos aceptaron
+gmda_matchmakingPlayersNeeded()  cuantos hacen falta
+
+gmda_matchmakingGetAllOpponents()
+    Array de { ip, port, player_id, player_name, slot }.
+    El slot es el asiento en el match: quien tiene el 0 hace de anfitrion.
+
+gmda_matchmakingGetOpponent(indice)   uno solo, -1 si te pasaste
+gmda_matchmakingGetOpponentCount()    cuantos son
+
+gmda_matchmakingTakeCancelled()
+    1 UNA sola vez si el match se cayo — se acabo el tiempo de aceptar, o
+    alguien cancelo. Consume la marca al leerla, para que no haya forma de
+    leerla y olvidarse de limpiarla.
+
+Si nadie acepta a tiempo el servidor tumba el match por su cuenta. Quien
+si acepto puede volver a la cola; quien no acepto, no.
+
+
+------------------------------------------------------------------------
+ CONEXION ENTRE JUGADORES
+------------------------------------------------------------------------
+
+gmda_matchmakingSetSocket(socket, [puerto])
+    Le presta al plugin el socket UDP que ya usa tu netcode. Llamalo una
+    vez, despues de crear ese socket y antes de entrar a la cola.
+
+    Tiene que ser EL MISMO socket del juego. Si el plugin abriera uno
+    propio, tu router le asignaria otro puerto y a los rivales les llegaria
+    una direccion desde la que el juego nunca envia.
+
+    Con eso el plugin reporta tu puerto al encolarte y avisa al reflector
+    donde estas realmente, que es lo que permite que dos jugadores en redes
+    distintas se encuentren.
+
+    Sin llamarlo el matchmaking funciona igual; lo que queda librado al
+    azar es la conexion P2P.
+
+gmda_matchmakingHasRelay()       1 si el servidor ofrece relay
+gmda_matchmakingGetRelayHost()   host del relay
+gmda_matchmakingGetRelayPort()   puerto del relay
+gmda_matchmakingGetSlot()        tu asiento en el match
+
+    Cuando hay relay, apunta tu netcode al relay en lugar de a la direccion
+    del rival: el servidor reenvia los paquetes de un lado al otro y cada
+    jugador ve al otro viviendo en esa direccion.
+
+    Es lo unico que funciona siempre. Un telefono en datos moviles no tiene
+    direccion alcanzable, y muchos routers hogarenos tampoco dejan entrar
+    un paquete de un desconocido. Con relay los dos extremos hablan hacia
+    afuera, que es lo que cualquier NAT permite.
+
+    Ademas los jugadores dejan de verse las IP entre si.
+
+gmda_matchmakingGetRelayToken()  credencial del relay
+    Rara vez la necesitas: el plugin la usa por dentro. Es una credencial,
+    no la muestres ni la compartas.
+
+
+------------------------------------------------------------------------
+ PARTIDA EN CURSO
+------------------------------------------------------------------------
+
+Esta parte existe porque un netcode con rollback, si dejan de llegar
+inputs, simplemente se detiene a esperarlos. Sin nadie vigilando, el
+jugador que se quedo solo mira una pantalla congelada sin saber por que.
+
+gmda_matchmakingMatchStarted()
+    Avisa que arranco el combate. Libera el ticket de la cola (ya cumplio;
+    dejarlo vivo hace que el proximo matchmaking devuelva esta misma
+    partida ya jugada) y empieza a latir contra el servidor.
+
+gmda_matchmakingMatchEnded()
+    El combate termino, o el jugador se fue. Corta los latidos y saca la
+    partida de "en curso" en el panel.
+
+gmda_matchmakingIsInMatch()      1 mientras haya combate vigilado
+
+gmda_matchmakingGetPeers()
+    Array de { player_id, player_name, ms_left, gone } con el estado de
+    todos. ms_left es la gracia que le queda a ese jugador antes de contar
+    como desconectado.
+
+gmda_matchmakingPeerTimeLeft()
+    Milisegundos que quedan antes de que la partida se cierre por
+    desconexion. DEVUELVE 0 MIENTRAS ESTA TODO BIEN:
+
+      var _left = gmda_matchmakingPeerTimeLeft();
+      if (_left > 0) { ...oscurecer y mostrar la cuenta regresiva... }
+
+    Entre latido y latido la gracia de cualquiera baja aunque este bien
+    conectado; eso ya esta descontado. Solo cuenta cuando alguien lleva
+    callado de verdad, y baja frame a frame.
+
+gmda_matchmakingMatchWasClosed() 1 si la partida se cerro por desconexion
+
+Cuando a alguien se le acaba la gracia, el servidor cierra la partida y
+todos los clientes se enteran en su siguiente latido. El plugin emite
+matchmaking_match_closed y ahi tu juego termina el combate.
+
+
+------------------------------------------------------------------------
+ EVENTOS (leelos con gmda_manageResponses)
+------------------------------------------------------------------------
+
+matchmaking_joined         entraste a la cola
+matchmaking_status         actualizacion de la cola
+matchmaking_found          hay rival. Los datos estan en GetAllOpponents()
+matchmaking_confirmed      tu aceptacion fue registrada
+matchmaking_left           saliste de la cola
+matchmaking_cancelled      el match se cancelo
+matchmaking_peer_status    llega en cada latido, con la conexion de todos
+matchmaking_match_closed   alguien se desconecto: termina el combate
+matchmaking_match_ended    el servidor dejo de contar la partida
+
+Todos traen success. Cuando es false, error explica el motivo.
+
+
+------------------------------------------------------------------------
+ ERRORES FRECUENTES
+------------------------------------------------------------------------
+
+"invalid_region" / "invalid_mode"
+    Esa clave no existe en la configuracion de matchmaking del juego.
+    Creala en el panel; distingue mayusculas.
+
+403 al encolarse
+    O el plan del dueno del juego no incluye matchmaking, o el matchmaking
+    esta apagado para ese juego en el panel. El mensaje distingue cual.
+
+Encuentra rival pero nunca conecta
+    Falta gmda_matchmakingSetSocket(), o el servidor no tiene relay
+    configurado. Sin ninguna de las dos cosas, la conexion solo funciona en
+    LAN o cuando los dos routers cooperan.
+
+Se queda esperando para siempre cuando alguien se va
+    Falta gmda_matchmakingMatchStarted(). Sin eso nadie late y nadie se
+    entera de que el otro se fue.
+
+En HTML5 encuentra rival pero no arranca el combate
+    Un navegador no puede abrir un socket UDP; es una restriccion del
+    sandbox, no del plugin ni de GameMaker. El matchmaking anda porque va
+    por HTTP; la conexion entre jugadores necesita otro transporte.

@@ -1,0 +1,24 @@
+(Good GameMaker Rollback - Credits)
+(Last Modified: 8/13/2024)
+
+
+[Yosi Spring (Josiah Chen)] - Code, Sprites
+	<https://yosispring.github.io>
+
+[BumiBomber] - Stage Art, Moveset Design, Sprites
+	<https://twitter.com/Bumibombers>
+
+-----------------------------------------------------------------------------------
+
+[Special Thanks]:
+- Meseta <https://twitter.com/mesetatron>
+- Yellow Afterlife <https://twitter.com/YellowAfterlife>
+- Kingston Simmons
+- Spadster <https://www.youtube.com/channel/UCNBPA3YzIkIb1NwjwtWam-w>
+
+-----------------------------------------------------------------------------------
+
+[Extra Information]:
+- Join the Platform Fighter Engine / GGMR Discord: <https://discordapp.com/invite/kTX3pug>
+- Store Page: <https://springrollgames.itch.io/ggmr>
+- Patreon: <https://www.patreon.com/YosiSpring>

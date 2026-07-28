@@ -1,0 +1,18 @@
+
+
+🎉 Welcome to GGMR Sample Project! 🎉
+
+
+- Got questions about GGMR?
+	Check out the FAQ file in the project folder
+
+- Trying to find a script, sprite, or object?
+	1. Use the search bar in the Asset Browser
+	2. Use the Ctrl + T keyboard shortcut
+	3. Use Ctrl + Shift + F to globally search through all lines of code
+
+- Unsure about the license terms?
+	Read the license file in the project folder
+	
+- Do you need more specific help, or want to talk to other developers?
+	Join the Platform Fighter Engine Discord Server: https://discord.gg/kTX3pug
