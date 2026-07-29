@@ -5,9 +5,9 @@ It is called once at the start of the game and sets up all character-specific va
 function blocky_character_init()
 	{
 	//Properties
-	walk_speed = 7;
-	dash_speed = 15;
-	dash_time = 15;
+	walk_speed = 6;
+	dash_speed = 13;
+	dash_time = 30;
 	jump_hsp = 8;
 	jump_vsp = -26;
 	grav = 1.2;
@@ -28,12 +28,17 @@ function blocky_character_init()
 	sprites[$ "walk_forward"	] = spr_blocky_walk;
 	sprites[$ "walk_backward"	] = spr_blocky_walk;
 	sprites[$ "dash"			] = spr_blocky_dash;
+	sprites[$ "dash_left"		] = spr_blocky_dash_left;
 	sprites[$ "jump_forward"	] = spr_blocky_jump;
 	sprites[$ "jump"			] = spr_blocky_jump;
 	sprites[$ "jump_backward"	] = spr_blocky_jump_backward;
 	sprites[$ "hitstun_ground"	] = spr_blocky_hitstun_ground;
 	sprites[$ "hitstun_aerial"	] = spr_blocky_hitstun_aerial;
 	sprites[$ "knockdown"		] = spr_blocky_knockdown;
+	sprites[$ "acostado"		] = spr_blocky_acostado;
+    sprites[$ "runkick"		    ] = spr_blocky_runkick; 
+    sprites[$ "high_block"		] = spr_blocky_defenza_alta;
+    sprites[$ "low_block"		] = spr_blocky_defenza_baja; 
 	
 	//Attack scripts
 	attacks[$ "light_ground"	] = blocky_light_ground;

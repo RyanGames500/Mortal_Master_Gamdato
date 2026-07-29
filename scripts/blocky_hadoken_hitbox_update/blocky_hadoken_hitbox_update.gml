@@ -49,7 +49,9 @@ function blocky_hadoken_hitbox_update()
 				if ((state == PLAYER_STATE.walk_backward || state == PLAYER_STATE.blockstun) && stick_check_direction(STICK_DIR.backward) && !other.low)
 					{
 					//Middle / High block
-					player_state_set(PLAYER_STATE.blockstun);
+                    anim_sprite = sprites[$ "high_block"];  
+                    //anim_speed = 0;					
+					player_state_set(PLAYER_STATE.blockstun);   					
 					player_damage(other.damage * block_multiplier);
 					state_frame = other.hitlag + ceil(other.hitstun * block_multiplier);
 					other.owner.block_pushback = other.knockback * facing;
@@ -57,7 +59,9 @@ function blocky_hadoken_hitbox_update()
 				else if ((state == PLAYER_STATE.crouch || state == PLAYER_STATE.blockstun) && stick_check_direction(STICK_DIR.backward_down) && !other.high)
 					{
 					//Middle / Low block
-					player_state_set(PLAYER_STATE.blockstun);
+                    anim_sprite = sprites[$ "low_block"];  
+                    //anim_speed = 0; 					
+					player_state_set(PLAYER_STATE.blockstun);					
 					player_damage(other.damage * block_multiplier);
 					state_frame = other.hitlag + ceil(other.hitstun * block_multiplier);
 					other.owner.block_pushback = other.knockback * facing;

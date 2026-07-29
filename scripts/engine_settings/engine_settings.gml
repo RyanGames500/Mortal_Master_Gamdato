@@ -8,12 +8,15 @@ This script runs when the game starts and sets up important constants and global
 #macro knockback_friction		0.9 //{real} The friction multiplier on horizontal knockback.
 #macro block_pushback_friction	0.7 //{real} The friction multiplier on block pushback.
 #macro block_multiplier			0.25 //{real} The damage and hitstun multiplier for blocked attacks.
-#macro show_hitboxes			false //{bool} Whether hitboxes and hurtboxes are visible or not.
+#macro show_hitboxes			true //{bool} Whether hitboxes and hurtboxes are visible or not.
 #macro throw_input_leniency		2 //{int} How many frames at the start of normal attacks can be canceled into throws.
 #macro motion_input_leniency	25 //{int} The maximum number of frames you can take to do a motion input.
 #macro motion_input_array_size	10 //{int} How many stick directions are stored to detect motion inputs.
 #macro dash_input_leniency		15 //{int} How many frames are checked for double tap dash inputs.
 #macro match_time				99 //{int} How many seconds each match can last.
+#macro anim_walk_speed          0.2//{real} the velocity from walk animation
+#macro anim_idle_speed          0.1//{real} the velocity from idle animation
+#macro anim_run_speed          0.2//{real} the velocity from idle animation
 
 //Replays
 #macro replay_record			true //{bool} Whether to record replays of matches or not.		

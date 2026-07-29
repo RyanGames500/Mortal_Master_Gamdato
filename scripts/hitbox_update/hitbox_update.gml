@@ -59,6 +59,8 @@ function hitbox_update()
 						{
 						//Middle / High block
 						player_state_set(PLAYER_STATE.blockstun);
+						anim_sprite = sprites[$ "high_block"];  
+						//anim_speed = 0;							
 						player_damage(other.damage * block_multiplier);
 						state_frame = other.hitlag + ceil(other.hitstun * block_multiplier);
 						other.owner.block_pushback = other.knockback * facing;
@@ -67,6 +69,8 @@ function hitbox_update()
 						{
 						//Middle / Low block
 						player_state_set(PLAYER_STATE.blockstun);
+						anim_sprite = sprites[$ "low_block"];  
+						//anim_speed = 0;							
 						player_damage(other.damage * block_multiplier);
 						state_frame = other.hitlag + ceil(other.hitstun * block_multiplier);
 						other.owner.block_pushback = other.knockback * facing;

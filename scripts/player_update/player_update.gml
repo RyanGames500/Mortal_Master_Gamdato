@@ -163,7 +163,7 @@ function player_update(_inputs_array)
 				{
 				//Animation
 				anim_sprite = sprites[$ "dash"];
-				anim_speed = anim_speed_default;
+				anim_speed = anim_run_speed;
 				
 				//Speed
 				vsp = 0;
@@ -179,7 +179,28 @@ function player_update(_inputs_array)
 					}
 				}
 			break;
-			
+
+			case PLAYER_STATE.dash_left:
+				{
+				//Animation
+				anim_sprite = sprites[$ "dash_left"];
+				anim_speed = anim_speed_default;
+				
+				//Speed
+				vsp = 0;
+				player_move();
+				
+				//Idle
+				if (state_frame == 0)
+					{
+					hsp = 0;
+					vsp = 0;
+					player_state_set(PLAYER_STATE.idle);
+					break;
+					}
+				}
+			break; 
+
 			case PLAYER_STATE.grabbed:
 				{
 				//Animation
@@ -281,7 +302,7 @@ function player_update(_inputs_array)
 				{
 				//Animation
 				anim_sprite = sprites[$ "idle"];
-				anim_speed = anim_speed_default;
+				anim_speed = anim_idle_speed;
 				player_face_opponent();
 				
 				//Jumping
@@ -339,7 +360,7 @@ function player_update(_inputs_array)
 				{
 				//Animation
 				anim_sprite = sprites[$ "walk_backward"];
-				anim_speed = anim_speed_default;
+				anim_speed = anim_walk_speed;
 				player_face_opponent();
 
 				//Idle
@@ -354,14 +375,14 @@ function player_update(_inputs_array)
 				if (attack_allow_ground()) then break;
 				
 				//Dash
-				if (input_motion_check([STICK_DIR.backward, STICK_DIR.neutral, STICK_DIR.backward], dash_input_leniency))
-					{
-					player_state_set(PLAYER_STATE.dash);
-					state_frame = dash_time;
-					hsp = -dash_speed * facing;
-					vsp = 0;
-					break;
-					}
+				//if (input_motion_check([STICK_DIR.backward, STICK_DIR.neutral, STICK_DIR.backward], dash_input_leniency))
+				//	{
+				//	player_state_set(PLAYER_STATE.dash_left);
+				//	state_frame = dash_time;
+				//	hsp = -dash_speed * facing;
+				//	vsp = 0;
+				//	break;
+				//	}
 			
 				//Movement
 				hsp = -walk_speed * facing;
@@ -373,7 +394,7 @@ function player_update(_inputs_array)
 				{
 				//Animation
 				anim_sprite = sprites[$ "walk_forward"];
-				anim_speed = anim_speed_default;
+				anim_speed = anim_walk_speed;
 				player_face_opponent();
 				
 				//Idle

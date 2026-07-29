@@ -19,6 +19,7 @@ enum PLAYER_STATE
 	aerial,
 	crouch,
 	dash,
+	dash_left,
 	blockstun,
 	hitstun_ground,
 	hitstun_aerial,
