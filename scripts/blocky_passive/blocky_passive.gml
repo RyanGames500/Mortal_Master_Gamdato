@@ -5,7 +5,7 @@ It is run every frame and allows motion input attacks to be performed.
 function blocky_passive()
 	{
 	//Hadoken input
-	//Only check for it during certain states
+	/*Only check for it during certain states
 	if (state == PLAYER_STATE.idle ||
 		state == PLAYER_STATE.crouch ||
 		state == PLAYER_STATE.walk_forward ||
@@ -25,6 +25,29 @@ function blocky_passive()
 					}
 				}
 			}
+		}*/
+		
+     //Runkick input
+	//Only check for it during certain states
+	if (state == PLAYER_STATE.idle ||
+		state == PLAYER_STATE.crouch ||
+		state == PLAYER_STATE.walk_forward ||
+		state == PLAYER_STATE.dash ||
+		(state == PLAYER_STATE.attacking && state_time < 5 && bbox_bottom >= obj_ground.y))
+		{
+		//Quarter circle motion
+		if (input_motion_check([STICK_DIR.backward, STICK_DIR.forward]))
+			{
+			if (input_pressed(INPUT.attack_light) || input_pressed(INPUT.attack_heavy))
+				{
+				if (attack_script != blocky_runkick)
+					{
+					attack_stop();
+					attack_start(blocky_runkick);
+					return;
+					}
+				}
+			}
 		}
-	}
+}		
 /* Copyright 2024 Springroll Games / Yosi */

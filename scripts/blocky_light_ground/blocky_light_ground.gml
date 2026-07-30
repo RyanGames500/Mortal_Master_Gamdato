@@ -43,7 +43,7 @@ function blocky_light_ground(_override_phase)
 				attack_phase = 1;
 				attack_frame = 12; // 12 frames para mostrar progresivamente anim_frame 3 y 4
 				
-				var _hitbox = hitbox_create(64, 0, 1.2, 0.3, 3, 4);
+				var _hitbox = hitbox_create(64, -40, 1.2, 0.3, 5, 4);
 				_hitbox.knockback = 5;
 				}
 			
@@ -103,7 +103,7 @@ function blocky_light_ground(_override_phase)
 				attack_phase = 3;
 				attack_frame = 12; // Tiempo para anim_frame 10 y 11
 				
-				var _hitbox = hitbox_create(70, -12, 1.2, 0.3, 4, 4);
+				var _hitbox = hitbox_create(70, -30, 1.2, 0.3, 5, 4);
 				_hitbox.knockback = 5;
 				}
 			
@@ -161,7 +161,7 @@ function blocky_light_ground(_override_phase)
 				attack_phase = 5;
 				attack_frame = 12; // Endlag para lucir la pose final (14 y 15)
 				
-				var _hitbox = hitbox_create(92, -11, 1.2, 0.5, 5, 4);
+				var _hitbox = hitbox_create(64, -40, 1.2, 0.3, 10, 4);
 				_hitbox.launch_speed = 10;
 				}
 				

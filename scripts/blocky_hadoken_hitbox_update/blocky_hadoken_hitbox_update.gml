@@ -94,7 +94,7 @@ function blocky_hadoken_hitbox_update()
 					hsp = other.knockback * other.owner.facing;
 					
 					//Effects
-					obj_game.cam_shake = other.damage * 0.25;
+					obj_game.cam_shake = other.damage * 0.75;
 					}
 				}
 			

@@ -3,7 +3,7 @@ Spawn both players into the room, and give them the correct player numbers.
 */
 function game_players_spawn()
 	{
-	var _spawn_distance = 128;
+	var _spawn_distance = 258;//128
 	
 	//Create the first player
 	var _player = instance_create_layer((room_width div 2) - _spawn_distance, obj_ground.y, layer, obj_player);

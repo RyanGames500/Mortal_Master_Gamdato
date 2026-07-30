@@ -103,7 +103,7 @@ function hitbox_update()
 						hsp = other.knockback * other.owner.facing;
 						
 						//Effects
-						obj_game.cam_shake = other.damage * 0.25;
+						obj_game.cam_shake = other.damage * 0.75;
 						if (other.damage > 10)
 							{
 							var _action_lines = instance_create_layer(x, y, "VFX_Layer", obj_vfx_action_lines);

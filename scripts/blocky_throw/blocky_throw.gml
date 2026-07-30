@@ -115,7 +115,7 @@ function blocky_throw(_override_phase)
 				{
 				attack_connected = false;
 				_other_player.y = ceil(obj_ground.y - (_other_player.bbox_bottom - _other_player.y));
-				var _hitbox = hitbox_create(11, -8, 0.8, 1.5, 1, 4);
+				var _hitbox = hitbox_create(11, -8, 0.8, 1.5, 15, 4);
 				_hitbox.knockback = 15;
 				_hitbox.launch_speed = 15;
 				attack_phase = 3;
