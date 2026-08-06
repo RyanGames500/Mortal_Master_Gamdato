@@ -9,6 +9,8 @@ function player_damage(_damage, _player = id)
 		{
 		hp_prev = hp;
 		hp = max(ceil(hp - _damage), 0);
+		
+		meter = clamp(meter + (_damage * 0.5), 0, meter_max);
 		}
 	}
 

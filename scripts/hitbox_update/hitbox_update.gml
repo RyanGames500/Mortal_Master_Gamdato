@@ -64,6 +64,7 @@ function hitbox_update()
 						player_damage(other.damage * block_multiplier);
 						state_frame = other.hitlag + ceil(other.hitstun * block_multiplier);
 						other.owner.block_pushback = other.knockback * facing;
+						meter = clamp(meter + 2, 0, meter_max);
 						}
 					else if ((state == PLAYER_STATE.crouch || state == PLAYER_STATE.blockstun) && stick_check_direction(STICK_DIR.backward_down) && !other.high)
 						{
@@ -74,6 +75,7 @@ function hitbox_update()
 						player_damage(other.damage * block_multiplier);
 						state_frame = other.hitlag + ceil(other.hitstun * block_multiplier);
 						other.owner.block_pushback = other.knockback * facing;
+						meter = clamp(meter + 2, 0, meter_max);//sumar un poco de super a ambos
 						}
 					//Hit
 					else
@@ -100,6 +102,7 @@ function hitbox_update()
 						player_damage(other.damage);
 						state_frame = other.hitstun;
 						hitlag_frame = other.hitlag;
+						meter = clamp(meter + 8, 0, meter_max);//suma puntos a la barra de especiales
 						hsp = other.knockback * other.owner.facing;
 						
 						//Effects

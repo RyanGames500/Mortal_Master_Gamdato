@@ -23,7 +23,7 @@ if (game_meta_state == GAME_META_STATE.ending)
 	draw_set_halign(fa_center);
 	draw_set_valign(fa_center);
 	draw_set_color(c_black);
-	var _text = "GAME";
+	var _text = "KO";
 	draw_text((camera_width div 2) + 6, camera_height div 2, _text);
 	draw_text((camera_width div 2) - 6, camera_height div 2, _text);
 	draw_text(camera_width div 2, (camera_height div 2) + 6, _text);
@@ -32,7 +32,7 @@ if (game_meta_state == GAME_META_STATE.ending)
 	draw_text(camera_width div 2, camera_height div 2, _text);
 	}
 
-//Player HP bars
+//Player HP bars & Meter bars
 with (obj_player)
 	{
 	var _margin = 16;
@@ -40,22 +40,29 @@ with (obj_player)
 	var _hp_bar_width = 400;
 	var _hp_bar_height = 32;
 	
+	// Dimensiones para la barra de especial
+	var _meter_bar_width = 300; // Un poco más corta que la de vida (se ve excelente visualmente)
+	var _meter_bar_height = 14;
+	var _meter_y = _margin + _hp_bar_height + (_pad * 2) + 4; // Se dibuja justo debajo de la barra de HP
+	
 	if (player_number == 0)
 		{
+		// Barra de Vida P1
 		draw_hp_bar((camera_width div 2) - (_margin * 3), _margin, _hp_bar_width, _hp_bar_height, _pad, hp, hp_prev, hp_max, -1);
+		
+		// Barra de Meter P1
+		draw_meter_bar((camera_width div 2) - (_margin * 3), _meter_y, _meter_bar_width, _meter_bar_height, _pad, meter, meter_max, -1);
 		}
 	else
 		{
+		// Barra de Vida P2
 		draw_hp_bar((camera_width div 2) + (_margin * 3), _margin, _hp_bar_width, _hp_bar_height, _pad, hp, hp_prev, hp_max, 1);
+		
+		// Barra de Meter P2
+		draw_meter_bar((camera_width div 2) + (_margin * 3), _meter_y, _meter_bar_width, _meter_bar_height, _pad, meter, meter_max, 1);
 		}
 
-	//Name under each bar. GGMR already carries every client's name, and those
-	//names are the Gamdato account ones: our own comes from global.online_name
-	//and the opponent's travelled in the join packet. So there is nothing to
-	//cross-reference against the matchmaking data.
-	//
-	//Offline there is no network session, and the generic labels are correct
-	//there: no accounts are involved.
+	//Name under each bar.
 	var _label = (player_number == 0) ? "P1" : "P2";
 	if (global.online_mode && instance_exists(obj_ggmr_session))
 		{
@@ -68,9 +75,9 @@ with (obj_player)
 
 	draw_set_font(fnt_menu);
 	draw_set_valign(fa_top);
-	//Each name anchors to the OUTER end of its bar, so it grows towards the
-	//screen edge and does not invade the centre when it is long.
-	var _ny = _margin + _hp_bar_height + 4;
+	
+	// Ajustamos la posición Y de los nombres para que queden debajo de ambas barras
+	var _ny = _meter_y + _meter_bar_height + (_pad * 2) + 4;
 	if (player_number == 0)
 		{
 		draw_set_halign(fa_left);
@@ -82,8 +89,7 @@ with (obj_player)
 		var _nx = (camera_width div 2) + (_margin * 3) + _hp_bar_width;
 		}
 
-	//Outline, because the stage background changes colour and flat text gets
-	//lost over the bright areas.
+	//Outline
 	draw_set_color(c_black);
 	draw_text(_nx + 2, _ny + 2, _label);
 	draw_text(_nx - 2, _ny + 2, _label);

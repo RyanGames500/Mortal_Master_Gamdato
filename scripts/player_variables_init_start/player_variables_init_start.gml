@@ -24,6 +24,9 @@ function player_variables_init_start()
 	
 	hp = 0;
 	hp_prev = 0;
+	//barra de especiales, super y EX
+	meter = 0;
+	meter_max = 100;
 	
 	attack_script = -1;
 	attack_frame = 0;

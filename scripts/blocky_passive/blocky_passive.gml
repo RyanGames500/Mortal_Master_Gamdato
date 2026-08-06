@@ -4,6 +4,8 @@ It is run every frame and allows motion input attacks to be performed.
 */
 function blocky_passive()
 	{
+	var _special_cost = 25;	
+		
 	//Hadoken input
 	/*Only check for it during certain states
 	if (state == PLAYER_STATE.idle ||
@@ -38,10 +40,11 @@ function blocky_passive()
 		//Quarter circle motion
 		if (input_motion_check([STICK_DIR.backward, STICK_DIR.forward]))
 			{
-			if (input_pressed(INPUT.attack_light) || input_pressed(INPUT.attack_heavy))
+			if (input_pressed(INPUT.attack_light2) || input_pressed(INPUT.attack_heavy))
 				{
-				if (attack_script != blocky_runkick)
+				if (attack_script != blocky_runkick && meter >= _special_cost)
 					{
+					meter -= _special_cost;	
 					attack_stop();
 					attack_start(blocky_runkick);
 					return;

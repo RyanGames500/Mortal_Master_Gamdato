@@ -15,6 +15,8 @@ function blocky_character_init()
 	hp_max = 150;
 	
 	sprite_scale = 6;
+	//dara tamaño personalizado a cada har desd aqui
+	//meter_max = 100; /150 default 100:perzonalizdo
 	
 	//Environmental collision box
 	sprite_index = spr_blocky_ecb;

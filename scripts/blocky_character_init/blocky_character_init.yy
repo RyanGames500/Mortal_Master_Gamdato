@@ -5,7 +5,7 @@
   "isDnD": false,
   "isCompatibility": false,
   "parent": {
-    "name": "Blocky",
-    "path": "folders/Characters/Blocky.yy",
+    "name": "Joe",
+    "path": "folders/Characters/Joe.yy",
   },
 }
