@@ -23,17 +23,18 @@ pad_v = 0;          // -1, 0, 1  (positive = down, same as the keyboard's S)
 light_pressed = false;
 heavy_pressed = false;
 pause_pressed = false;
-
+light_pressed2 = false;
 //Last frame's held state, to derive the edge. The game's attacks use
 //keyboard_check_PRESSED: sending the held state would make a resting finger
 //fire the attack on every frame.
 light_down = false;
+light_down2 = false;
 heavy_down = false;
 pause_down = false;
 light_prev = false;
 heavy_prev = false;
 pause_prev = false;
-
+light_prev2 = false;
 //--- Geometry (GUI coordinates, recomputed in case the screen rotates) ---
 pad_x = 0;
 pad_y = 0;
@@ -50,6 +51,8 @@ heavy_y = 0;
 pause_x = 0;
 pause_y = 0;
 pause_r = 0;
+light_x2 = 0;
+light_y2 = 0;
 
 layout = function()
 	{
@@ -73,6 +76,9 @@ layout = function()
 	pause_r = _unit * 0.045;
 	pause_x = _gw - pause_r * 1.6;
 	pause_y = pause_r * 1.6;
+	
+	light_x2 = heavy_x - btn_r * 2.3;
+	light_y2 = _gh - btn_r * 3.5;	
 	};
 
 layout();

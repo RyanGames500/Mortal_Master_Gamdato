@@ -20,6 +20,7 @@ function input_collect_local(_buffer, _player_number)
 	var _attack_light = false;
 	var _attack_heavy = false;
 	var _pause = false;
+	var _attack_light2 = false;
 	
 	//Collect the inputs from the keyboard and the controller
 	var _rl = sign(keyboard_check(ord("D")) - keyboard_check(ord("A")));
@@ -48,8 +49,9 @@ function input_collect_local(_buffer, _player_number)
 	else if (abs(angle_difference(_angle, 270)) <= 22.5) then _stick_dir = STICK_DIR.down;
 	
 	_attack_light = keyboard_check_pressed(ord("J")) || gamepad_button_check_pressed(0, gp_face1);
-	_attack_heavy = keyboard_check_pressed(ord("K")) || gamepad_button_check_pressed(0, gp_face2);
+	_attack_heavy = keyboard_check_pressed(ord("L")) || gamepad_button_check_pressed(0, gp_face2);
 	_pause = keyboard_check_pressed(vk_backspace) || gamepad_button_check_pressed(0, gp_start);
+	_attack_light2 = keyboard_check_pressed(ord("K")) || gamepad_button_check_pressed(0, gp_face3);
 
 	//Touch pad attacks. The object already delivers a one-frame edge, just like
 	//keyboard_check_pressed, so it adds straight in.
@@ -58,6 +60,7 @@ function input_collect_local(_buffer, _player_number)
 		_attack_light = _attack_light || obj_mobile_controls.light_pressed;
 		_attack_heavy = _attack_heavy || obj_mobile_controls.heavy_pressed;
 		_pause = _pause || obj_mobile_controls.pause_pressed;
+		_attack_light2 = _attack_light2 || obj_mobile_controls.light_pressed2;
 		}
 	
 	//Accumulate inputs in the buffer
@@ -66,6 +69,7 @@ function input_collect_local(_buffer, _player_number)
 	if (_attack_light) then buffer_poke(_buffer, 1, buffer_bool, _attack_light);
 	if (_attack_heavy) then buffer_poke(_buffer, 2, buffer_bool, _attack_heavy);
 	if (_pause) then buffer_poke(_buffer, 3, buffer_bool, _pause);
+	if (_attack_light2) then buffer_poke(_buffer, 4, buffer_bool, _attack_light2);
 	
 	return;
 	}

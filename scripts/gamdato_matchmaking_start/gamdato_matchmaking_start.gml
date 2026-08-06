@@ -19,14 +19,16 @@ function gamdato_matchmaking_start()
 		instance_create_depth(0, 0, -9999, obj_matchmaking_search);
 		}
 
-	//The overlay reuses these if it has to go back to the queue
 	obj_matchmaking_search.mm_team_size = _team_size;
 	obj_matchmaking_search.mm_auto_accept = _auto;
 
-	//Lends Gamdato the netcode socket, so opponents get an address that can be
-	//reached from another network
+	// Aseguramos que GGMR tenga un socket valido creado antes de entregarselo a GAMDATO
 	if (instance_exists(obj_ggmr_net))
 		{
+		if (obj_ggmr_net.net_socket == -1)
+			{
+			ggmr_net_init(); // O la funcion de inicializar la red de GGMR en tu motor
+			}
 		gmda_matchmakingSetSocket(obj_ggmr_net.net_socket, real(obj_ggmr_net.net_port));
 		}
 

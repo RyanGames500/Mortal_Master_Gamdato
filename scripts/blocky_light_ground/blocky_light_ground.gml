@@ -12,7 +12,7 @@ function blocky_light_ground(_override_phase)
 			anim_frame = 0;
 			anim_speed = 0; // Determinista: cero image_speed para el rollback
 			
-			attack_frame = 6; // Startup: 6 frames para cubrir anim_frame 0 y 1
+			attack_frame = 5; // Startup ligeramente más ágil (antes 6)
 			
 			hsp = 0;
 			vsp = 0;
@@ -33,7 +33,7 @@ function blocky_light_ground(_override_phase)
 				return;
 				}
 			
-			// Transición fluida de startup (Frame 0 -> Frame 1)
+			// Transición fluida de startup
 			if (attack_frame == 3) then anim_frame = 1;
 			
 			// Impacto del 1er golpe -> Frame 2 visual
@@ -41,7 +41,7 @@ function blocky_light_ground(_override_phase)
 				{
 				anim_frame = 2; 
 				attack_phase = 1;
-				attack_frame = 12; // 12 frames para mostrar progresivamente anim_frame 3 y 4
+				attack_frame = 10; // Reducido de 12 a 10 (mantiene ritmo sin acelerar de golpe)
 				
 				var _hitbox = hitbox_create(64, -40, 1.2, 0.3, 5, 4);
 				_hitbox.knockback = 5;
@@ -56,22 +56,22 @@ function blocky_light_ground(_override_phase)
 			{
 			attack_frame--;
 			
-			// Cadencia suave: 4 frames por cada imagen visual
-			if (attack_frame == 8) then anim_frame = 3;
-			if (attack_frame == 4) then anim_frame = 4;
+			// Cadencia ajustada proporcionalmente
+			if (attack_frame == 7) then anim_frame = 3;
+			if (attack_frame == 3) then anim_frame = 4;
 			
 			player_move();
 			
-			// Cancelación al 2do Golpe
-			if (attack_frame < 10 && attack_connected)
+			// Cancelación al 2do Golpe (Mantiene la ventana amplia para no saltar inmediatamente)
+			if (attack_frame < 8 && attack_connected)
 				{
 				if (input_pressed(INPUT.attack_light, true))
 					{
 					attack_connected = false;
 					
-					anim_frame = 5; // Pasa suavemente a la imagen 5
+					anim_frame = 5; 
 					attack_phase = 2;
-					attack_frame = 12; // Tiempo para recorrer 5 -> 6 -> 7 -> 8 de forma uniforme
+					attack_frame = 10; // Reducido de 12 a 10
 					hsp = 7 * facing;
 					}
 				}
@@ -91,17 +91,17 @@ function blocky_light_ground(_override_phase)
 			{
 			attack_frame--;
 			
-			// Recorrido cuadro por cuadro perfecto (3 frames por sub-imagen)
-			if (attack_frame == 9) then anim_frame = 6;
-			if (attack_frame == 6) then anim_frame = 7;
-			if (attack_frame == 3) then anim_frame = 8;
+			// Recorrido cuadro por cuadro
+			if (attack_frame == 7) then anim_frame = 6;
+			if (attack_frame == 5) then anim_frame = 7;
+			if (attack_frame == 2) then anim_frame = 8;
 			
 			// Impacto del 2do golpe -> Frame 9 visual
 			if (attack_frame == 0)
 				{
 				anim_frame = 9; 
 				attack_phase = 3;
-				attack_frame = 12; // Tiempo para anim_frame 10 y 11
+				attack_frame = 10; // Reducido de 12 a 10
 				
 				var _hitbox = hitbox_create(70, -30, 1.2, 0.3, 5, 4);
 				_hitbox.knockback = 5;
@@ -116,25 +116,25 @@ function blocky_light_ground(_override_phase)
 			{
 			attack_frame--;
 			
-			if (attack_frame == 8) then anim_frame = 10;
-			if (attack_frame == 4) then anim_frame = 11;
+			if (attack_frame == 7) then anim_frame = 10;
+			if (attack_frame == 3) then anim_frame = 11;
 			
-			if (attack_frame == 8)
+			if (attack_frame == 7)
 				{
 				hsp = 0;
 				}
 			player_move();
 			
-			// Cancelación al 3er Golpe
-			if (attack_frame < 10 && attack_connected)
+			// Cancelación al 3er Golpe (Pausa natural antes de dar el remate)
+			if (attack_frame < 8 && attack_connected)
 				{
 				if (input_pressed(INPUT.attack_light, true))
 					{
 					attack_connected = false;
 					
-					anim_frame = 12; // Pasa a la preparación del remate
+					anim_frame = 12; 
 					attack_phase = 4;
-					attack_frame = 4; // Startup corto antes del impacto final
+					attack_frame = 4; // Se restaura el startup original de 4 frames para dar peso al remate
 					hsp = 10 * facing;
 					}
 				}
@@ -159,7 +159,7 @@ function blocky_light_ground(_override_phase)
 				{
 				anim_frame = 13; 
 				attack_phase = 5;
-				attack_frame = 12; // Endlag para lucir la pose final (14 y 15)
+				attack_frame = 10; // Reducido de 12 a 10
 				
 				var _hitbox = hitbox_create(64, -40, 1.2, 0.3, 10, 4);
 				_hitbox.launch_speed = 10;
@@ -174,10 +174,10 @@ function blocky_light_ground(_override_phase)
 			{
 			attack_frame--;
 			
-			if (attack_frame == 8) then anim_frame = 14;
-			if (attack_frame == 4) then anim_frame = 15;
+			if (attack_frame == 7) then anim_frame = 14;
+			if (attack_frame == 3) then anim_frame = 15;
 			
-			if (attack_frame == 8)
+			if (attack_frame == 7)
 				{
 				hsp = 0;
 				}

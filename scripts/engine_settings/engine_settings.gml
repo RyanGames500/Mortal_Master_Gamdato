@@ -27,7 +27,7 @@ global.replay_mode =			false //{bool} Whether replay mode is enabled or not.
 //Inputs
 #macro input_store_length		6 //{int} The number of frames an input lasts.
 #macro input_store_max			30 //{int} The max number of frames into the past an input can be stored.
-#macro input_buffer_bytes		4 //{int} How many bytes are used to store inputs for each player.
+#macro input_buffer_bytes		5 //{int} How many bytes are used to store inputs for each player.
 
 //Camera
 #macro camera_index				view_camera[0] //{int} The index of the camera being used.

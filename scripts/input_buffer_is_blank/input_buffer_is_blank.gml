@@ -9,6 +9,7 @@ function input_buffer_is_blank(_buffer)
 	if (buffer_read(_buffer, buffer_bool) != false) then return false;
 	if (buffer_read(_buffer, buffer_bool) != false) then return false;
 	if (buffer_read(_buffer, buffer_bool) != false) then return false;
+	if (buffer_read(_buffer, buffer_bool) != false) then return false;
 	
 	return true;
 	}

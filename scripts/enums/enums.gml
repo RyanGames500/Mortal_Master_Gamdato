@@ -38,6 +38,7 @@ enum INPUT
 	attack_light,
 	attack_heavy,
 	pause,
+	attack_light2,
 	
 	LENGTH,
 	}

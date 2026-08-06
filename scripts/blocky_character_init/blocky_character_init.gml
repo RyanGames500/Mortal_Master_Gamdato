@@ -12,7 +12,7 @@ function blocky_character_init()
 	jump_vsp = -26;
 	grav = 1.2;
 	
-	hp_max = 100;
+	hp_max = 150;
 	
 	sprite_scale = 6;
 	
@@ -42,6 +42,7 @@ function blocky_character_init()
 	
 	//Attack scripts
 	attacks[$ "light_ground"	] = blocky_light_ground;
+	attacks[$ "light_ground2"	] = blocky_light_ground2;
 	attacks[$ "light_crouch"	] = blocky_light_crouch;
 	attacks[$ "light_aerial"	] = blocky_light_aerial;
 	attacks[$ "heavy_ground"	] = blocky_heavy_ground;

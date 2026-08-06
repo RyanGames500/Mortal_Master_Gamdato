@@ -19,6 +19,7 @@ function cpu_input_script(_buffer, _player_number)
 	var _attack_light = false;
 	var _attack_heavy = false;
 	var _pause = false;
+	var _attack_light2 = false;
 	
 	//Control stick - choose a random direction
 	_stick_dir = choose_weighted
@@ -54,12 +55,17 @@ function cpu_input_script(_buffer, _player_number)
 		{
 		_attack_heavy = true;
 		}
+	if (irandom(100) < 2)
+		{
+		_attack_light2 = true;
+		}		
 	
 	//Write inputs to the buffer
 	buffer_write(_buffer, buffer_u8, _stick_dir);
 	buffer_write(_buffer, buffer_bool, _attack_light);
 	buffer_write(_buffer, buffer_bool, _attack_heavy);
 	buffer_write(_buffer, buffer_bool, _pause);
+	buffer_write(_buffer, buffer_bool, _attack_light2);
 	}
 
 /* Copyright 2024 Springroll Games / Yosi */

@@ -227,11 +227,45 @@ while (!is_undefined(_e)) {
 	// =====================================================================
 	//  DOWNLOADABLE CONTENT
 	// =====================================================================
-	case "content_list_loaded":  // gmda_listGameContent / gmda_syncAlwaysDownload -> { response.items }
-	case "content_loaded":       // gmda_getGameContent / sync fetches -> { tag: key, response }
-	case "bootstrap_loaded":     // gmda_getBootstrap -> { response } (all always_download in one envelope)
-	case "content_sync_complete":// gmda_syncAlwaysDownload finished every per-key fetch
-	gmda_logResponse(_e);
+	case "bootstrap_loaded": 
+		if (_e.success) {
+			global.game_bootstrap_data = _e.response;
+			show_debug_message("[DLC] Bootstrap cargado OK");
+		} else {
+			gmda_logResponse(_e);
+		}
+	break;
+
+	case "content_loaded": 
+		if (_e.success) {
+			var _key = variable_struct_exists(_e, "tag") ? string(_e.tag) : "";
+			var _content = _e.response;
+			
+			show_debug_message("[DLC] Contenido recibido para la clave: " + _key);
+
+			// Creamos el almacenamiento global si no existe
+			if (!variable_global_exists("dlc_content_store")) {
+				global.dlc_content_store = {};
+			}
+
+			// Guardamos el contenido usando la clave (ej: "dlc" o "gaby_pack")
+			if (_key != "") {
+				global.dlc_content_store[$ _key] = _content;
+			}
+		} else {
+			// Si falla (por ejemplo error 500 o falta de conexion), se loguea el error
+			gmda_logResponse(_e);
+			
+			// Le avisamos al boton para que no se quede colgado en "DESCARGANDO..."
+			if (instance_exists(obj_dlc_character_button)) {
+				obj_dlc_character_button.state = "locked";
+			}
+		}
+	break;
+
+	case "content_list_loaded": 
+	case "content_sync_complete":
+		gmda_logResponse(_e);
 	break;
 
 	// =====================================================================

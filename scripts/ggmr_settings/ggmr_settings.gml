@@ -1,59 +1,59 @@
 ///@category GGMR
 /* 
-Initializes all of the constants used by GGMR.
-This script automatically runs at the start of the game.
+Inicializa todas las constantes utilizadas por GGMR.
+Este script se ejecuta automáticamente al inicio del juego.
 */
-#macro GGMR_DEBUG_LOG							false //{bool} Whether the game should draw the debug messages to the screen and print them in the output or not.
-#macro GGMR_DEBUG_LOG_SIZE						10 //{int} The number of logged messages to keep.
-#macro GGMR_NET_DEBUG_OVERLAY					false //{bool} Whether the game should draw the NET debug overlay or not.
-#macro GGMR_SESSION_DEBUG_OVERLAY				false //{bool} Whether the game should draw the session debug overlay or not.
-#macro GGMR_CUSTOM_DEBUG_OVERLAY				false //{bool} Whether the game should draw the custom debug overlay or not.
+#macro GGMR_DEBUG_LOG							false //{bool} Si el juego debe dibujar los mensajes de depuración en pantalla e imprimirlos en la consola o no.
+#macro GGMR_DEBUG_LOG_SIZE						10 //{int} El número de mensajes registrados que se mantendrán guardados.
+#macro GGMR_NET_DEBUG_OVERLAY					false //{bool} Si el juego debe dibujar la superposición de depuración de RED (NET) o no.
+#macro GGMR_SESSION_DEBUG_OVERLAY				false //{bool} Si el juego debe dibujar la superposición de depuración de la sesión o no.
+#macro GGMR_CUSTOM_DEBUG_OVERLAY				false //{bool} Si el juego debe dibujar la superposición de depuración personalizada o no.
 
-#macro GGMR_ONLINE_INDICATOR					false //{bool} Whether the game should draw the online indicator in the bottom right corner or not.
-#macro GGMR_CONNECTION_COUNTER					false //{bool} Whether the game should draw the connection counter in the bottom right corner or not.
+#macro GGMR_ONLINE_INDICATOR					true //{bool} Si el juego debe dibujar el indicador en línea en la esquina inferior derecha o no.
+#macro GGMR_CONNECTION_COUNTER					true //{bool} Si el juego debe dibujar el contador de conexiones en la esquina inferior derecha o no.
 
-#macro GGMR_PLAYERS_MIN							2 //{int} Minimum number of players that can be either local or remote for a game to start.
-#macro GGMR_PLAYERS_MAX							2 //{int} Maximum number of players that can be either local or remote.
-#macro GGMR_SPECTATORS_MAX						6 //{int} Maximum number of players that can connect as spectators.
-#macro GGMR_MEMBERS_MAX							8 //{int} The maximum number of members that can be in a lobby.
-#macro GGMR_CLIENTS_MAX							GGMR_MEMBERS_MAX //{int} The maximum number of clients that can be in a session.
+#macro GGMR_PLAYERS_MIN							2 //{int} Número mínimo de jugadores (locales o remotos) necesarios para iniciar una partida.
+#macro GGMR_PLAYERS_MAX							2 //{int} Número máximo de jugadores que pueden ser locales o remotos.
+#macro GGMR_SPECTATORS_MAX						6 //{int} Número máximo de jugadores que pueden conectarse como espectadores.
+#macro GGMR_MEMBERS_MAX							8 //{int} El número máximo de miembros que pueden estar en un lobby.
+#macro GGMR_CLIENTS_MAX							GGMR_MEMBERS_MAX //{int} El número máximo de clientes que pueden estar en una sesión.
 
-#macro GGMR_PREDICTION_FRAMES_MAX				10 //{int} How many frames the game can go without input before stalling.
-#macro GGMR_INPUT_DELAY_MIN						-5 //{int} The minimum number of frames of input delay the game can set.
-#macro GGMR_INPUT_DELAY_DEFAULT					2 //{int} The default input delay the game will use.
-#macro GGMR_INPUT_DELAY_MAX						10 //{int} The maximum number of frames of input delay the game can set.
+#macro GGMR_PREDICTION_FRAMES_MAX				10 //{int} Cuántos frames puede avanzar el juego sin recibir entrada (input) antes de pausarse/congelarse.
+#macro GGMR_INPUT_DELAY_MIN						-5 //{int} El número mínimo de frames de retraso de entrada (input delay) que el juego puede establecer.
+#macro GGMR_INPUT_DELAY_DEFAULT					2 //{int} El retraso de entrada predeterminado que usará el juego.
+#macro GGMR_INPUT_DELAY_MAX						10 //{int} El número máximo de frames de retraso de entrada que el juego puede establecer.
 
-#macro GGMR_LOBBY_TIMEOUT						360 //{int} How many frames lobbies will wait before disconnecting if members aren't sending packets.
-#macro GGMR_LOBBY_JOIN_TIMEOUT					300 //{int} How many frames join requests last before expiring.
+#macro GGMR_LOBBY_TIMEOUT						360 //{int} Cuántos frames esperarán los lobbies antes de desconectar si los miembros no están enviando paquetes.
+#macro GGMR_LOBBY_JOIN_TIMEOUT					300 //{int} Cuántos frames duran las solicitudes de unirse antes de expirar.
 
-#macro GGMR_PORT								63568 //{int} The port GGMR uses for all connections.
+#macro GGMR_PORT								63568 //{int} El puerto que usa GGMR para todas las conexiones.
 
-#macro GGMR_NET_PING_ARRAY_SIZE					10 //{int} How many ping values are stored at once to calculate the average ping.
-#macro GGMR_NET_PING_INTERVAL					100 //{int} The number of frames between each ping.
+#macro GGMR_NET_PING_ARRAY_SIZE					10 //{int} Cuántos valores de ping se almacenan a la vez para calcular el ping promedio.
+#macro GGMR_NET_PING_INTERVAL					100 //{int} El número de frames entre cada envío de ping.
 
-#macro GGMR_RIFT_SLOW_THRESHOLD					2.5 //{real} How many frames ahead the game can be before it slows down.
-#macro GGMR_RIFT_SLOW_INTERVAL					7 //{int} How many frames must pass before the game can drop a frame.
-#macro GGMR_RIFT_ACCEL_THRESHOLD				-1.5 //{real} How many frames behind the game can be before it speeds up.
-#macro GGMR_RIFT_ACCEL_INTERVAL					4 //{int} How many frames must pass before the game can run multiple frames at once.
-#macro GGMR_RIFT_ARRAY_SIZE						10 //{int} How many rift values are stored at once to calculate the average rift.
+#macro GGMR_RIFT_SLOW_THRESHOLD					2.5 //{real} Cuántos frames adelantado puede estar el juego antes de desacelerar.
+#macro GGMR_RIFT_SLOW_INTERVAL					7 //{int} Cuántos frames deben pasar antes de que el juego pueda omitir/descartar un frame.
+#macro GGMR_RIFT_ACCEL_THRESHOLD				-1.5 //{real} Cuántos frames atrasado puede estar el juego antes de acelerar.
+#macro GGMR_RIFT_ACCEL_INTERVAL					4 //{int} Cuántos frames deben pasar antes de que el juego pueda ejecutar múltiples frames a la vez.
+#macro GGMR_RIFT_ARRAY_SIZE						10 //{int} Cuántos valores de desfasaje (rift) se almacenan a la vez para calcular el desfasaje promedio.
 
-#macro GGMR_SESSION_START_TIMER					15 //{int} The default number of frames the session waits before starting. The actual number will vary based on the calculated ping to the leader.
-#macro GGMR_SESSION_DEBUG_FILENAME				"GGMR_DEBUG_STATS.txt" //{string} The file name to write debug stats to.
-#macro GGMR_SESSION_DESYNC_TEST_INTERVAL		30 //{int} The number of frames between each check for desyncs. If a desync is detected, the session immediately ends.
-#macro GGMR_SESSION_FRAME_SKIP_ENABLED			true //{bool} Whether the game can advance frames without rendering if the game is running under 60fps or not.
-#macro GGMR_SESSION_DISCONNECT_TIME				5000 //{int} The number of milliseconds the game can go without receiving packets before disconnecting. Disconnections are checked for every 60 frames.
+#macro GGMR_SESSION_START_TIMER					15 //{int} El número predeterminado de frames que espera la sesión antes de iniciar. El número real variará según el ping calculado con el líder.
+#macro GGMR_SESSION_DEBUG_FILENAME				"GGMR_DEBUG_STATS.txt" //{string} El nombre del archivo donde se escribirán las estadísticas de depuración.
+#macro GGMR_SESSION_DESYNC_TEST_INTERVAL		30 //{int} El número de frames entre cada comprobación de desincronización (desync). Si se detecta un desync, la sesión termina inmediatamente.
+#macro GGMR_SESSION_FRAME_SKIP_ENABLED			true //{bool} Si el juego puede avanzar frames sin renderizarlos cuando el juego corre a menos de 60fps o no.
+#macro GGMR_SESSION_DISCONNECT_TIME				5000 //{int} El número de milisegundos que el juego puede pasar sin recibir paquetes antes de desconectarse. Las desconexiones se comprueban cada 60 frames.
 
-#macro GGMR_SPECTATOR_FRAMES					3 //{int} The number of frames to send to spectators every step. Sending more frames means spectators won't freeze if they miss a few packets.
-#macro GGMR_SPECTATOR_ACCEL_THRESHOLD			3 //{int} The number of frames behind a spectator can be before speeding up.
+#macro GGMR_SPECTATOR_FRAMES					3 //{int} El número de frames a enviar a los espectadores en cada paso (step). Enviar más frames evita que los espectadores se congelen si pierden algunos paquetes.
+#macro GGMR_SPECTATOR_ACCEL_THRESHOLD			3 //{int} El número de frames atrasado que puede estar un espectador antes de acelerar.
 
-#macro GGMR_SESSION_GC_DURING_FRAME_DROPS		true //{bool} Whether the game should run the garbage collector when waiting for the opponent's game to catch up or not.
-#macro GGMR_SESSION_GC_DURING_ROLLBACKS			false //{bool} Whether the game should run the garbage collector when a rollback occurs or not.
-#macro GGMR_SESSION_GC_DURING_NONROLLBACKS		false //{bool} Whether the game should run the garbage collector on non-rollback frames or not.
-#macro GGMR_SESSION_GC_AUTO_DISABLE				false //{bool} Whether the game should disable the automatic garbage collection or not.
+#macro GGMR_SESSION_GC_DURING_FRAME_DROPS		true //{bool} Si el juego debe ejecutar el recolector de basura (garbage collector) cuando espera a que el juego del oponente se ponga al día o no.
+#macro GGMR_SESSION_GC_DURING_ROLLBACKS			false //{bool} Si el juego debe ejecutar el recolector de basura cuando ocurre un rollback o no.
+#macro GGMR_SESSION_GC_DURING_NONROLLBACKS		false //{bool} Si el juego debe ejecutar el recolector de basura en frames que no sean de rollback o no.
+#macro GGMR_SESSION_GC_AUTO_DISABLE				false //{bool} Si el juego debe desactivar la recolección automática de basura o no.
 
-#macro GGMR_CHAT_BLOCK_UNKNOWN_SENDERS			true //{bool} Whether the chat should ignore messages from IP and port combinations that aren't in the net connection list.
+#macro GGMR_CHAT_BLOCK_UNKNOWN_SENDERS			true //{bool} Si el chat debe ignorar los mensajes de combinaciones de IP y puerto que no estén en la lista de conexiones de red.
 
-//Player values
+//Valores del Jugador / Cliente
 enum GGMR_CLIENT 
 	{
 	connection,
@@ -68,28 +68,28 @@ enum GGMR_CLIENT
 	finished,
 	}
 
-//Connection types
+//Tipos de Conexión
 enum GGMR_LOCATION_TYPE 
 	{
 	local,
 	remote,
 	}
 
-//Player types
+//Tipos de Jugador
 enum GGMR_CLIENT_TYPE 
 	{
 	player,
 	spectator,
 	}
 
-//Prediction types
+//Tipos de Predicción
 enum GGMR_PREDICTION_TYPE 
 	{
 	copy,
 	template,
 	}
 
-//GGMR Events
+//Eventos de GGMR
 enum GGMR_EVENT 
 	{
 	prediction_limit_reached,
@@ -99,7 +99,7 @@ enum GGMR_EVENT
 	input_check_blank,
 	}
 
-//Frame values
+//Valores del Frame
 enum GGMR_FRAME 
 	{
 	number,
@@ -112,14 +112,14 @@ enum GGMR_FRAME
 	times_ran,
 	}
 
-//Lobby states
+//Estados del Lobby
 enum GGMR_LOBBY_STATE 
 	{
 	idle,
 	joining,
 	}
 
-//Session states
+//Estados de la Sesión
 enum GGMR_SESSION_STATE 
 	{
 	start,
@@ -128,7 +128,7 @@ enum GGMR_SESSION_STATE
 	disconnected,
 	}
 
-//Networking
+//Red / Paquetes
 enum GGMR_PACKET_TYPE 
 	{
 	//Lobby
@@ -142,11 +142,11 @@ enum GGMR_PACKET_TYPE
 	sync,
 	kick,
 	
-	//NET
+	//RED (NET)
 	ping,
 	pong,
 	
-	//Session
+	//Sesión
 	input,
 	finished,
 	desync_data,
@@ -154,18 +154,18 @@ enum GGMR_PACKET_TYPE
 	input_delay_request,
 	input_delay,
 	
-	//Custom
+	//Personalizado
 	custom_heartbeat,
 	custom_data,
 	
 	//Chat
 	chat_message,
 	
-	//Not part of GGMR
-	ignore = 123, //123 is the code for the "{" character, which is the start of a JSON string.
+	//No es parte de GGMR
+	ignore = 123, //123 es el código para el carácter "{", que indica el inicio de una cadena JSON.
 	}
 
-//Member values
+//Valores de los Miembros del Lobby
 enum GGMR_LOBBY_MEMBER 
 	{
 	connection,
@@ -176,7 +176,7 @@ enum GGMR_LOBBY_MEMBER
 	location,
 	}
 	
-//Lobby status codes
+//Códigos de Estado del Lobby
 enum GGMR_LOBBY_STATUS
 	{
 	ok,
@@ -186,7 +186,7 @@ enum GGMR_LOBBY_STATUS
 	too_many_members,
 	}
 	
-//Join request values
+//Valores de Solicitud para Unirse al Lobby
 enum GGMR_LOBBY_JOIN_REQUEST 
 	{
 	ip,
@@ -195,22 +195,22 @@ enum GGMR_LOBBY_JOIN_REQUEST
 	silence,
 	}
 
-//Globals
+//Globales
 function ggmr_globals()
 	{
 	static properties = 
 		{
-		//Session
-		session_start_time :			0, //{real} The number of milliseconds the session will wait before starting, in an attempt to start all players at the same time.
+		//Sesión
+		session_start_time :			0, //{real} El número de milisegundos que esperará la sesión antes de iniciar, en un intento de arrancar a todos los jugadores al mismo tiempo.
 		};
 	return properties;
 	}
 
-#region Constants
-#macro GGMR_RELATIVE_FRAME				(GGMR_PREDICTION_FRAMES_MAX + 1) //{int} The index in the frames array that is the current frame.
-#macro GGMR_MAX_FRAMES_STORED			(GGMR_PREDICTION_FRAMES_MAX + 1 + GGMR_INPUT_DELAY_MAX + 1) //{int} The length of the frames array.
-#macro GGMR_BLANK_PORT					0 //{int} The "blank" port.
-#macro GGMR_BLANK_IP					"0.0.0.0" //{string} The "blank" IP address.
+#region Constantes
+#macro GGMR_RELATIVE_FRAME				(GGMR_PREDICTION_FRAMES_MAX + 1) //{int} El índice en la matriz de frames que corresponde al frame actual.
+#macro GGMR_MAX_FRAMES_STORED			(GGMR_PREDICTION_FRAMES_MAX + 1 + GGMR_INPUT_DELAY_MAX + 1) //{int} La longitud total de la matriz de frames almacenados.
+#macro GGMR_BLANK_PORT					0 //{int} El puerto "en blanco" o nulo.
+#macro GGMR_BLANK_IP					"0.0.0.0" //{string} La dirección IP "en blanco" o nula.
 #endregion
 
 /* Copyright 2024 Springroll Games / Yosi */

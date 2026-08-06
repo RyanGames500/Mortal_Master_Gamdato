@@ -42,6 +42,12 @@ draw_set_alpha(0.9);
 draw_set_color(c_black);
 draw_text(heavy_x, heavy_y, "B");
 
+draw_set_alpha(light_down2 ? _live : _idle);
+draw_set_color(c_white);
+draw_circle(light_x2, light_y2, btn_r, false);
+draw_set_alpha(0.9);
+draw_set_color(c_black);
+draw_text(light_x2, light_y2, "C");
 //--- Pause ---
 draw_set_alpha(pause_down ? _live : _idle);
 draw_set_color(c_white);

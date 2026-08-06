@@ -32,6 +32,14 @@ function player_update(_inputs_array)
 		{
 		inputs[@ INPUT.pause] = input_store_max;
 		}
+	if (buffer_read(_buffer, buffer_bool))
+		{
+		inputs[@ INPUT.attack_light2] = 0;
+		}
+	else
+		{
+		inputs[@ INPUT.attack_light2] = min(inputs[@ INPUT.attack_light2] + 1, input_store_max);
+		}		
 	
 	//Pausing the game
 	if (inputs[@ INPUT.pause] == 0)

@@ -3,7 +3,7 @@
 if (!active)
 	{
 	pad_h = 0; pad_v = 0;
-	light_pressed = false; heavy_pressed = false; pause_pressed = false;
+	light_pressed = false; heavy_pressed = false; pause_pressed = false; light_pressed2 = false;
 	exit;
 	}
 
@@ -12,8 +12,11 @@ layout();
 light_prev = light_down;
 heavy_prev = heavy_down;
 pause_prev = pause_down;
+light_prev2 = light_down2;
+
 
 light_down = false;
+light_down2 = false;
 heavy_down = false;
 pause_down = false;
 
@@ -50,7 +53,11 @@ for (var i = 0; i < 5; i++)
 		pause_down = true;
 		continue;
 		}
-
+	if (point_distance(_mx, _my, light_x, light_y) <= btn_r * 3.25)
+		{
+		light_down2 = true;
+		continue;
+		}
 	//The pad accepts a finger from well beyond its drawn radius, and takes the
 	//first one landing on the left half of the screen. That way the player does
 	//not have to look for the pad: they rest their thumb roughly where it
@@ -105,3 +112,4 @@ else
 light_pressed = light_down && !light_prev;
 heavy_pressed = heavy_down && !heavy_prev;
 pause_pressed = pause_down && !pause_prev;
+light_pressed2 = light_down2 && !light_prev2;
