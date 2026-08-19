@@ -80,4 +80,13 @@ else
 
 ggmr_session_finalize();
 
+//sistema de rondas
+// Rondas
+rounds_to_win = 2; // Cantidad de rondas para ganar el match (Mejor de 3)
+p1_wins = 0;
+p2_wins = 0;
+round_restart_frame = 0;
+// Transición de pantalla entre rondas
+fade_alpha = 0.0;
+
 /* Copyright 2024 Springroll Games / Yosi */

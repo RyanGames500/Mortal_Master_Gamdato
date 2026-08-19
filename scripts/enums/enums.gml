@@ -6,6 +6,7 @@ enum GAME_META_STATE
 	starting,
 	running,
 	ending,
+	round_restart
 	}
 
 /*
@@ -25,6 +26,8 @@ enum PLAYER_STATE
 	hitstun_aerial,
 	grabbed,
 	attacking,
+	knockdown,
+	acostado,
 	
 	LENGTH,
 	}

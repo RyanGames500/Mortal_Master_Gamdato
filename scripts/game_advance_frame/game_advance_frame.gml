@@ -53,6 +53,14 @@ function game_advance_frame(_inputs_array, _relative_frame = undefined)
 		//Starting up the game / character intros
 		if (game_meta_state == GAME_META_STATE.starting)
 			{
+			fade_alpha = clamp(fade_alpha - 0.05, 0.0, 1.0);
+			with (obj_player)
+				{
+				// Mantiene activa la velocidad de animación durante la cuenta regresiva
+				anim_frame += (anim_speed * anim_speed_default);
+				}	
+			//actualizar posicion de camara	
+			camera_update();
 			if (--starting_frame <= 0)
 				{
 				game_meta_state = GAME_META_STATE.running;
@@ -98,18 +106,100 @@ function game_advance_frame(_inputs_array, _relative_frame = undefined)
 			//Ending the game if anyone wins
 			game_end_conditions();
 			}
-		//Ending sequence
+		else if (game_meta_state == GAME_META_STATE.round_restart)
+			{
+			// Simulación activa de físicos y animaciones
+			with_synced_object
+				(
+				obj_player,
+				player_update,
+				_inputs_array,
+				);
+			
+			with_synced_object(obj_hurtbox, hurtbox_update);
+			with_synced_object(obj_hitbox, hitbox_update);
+			with_synced_object(obj_vfx, vfx_update);
+			camera_update();
+
+			// El fundido a negro solo se activa al final de la espera
+			if (round_restart_frame <= 35)
+				{
+				fade_alpha = clamp(fade_alpha + 0.05, 0.0, 1.0);
+				}
+
+			if (--round_restart_frame <= 0)
+				{
+				// Limpiar proyectiles y efectos restantes
+				with (obj_hitbox) instance_destroy();
+				with (obj_vfx) instance_destroy();
+			
+				// Resetear a los jugadores
+				with (obj_player)
+					{
+					x = xstart;
+					y = ystart;
+					facing = (player_number == 0) ? 1 : -1;
+					hp = hp_max;
+					hp_prev = hp_max;
+					hsp = 0;
+					vsp = 0;
+					
+					attack_stop();
+					player_state_set(PLAYER_STATE.idle);
+					state_frame = 0;
+					state_time = 0;
+					
+					anim_sprite = sprites[$ "idle"];
+					sprite_index = anim_sprite;
+					anim_frame = 0;
+					anim_speed = anim_speed_default;
+					}
+			
+				// Reubicación de cámara
+				var _mean_x = (room_width div 2);
+				cam_x = clamp(_mean_x - (camera_width div 2), 0, room_width - camera_width);
+				cam_y = clamp(obj_ground.y - (camera_height div 2), 0, room_height - camera_height);
+				cam_x_display = cam_x;
+				cam_y_display = cam_y;
+				cam_shake = 0.0;
+				camera_set_view_pos(camera_index, cam_x_display, cam_y_display);
+			
+				// Siguiente ronda
+				game_frame = 0;
+				starting_frame = 50 * 2;
+				game_meta_state = GAME_META_STATE.starting;
+				}
+			}
+		//Ending sequence (Victoria final de la pelea)
 		else if (game_meta_state == GAME_META_STATE.ending)
 			{
+			// 1. Mantener activas las animaciones, gravedad y cámara durante la victoria final
+			with_synced_object
+				(
+				obj_player,
+				player_update,
+				_inputs_array,
+				);
+			
+			with_synced_object(obj_hurtbox, hurtbox_update);
+			with_synced_object(obj_hitbox, hitbox_update);
+			with_synced_object(obj_vfx, vfx_update);
+			camera_update();
+
+			// 2. Fundido a negro progresivo antes de cerrar la sesión
+			if (ending_frame <= 35)
+				{
+				fade_alpha = clamp(fade_alpha + 0.05, 0.0, 1.0);
+				}
+
 			if (--ending_frame < 0)
 				{
-				//In replays, immediately end the game
+				// In replays, immediately end the game
 				if (global.replay_mode)
 					{
 					game_finish();
 					}
-				//In local or online matches, wait for the GGMR session to decide when to end the game
-				//You could also choose to only use GGMR for online matches, in which case local games would directly call <game_finish>.
+				// In local or online matches, wait for the GGMR session to decide when to end the game
 				else
 					{
 					ggmr_session_end();

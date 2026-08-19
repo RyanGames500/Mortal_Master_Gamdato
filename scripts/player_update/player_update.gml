@@ -431,6 +431,38 @@ function player_update(_inputs_array)
 				player_move();
 				}
 			break;
+
+			case PLAYER_STATE.knockdown:
+				{
+				anim_sprite = sprites[$ "knockdown"];
+				anim_speed = anim_idle_speed;
+				
+				// Usamos las variables nativas de física de tu motor
+				vsp += grav;
+				hsp *= knockback_friction;
+				player_move();
+				
+				// Al colisionar con el suelo (usando la verificación estándar del motor)
+				if (bbox_bottom >= obj_ground.y)
+					{
+					vsp = 0;
+					hsp = 0;
+					player_state_set(PLAYER_STATE.acostado);
+					break;
+					}
+				}
+			break;
+			
+			case PLAYER_STATE.acostado:
+				{
+				anim_sprite = sprites[$ "acostado"];
+				anim_speed = anim_speed_default;
+				
+				hsp = 0;
+				vsp = 0;
+				player_move();
+				}
+			break;
 			
 			default: show_error("Unknown player state (" + string(state) + ")", true); break;
 			}

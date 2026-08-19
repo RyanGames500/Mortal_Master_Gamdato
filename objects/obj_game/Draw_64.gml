@@ -1,35 +1,57 @@
-//Starting countdown
+////Starting countdown
+//if (game_meta_state == GAME_META_STATE.starting)
+//	{
+//	draw_set_font(fnt_countdown);
+//	draw_set_halign(fa_center);
+//	draw_set_valign(fa_center);
+	
+//	//Each number lasts for 50 frames (not 60 frames)
+//	var _num = ceil(starting_frame / 50);
+//	draw_set_color(c_black);
+//	draw_text((camera_width div 2) + 6, camera_height div 2, _num);
+//	draw_text((camera_width div 2) - 6, camera_height div 2, _num);
+//	draw_text(camera_width div 2, (camera_height div 2) + 6, _num);
+//	draw_text(camera_width div 2, (camera_height div 2) - 6, _num);
+//	draw_set_color(c_white);
+//	draw_text(camera_width div 2, camera_height div 2, _num);
+//	}
+
+//Ending countdown
+// Conteo de Rondas, "ROUND X" y "FIGHT!"
 if (game_meta_state == GAME_META_STATE.starting)
 	{
 	draw_set_font(fnt_countdown);
 	draw_set_halign(fa_center);
 	draw_set_valign(fa_center);
 	
-	//Each number lasts for 50 frames (not 60 frames)
-	var _num = ceil(starting_frame / 50);
-	draw_set_color(c_black);
-	draw_text((camera_width div 2) + 6, camera_height div 2, _num);
-	draw_text((camera_width div 2) - 6, camera_height div 2, _num);
-	draw_text(camera_width div 2, (camera_height div 2) + 6, _num);
-	draw_text(camera_width div 2, (camera_height div 2) - 6, _num);
-	draw_set_color(c_white);
-	draw_text(camera_width div 2, camera_height div 2, _num);
-	}
+	// Calcular número de ronda actual
+	var _current_round = p1_wins + p2_wins + 1;
+	var _text = "ROUND " + string(_current_round);
+	
+	// Si es la ronda decisiva
+	if (p1_wins == rounds_to_win - 1 && p2_wins == rounds_to_win - 1)
+		{
+		_text = "FINAL ROUND";
+		}
 
-//Ending countdown
-if (game_meta_state == GAME_META_STATE.ending)
-	{
-	draw_set_font(fnt_countdown);
-	draw_set_halign(fa_center);
-	draw_set_valign(fa_center);
-	draw_set_color(c_black);
-	var _text = "KO";
-	draw_text((camera_width div 2) + 6, camera_height div 2, _text);
-	draw_text((camera_width div 2) - 6, camera_height div 2, _text);
-	draw_text(camera_width div 2, (camera_height div 2) + 6, _text);
-	draw_text(camera_width div 2, (camera_height div 2) - 6, _text);
-	draw_set_color(c_white);
-	draw_text(camera_width div 2, camera_height div 2, _text);
+	// Mostrar "ROUND X" en los primeros frames, luego el número / "FIGHT!"
+	if (starting_frame > 50)
+		{
+		// Sombra negra
+		draw_set_color(c_black);
+		draw_text((camera_width div 2) + 4, (camera_height div 2) + 4, _text);
+		// Texto blanco
+		draw_set_color(c_white);
+		draw_text(camera_width div 2, camera_height div 2, _text);
+		}
+	else
+		{
+		// Momento de "FIGHT!"
+		draw_set_color(c_black);
+		draw_text((camera_width div 2) + 4, (camera_height div 2) + 4, "FIGHT!");
+		draw_set_color(#FFDD00); // Amarillo brillante
+		draw_text(camera_width div 2, camera_height div 2, "FIGHT!");
+		}
 	}
 
 //Player HP bars & Meter bars
@@ -95,6 +117,29 @@ with (obj_player)
 	draw_text(_nx - 2, _ny + 2, _label);
 	draw_set_color(c_white);
 	draw_text(_nx, _ny, _label);
+	
+	// Indicadores de Rondas Ganadas (Puntos de victoria)
+	var _dot_y = 65; // Altura Y donde se dibujan los puntos
+
+	// Puntos de P1 (Lado izquierdo)
+	for (var i = 0; i < obj_game.rounds_to_win; i++)
+		{
+		var _dot_x = (camera_width div 2) - 80 - (i * 20);
+		var _color = (obj_game.p1_wins > i) ? #FFDD00 : c_dkgray; // Amarillo si ganó, gris si no
+	
+		draw_circle_color(_dot_x, _dot_y, 6, _color, _color, false);
+		draw_circle_color(_dot_x, _dot_y, 6, c_black, c_black, true); // Borde negro
+		}
+
+	// Puntos de P2 (Lado derecho)
+	for (var i = 0; i < obj_game.rounds_to_win; i++)
+		{
+		var _dot_x = (camera_width div 2) + 80 + (i * 20);
+		var _color = (obj_game.p2_wins > i) ? #FFDD00 : c_dkgray;
+	
+		draw_circle_color(_dot_x, _dot_y, 6, _color, _color, false);
+		draw_circle_color(_dot_x, _dot_y, 6, c_black, c_black, true);
+		}
 	}
 
 //Timer
@@ -127,4 +172,13 @@ if (game_paused)
 	draw_text(camera_width div 2, camera_height div 2, "PAUSED");
 	}
 
+
+// Efecto de Transición (Fade to Black)
+if (fade_alpha > 0)
+	{
+	draw_set_alpha(fade_alpha);
+	draw_set_color(c_black);
+	draw_rectangle(0, 0, camera_width, camera_height, false);
+	draw_set_alpha(1.0); // Resetear el alfa general para no afectar otros dibujos
+	}
 /* Copyright 2024 Springroll Games / Yosi */
