@@ -17,7 +17,7 @@ function attack_allow_ground()
 
 	if (input_pressed(INPUT.attack_light2))
 		{
-		attack_start(attacks[$ "light_ground2"]);
+		attack_start(attacks[$ "medium_ground"]);
 		return true;
 		}
 

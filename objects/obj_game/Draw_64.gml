@@ -63,28 +63,38 @@ with (obj_player)
 	var _hp_bar_height = 32;
 	
 	// Dimensiones para la barra de especial
-	var _meter_bar_width = 300; // Un poco más corta que la de vida (se ve excelente visualmente)
+	var _meter_bar_width = 300; 
 	var _meter_bar_height = 14;
-	var _meter_y = _margin + _hp_bar_height + (_pad * 2) + 4; // Se dibuja justo debajo de la barra de HP
+	var _meter_y = _margin + _hp_bar_height + (_pad * 2) + 4; 
 	
 	if (player_number == 0)
 		{
-		// Barra de Vida P1
+		// Barra de Vida y Meter P1
 		draw_hp_bar((camera_width div 2) - (_margin * 3), _margin, _hp_bar_width, _hp_bar_height, _pad, hp, hp_prev, hp_max, -1);
-		
-		// Barra de Meter P1
 		draw_meter_bar((camera_width div 2) - (_margin * 3), _meter_y, _meter_bar_width, _meter_bar_height, _pad, meter, meter_max, -1);
 		}
 	else
 		{
-		// Barra de Vida P2
+		// Barra de Vida y Meter P2
 		draw_hp_bar((camera_width div 2) + (_margin * 3), _margin, _hp_bar_width, _hp_bar_height, _pad, hp, hp_prev, hp_max, 1);
-		
-		// Barra de Meter P2
 		draw_meter_bar((camera_width div 2) + (_margin * 3), _meter_y, _meter_bar_width, _meter_bar_height, _pad, meter, meter_max, 1);
 		}
 
-	//Name under each bar.
+	// === CONFIGURAR ALINEACIÓN X DE LOS TEXTOS ===
+	draw_set_font(fnt_menu);
+	
+	if (player_number == 0)
+		{
+		draw_set_halign(fa_left); // Alineado a la izquierda para P1
+		var _nx = (camera_width div 2) - (_margin * 3) - _hp_bar_width;
+		}
+	else
+		{
+		draw_set_halign(fa_right); // Alineado a la derecha para P2
+		var _nx = (camera_width div 2) + (_margin * 3) + _hp_bar_width;
+		}
+
+	// 1. DIBUJAR P1 / P2 DEBAJO DE LAS BARRAS
 	var _label = (player_number == 0) ? "P1" : "P2";
 	if (global.online_mode && instance_exists(obj_ggmr_session))
 		{
@@ -95,50 +105,62 @@ with (obj_player)
 			}
 		}
 
-	draw_set_font(fnt_menu);
-	draw_set_valign(fa_top);
-	
-	// Ajustamos la posición Y de los nombres para que queden debajo de ambas barras
+	draw_set_valign(fa_top); // Hacia abajo
 	var _ny = _meter_y + _meter_bar_height + (_pad * 2) + 4;
-	if (player_number == 0)
-		{
-		draw_set_halign(fa_left);
-		var _nx = (camera_width div 2) - (_margin * 3) - _hp_bar_width;
-		}
-	else
-		{
-		draw_set_halign(fa_right);
-		var _nx = (camera_width div 2) + (_margin * 3) + _hp_bar_width;
-		}
-
-	//Outline
+	
+	// Sombra y texto de P1/P2
 	draw_set_color(c_black);
 	draw_text(_nx + 2, _ny + 2, _label);
 	draw_text(_nx - 2, _ny + 2, _label);
 	draw_set_color(c_white);
 	draw_text(_nx, _ny, _label);
 	
-	// Indicadores de Rondas Ganadas (Puntos de victoria)
-	var _dot_y = 65; // Altura Y donde se dibujan los puntos
-
-	// Puntos de P1 (Lado izquierdo)
-	for (var i = 0; i < obj_game.rounds_to_win; i++)
-		{
-		var _dot_x = (camera_width div 2) - 80 - (i * 20);
-		var _color = (obj_game.p1_wins > i) ? #FFDD00 : c_dkgray; // Amarillo si ganó, gris si no
 	
-		draw_circle_color(_dot_x, _dot_y, 6, _color, _color, false);
-		draw_circle_color(_dot_x, _dot_y, 6, c_black, c_black, true); // Borde negro
+	// 2. DIBUJAR NOMBRE DEL PERSONAJE DENTRO DE LA BARRA DE HP
+	if (variable_instance_exists(id, "character_name"))
+		{
+		draw_set_valign(fa_top);
+		
+		var _char_y = _margin + 4; // Ligeramente desplazado hacia abajo dentro de la barra
+		var _nx_inside = 0;
+		
+		if (player_number == 0)
+			{
+			draw_set_halign(fa_left);
+			_nx_inside = (camera_width div 2) - (_margin * 3) - _hp_bar_width + 12; // Offset interno P1
+			}
+		else
+			{
+			draw_set_halign(fa_right);
+			_nx_inside = (camera_width div 2) + (_margin * 3) + _hp_bar_width - 12; // Offset interno P2
+			}
+		
+		// Sombra y texto del personaje
+		draw_set_color(c_black);
+		draw_text(_nx_inside + 2, _char_y + 2, character_name);
+		draw_text(_nx_inside - 2, _char_y + 2, character_name);
+		draw_set_color(c_white); // Blanco para resaltar sobre el color de la barra
+		draw_text(_nx_inside, _char_y, character_name);
 		}
 
-	// Puntos de P2 (Lado derecho)
+
+	// === INDICADORES DE RONDAS GANADAS ===
+	var _dot_y = 65; 
 	for (var i = 0; i < obj_game.rounds_to_win; i++)
 		{
-		var _dot_x = (camera_width div 2) + 80 + (i * 20);
-		var _color = (obj_game.p2_wins > i) ? #FFDD00 : c_dkgray;
+		if (player_number == 0)
+			{
+			var _dot_x = (camera_width div 2) - 80 - (i * 20);
+			var _color = (obj_game.p1_wins > i) ? #FFDD00 : c_dkgray;
+			}
+		else
+			{
+			var _dot_x = (camera_width div 2) + 80 + (i * 20);
+			var _color = (obj_game.p2_wins > i) ? #FFDD00 : c_dkgray;
+			}
 	
 		draw_circle_color(_dot_x, _dot_y, 6, _color, _color, false);
-		draw_circle_color(_dot_x, _dot_y, 6, c_black, c_black, true);
+		draw_circle_color(_dot_x, _dot_y, 6, c_black, c_black, true); 
 		}
 	}
 

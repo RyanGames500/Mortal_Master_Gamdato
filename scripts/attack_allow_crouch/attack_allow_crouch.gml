@@ -14,7 +14,13 @@ function attack_allow_crouch()
 		attack_start(attacks[$ "heavy_crouch"]);
 		return true;
 		}
-	
+
+	if (input_pressed(INPUT.attack_light2))
+		{
+		attack_start(attacks[$ "medium_crouch"]);
+		return true;
+		}
+
 	return false;
 	}
 

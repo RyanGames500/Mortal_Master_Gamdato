@@ -9,7 +9,8 @@ sync_id_assign();
 player_variables_init_start();
 
 //Character init
-blocky_character_init();
+//blocky_character_init();
+lex_character_init();
 
 //Set any variables that need the character init script to run first
 player_variables_init_end();

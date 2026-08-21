@@ -22,7 +22,7 @@ function draw_hp_bar(_x, _y, _width, _height, _pad, _hp, _hp_prev, _hp_max, _dir
 		draw_rectangle(_x + _pad, _y + _pad, _x + lerp(0, _width, _hp_prev / _hp_max) + _pad, _y + _height + _pad, false);
 		if (_hp > 0)
 			{
-			draw_set_color(#FFDD00);
+			draw_set_color(c_green);
 			draw_rectangle(_x + _pad, _y + _pad, _x + lerp(0, _width, _hp / _hp_max) + _pad, _y + _height + _pad, false);
 			}
 		}
@@ -36,7 +36,7 @@ function draw_hp_bar(_x, _y, _width, _height, _pad, _hp, _hp_prev, _hp_max, _dir
 		draw_rectangle(_x - lerp(0, _width, _hp_prev / _hp_max) - _pad, _y + _pad, _x - _pad, _y + _height + _pad, false);
 		if (_hp > 0)
 			{
-			draw_set_color(#FFDD00);
+			draw_set_color(c_green);
 			draw_rectangle(_x - lerp(0, _width, _hp / _hp_max) - _pad, _y + _pad, _x - _pad, _y + _height + _pad, false);
 			}
 		}
@@ -71,7 +71,7 @@ function draw_meter_bar(_x, _y, _width, _height, _pad, _meter, _meter_max, _dire
 		// Relleno de la barra en color Rojo Brillante
 		if (_meter > 0)
 			{
-			draw_set_color(c_red); // O un código hex como #FF1111 si quieres un rojo específico
+			draw_set_color(#FF1111); // O un código hex como #FF1111 si quieres un rojo específico
 			draw_rectangle(_x + _pad, _y + _pad, _x + lerp(0, _width, _meter / _meter_max) + _pad, _y + _height + _pad, false);
 			}
 		}
@@ -88,7 +88,7 @@ function draw_meter_bar(_x, _y, _width, _height, _pad, _meter, _meter_max, _dire
 		// Relleno de la barra en color Rojo Brillante
 		if (_meter > 0)
 			{
-			draw_set_color(c_red);
+			draw_set_color(#FF1111);
 			draw_rectangle(_x - lerp(0, _width, _meter / _meter_max) - _pad, _y + _pad, _x - _pad, _y + _height + _pad, false);
 			}
 		}

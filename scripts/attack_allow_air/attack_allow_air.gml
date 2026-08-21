@@ -14,7 +14,13 @@ function attack_allow_air()
 		attack_start(attacks[$ "heavy_aerial"]);
 		return true;
 		}
-	
+
+	if (input_pressed(INPUT.attack_light2))
+		{
+		attack_start(attacks[$ "medium_aerial"]);
+		return true;
+		}
+
 	return false;
 	}
 

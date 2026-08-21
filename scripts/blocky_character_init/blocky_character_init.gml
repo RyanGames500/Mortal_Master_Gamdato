@@ -5,6 +5,7 @@ It is called once at the start of the game and sets up all character-specific va
 function blocky_character_init()
 	{
 	//Properties
+	character_name = "JOE";
 	walk_speed = 6;
 	dash_speed = 13;
 	dash_time = 30;

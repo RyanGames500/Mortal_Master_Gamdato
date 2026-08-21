@@ -9,8 +9,8 @@ Este script se ejecuta automáticamente al inicio del juego.
 #macro GGMR_SESSION_DEBUG_OVERLAY				false //{bool} Si el juego debe dibujar la superposición de depuración de la sesión o no.
 #macro GGMR_CUSTOM_DEBUG_OVERLAY				false //{bool} Si el juego debe dibujar la superposición de depuración personalizada o no.
 
-#macro GGMR_ONLINE_INDICATOR					true //{bool} Si el juego debe dibujar el indicador en línea en la esquina inferior derecha o no.
-#macro GGMR_CONNECTION_COUNTER					true //{bool} Si el juego debe dibujar el contador de conexiones en la esquina inferior derecha o no.
+#macro GGMR_ONLINE_INDICATOR					false //{bool} Si el juego debe dibujar el indicador en línea en la esquina inferior derecha o no.
+#macro GGMR_CONNECTION_COUNTER					false //{bool} Si el juego debe dibujar el contador de conexiones en la esquina inferior derecha o no.
 
 #macro GGMR_PLAYERS_MIN							2 //{int} Número mínimo de jugadores (locales o remotos) necesarios para iniciar una partida.
 #macro GGMR_PLAYERS_MAX							2 //{int} Número máximo de jugadores que pueden ser locales o remotos.
