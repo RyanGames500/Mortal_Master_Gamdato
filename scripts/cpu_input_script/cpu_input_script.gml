@@ -1,8 +1,3 @@
-///@param {buffer} buffer			The buffer used for storing inputs
-///@param {int} player_number		The CPU's player number
-/*
-This script is run every frame and determines which inputs the CPU presses.
-*/
 function cpu_input_script(_buffer, _player_number)
 	{
 	//Find the CPU's player instance
@@ -20,6 +15,17 @@ function cpu_input_script(_buffer, _player_number)
 	var _attack_heavy = false;
 	var _pause = false;
 	var _attack_light2 = false;
+	
+	// SI LA RONDA TERMINO O ESTA REINICIANDO: Forzar IA en reposo
+	if (obj_game.game_meta_state != GAME_META_STATE.running)
+		{
+		buffer_write(_buffer, buffer_u8, STICK_DIR.neutral);
+		buffer_write(_buffer, buffer_bool, false);
+		buffer_write(_buffer, buffer_bool, false);
+		buffer_write(_buffer, buffer_bool, false);
+		buffer_write(_buffer, buffer_bool, false);
+		return;
+		}
 	
 	//Control stick - choose a random direction
 	_stick_dir = choose_weighted

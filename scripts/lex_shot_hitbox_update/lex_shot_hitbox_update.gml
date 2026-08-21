@@ -37,6 +37,9 @@ function lex_shot_hitbox_update()
 		//You can't hit your own hurtboxes
 		if (_hurtbox.owner != owner)
 			{
+			// Si la ronda no está en ejecución o el rival ya no tiene vida, ignorar colisión
+			if (_hurtbox.owner.hp <= 0 || obj_game.game_meta_state != GAME_META_STATE.running) then continue;
+
 			//Hitboxes that can only hit grounded opponents
 			if (grounded_only)
 				{
@@ -49,24 +52,24 @@ function lex_shot_hitbox_update()
 				if ((state == PLAYER_STATE.walk_backward || state == PLAYER_STATE.blockstun) && stick_check_direction(STICK_DIR.backward) && !other.low)
 					{
 					//Middle / High block
-                    anim_sprite = sprites[$ "high_block"];  
-                    //anim_speed = 0;					
+					anim_sprite = sprites[$ "high_block"];  
+					//anim_speed = 0;					
 					player_state_set(PLAYER_STATE.blockstun);   					
 					player_damage(other.damage * block_multiplier);
 					state_frame = other.hitlag + ceil(other.hitstun * block_multiplier);
 					other.owner.block_pushback = other.knockback * facing;
-					meter = clamp(meter + 2, 0, meter_max);//sumar un poco de super a ambos
+					meter = clamp(meter + 2, 0, meter_max);
 					}
 				else if ((state == PLAYER_STATE.crouch || state == PLAYER_STATE.blockstun) && stick_check_direction(STICK_DIR.backward_down) && !other.high)
 					{
 					//Middle / Low block
-                    anim_sprite = sprites[$ "low_block"];  
-                    //anim_speed = 0; 					
+					anim_sprite = sprites[$ "low_block"];  
+					//anim_speed = 0; 					
 					player_state_set(PLAYER_STATE.blockstun);					
 					player_damage(other.damage * block_multiplier);
 					state_frame = other.hitlag + ceil(other.hitstun * block_multiplier);
 					other.owner.block_pushback = other.knockback * facing;
-					meter = clamp(meter + 2, 0, meter_max);//sumar un poco de super a ambos
+					meter = clamp(meter + 2, 0, meter_max);
 					}
 				//Hit
 				else
@@ -121,4 +124,5 @@ function lex_shot_hitbox_update()
 		return;		
 		}
 	}
+
 /* Copyright 2024 Springroll Games / Yosi */

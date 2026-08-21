@@ -19,8 +19,9 @@ function lex_passive()
 			{
 			if (input_pressed(INPUT.attack_light) || input_pressed(INPUT.attack_heavy))
 				{
-				if (attack_script != lex_shot)
+				if (attack_script != lex_shot && meter >= _special_cost)
 					{
+					meter -= _special_cost;	
 					attack_stop();
 					attack_start(lex_shot);
 					return;

@@ -41,6 +41,16 @@ function player_update(_inputs_array)
 		inputs[@ INPUT.attack_light2] = min(inputs[@ INPUT.attack_light2] + 1, input_store_max);
 		}		
 	
+	// SI LA RONDA TERMINÓ: Forzar controles en neutro para no realizar acciones
+	if (obj_game.game_meta_state != GAME_META_STATE.running)
+		{
+		inputs[@ INPUT.stick_dir] = STICK_DIR.neutral;
+		inputs[@ INPUT.attack_light] = input_store_max;
+		inputs[@ INPUT.attack_heavy] = input_store_max;
+		inputs[@ INPUT.attack_light2] = input_store_max;
+		inputs[@ INPUT.pause] = input_store_max;
+		}
+
 	//Pausing the game
 	if (inputs[@ INPUT.pause] == 0)
 		{

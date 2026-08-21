@@ -47,6 +47,9 @@ function lex_character_init()
 	attacks[$ "heavy_crouch"	] = lex_heavy_crouch;
 	attacks[$ "heavy_aerial"	] = lex_heavy_aerial;
 	
+	
+	//sprite_inicial
+	anim_sprite = sprites[$ "idle"];
 	//Passive script
 	passive = lex_passive;
 	}

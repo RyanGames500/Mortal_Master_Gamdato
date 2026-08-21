@@ -1,6 +1,3 @@
-/*
-Contains the code that hitbox instances will run every step.
-*/
 function hitbox_update()
 	{
 	//Custom update script
@@ -32,6 +29,9 @@ function hitbox_update()
 			//You can't hit your own hurtboxes
 			if (_hurtbox.owner != owner)
 				{
+				// Si la ronda no está en ejecucion o el rival ya no tiene vida, ignorar colision
+				if (_hurtbox.owner.hp <= 0 || obj_game.game_meta_state != GAME_META_STATE.running) then continue;
+
 				//Hitboxes that can only hit grounded opponents
 				if (grounded_only)
 					{
@@ -75,7 +75,7 @@ function hitbox_update()
 						player_damage(other.damage * block_multiplier);
 						state_frame = other.hitlag + ceil(other.hitstun * block_multiplier);
 						other.owner.block_pushback = other.knockback * facing;
-						meter = clamp(meter + 2, 0, meter_max);//sumar un poco de super a ambos
+						meter = clamp(meter + 2, 0, meter_max);
 						}
 					//Hit
 					else
@@ -102,7 +102,7 @@ function hitbox_update()
 						player_damage(other.damage);
 						state_frame = other.hitstun;
 						hitlag_frame = other.hitlag;
-						meter = clamp(meter + 8, 0, meter_max);//suma puntos a la barra de especiales
+						meter = clamp(meter + 8, 0, meter_max);
 						hsp = other.knockback * other.owner.facing;
 						
 						//Effects

@@ -164,6 +164,40 @@ with (obj_player)
 		}
 	}
 
+
+// Mensaje de Ganador por Personaje (LEX WINS / JOE WINS)
+if (game_meta_state == GAME_META_STATE.round_restart || game_meta_state == GAME_META_STATE.ending)
+	{
+	draw_set_font(fnt_countdown);
+	draw_set_halign(fa_center);
+	draw_set_valign(fa_center);
+	
+	var _winner_name = "";
+	
+	// Buscar la instancia del personaje ganador y extraer su nombre
+	with (obj_player)
+		{
+		if (obj_game.p1_wins > obj_game.p2_wins && player_number == 0)
+			{
+			_winner_name = variable_instance_exists(id, "character_name") ? character_name : "P1";
+			}
+		else if (obj_game.p2_wins > obj_game.p1_wins && player_number == 1)
+			{
+			_winner_name = variable_instance_exists(id, "character_name") ? character_name : "P2";
+			}
+		}
+	
+	var _text = (_winner_name != "") ? _winner_name + " WINS!" : "DRAW GAME!";
+	
+	// Sombra del texto
+	draw_set_color(c_black);
+	draw_text((camera_width div 2) + 4, (camera_height div 2) + 4, _text);
+	
+	// Texto principal en dorado
+	draw_set_color(#FFDD00);
+	draw_text(camera_width div 2, camera_height div 2, _text);
+	}
+
 //Timer
 if (game_meta_state == GAME_META_STATE.running)
 	{
