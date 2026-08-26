@@ -45,7 +45,9 @@ function blocky_character_init()
 	
 	//Attack scripts
 	attacks[$ "light_ground"	] = blocky_light_ground;
-	attacks[$ "light_ground2"	] = blocky_light_ground2;
+	attacks[$ "medium_ground"	] = blocky_light_ground2;
+	attacks[$ "medium_aerial"	] = lex_medium_aerial;
+	attacks[$ "medium_crouch"	] = lex_medium_crouch;
 	attacks[$ "light_crouch"	] = blocky_light_crouch;
 	attacks[$ "light_aerial"	] = blocky_light_aerial;
 	attacks[$ "heavy_ground"	] = blocky_heavy_ground;

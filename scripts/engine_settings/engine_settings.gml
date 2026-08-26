@@ -2,6 +2,21 @@
 This script runs when the game starts and sets up important constants and global variables.
 */
 
+function setting()
+	{
+	static _settings = 
+		{
+		//Sound
+		volume_music :						1.0, //{real} The volume of the music, from 0 to 1. Anything over 1 will make the music louder than normal.
+		volume_sound_effects :				1.0, //{real} The volume of the sound effects, from 0 to 1. Anything over 1 will make the sound effects louder than normal.
+		volume_menu :						1.0, //{real} The volume of the menu music and sound effects, from 0 to 1.Anything over 1 will make the sounds louder than normal.
+		stereo_sound_effects :				false, //{bool} Whether the audio should be stereo or not.
+		//Collisions
+		slope_collisions_enable :			true, //{bool} Whether slopes work or not. This can be turned off on stages without slopes to slightly boost performance.
+		};
+	return _settings;
+	}
+
 //Gameplay
 #macro jostle_amount			5 //{int} The number of pixels per frame players get pushed when overlapping with other players.
 #macro anim_speed_default		0.3 //{real} The default animation speed to use.

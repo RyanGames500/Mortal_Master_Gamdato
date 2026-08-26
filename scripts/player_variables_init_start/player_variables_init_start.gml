@@ -63,4 +63,5 @@ function player_variables_init_start()
 	passive = -1;
 	}
 
+
 /* Copyright 2024 Springroll Games / Yosi */

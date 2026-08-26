@@ -65,22 +65,37 @@ function hitbox_update()
 						state_frame = other.hitlag + ceil(other.hitstun * block_multiplier);
 						other.owner.block_pushback = other.knockback * facing;
 						meter = clamp(meter + 2, 0, meter_max);
+						
+						// Parámetros: sound, replace, priority
+						sound_system_play(snd_block, true, 10);
 						}
 					else if ((state == PLAYER_STATE.crouch || state == PLAYER_STATE.blockstun) && stick_check_direction(STICK_DIR.backward_down) && !other.high)
 						{
 						//Middle / Low block
 						player_state_set(PLAYER_STATE.blockstun);
-						anim_sprite = sprites[$ "low_block"];  
+						anim_sprite = sprites[$ "low_block"];   
 						//anim_speed = 0;							
 						player_damage(other.damage * block_multiplier);
 						state_frame = other.hitlag + ceil(other.hitstun * block_multiplier);
 						other.owner.block_pushback = other.knockback * facing;
 						meter = clamp(meter + 2, 0, meter_max);
+						
+						sound_system_play(snd_block, true, 10);
 						}
 					//Hit
 					else
 						{
 						attack_stop();
+						
+						// Parámetros: sound, replace, priority
+						if (other.damage > 8)
+							{
+							sound_system_play(snd_hit_heavy, true, 10);
+							}
+						else
+							{
+							sound_system_play(snd_hit_light, true, 10);
+							}
 						
 						//Grounded vs aerial hits
 						if (bbox_bottom >= obj_ground.y && other.launch_speed == 0)

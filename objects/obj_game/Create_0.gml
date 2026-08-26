@@ -50,7 +50,13 @@ game_paused = false;
 game_frame = 0;
 starting_frame = 50 * 3;
 ending_frame = 0;
-
+//inicia sistema de sonido del sonido
+//Audio Groups
+audio_group_load(audiogroup_music_menu);
+audio_group_load(audiogroup_menu);
+audio_group_load(audiogroup_sound_effects);
+audio_group_load(audiogroup_music);
+sound_system_init();
 //Spawn player instances
 game_players_spawn();
 
@@ -88,5 +94,6 @@ p2_wins = 0;
 round_restart_frame = 0;
 // Transición de pantalla entre rondas
 fade_alpha = 0.0;
+
 
 /* Copyright 2024 Springroll Games / Yosi */

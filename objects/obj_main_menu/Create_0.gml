@@ -4,7 +4,6 @@ This object handles the main menu and the online lobby.
 
 randomize();
 lobby_code = "Not Set Yet";
-
 //Create the online connection
 ggmr_net_init();
 ggmr_lobby_init(global.online_name, function() { main_menu_ui_refresh(); });
