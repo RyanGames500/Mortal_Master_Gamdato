@@ -34,7 +34,7 @@ function blocky_light_ground2(_override_phase)
 				attack_phase = 1;
 				attack_frame = 10; 
 				
-				var _hitbox = hitbox_create(64, -40, 1.2, 0.3, 5, 4);
+				var _hitbox = hitbox_create(107, 27, 1, 0.4, 5, 4);
 				_hitbox.knockback = 5;
 				}
 			
@@ -85,7 +85,7 @@ function blocky_light_ground2(_override_phase)
 				attack_phase = 3;
 				attack_frame = 10; 
 				
-				var _hitbox = hitbox_create(70, -30, 1.2, 0.3, 5, 4);
+				var _hitbox = hitbox_create(113, -4, 1, 0.6, 5, 4);
 				_hitbox.knockback = 5;
 				}
 			
@@ -140,7 +140,7 @@ function blocky_light_ground2(_override_phase)
 				attack_phase = 5;
 				attack_frame = 10; 
 				
-				var _hitbox = hitbox_create(64, -40, 1.2, 0.3, 10, 4);
+				var _hitbox = hitbox_create(72, 0, 0.8, 0.6, 10, 4);
 				_hitbox.launch_speed = 10;
 				}
 				

@@ -52,5 +52,30 @@ function blocky_passive()
 				}
 			}
 		}
+		
+     //RunPunch input
+	//Only check for it during certain states
+	if (state == PLAYER_STATE.idle ||
+		state == PLAYER_STATE.crouch ||
+		state == PLAYER_STATE.walk_forward ||
+		state == PLAYER_STATE.dash ||
+		(state == PLAYER_STATE.attacking && state_time < 5 && bbox_bottom >= obj_ground.y))
+		{
+		//Quarter circle motion
+		if (input_motion_check([STICK_DIR.backward, STICK_DIR.backward]))
+			{
+			if (input_pressed(INPUT.attack_light))
+				{
+				if (attack_script != blocky_runpunch && meter >= _special_cost)
+					{
+					meter -= _special_cost;	
+					attack_stop();
+					attack_start(blocky_runpunch);
+					return;
+					}
+				}
+			}
+		}		
+		
 }		
 /* Copyright 2024 Springroll Games / Yosi */

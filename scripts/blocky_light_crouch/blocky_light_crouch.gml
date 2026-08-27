@@ -39,7 +39,7 @@ function blocky_light_crouch(_override_phase)
 				attack_frame = 22;
 				hsp = 4 * facing;
 				
-				var _hitbox = hitbox_create(84, 43, 1.6, 0.5, 10, 4);
+				var _hitbox = hitbox_create(69, 124, 1.0, 0.3, 10, 4);
 				_hitbox.low = true;
 				}
 			

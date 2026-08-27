@@ -42,10 +42,10 @@ function blocky_heavy_crouch(_override_phase)
 				attack_frame = 30;
 				hsp = 2 * facing;
 				
-				var _hitbox = hitbox_create(137, 28, 1.7, 0.7, 15, 4);
+				var _hitbox = hitbox_create(90, -80, 1, 1, 5, 4);
 				_hitbox.hitlag = 10;
 				_hitbox.launch_speed = 10;
-				_hitbox.low = true;
+				_hitbox.high = true;
 				}
 			
 			//Movement

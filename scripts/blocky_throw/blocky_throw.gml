@@ -31,7 +31,7 @@ function blocky_throw(_override_phase)
 				attack_phase = 1;
 				attack_frame = 30;
 				
-				var _hitbox = hitbox_create(82, 6, 0.5, 0.7, 0, 5);
+				var _hitbox = hitbox_create(98, -47, 1, 0.5, 0, 5);
 				_hitbox.grab = true;
 				_hitbox.hitstun = 60;
 				_hitbox.grounded_only = true;
