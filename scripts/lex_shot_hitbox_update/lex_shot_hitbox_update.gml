@@ -53,23 +53,19 @@ function lex_shot_hitbox_update()
 					{
 					//Middle / High block
 					anim_sprite = sprites[$ "high_block"];  
-					//anim_speed = 0;					
-					player_state_set(PLAYER_STATE.blockstun);   					
+					player_state_set(PLAYER_STATE.blockstun);                   
 					player_damage(other.damage * block_multiplier);
 					state_frame = other.hitlag + ceil(other.hitstun * block_multiplier);
 					other.owner.block_pushback = other.knockback * facing;
-					meter = clamp(meter + 2, 0, meter_max);
 					}
 				else if ((state == PLAYER_STATE.crouch || state == PLAYER_STATE.blockstun) && stick_check_direction(STICK_DIR.backward_down) && !other.high)
 					{
 					//Middle / Low block
-					anim_sprite = sprites[$ "low_block"];  
-					//anim_speed = 0; 					
-					player_state_set(PLAYER_STATE.blockstun);					
+					anim_sprite = sprites[$ "low_block"];   
+					player_state_set(PLAYER_STATE.blockstun);                   
 					player_damage(other.damage * block_multiplier);
 					state_frame = other.hitlag + ceil(other.hitstun * block_multiplier);
 					other.owner.block_pushback = other.knockback * facing;
-					meter = clamp(meter + 2, 0, meter_max);
 					}
 				//Hit
 				else
@@ -97,10 +93,16 @@ function lex_shot_hitbox_update()
 					state_frame = other.hitstun;
 					hitlag_frame = other.hitlag;
 					hsp = other.knockback * other.owner.facing;
-					meter = clamp(meter + 6, 0, meter_max);
+					
 					//Effects
 					obj_game.cam_shake = other.damage * 0.75;
 					}
+				}
+			
+			// El atacante gana la barra al conectar el proyectil
+			with (owner)
+				{
+				meter = clamp(meter + 6, 0, meter_max);
 				}
 			
 			//Projectiles are destroyed on hit
@@ -114,15 +116,13 @@ function lex_shot_hitbox_update()
 		//VFX
 		var _vfx = instance_create_layer(x, y, "VFX_Layer", obj_vfx);
 		_vfx.sprite_index = spr_lex_shot_fizzle;
-		_vfx.image_xscale = owner.sprite_scale * facing;
+		_vfx.image_xscale = owner.sprite_scale * owner.facing;
 		_vfx.image_yscale = owner.sprite_scale;
 		_vfx.anim_speed = 0.3;
 		_vfx.lifetime = 23;
 		_vfx.owner = owner;
 		
 		instance_destroy();
-		return;		
+		return;     
 		}
 	}
-
-/* Copyright 2024 Springroll Games / Yosi */

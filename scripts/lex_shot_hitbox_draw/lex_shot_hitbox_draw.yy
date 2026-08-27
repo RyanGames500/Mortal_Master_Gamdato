@@ -5,7 +5,7 @@
   "isDnD": false,
   "isCompatibility": false,
   "parent": {
-    "name": "scripts",
-    "path": "folders/Characters/Lex/Attacks/scripts.yy",
+    "name": "shot",
+    "path": "folders/Characters/Lex/Attacks/scripts/especial/shot.yy",
   },
 }

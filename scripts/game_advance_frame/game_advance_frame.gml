@@ -136,23 +136,33 @@ function game_advance_frame(_inputs_array, _relative_frame = undefined)
 				// Resetear a los jugadores
 				with (obj_player)
 					{
-					x = xstart;
-					y = ystart;
-					facing = (player_number == 0) ? 1 : -1;
-					hp = hp_max;
-					hp_prev = hp_max;
-					hsp = 0;
-					vsp = 0;
-					
+					// 1. Detener ataques y estados
 					attack_stop();
 					player_state_set(PLAYER_STATE.idle);
+	
+					// 2. Limpiar velocidades
+					hsp = 0;
+					vsp = 0;
 					state_frame = 0;
 					state_time = 0;
-					
+	
+					// 3. Forzar animación Idle base
 					anim_sprite = sprites[$ "idle"];
 					sprite_index = anim_sprite;
 					anim_frame = 0;
 					anim_speed = anim_speed_default;
+	
+					// 4. Posicionar sobre xstart e ystart (Asegurando la alineación del suelo)
+					x = xstart;
+					y = ystart;
+					facing = (player_number == 0) ? 1 : -1;
+	
+					// 5. Corregir colisión de suelo inmediata para evitar hundimiento
+					player_move();
+	
+					// 6. Resetear HP de la ronda
+					hp = hp_max;
+					hp_prev = hp_max;
 					}
 			
 				// Reubicación de cámara

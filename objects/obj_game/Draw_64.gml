@@ -165,7 +165,7 @@ with (obj_player)
 	}
 
 
-// Mensaje de Ganador por Personaje (LEX WINS / JOE WINS)
+// Mensaje de Ganador por Personaje (LEX WINS / JOE WINS) - CÓDIGO CORREGIDO
 if (game_meta_state == GAME_META_STATE.round_restart || game_meta_state == GAME_META_STATE.ending)
 	{
 	draw_set_font(fnt_countdown);
@@ -173,29 +173,57 @@ if (game_meta_state == GAME_META_STATE.round_restart || game_meta_state == GAME_
 	draw_set_valign(fa_center);
 	
 	var _winner_name = "";
+	var _is_draw = false;
 	
-	// Buscar la instancia del personaje ganador y extraer su nombre
+	// 1. Obtener referencias directas de P1 y P2
+	var _p1 = noone;
+	var _p2 = noone;
+	
 	with (obj_player)
 		{
-		if (obj_game.p1_wins > obj_game.p2_wins && player_number == 0)
-			{
-			_winner_name = variable_instance_exists(id, "character_name") ? character_name : "P1";
-			}
-		else if (obj_game.p2_wins > obj_game.p1_wins && player_number == 1)
-			{
-			_winner_name = variable_instance_exists(id, "character_name") ? character_name : "P2";
-			}
+		if (player_number == 0) _p1 = id;
+		if (player_number == 1) _p2 = id;
 		}
 	
-	var _text = (_winner_name != "") ? _winner_name + " WINS!" : "DRAW GAME!";
-	
-	// Sombra del texto
-	draw_set_color(c_black);
-	draw_text((camera_width div 2) + 4, (camera_height div 2) + 4, _text);
-	
-	// Texto principal en dorado
-	draw_set_color(#FFDD00);
-	draw_text(camera_width div 2, camera_height div 2, _text);
+	// 2. Determinar el ganador de la ronda comparando HP
+	if (_p1 != noone && _p2 != noone)
+		{
+		if (_p1.hp > _p2.hp)
+			{
+			_winner_name = variable_instance_exists(_p1, "character_name") ? _p1.character_name : "P1";
+			}
+		else if (_p2.hp > _p1.hp)
+			{
+			_winner_name = variable_instance_exists(_p2, "character_name") ? _p2.character_name : "P2";
+			}
+		else
+			{
+			_is_draw = true;
+			}
+		}
+
+	// 3. Formatear el texto a mostrar
+	var _text = "";
+	if (_is_draw)
+		{
+		_text = "DRAW GAME!";
+		}
+	else if (_winner_name != "")
+		{
+		_text = _winner_name + " WINS!";
+		}
+
+	// Dibujar si hay texto válido
+	if (_text != "")
+		{
+		// Sombra del texto
+		draw_set_color(c_black);
+		draw_text((camera_width div 2) + 4, (camera_height div 2) + 4, _text);
+		
+		// Texto principal en dorado
+		draw_set_color(#FFDD00);
+		draw_text(camera_width div 2, camera_height div 2, _text);
+		}
 	}
 
 //Timer

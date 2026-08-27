@@ -14,6 +14,8 @@ function blocky_character_init()
 	grav = 1.2;
 	
 	hp_max = 150;
+	hp = hp_max;
+	hp_prev = hp_max;
 	
 	sprite_scale = 6;
 	//dara tamaño personalizado a cada har desd aqui

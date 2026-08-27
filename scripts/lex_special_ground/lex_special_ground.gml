@@ -122,8 +122,8 @@ function lex_special_ground(_override_phase)
 				{
 				var _hitbox = hitbox_create(63, -45, 1, 0.9, 10, 8);
 				// --- AJUSTES DE REMATE VIOLENTO ---
-				_hitbox.knockback = 12;       // Empuje base alto
-				_hitbox.launch_speed = 25;    // Impulso de salida violento
+				_hitbox.knockback = 3;       // Empuje base alto
+				_hitbox.launch_speed = 30;    // Impulso de salida violento
 				_hitbox.hitstun = 40;         // Mantiene al rival incapacitado durante el vuelo
 				_hitbox.hitlag = 6;
 				}

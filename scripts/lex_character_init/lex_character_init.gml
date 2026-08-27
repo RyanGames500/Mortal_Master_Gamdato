@@ -9,7 +9,9 @@ function lex_character_init()
 	jump_vsp = -22;           
 	grav = 0.9;               
 	
-	hp_max = 120;   
+	hp_max = 120;
+	hp = hp_max;
+	hp_prev = hp_max;   
 	
 	sprite_scale = 6;
 	

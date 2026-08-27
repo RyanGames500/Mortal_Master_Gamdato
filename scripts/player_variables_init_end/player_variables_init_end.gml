@@ -8,6 +8,7 @@ function player_variables_init_end()
 	
 	//HP
 	hp = hp_max;
+	hp_prev = hp_max;
 
 	//Move out of the floor if necessary
 	player_move();

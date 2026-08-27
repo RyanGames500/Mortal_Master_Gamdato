@@ -88,7 +88,7 @@
   ],
   "nineSlice": null,
   "parent": {
-    "name": "sprites",
-    "path": "folders/Characters/Lex/Attacks/sprites.yy",
+    "name": "shot",
+    "path": "folders/Characters/Lex/Attacks/scripts/especial/shot.yy",
   },
 }
