@@ -5,7 +5,7 @@
   "isDnD": false,
   "isCompatibility": false,
   "parent": {
-    "name": "Scripts",
-    "path": "folders/Characters/Blitsen/Attacks/Scripts.yy",
+    "name": "speciales",
+    "path": "folders/Characters/Blitsen/Attacks/speciales.yy",
   },
 }

@@ -82,7 +82,7 @@
   ],
   "nineSlice": null,
   "parent": {
-    "name": "Sprites",
-    "path": "folders/Characters/Blitsen/Attacks/Sprites.yy",
+    "name": "speciales",
+    "path": "folders/Characters/Blitsen/Attacks/speciales.yy",
   },
 }

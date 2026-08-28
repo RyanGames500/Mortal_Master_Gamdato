@@ -61,6 +61,9 @@ function player_variables_init_start()
 	attacks = {};
 	
 	passive = -1;
+	
+	sound_hit_light_index = 0;
+	sound_hit_heavy_index = 0;
 	}
 
 

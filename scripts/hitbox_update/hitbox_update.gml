@@ -82,13 +82,23 @@ function hitbox_update()
 						{
 						attack_stop();
 						
+						// Listas deterministas de sonidos para impactos
+						var _snd_heavy_list = [snd_hit_heavy, snd_hit_heavy_2, snd_hit_heavy_3];
+						var _snd_light_list = [snd_hit_light, snd_hit_light_2, snd_hit_light_3];
+
 						if (other.damage > 8)
 							{
-							sound_system_play(snd_hit_heavy, true, 10);
+							var _sound_to_play = _snd_heavy_list[other.owner.sound_hit_heavy_index];
+							sound_system_play(_sound_to_play, true, 10);
+							
+							other.owner.sound_hit_heavy_index = (other.owner.sound_hit_heavy_index + 1) % array_length(_snd_heavy_list);
 							}
 						else
 							{
-							sound_system_play(snd_hit_light, true, 10);
+							var _sound_to_play = _snd_light_list[other.owner.sound_hit_light_index];
+							sound_system_play(_sound_to_play, true, 10);
+							
+							other.owner.sound_hit_light_index = (other.owner.sound_hit_light_index + 1) % array_length(_snd_light_list);
 							}
 						
 						//Grounded vs aerial hits

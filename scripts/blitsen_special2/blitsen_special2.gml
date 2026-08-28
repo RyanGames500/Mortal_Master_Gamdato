@@ -36,7 +36,7 @@ function blitsen_special2(_override_phase)
 				attack_phase = 1;
 				attack_frame = 32;
 				
-				var _hitbox = hitbox_create(599, 49, 1.4, 1.4, 13, 15);
+				var _hitbox = hitbox_create(599, 56, 1.6, 1.6, 13, 15);
 				_hitbox.hitlag = 12;
 				_hitbox.launch_speed = 12;
 				_hitbox.knockback = 18;
