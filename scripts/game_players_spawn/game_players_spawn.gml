@@ -10,8 +10,12 @@ function game_players_spawn()
 	
 	with (_player1)
 		{
-		if (global.p1_select == 2) then lex_character_init();
-		else blocky_character_init();
+		switch (global.p1_select)
+			{
+			case 1: blocky_character_init(); break;
+			case 2: lex_character_init(); break;
+			case 3: blitsen_character_init(); break;
+			}
 		
 		player_variables_init_end();
 		}
@@ -24,8 +28,12 @@ function game_players_spawn()
 	
 	with (_player2)
 		{
-		if (global.p2_select == 2) then lex_character_init();
-		else blocky_character_init();
+		switch (global.p2_select)
+			{
+			case 1: blocky_character_init(); break;
+			case 2: lex_character_init(); break;
+			case 3: blitsen_character_init(); break;
+			}
 		
 		player_variables_init_end();
 		}

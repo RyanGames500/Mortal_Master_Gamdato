@@ -6,13 +6,14 @@ function blocky_character_init()
 	{
 	//Properties
 	character_name = "JOE";
-	walk_speed = 6;
+	walk_speed = 5;
 	dash_speed = 13;
 	dash_time = 30;
 	jump_hsp = 8;
 	jump_vsp = -26;
 	grav = 1.2;
-	
+	has_backdash = false;
+	has_grab = true;
 	hp_max = 150;
 	hp = hp_max;
 	hp_prev = hp_max;
@@ -31,7 +32,7 @@ function blocky_character_init()
 	sprites[$ "idle"			] = spr_blocky_idle;
 	sprites[$ "crouch"			] = spr_blocky_crouch;
 	sprites[$ "walk_forward"	] = spr_blocky_walk;
-	sprites[$ "walk_backward"	] = spr_blocky_walk;
+	sprites[$ "walk_backward"	] = spr_blocky_walk_backward;
 	sprites[$ "dash"			] = spr_blocky_dash;
 	sprites[$ "dash_left"		] = spr_blocky_dash_left;
 	sprites[$ "jump_forward"	] = spr_blocky_jump;
@@ -56,7 +57,10 @@ function blocky_character_init()
 	attacks[$ "heavy_crouch"	] = blocky_heavy_crouch;
 	attacks[$ "heavy_aerial"	] = blocky_heavy_aerial;
 	attacks[$ "throw"			] = blocky_throw;
-	
+
+	//sprite_inicial
+	anim_sprite = sprites[$ "idle"];
+
 	//Passive script
 	passive = blocky_passive;
 	}

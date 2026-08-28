@@ -8,7 +8,8 @@ function lex_character_init()
 	jump_hsp = 6;             
 	jump_vsp = -22;           
 	grav = 0.9;               
-	
+	has_backdash = false;
+	has_grab = false;
 	hp_max = 120;
 	hp = hp_max;
 	hp_prev = hp_max;   

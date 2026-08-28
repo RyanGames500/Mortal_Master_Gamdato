@@ -375,38 +375,38 @@ function player_update(_inputs_array)
 			break;
 			
 			case PLAYER_STATE.walk_backward:
-				{
-				//Animation
-				anim_sprite = sprites[$ "walk_backward"];
-				anim_speed = anim_walk_speed;
-				player_face_opponent();
+			{
+			//Animation
+			anim_sprite = sprites[$ "walk_backward"];
+			anim_speed = anim_walk_speed;
+			player_face_opponent();
 
-				//Idle
-				if (!stick_check_direction(STICK_DIR.backward))
-					{
-					player_state_set(PLAYER_STATE.idle);
-					break;
-					}
-				
-				//Attacks
-				if (attack_allow_throw()) then break;
-				if (attack_allow_ground()) then break;
-				
-				//Dash
-				//if (input_motion_check([STICK_DIR.backward, STICK_DIR.neutral, STICK_DIR.backward], dash_input_leniency))
-				//	{
-				//	player_state_set(PLAYER_STATE.dash_left);
-				//	state_frame = dash_time;
-				//	hsp = -dash_speed * facing;
-				//	vsp = 0;
-				//	break;
-				//	}
-			
-				//Movement
-				hsp = -walk_speed * facing;
-				player_move();
+			//Idle
+			if (!stick_check_direction(STICK_DIR.backward))
+				{
+				player_state_set(PLAYER_STATE.idle);
+				break;
 				}
-			break;
+	
+			//Attacks
+			if (attack_allow_throw()) then break;
+			if (attack_allow_ground()) then break;
+	
+			//Dash hacia atrás (Solo para personajes permitidos)
+			if (has_backdash && input_motion_check([STICK_DIR.backward, STICK_DIR.neutral, STICK_DIR.backward], dash_input_leniency))
+				{
+				player_state_set(PLAYER_STATE.dash_left);
+				state_frame = dash_time;
+				hsp = -dash_speed * facing;
+				vsp = 0;
+				break;
+				}
+
+			//Movement
+			hsp = -walk_speed * facing;
+			player_move();
+			}
+		break;
 			
 			case PLAYER_STATE.walk_forward:
 				{
