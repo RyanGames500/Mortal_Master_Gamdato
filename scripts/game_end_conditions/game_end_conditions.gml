@@ -1,32 +1,49 @@
+///@param {array} _result_array
 /*
-Checks if any players won the match, and changes the game meta state if so.
+Callback used with with_synced_object to check each player for KO by health.
+Writes into _result_array: [0]=_end_game, [1]=_p1_dead, [2]=_p2_dead
+*/
+function game_check_player_ko(_result_array)
+	{
+	if (hp <= 0)
+		{
+		_result_array[@ 0] = true; // _end_game
+		if (player_number == 0) _result_array[@ 1] = true; // _p1_dead
+		if (player_number == 1) _result_array[@ 2] = true; // _p2_dead
+		
+		if (state != PLAYER_STATE.knockdown && state != PLAYER_STATE.acostado)
+			{
+			player_state_set(PLAYER_STATE.knockdown);
+			vsp = -15;
+			hsp = -6 * facing;
+			}
+		}
+	}
+
+///@param {array} _hp_array
+/*
+Callback used with with_synced_object to collect each player's current HP.
+Writes into _hp_array: [0]=_p1_hp, [1]=_p2_hp
+*/
+function game_collect_player_hp(_hp_array)
+	{
+	if (player_number == 0) _hp_array[@ 0] = hp;
+	if (player_number == 1) _hp_array[@ 1] = hp;
+	}
+
+/*
+Checks if any players won the match or round, and safely changes the meta state.
 */
 function game_end_conditions()
 	{
-	var _end_game = false;
-	var _p1_dead = false;
-	var _p2_dead = false;
+	// Check KO por vida
+	var _ko_result = [false, false, false]; // [_end_game, _p1_dead, _p2_dead]
+	with_synced_object(obj_player, game_check_player_ko, _ko_result);
+	var _end_game = _ko_result[0];
+	var _p1_dead = _ko_result[1];
+	var _p2_dead = _ko_result[2];
 	
-	// Verificar la vida de los jugadores
-	with (obj_player)
-		{
-		if (hp <= 0)
-			{
-			_end_game = true;
-			if (player_number == 0) _p1_dead = true;
-			if (player_number == 1) _p2_dead = true;
-			
-			// Activar la física de caída de K.O.
-			if (state != PLAYER_STATE.knockdown && state != PLAYER_STATE.acostado)
-				{
-				player_state_set(PLAYER_STATE.knockdown);
-				vsp = -15;
-				hsp = -6 * facing;
-				}
-			}
-		}
-	
-	// Fin por tiempo
+	// Check KO por tiempo
 	var _time_out = false;
 	if (match_time - (game_frame div 60) <= 0)
 		{
@@ -34,43 +51,38 @@ function game_end_conditions()
 		_time_out = true;
 		}
 	
-	// Acciones al terminar
-	if (_end_game)
+	// Evaluación de victoria de ronda y match
+	if (_end_game && obj_game.game_meta_state == GAME_META_STATE.running)
 		{
-		if (obj_game.game_meta_state == GAME_META_STATE.running)
+		if (_p1_dead && !_p2_dead)
 			{
-			if (_p1_dead && !_p2_dead)
-				{
-				p2_wins++;
-				}
-			else if (_p2_dead && !_p1_dead)
-				{
-				p1_wins++;
-				}
-			else if (_time_out)
-				{
-				var _p1_hp = 0;
-				var _p2_hp = 0;
-				with (obj_player)
-					{
-					if (player_number == 0) _p1_hp = hp;
-					if (player_number == 1) _p2_hp = hp;
-					}
-				if (_p1_hp > _p2_hp) p1_wins++;
-				else if (_p2_hp > _p1_hp) p2_wins++;
-				}
-
-			// Tanto si es la victoria final como un reinicio de ronda, damos la pausa de K.O.
-			if (p1_wins >= rounds_to_win || p2_wins >= rounds_to_win)
-				{
-				game_meta_state = GAME_META_STATE.ending;
-				ending_frame = 150; // Mismo tiempo (2.5s) para ver la caída final
-				}
-			else
-				{
-				game_meta_state = GAME_META_STATE.round_restart;
-				round_restart_frame = 150; 
-				}
+			p2_wins++;
+			}
+		else if (_p2_dead && !_p1_dead)
+			{
+			p1_wins++;
+			}
+		else if (_time_out)
+			{
+			var _hp_result = [0, 0]; // [_p1_hp, _p2_hp]
+			with_synced_object(obj_player, game_collect_player_hp, _hp_result);
+			var _p1_hp = _hp_result[0];
+			var _p2_hp = _hp_result[1];
+			
+			if (_p1_hp > _p2_hp) p1_wins++;
+			else if (_p2_hp > _p1_hp) p2_wins++;
+			}
+		// Si algún jugador alcanzó la cantidad de rondas para ganar el MATCH (Ej: 2 rondas)
+		if (p1_wins >= rounds_to_win || p2_wins >= rounds_to_win)
+			{
+			game_meta_state = GAME_META_STATE.ending;
+			ending_frame = 150;
+			}
+		else
+			{
+			// Si aún no han ganado el match, pasa al reinicio síncrono de ronda
+			game_meta_state = GAME_META_STATE.round_restart;
+			round_restart_frame = 150; 
 			}
 		}
 	}
