@@ -83,8 +83,8 @@ function hitbox_update()
 						attack_stop();
 						
 						// Listas deterministas de sonidos para impactos
-						var _snd_heavy_list = [snd_hit_heavy, snd_hit_heavy_2, snd_hit_heavy_3];
-						var _snd_light_list = [snd_hit_light, snd_hit_light_2, snd_hit_light_3];
+						var _snd_heavy_list = [snd_hit_heavy];
+						var _snd_light_list = [snd_hit_light];
 
 						if (other.damage > 8)
 							{
