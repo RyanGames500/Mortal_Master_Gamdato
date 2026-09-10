@@ -76,7 +76,7 @@
   ],
   "nineSlice": null,
   "parent": {
-    "name": "Saori",
-    "path": "folders/Characters/Saori.yy",
+    "name": "sprites",
+    "path": "folders/Characters/Saori/sprites.yy",
   },
 }

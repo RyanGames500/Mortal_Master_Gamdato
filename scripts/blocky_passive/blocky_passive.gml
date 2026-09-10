@@ -75,7 +75,21 @@ function blocky_passive()
 					}
 				}
 			}
-		}		
+		}	
+		
+/*Agarre de Comando Terrestre (Light + Heavy)
+		if (input_pressed(INPUT.attack_light) && input_pressed(INPUT.attack_heavy))
+			{
+			if (attack_script != scar_throw)
+				{
+				input_reset(INPUT.attack_light);
+				input_reset(INPUT.attack_heavy);
+				attack_stop();
+				attack_start(scar_throw);
+				return;
+				}
+			}
+		}*/		
 		
 }		
 /* Copyright 2024 Springroll Games / Yosi */

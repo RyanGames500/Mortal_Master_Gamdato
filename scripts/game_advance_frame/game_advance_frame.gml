@@ -159,6 +159,9 @@ function game_advance_frame(_inputs_array, _relative_frame = undefined)
 					}
 				else
 					{
+					//Guardar archivos para las replays	
+					save_current_replay();
+					
 					ggmr_session_end();
 					}
 				return;

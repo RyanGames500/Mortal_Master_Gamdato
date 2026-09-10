@@ -138,10 +138,18 @@ function blocky_light_ground2(_override_phase)
 				{
 				anim_frame = 14; // Hitbox en frame 14
 				attack_phase = 5;
-				attack_frame = 10; 
 				
-				var _hitbox = hitbox_create(72, 0, 0.8, 0.6, 10, 4);
+				var _hitbox = hitbox_create(92, 0, 0.8, 0.6, 10, 4);
 				_hitbox.launch_speed = 10;
+				
+				if (attack_connected)
+					{
+					attack_frame = 10;
+					}
+				else
+					{
+					attack_frame = 20;
+					}
 				}
 				
 			player_move();

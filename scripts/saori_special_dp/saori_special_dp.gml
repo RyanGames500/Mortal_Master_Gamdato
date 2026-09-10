@@ -40,7 +40,7 @@ function saori_special_dp(_override_phase)
 				_hitbox.launch_speed = 20;
 				_hitbox.knockback = 12;
 				_hitbox.angle = 85;
-				_hitbox.hitstun = 40;
+				_hitbox.hitstun = 45;
 				}
 			
 			player_move();

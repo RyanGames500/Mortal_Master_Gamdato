@@ -7,7 +7,7 @@ function saori_passive()
 	var _special_cost = 25;	
 		
 // Comprobación para el Divekick en el aire
-if (state == PLAYER_STATE.aerial || bbox_bottom < obj_ground.y)
+if (state == PLAYER_STATE.aerial && state_time < 5 || bbox_bottom < obj_ground.y)
 	{
 	// Evalúa si la palanca o cruceta apunta hacia abajo (o diagonales abajo)
 	if (input_motion_check([STICK_DIR.backward, STICK_DIR.backward]))

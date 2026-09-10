@@ -1,13 +1,16 @@
 function blitsen_light_ground(_override_phase)
 	{
+	//Phases
 	var _phase = !is_undefined(_override_phase) ? _override_phase : attack_phase;
 	switch (_phase)
 		{
+		//Init
 		case ATTACK_PHASE.start:
 			{
-			anim_sprite = spr_blitsen_light_ground;
+			//Animation
+			anim_sprite = spr_blitsen_light_ground; 
 			anim_frame = 0;
-			anim_speed = 0;
+			anim_speed = 0; // Determinista: cero image_speed para el rollback
 			
 			attack_frame = 4;
 			
@@ -16,27 +19,33 @@ function blitsen_light_ground(_override_phase)
 			}
 		break;
 		
+		//-------------------------------------------------------------
+		//--- PRIMER GOLPE (Sub-imágenes 0 -> 6 | Hitbox en Frame 2) ---
+		//-------------------------------------------------------------
 		case 0:
 			{
 			attack_frame--;
 			
-			//if (state_time <= throw_input_leniency && input_pressed(INPUT.attack_heavy))
-			//	{
-			//	attack_start(attacks[$ "throw"]);
-			//	return;
-			//	}
+			// Throws
+			if (state_time <= throw_input_leniency && input_pressed(INPUT.attack_heavy))
+				{
+				attack_start(attacks[$ "throw"]);
+				return;
+				}
 			
+			// Transición de startup
 			if (attack_frame == 2) then anim_frame = 1;
 			
-			if (attack_frame <= 0)
+			// Impacto del 1er golpe -> Frame 2 visual
+			if (attack_frame == 0)
 				{
-				anim_frame = 2;
+				anim_frame = 2; 
 				attack_phase = 1;
-				attack_frame = 16;
+				attack_frame = 12;
 				
-				var _hitbox = hitbox_create(161, -9, 1.5, 0.2, 5, 4);
-				_hitbox.hitlag = 10;
-				_hitbox.knockback = 8;
+				var _hitbox = hitbox_create(103, -20, 0.6, 0.5, 5, 4);
+				_hitbox.hitlag = 8;
+				_hitbox.knockback = 6;
 				_hitbox.high = true;
 				}
 			
@@ -44,17 +53,147 @@ function blitsen_light_ground(_override_phase)
 			}
 		break;
 		
+		// Endlag 1er Golpe (Sub-imágenes 3 -> 6)
 		case 1:
 			{
 			attack_frame--;
 			
-			if (attack_frame == 12) then anim_frame = 3;
-			if (attack_frame == 8)  then anim_frame = 4;
-			if (attack_frame == 4)  then anim_frame = 5;
-			if (attack_frame == 2)  then anim_frame = 6;
+			if (attack_frame == 9) then anim_frame = 3;
+			if (attack_frame == 6) then anim_frame = 4;
+			if (attack_frame == 3) then anim_frame = 5;
+			if (attack_frame == 1) then anim_frame = 6;
 			
 			player_move();
 			
+			// Cancelación al 2do Golpe
+			if (attack_frame < 8 && attack_connected)
+				{
+				if (input_pressed(INPUT.attack_light, true))
+					{
+					attack_connected = false;
+					
+					anim_frame = 7; 
+					attack_phase = 2;
+					attack_frame = 6;
+					}
+				}
+			
+			if (attack_frame == 0)
+				{
+				attack_stop();
+				break;
+				}
+			}
+		break;
+		
+		//-------------------------------------------------------------
+		//--- SEGUNDO GOLPE (Sub-imágenes 7 -> 13 | Hitbox en Frame 9) --
+		//-------------------------------------------------------------
+		case 2:
+			{
+			attack_frame--;
+			
+			if (attack_frame == 4) then anim_frame = 8;
+			
+			// Impacto del 2do golpe -> Frame 9 visual (Diagonal)
+			if (attack_frame == 0)
+				{
+				anim_frame = 9; 
+				attack_phase = 3;
+				attack_frame = 12; 
+				
+				var _hitbox = hitbox_create(88, -32, 0.6, 0.5, 5, 4);
+				_hitbox.hitlag = 8;
+				_hitbox.knockback = 7;
+				_hitbox.high = true;
+				}
+			
+			player_move();
+			}
+		break;
+		
+		// Endlag 2do Golpe (Sub-imágenes 10 -> 13)
+		case 3:
+			{
+			attack_frame--;
+			
+			if (attack_frame == 9) then anim_frame = 10;
+			if (attack_frame == 6) then anim_frame = 11;
+			if (attack_frame == 3) then anim_frame = 12;
+			if (attack_frame == 1) then anim_frame = 13;
+			
+			player_move();
+			
+			// Cancelación al 3er Golpe (Remate Zoner)
+			if (attack_frame < 8 && attack_connected)
+				{
+				if (input_pressed(INPUT.attack_light, true))
+					{
+					attack_connected = false;
+					
+					anim_frame = 14; 
+					attack_phase = 4;
+					attack_frame = 8; 
+					}
+				}
+			
+			if (attack_frame == 0)
+				{
+				attack_stop();
+				break;
+				}
+			}
+		break;
+		
+		//-------------------------------------------------------------
+		//--- TERCER GOLPE (Sub-imágenes 14 -> 22 | Hitbox en Frame 18)
+		//-------------------------------------------------------------
+		case 4:
+			{
+			attack_frame--;
+			
+			if (attack_frame == 6) then anim_frame = 15;
+			if (attack_frame == 4) then anim_frame = 16;
+			if (attack_frame == 2) then anim_frame = 17;
+			
+			// Impacto del Remate -> Frame 18 visual
+			if (attack_frame == 0)
+				{
+				anim_frame = 18; 
+				attack_phase = 5;
+				
+				var _hitbox = hitbox_create(103, -15, 0.7, 0.5, 9, 5);
+				_hitbox.launch_speed = 12;
+				_hitbox.hitlag = 8;
+				_hitbox.knockback = 9;
+				
+				if (attack_connected)
+					{
+					attack_frame = 12;
+					}
+				else
+					{
+					attack_frame = 20;
+					}
+				}
+				
+			player_move();
+			}
+		break;
+		
+		// Endlag Final (Sub-imágenes 19 -> 22)
+		case 5:
+			{
+			attack_frame--;
+			
+			if (attack_frame == 12) then anim_frame = 19;
+			if (attack_frame == 8)  then anim_frame = 20;
+			if (attack_frame == 5)  then anim_frame = 21;
+			if (attack_frame == 2)  then anim_frame = 22;
+			
+			player_move();
+			
+			// Fin del combo
 			if (attack_frame <= 0)
 				{
 				attack_stop();
@@ -64,3 +203,4 @@ function blitsen_light_ground(_override_phase)
 		break;
 		}
 	}
+/* Copyright 2024 Springroll Games / Yosi */

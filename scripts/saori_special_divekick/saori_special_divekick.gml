@@ -33,7 +33,7 @@ function saori_special_divekick(_override_phase)
 				var _hitbox = hitbox_create(73, 67, 1.2, 0.8, 10, 8);
 				_hitbox.hitlag = 8;
 				_hitbox.knockback = 8;
-				_hitbox.hitstun = 24;
+				_hitbox.hitstun = 34;
 				}
 			
 			player_move();

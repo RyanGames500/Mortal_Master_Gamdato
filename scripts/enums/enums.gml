@@ -77,4 +77,13 @@ enum ATTACK_PHASE
 	stop = -2,
 	}
 
-/* Copyright 2024 Springroll Games / Yosi */
+// --- ESTADOS Y NAVEGACION DEL MENU ---
+enum MENU_STATE
+	{
+	main,
+	online,
+	private_lobby,
+	replays,
+	settings,
+	input_text
+	}

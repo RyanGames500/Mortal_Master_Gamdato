@@ -64,7 +64,7 @@ function hitbox_update()
 						state_frame = other.hitlag + ceil(other.hitstun * block_multiplier);
 						other.owner.block_pushback = other.knockback * facing;
 						
-						sound_system_play(snd_block, true, 10);
+						hit_sfx_play(snd_block);
 						}
 					else if ((state == PLAYER_STATE.crouch || state == PLAYER_STATE.blockstun) && stick_check_direction(STICK_DIR.backward_down) && !other.high)
 						{
@@ -75,7 +75,7 @@ function hitbox_update()
 						state_frame = other.hitlag + ceil(other.hitstun * block_multiplier);
 						other.owner.block_pushback = other.knockback * facing;
 						
-						sound_system_play(snd_block, true, 10);
+						hit_sfx_play(snd_block);
 						}
 					//Hit
 					else
@@ -83,20 +83,20 @@ function hitbox_update()
 						attack_stop();
 						
 						// Listas deterministas de sonidos para impactos
-						var _snd_heavy_list = [snd_hit_heavy];
-						var _snd_light_list = [snd_hit_light];
+						var _snd_heavy_list = [snd_hit_heavy,snd_hit_heavy_2,snd_hit_heavy_3];
+						var _snd_light_list = [snd_hit_light,snd_hit_light_2,snd_hit_light_3];
 
 						if (other.damage > 8)
 							{
 							var _sound_to_play = _snd_heavy_list[other.owner.sound_hit_heavy_index];
-							sound_system_play(_sound_to_play, true, 10);
+							hit_sfx_play(_sound_to_play);
 							
 							other.owner.sound_hit_heavy_index = (other.owner.sound_hit_heavy_index + 1) % array_length(_snd_heavy_list);
 							}
 						else
 							{
 							var _sound_to_play = _snd_light_list[other.owner.sound_hit_light_index];
-							sound_system_play(_sound_to_play, true, 10);
+							hit_sfx_play(_sound_to_play);
 							
 							other.owner.sound_hit_light_index = (other.owner.sound_hit_light_index + 1) % array_length(_snd_light_list);
 							}
@@ -124,7 +124,7 @@ function hitbox_update()
 						hsp = other.knockback * other.owner.facing;
 						
 						//Effects
-						obj_game.cam_shake = other.damage * 0.75;
+						obj_game.cam_shake = other.damage * 1;
 						if (other.damage > 10)
 							{
 							var _action_lines = instance_create_layer(x, y, "VFX_Layer", obj_vfx_action_lines);

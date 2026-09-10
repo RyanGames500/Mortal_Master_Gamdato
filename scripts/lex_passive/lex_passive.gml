@@ -23,28 +23,6 @@ function lex_passive()
 				}
 			}
 		}
-
-	if (state == PLAYER_STATE.idle ||
-		state == PLAYER_STATE.crouch ||
-		state == PLAYER_STATE.walk_forward ||
-		state == PLAYER_STATE.dash ||
-		(state == PLAYER_STATE.attacking && state_time < 5 && bbox_bottom >= obj_ground.y))
-		{
-		// Movimiento Adelante, Adelante o Atrás, Adelante
-		if (input_motion_check([STICK_DIR.backward, STICK_DIR.forward]) || input_motion_check([STICK_DIR.forward, STICK_DIR.forward]))
-			{
-			if (input_pressed(INPUT.attack_heavy))
-				{
-				if (attack_script != lex_special_ground && meter >= _special_cost)
-					{
-					meter -= _special_cost;	
-					attack_stop();
-					attack_start(lex_special_ground);
-					return;
-					}
-				}
-			}
-		}
 		
 	if (state == PLAYER_STATE.idle ||
 		state == PLAYER_STATE.crouch ||

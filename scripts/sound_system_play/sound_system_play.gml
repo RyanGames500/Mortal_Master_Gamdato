@@ -1,18 +1,24 @@
-///@category Sound System
-///@param {asset} sound						The sound to play
-///@param {bool} [replace]					Whether to stop the sound if it is already being played
-///@param {int} [priority]					The priority
-///@param {int} [replay_timer]				The maximum amount the pitch can vary
-///@param {real} [pitch_variance]			How long the sound must be active before it can be played again
-///@param {bool} [play_over_current]		If the sound can be played even if it is already played
-///@param {real} [x]						The x position the sound is being played from, for stereo
+///@category Sound System (Sistema de Sonido)
+///@param {asset} sound						El sonido que se va a reproducir
+///@param {bool} [replace]					Si se debe detener el sonido si ya se está reproduciendo
+///@param {int} [priority]					La prioridad del sonido
+///@param {int} [replay_timer]				La cantidad máxima que puede variar el tono (pitch)
+///@param {real} [pitch_variance]			Cuánto tiempo debe estar activo el sonido antes de poder reproducirse de nuevo
+///@param {bool} [play_over_current]		Si el sonido se puede reproducir incluso si ya está sonando
+///@param {real} [x]						La posición X desde la que suena el sonido, para audio estéreo
 /*
-Plays a sound after checking with <obj_sound_system> to make sure the sound cannot overlap / repeat.
-This is intended for playing sound effects, and uses the sound effect audiogroup.
-You can optionally supply an x position, which will determine which side the sound is played on if setting().<stereo_sound_effects> is true.
+Reproduce un sonido tras verificar con <obj_sound_system> para asegurarse de que el sonido no se superponga ni se repita.
+Esto está diseñado para reproducir efectos de sonido y utiliza el grupo de audio (audiogroup) de efectos de sonido.
+Opcionalmente, puedes proporcionar una posición X, la cual determinará en qué lado se reproduce el sonido si setting().<stereo_sound_effects> es true (verdadero).
 */
 function sound_system_play()
 	{
+	//No repetir sonidos en los frames resimulados de un rollback
+	if (instance_exists(obj_ggmr_session) && ggmr_session_is_in_rollback())
+		{
+		return undefined;
+		}
+	
 	with (obj_sound_system)
 		{
 		var _snd = argument[0];
@@ -24,20 +30,20 @@ function sound_system_play()
 		var _x = argument_count > 6 ? argument[6] : undefined;
 		var _name = string(_snd);
 		
-		//Make sure playing over the current sound is allowed or the sound is not currently playing
+		//Asegurarse de que se permite reproducir sobre el sonido actual o que el sonido no se esté reproduciendo actualmente
 		if (_play_over_current || !audio_is_playing(_snd))
 			{
-			//Make sure the sound is past the replay timer
+			//Asegurarse de que el sonido haya superado el temporizador de repetición (replay timer)
 			if (!variable_struct_exists(sound_system_all_sounds, _name) ||
 				sound_system_all_sounds[$ _name] >= _replay_timer)
 				{
-				//Replacing the old sound
+				//Reemplazar el sonido antiguo
 				if (_replace)
 					{
 					audio_stop_sound(_snd);
 					}
 			
-				//Play the sound and store the index
+				//Reproducir el sonido y guardar el índice
 				var _w;
 				if (setting().stereo_sound_effects)
 					{
@@ -59,20 +65,20 @@ function sound_system_play()
 					_w
 					);
 			
-				//Pitch
+				//Tono (Pitch)
 				audio_sound_pitch(_index, 1 + random_range(-_pitch, _pitch));
 			
-				//Zero frames since the sound has been played
+				//Cero fotogramas desde que se reprodujo el sonido
 				sound_system_all_sounds[$ _name] = 0;
 			
-				//Return the sound index
+				//Devolver el índice del sonido
 				return _index;
 				}
 			}
 		
-		//If no sound was played
+		//Si no se reprodujo ningún sonido
 		return undefined;
 		}
-	crash("obj_sound_system did not exist when sound_system_play was called");
+	crash("obj_sound_system no existía cuando se llamó a sound_system_play");
 	}
 /* Copyright 2026 Springroll Games / Yosi */

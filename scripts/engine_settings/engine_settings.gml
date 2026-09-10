@@ -23,7 +23,7 @@ function setting()
 #macro knockback_friction		0.9 //{real} The friction multiplier on horizontal knockback.
 #macro block_pushback_friction	0.7 //{real} The friction multiplier on block pushback.
 #macro block_multiplier			0.25 //{real} The damage and hitstun multiplier for blocked attacks.
-#macro show_hitboxes			false //{bool} Whether hitboxes and hurtboxes are visible or not.
+#macro show_hitboxes			true //{bool} Whether hitboxes and hurtboxes are visible or not.
 #macro throw_input_leniency		2 //{int} How many frames at the start of normal attacks can be canceled into throws.
 #macro motion_input_leniency	25 //{int} The maximum number of frames you can take to do a motion input.
 #macro motion_input_array_size	10 //{int} How many stick directions are stored to detect motion inputs.
@@ -62,4 +62,12 @@ global.online_name =			"No Name"; //{string} The local player's name.
 #macro private_lobby_key		"" ///{string} The key needed for using private lobbies.
 global.news =					"Could not contact the matchmaking server!"; //{string} The news fetched from the matchmaking server.
 
+
+//Sound
+#macro hit_sound_default					snd_hit_light //{asset} The default sound played on hit.
+#macro hit_sound_replace					false //{bool} Whether hit sounds will stop sounds of the same index that are currently being played or not.
+#macro hit_sound_pitch_variance				0.2 //{real} The maximum amount of pitch shift a hit sound can have.
+#macro hit_sound_priority_default			10 //{real} The priority of hit sounds. All stage music is played at a priority of 0 by default.
+#macro hit_sound_replay_timer_default		10 //{int} The number of frames before a hit sound can be played again during local matches. Please note: In online matches, the <GGMR_PREDICTION_FRAMES_MAX> is used instead.
+//Collisions
 /* Copyright 2024 Springroll Games / Yosi */

@@ -4,7 +4,7 @@ It is run every frame and allows motion input attacks to be performed.
 */
 function blitsen_passive()
 	{
-	var _special_cost = 25;	
+	var _special_cost = 15;	
 		
 	//Only check for it during certain states
 	if (state == PLAYER_STATE.idle ||
