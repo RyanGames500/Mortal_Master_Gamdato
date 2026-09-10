@@ -62,12 +62,17 @@ global.online_name =			"No Name"; //{string} The local player's name.
 #macro private_lobby_key		"" ///{string} The key needed for using private lobbies.
 global.news =					"Could not contact the matchmaking server!"; //{string} The news fetched from the matchmaking server.
 
-
 //Sound
 #macro hit_sound_default					snd_hit_light //{asset} The default sound played on hit.
 #macro hit_sound_replace					false //{bool} Whether hit sounds will stop sounds of the same index that are currently being played or not.
 #macro hit_sound_pitch_variance				0.2 //{real} The maximum amount of pitch shift a hit sound can have.
 #macro hit_sound_priority_default			10 //{real} The priority of hit sounds. All stage music is played at a priority of 0 by default.
 #macro hit_sound_replay_timer_default		10 //{int} The number of frames before a hit sound can be played again during local matches. Please note: In online matches, the <GGMR_PREDICTION_FRAMES_MAX> is used instead.
-//Collisions
-/* Copyright 2024 Springroll Games / Yosi */
+
+//GLOBALES----------------------------------------------------------------------------------------------------------------------
+global.p1_character =						1;//ID de Jugador 1 seleccionado
+global.p2_character =						1;//ID de Jugador 2 seleccionado
+global.p1_ready =							false;//Estado de cofirmacion jugador 1
+global.p2_ready =							false;//Estado de cofirmacion jugador 2
+global.p1_select =							1; 
+global.p2_select =							4;

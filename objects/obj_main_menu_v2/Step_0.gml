@@ -116,29 +116,33 @@ if (current_state == MENU_STATE.replays)
 			current_state = MENU_STATE.main;
 			menu_index = 3; // Regresa apuntando a REPLAYS
 			}
-		else if (file_exists(_selected_file))
-			{
-			if (variable_global_exists("replay_buffer") && buffer_exists(global.replay_buffer))
-				{
-				buffer_delete(global.replay_buffer);
-				}
-				
-			global.replay_buffer = buffer_load(_selected_file);
-			
-			if (global.replay_buffer != -1)
-				{
-				buffer_seek(global.replay_buffer, buffer_seek_start, 0);
-				
-				global.replay_mode = true;
-				global.online_mode = false;
-				room_goto(rm_gameplay);
-				}
-			else
-				{
-				notice_text = "ERROR LOADING REPLAY!";
-				notice_timer = 90;
-				}
-			}
+	else if (file_exists(_selected_file))
+	{
+	if (variable_global_exists("replay_buffer") && buffer_exists(global.replay_buffer))
+		{
+		buffer_delete(global.replay_buffer);
+		}
+		
+	global.replay_buffer = buffer_load(_selected_file);
+	
+	if (global.replay_buffer != -1)
+		{
+		buffer_seek(global.replay_buffer, buffer_seek_start, 0);
+		
+		// LEER PERSONAJES GRABADOS EN ESTA REPETICIÓN
+		global.p1_select = buffer_read(global.replay_buffer, buffer_u8);
+		global.p2_select = buffer_read(global.replay_buffer, buffer_u8);
+		
+		global.replay_mode = true;
+		global.online_mode = false;
+		room_goto(rm_gameplay);
+		}
+	else
+		{
+		notice_text = "ERROR LOADING REPLAY!";
+		notice_timer = 90;
+		}
+	}
 		}
 
 	// BORRAR REPLAY SELECCIONADO
@@ -195,9 +199,10 @@ if (_confirm)
 		switch (_selected_text)
 			{
 			case "LOCAL VS":
-				//global.replay_mode = false;
-				//global.online_mode = false;
-				room_goto(rm_gameplay);
+				global.replay_mode = false;
+				global.online_mode = false;
+				//room_goto(rm_gameplay);
+				room_goto(rm_char_select);
 			break;
 			
 			case "SURVIVAL":
