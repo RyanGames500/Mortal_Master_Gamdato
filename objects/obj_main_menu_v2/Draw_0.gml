@@ -26,11 +26,12 @@ if (current_state == MENU_STATE.replays)
 	{
 	var _count = array_length(replay_list);
 	var _card_w = 620;
-	var _item_h = 50;
+	var _item_h = 48;
 	var _card_h = 130 + (min(_count, 6) * _item_h);
 	
 	var _center_x = room_width / 2;
-	var _center_y = (room_height / 2) + 70;
+	// AJUSTE: Se eleva el centro vertical para dar espacio al mensaje inferior
+	var _center_y = (room_height / 2) + 10;
 	
 	var _left = _center_x - (_card_w / 2);
 	var _right = _center_x + (_card_w / 2);
@@ -77,7 +78,7 @@ if (current_state == MENU_STATE.replays)
 	// Leyenda de ayuda en la parte inferior de la tarjeta
 	draw_set_halign(fa_center);
 	draw_set_color(c_gray);
-	draw_text_transformed(_center_x, _bottom - 25, "[ENTER] PLAY | [DEL/SUPR] DELETE | [ESC] BACK", 0.9, 0.9, 0);		
+	draw_text_transformed(_center_x, _bottom - 25, "[ENTER] PLAY | [DEL] DELETE | [ESC] BACK", 0.9, 0.9, 0);		
 	}
 else
 	{
@@ -99,10 +100,11 @@ else
 	var _count = array_length(_current_list);
 
 	var _card_w = 580;
-	var _item_h = 58; 
+	var _item_h = 52; // AJUSTE: Altura de item ligeramente comprimida
 	var _card_h = 120 + (_count * _item_h);
 	var _center_x = room_width / 2;
-	var _center_y = (room_height / 2) + 70; 
+	// AJUSTE: Elevar el contenedor a +10 px del centro en vez de +70 px
+	var _center_y = (room_height / 2) + 10; 
 
 	if (current_state == MENU_STATE.private_lobby)
 		{
@@ -127,13 +129,13 @@ else
 	// Título del submenú
 	draw_set_halign(fa_center);
 	draw_set_color(c_yellow);
-	draw_text_transformed(_center_x, _top + 45, _header_title, 1.5, 1.5, 0);
+	draw_text_transformed(_center_x, _top + 40, _header_title, 1.4, 1.4, 0);
 
 	draw_set_color(c_aqua);
-	draw_line(_left + 30, _top + 80, _right - 30, _top + 80);
+	draw_line(_left + 30, _top + 70, _right - 30, _top + 70);
 
 	// Opciones
-	var _start_y = _top + 125;
+	var _start_y = _top + 110;
 
 	for (var i = 0; i < _count; i++)
 		{
@@ -141,8 +143,8 @@ else
 		var _y_pos = _start_y + (i * _item_h);
 		var _btn_left = _left + 40;
 		var _btn_right = _right - 40;
-		var _btn_top = _y_pos - 24;
-		var _btn_bottom = _y_pos + 24;
+		var _btn_top = _y_pos - 20;
+		var _btn_bottom = _y_pos + 20;
 		
 		if (_is_selected)
 			{
@@ -150,7 +152,7 @@ else
 			draw_set_alpha(0.9);
 			draw_roundrect_ext(_btn_left, _btn_top, _btn_right, _btn_bottom, 12, 12, false);
 			
-			var _pulse = 1.3 + (dsin(current_time / 4) * 0.08);
+			var _pulse = 1.25 + (dsin(current_time / 4) * 0.08);
 			draw_set_alpha(1.0);
 			draw_set_color(c_aqua);
 			draw_roundrect_ext(_btn_left, _btn_top, _btn_right, _btn_bottom, 12, 12, true);
@@ -163,7 +165,7 @@ else
 			{
 			draw_set_alpha(1.0);
 			draw_set_color(c_dkgray);
-			draw_text_transformed(_center_x, _y_pos, _current_list[i], 1.2, 1.2, 0);
+			draw_text_transformed(_center_x, _y_pos, _current_list[i], 1.1, 1.1, 0);
 			}
 		}
 
@@ -267,7 +269,7 @@ if (notice_timer > 0)
 	var _n_w = 520;
 	var _n_h = 70;
 	var _n_x = room_width / 2;
-	var _n_y = room_height - 120;
+	var _n_y = room_height - 110;
 	
 	draw_set_color(c_black);
 	draw_set_alpha(0.9 * _n_alpha);
@@ -287,7 +289,7 @@ draw_set_font(fnt_menu);
 draw_set_halign(fa_center);
 draw_set_color(c_white);
 draw_set_alpha(0.7);
-draw_text_transformed(room_width / 2, room_height - 40, global.news, 1.1, 1.1, 0);
+draw_text_transformed(room_width / 2, room_height - 35, "PREPARE FOR THE NEXT BATTLE", 1.1, 1.1, 0);
 
 // Resetear Propiedades
 draw_set_alpha(1.0);
