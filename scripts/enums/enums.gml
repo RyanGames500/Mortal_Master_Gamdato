@@ -6,8 +6,7 @@ enum GAME_META_STATE
 	starting,
 	running,
 	ending,
-	round_restart,
-	char_select,
+	round_restart
 	}
 
 /*

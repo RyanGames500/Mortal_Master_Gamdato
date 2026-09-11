@@ -2,10 +2,6 @@ function game_players_spawn()
 	{
 	var _spawn_distance = 258;
 	
-	// Decidir de dónde viene la selección de personaje según el modo
-	var _p1_select = global.online_mode ? obj_game.p1_char_select : global.p1_select;
-	var _p2_select = global.online_mode ? obj_game.p2_char_select : global.p2_select;
-	
 	// --- PLAYER 1 ---
 	var _player1 = instance_create_layer((room_width div 2) - _spawn_distance, obj_ground.y, layer, obj_player);
 	_player1.player_number = 0;
@@ -14,7 +10,7 @@ function game_players_spawn()
 	
 	with (_player1)
 		{
-		switch (_p1_select)
+		switch (global.p1_select)
 			{
 			case 1: blocky_character_init(); break;
 			case 2: lex_character_init(); break;
@@ -34,7 +30,7 @@ function game_players_spawn()
 	
 	with (_player2)
 		{
-		switch (_p2_select)
+		switch (global.p2_select)
 			{
 			case 1: blocky_character_init(); break;
 			case 2: lex_character_init(); break;
