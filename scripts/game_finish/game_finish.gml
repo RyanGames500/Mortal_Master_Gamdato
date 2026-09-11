@@ -15,7 +15,6 @@ function game_finish()
 		}
 	
 	//Change rooms
-	global.replay_mode = false;
 	room_goto(rm_main_menu);
 	}
 

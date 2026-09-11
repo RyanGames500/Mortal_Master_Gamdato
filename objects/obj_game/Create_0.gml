@@ -45,7 +45,7 @@ if (!global.replay_mode)
 game_state_is_loading = false;
 
 //Variables
-game_meta_state = GAME_META_STATE.starting;
+game_meta_state = global.online_mode ? GAME_META_STATE.char_select : GAME_META_STATE.starting;
 game_paused = false;
 game_frame = 0;
 starting_frame = 50 * 3;
@@ -58,7 +58,10 @@ audio_group_load(audiogroup_sound_effects);
 audio_group_load(audiogroup_music);
 sound_system_init();
 //Spawn player instances
-game_players_spawn();
+if (!global.online_mode)
+	{
+	game_players_spawn();
+	}
 
 //Camera - start in the middle of the room
 cam_x = 0;
@@ -96,4 +99,21 @@ round_restart_frame = 0;
 fade_alpha = 0.0;
 
 
-/* Copyright 2024 Springroll Games / Yosi */
+characters = [
+    { name: "JOE",     char_id: 1, color: c_orange },
+    { name: "LEX",     char_id: 2, color: c_red },
+    { name: "BLITSEN", char_id: 3, color: c_yellow },
+    { name: "SAORI",   char_id: 4, color: c_fuchsia },
+    { name: "SCAR",    char_id: 5, color: c_lime }
+];
+char_count = array_length(characters);
+
+p1_css_cursor   = 1;
+p2_css_cursor   = 4;
+p1_css_ready    = false;
+p2_css_ready    = false;
+p1_css_last_dir = STICK_DIR.neutral;
+p2_css_last_dir = STICK_DIR.neutral;
+css_start_timer = -1;
+p1_char_select = 1;
+p2_char_select = 4;

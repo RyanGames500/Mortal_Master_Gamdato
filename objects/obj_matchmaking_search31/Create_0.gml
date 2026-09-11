@@ -59,12 +59,8 @@ start_match = function()
 	{
 	show_debug_message("[mm] start_match slot=" + string(my_slot));
 
-	// Re-confirmamos el socket activo de GGMR antes de pasar a la pelea
-	if (instance_exists(obj_ggmr_net))
-		{
-		gmda_matchmakingSetSocket(obj_ggmr_net.net_socket, real(obj_ggmr_net.net_port));
-		}
-
+	//From here on the plugin watches everyone's connection and reports through
+	//matchmaking_match_closed if somebody drops
 	gmda_matchmakingMatchStarted();
 
 	global.online_lobby_members = ggmr_lobby_members_save();

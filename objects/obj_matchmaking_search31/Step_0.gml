@@ -202,7 +202,7 @@ switch (state)
 			}
 	break;
 
-case "match_found":
+	case "match_found":
 		match_found_timer++;
 		status_text = "Opponent found! Connecting...";
 
@@ -227,6 +227,7 @@ case "match_found":
 				}
 			else
 				{
+				//1v1: everyone connects to slot 0. 3+ would need a mesh
 				var _host_idx = 0;
 				for (var i = 0; i < array_length(_opponents); i++)
 					{
@@ -237,24 +238,16 @@ case "match_found":
 						}
 					}
 
-				// --- OBTENER ENDPOINT OFICIAL DE GAMDATO ---
+				//Relay or direct is the plugin's business
 				var _ep = gmda_matchmakingGetEndpoint(_host_idx);
-				var _ip = "";
-				var _port = 0;
-
-				if (is_struct(_ep))
-					{
-					_ip = variable_struct_exists(_ep, "host") ? _ep.host : "";
-					_port = variable_struct_exists(_ep, "port") ? _ep.port : 0;
-					}
+				var _ip = _ep.host;
+				var _port = _ep.port;
 
 				if (_ip == "" || _port <= 0)
 					{
 					requeue("No host address. Back to the queue");
 					break;
 					}
-
-				show_debug_message("[mm] Conectando a Host en " + string(_ip) + ":" + string(_port));
 
 				ggmr_lobby_reset();
 				ggmr_lobby_join_request_send(_ip, _port);

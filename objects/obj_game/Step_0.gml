@@ -10,12 +10,8 @@ if (global.replay_mode)
 		}
 
 	// 2. Cargar inputs grabados
-	with_synced_object
-		(
-		obj_player,
-		input_replay_load,
-		input_buffers,
-		);
+	input_replay_load_index(input_buffers, 0);
+	input_replay_load_index(input_buffers, 1);
 	
 	// 3. Verificación determinista de desincronización
 	var _expected = buffer_read(global.replay_buffer, buffer_string);

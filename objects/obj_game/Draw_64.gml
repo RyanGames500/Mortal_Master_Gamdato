@@ -16,6 +16,103 @@
 //	draw_text(camera_width div 2, camera_height div 2, _num);
 //	}
 
+
+
+// ==========================================
+// 1. PANTALLA DE SELECCIÓN DE PERSONAJES (CSS)
+// ==========================================
+if (game_meta_state == GAME_META_STATE.char_select)
+	{
+	draw_set_font(fnt_menu);
+	draw_set_valign(fa_middle);
+	draw_set_halign(fa_center);
+
+	var _gui_w = display_get_gui_width();
+	var _gui_h = display_get_gui_height();
+
+	// Fondo oscuro transparente
+	draw_set_alpha(0.85);
+	draw_set_color(c_black);
+	draw_rectangle(0, 0, _gui_w, _gui_h, false);
+	draw_set_alpha(1.0);
+
+	// --- ENCABEZADO CYBER-NEON ---
+	var _title_x = _gui_w / 2;
+	var _pulse = 1.0 + (dsin(current_time / 3) * 0.04);
+
+	draw_set_color(c_aqua);
+	draw_text_transformed(_title_x, 50, "SELECT YOUR FIGHTER", 1.5 * _pulse, 1.5 * _pulse, 0);
+
+	// --- TARJETAS DE PERSONAJES ---
+	var _box_w = 115;
+	var _box_h = 180;
+	var _spacing = 18;
+	var _total_w = (char_count * _box_w) + ((char_count - 1) * _spacing);
+	var _start_x = (_gui_w / 2) - (_total_w / 2) + (_box_w / 2);
+	var _center_y = (_gui_h / 2) + 10;
+
+	for (var i = 0; i < char_count; i++)
+		{
+		var _x = _start_x + (i * (_box_w + _spacing));
+		var _y = _center_y;
+		
+		var _left   = _x - (_box_w / 2);
+		var _right  = _x + (_box_w / 2);
+		var _top    = _y - (_box_h / 2);
+		var _bottom = _y + (_box_h / 2);
+		
+		var _is_p1 = (i == p1_css_cursor);
+		var _is_p2 = (i == p2_css_cursor);
+		
+		// Fondo de la tarjeta individual
+		draw_set_color(c_black);
+		draw_set_alpha(0.85);
+		draw_roundrect_ext(_left, _top, _right, _bottom, 12, 12, false);
+		draw_set_alpha(1.0);
+		
+		// Borde base con el color del personaje
+		var _char_color = variable_struct_exists(characters[i], "color") ? characters[i].color : c_gray;
+		draw_set_color(_char_color);
+		draw_roundrect_ext(_left, _top, _right, _bottom, 12, 12, true);
+		
+		// Nombre del personaje
+		draw_set_color(c_white);
+		draw_text_transformed(_x, _bottom - 25, characters[i].name, 1.0, 1.0, 0);
+		
+		// CURSOR P1 (Naranja / Rojo)
+		if (_is_p1)
+			{
+			draw_set_color(c_blue);
+			draw_roundrect_ext(_left - 3, _top - 3, _right + 3, _bottom + 3, 12, 12, true);
+			draw_roundrect_ext(_left - 4, _top - 4, _right + 4, _bottom + 4, 12, 12, true);
+			draw_text_transformed(_x, _top + 20, p1_css_ready ? "[P1 READY]" : "< P1 >", 0.9, 0.9, 0);
+			}
+			
+		// CURSOR P2 (Cian / Azul)
+		if (_is_p2)
+			{
+			draw_set_color(c_red);
+			draw_roundrect_ext(_left - 6, _top - 6, _right + 6, _bottom + 6, 12, 12, true);
+			draw_roundrect_ext(_left - 7, _top - 7, _right + 7, _bottom + 7, 12, 12, true);
+			draw_text_transformed(_x, _bottom + 20, p2_css_ready ? "[P2 READY]" : "< P2 >", 0.9, 0.9, 0);
+			}
+		}
+
+	// --- PANEL INFERIOR DE INSTRUCCIONES ---
+	draw_set_color(c_yellow);
+	draw_text_transformed(_gui_w / 2, _gui_h - 40, "MOVE: [LEFT / RIGHT]  |  SELECT: [LIGHT ATTACK]", 0.8, 0.8, 0);
+
+	// Reset de propiedades del renderizado
+	draw_set_alpha(1.0);
+	draw_set_color(c_white);
+	draw_set_halign(fa_left);
+	draw_set_valign(fa_top);
+
+	// IMPORTANTE: Detener la ejecución para no dibujar las barras de HP ni el Timer durante la CSS
+	exit;
+	}
+
+
 //Ending countdown
 // Conteo de Rondas, "ROUND X" y "FIGHT!"
 if (game_meta_state == GAME_META_STATE.starting)

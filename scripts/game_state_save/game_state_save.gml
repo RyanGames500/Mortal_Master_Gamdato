@@ -33,7 +33,15 @@ function game_state_save(_buffer)
 	buffer_write(_buffer, buffer_s16, obj_game.p1_wins);
 	buffer_write(_buffer, buffer_s16, obj_game.p2_wins);
 	buffer_write(_buffer, buffer_s16, obj_game.round_restart_frame);
-	
+	buffer_write(_buffer, buffer_s16, obj_game.p1_css_cursor);
+	buffer_write(_buffer, buffer_s16, obj_game.p2_css_cursor);
+	buffer_write(_buffer, buffer_bool, obj_game.p1_css_ready);
+	buffer_write(_buffer, buffer_bool, obj_game.p2_css_ready);
+	buffer_write(_buffer, buffer_u8, obj_game.p1_css_last_dir);
+	buffer_write(_buffer, buffer_u8, obj_game.p2_css_last_dir);
+	buffer_write(_buffer, buffer_s16, obj_game.css_start_timer);
+	buffer_write(_buffer, buffer_s16, obj_game.p1_char_select);
+	buffer_write(_buffer, buffer_s16, obj_game.p2_char_select);
 	//Trim off extra bytes
 	buffer_resize(_buffer, buffer_tell(_buffer));
 	
