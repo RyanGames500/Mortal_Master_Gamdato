@@ -10,7 +10,8 @@ function game_players_spawn()
 	
 	with (_player1)
 		{
-		switch (global.p1_select)
+		// Leemos la variable p1_select desde obj_game usando "other"
+		switch (other.p1_select)
 			{
 			case 1: blocky_character_init(); break;
 			case 2: lex_character_init(); break;
@@ -30,7 +31,8 @@ function game_players_spawn()
 	
 	with (_player2)
 		{
-		switch (global.p2_select)
+		// Leemos la variable p2_select desde obj_game usando "other"
+		switch (other.p2_select)
 			{
 			case 1: blocky_character_init(); break;
 			case 2: lex_character_init(); break;

@@ -50,6 +50,8 @@ game_paused = false;
 game_frame = 0;
 starting_frame = 50 * 3;
 ending_frame = 0;
+p1_select = 1; // JOE
+p2_select = 1; // JOE
 //inicia sistema de sonido del sonido
 //Audio Groups
 audio_group_load(audiogroup_music_menu);

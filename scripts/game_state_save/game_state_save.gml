@@ -33,6 +33,8 @@ function game_state_save(_buffer)
 	buffer_write(_buffer, buffer_s16, obj_game.p1_wins);
 	buffer_write(_buffer, buffer_s16, obj_game.p2_wins);
 	buffer_write(_buffer, buffer_s16, obj_game.round_restart_frame);
+	buffer_write(_buffer, buffer_u8, obj_game.p1_select);
+	buffer_write(_buffer, buffer_u8, obj_game.p2_select);
 	
 	//Trim off extra bytes
 	buffer_resize(_buffer, buffer_tell(_buffer));
