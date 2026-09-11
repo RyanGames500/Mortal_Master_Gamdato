@@ -129,6 +129,10 @@ if (current_state == MENU_STATE.replays)
 				{
 				buffer_seek(global.replay_buffer, buffer_seek_start, 0);
 				
+				// Leer que personaje le toco a la CPU en esta partida grabada
+				global.replay_cpu_cursor = buffer_read(global.replay_buffer, buffer_u8);
+				global.replay_was_online = buffer_read(global.replay_buffer, buffer_u8); 
+				
 				global.replay_mode = true;
 				global.online_mode = false;
 				room_goto(rm_gameplay);
@@ -195,8 +199,8 @@ if (_confirm)
 		switch (_selected_text)
 			{
 			case "LOCAL VS":
-				//global.replay_mode = false;
-				//global.online_mode = false;
+				global.replay_mode = false;
+				global.online_mode = false;
 				room_goto(rm_gameplay);
 			break;
 			

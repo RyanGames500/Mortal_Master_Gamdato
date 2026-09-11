@@ -14,7 +14,6 @@ function input_replay_save_index(_inputs, _player_index)
 
 /* Copyright 2024 Springroll Games / Yosi */
 
-
 ///@param {array} inputs		The array that is storing player inputs
 /*
 Copies the current player inputs from an array to the replay buffer.

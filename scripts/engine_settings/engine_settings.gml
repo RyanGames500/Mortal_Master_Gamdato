@@ -38,6 +38,8 @@ function setting()
 #macro replay_filename			"replay.ggmr" //{string} The name of the file used for saving replays.
 global.replay_buffer =			buffer_create(1, buffer_grow, 1); //{buffer} The buffer used to store replays before saving to files.
 global.replay_mode =			false //{bool} Whether replay mode is enabled or not.
+global.replay_cpu_cursor =		0; //{int} El personaje de CPU a usar al reproducir un replay
+global.replay_was_online =		false;
 
 //Inputs
 #macro input_store_length		6 //{int} The number of frames an input lasts.

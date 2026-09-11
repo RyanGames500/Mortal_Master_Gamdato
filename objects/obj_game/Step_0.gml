@@ -2,12 +2,8 @@
 if (global.replay_mode)
 	{
 	//Read inputs from the buffer
-	with_synced_object
-		(
-		obj_player,
-		input_replay_load,
-		input_buffers,
-		);
+	input_replay_load_index(input_buffers, 0);
+	input_replay_load_index(input_buffers, 1);
 	
 	//Load data for desync detection
 	var _expected = buffer_read(global.replay_buffer, buffer_string);

@@ -49,12 +49,110 @@ function game_advance_frame(_inputs_array, _relative_frame = undefined)
 				var _confirmed = obj_ggmr_session.session_frames[@ _relative_frame][@ GGMR_FRAME.confirmed];
 				if (_confirmed && !_recorded) 
 					{
-					with_synced_object(obj_player, input_replay_save, _inputs_array);
+					//with_synced_object(obj_player, input_replay_save, _inputs_array);
+					input_replay_save_index(_inputs_array, 0);
+					input_replay_save_index(_inputs_array, 1);
 					obj_ggmr_session.session_frames[@ _relative_frame][@ GGMR_FRAME.recorded] = true;
 					buffer_write(global.replay_buffer, buffer_string, game_state_hash());
 					}
 				}
 			}
+
+/* ---------------------------------------------------------------- */
+#region STATE: Character Select
+if (game_meta_state == GAME_META_STATE.char_select)
+	{
+	var _buf0 = _inputs_array[@ 0];
+	
+	var _dir0    = buffer_peek(_buf0, 0, buffer_u8);
+	var _atk0    = buffer_peek(_buf0, 1, buffer_bool); // Confirmar
+	var _cancel0 = buffer_peek(_buf0, 2, buffer_bool); // Deseleccionar
+	
+	// --- PROCESAR P1 ---
+	if (!p1_css_ready)
+		{
+		if (_dir0 != p1_css_last_dir)
+			{
+			if (_dir0 == STICK_DIR.backward || _dir0 == STICK_DIR.backward_up || _dir0 == STICK_DIR.backward_down)
+				{
+				p1_css_cursor--;
+				if (p1_css_cursor < 0) p1_css_cursor = char_count - 1;
+				}
+			else if (_dir0 == STICK_DIR.forward || _dir0 == STICK_DIR.forward_up || _dir0 == STICK_DIR.forward_down)
+				{
+				p1_css_cursor++;
+				if (p1_css_cursor >= char_count) p1_css_cursor = 0;
+				}
+			}
+		p1_css_last_dir = _dir0;
+		
+		if (_atk0)
+			{
+			p1_css_ready = true;
+			p1_select = characters[p1_css_cursor].char_id;
+			}
+		}
+	else if (_cancel0)
+		{
+		p1_css_ready = false;
+		css_start_timer = -1;
+		}
+	
+	if (global.online_mode)
+		{
+		var _buf1 = _inputs_array[@ 1];
+		
+		var _dir1    = buffer_peek(_buf1, 0, buffer_u8);
+		var _atk1    = buffer_peek(_buf1, 1, buffer_bool);
+		var _cancel1 = buffer_peek(_buf1, 2, buffer_bool);
+		
+		if (!p2_css_ready)
+			{
+			if (_dir1 != p2_css_last_dir)
+				{
+				if (_dir1 == STICK_DIR.backward || _dir1 == STICK_DIR.backward_up || _dir1 == STICK_DIR.backward_down)
+					{
+					p2_css_cursor--;
+					if (p2_css_cursor < 0) p2_css_cursor = char_count - 1;
+					}
+				else if (_dir1 == STICK_DIR.forward || _dir1 == STICK_DIR.forward_up || _dir1 == STICK_DIR.forward_down)
+					{
+					p2_css_cursor++;
+					if (p2_css_cursor >= char_count) p2_css_cursor = 0;
+					}
+				}
+			p2_css_last_dir = _dir1;
+			
+			if (_atk1)
+				{
+				p2_css_ready = true;
+				p2_select = characters[p2_css_cursor].char_id;
+				}
+			}
+		else if (_cancel1)
+			{
+			p2_css_ready = false;
+			css_start_timer = -1;
+			}
+		}
+	
+	// --- CONFIRMACIÓN Y TRANSICIÓN ---
+	if (p1_css_ready && p2_css_ready)
+		{
+		if (css_start_timer == -1) css_start_timer = 30;
+		
+		if (--css_start_timer <= 0)
+			{
+			game_players_spawn();
+			game_meta_state = GAME_META_STATE.starting;
+			}
+		}
+	else
+		{
+		css_start_timer = -1;
+		}
+	}
+#endregion
 
 		/* ---------------------------------------------------------------- */
 		#region STATE: Starting (Cuenta regresiva / Intros)

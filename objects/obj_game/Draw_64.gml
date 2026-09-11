@@ -16,6 +16,172 @@
 //	draw_text(camera_width div 2, camera_height div 2, _num);
 //	}
 
+// ==========================================
+// PANTALLA DE SELECCIÓN DE PERSONAJES (CSS)
+// ==========================================
+if (game_meta_state == GAME_META_STATE.char_select)
+	{
+	var _gui_w = display_get_gui_width();
+	var _gui_h = display_get_gui_height();
+
+	// Determina si se debe mostrar la UI de "online" (2 jugadores reales)
+	// tanto en partidas en vivo como en replays grabados en modo online
+	var _display_online = global.replay_mode ? global.replay_was_online : global.online_mode;
+
+	// --- FONDO ---
+	draw_set_alpha(0.9);
+	draw_set_color(c_black);
+	draw_rectangle(0, 0, _gui_w, _gui_h, false);
+	draw_set_alpha(1.0);
+
+	// Líneas decorativas de fondo estilo grid neon
+	draw_set_alpha(0.08);
+	draw_set_color(c_aqua);
+	for (var i = 0; i < _gui_w; i += 40)
+		{
+		draw_line(i, 0, i, _gui_h);
+		}
+	for (var i = 0; i < _gui_h; i += 40)
+		{
+		draw_line(0, i, _gui_w, i);
+		}
+	draw_set_alpha(1.0);
+
+	// --- ENCABEZADO ---
+	draw_set_font(fnt_menu);
+	draw_set_valign(fa_middle);
+	draw_set_halign(fa_center);
+
+	var _pulse = 1.0 + (dsin(current_time / 3) * 0.05);
+	var _title_scale = clamp((_gui_w / 1280) * 1.5, 1.0, 1.8) * _pulse;
+	var _title_y = _gui_h * 0.09;
+
+	draw_set_color(c_black);
+	draw_text_transformed(_gui_w / 2 + 3, _title_y + 3, "SELECT YOUR FIGHTER", _title_scale, _title_scale, 0);
+	draw_set_color(c_aqua);
+	draw_text_transformed(_gui_w / 2, _title_y, "SELECT YOUR FIGHTER", _title_scale, _title_scale, 0);
+
+	// --- TARJETAS DE PERSONAJES (dimensiones responsive) ---
+	var _box_w = clamp(_gui_w * 0.09, 90, 150);
+	var _box_h = _box_w * 1.55;
+	var _spacing = _box_w * 0.15;
+	var _total_w = (char_count * _box_w) + ((char_count - 1) * _spacing);
+	
+	// Si no caben todas las tarjetas en el ancho disponible, se reducen
+	var _max_width = _gui_w * 0.9;
+	if (_total_w > _max_width)
+		{
+		var _scale_fix = _max_width / _total_w;
+		_box_w *= _scale_fix;
+		_box_h *= _scale_fix;
+		_spacing *= _scale_fix;
+		_total_w = _max_width;
+		}
+	
+	var _start_x = (_gui_w / 2) - (_total_w / 2) + (_box_w / 2);
+	var _center_y = _gui_h * 0.52;
+
+	for (var i = 0; i < char_count; i++)
+		{
+		var _x = _start_x + (i * (_box_w + _spacing));
+		var _y = _center_y;
+		
+		var _left   = _x - (_box_w / 2);
+		var _right  = _x + (_box_w / 2);
+		var _top    = _y - (_box_h / 2);
+		var _bottom = _y + (_box_h / 2);
+		
+		var _is_p1 = (i == p1_css_cursor);
+		var _is_p2 = (_display_online && i == p2_css_cursor);
+		
+		// Fondo de la tarjeta con leve glow si está seleccionada por alguien
+		var _highlighted = _is_p1 || _is_p2;
+		draw_set_alpha(_highlighted ? 0.95 : 0.75);
+		draw_set_color(c_black);
+		draw_roundrect_ext(_left, _top, _right, _bottom, 14, 14, false);
+		draw_set_alpha(1.0);
+		
+		// Borde con el color del personaje
+		var _char_color = variable_struct_exists(characters[i], "color") ? characters[i].color : c_gray;
+		draw_set_color(_char_color);
+		draw_roundrect_ext(_left, _top, _right, _bottom, 14, 14, true);
+		
+		// Nombre del personaje
+		draw_set_font(fnt_menu);
+		draw_set_color(c_white);
+		var _name_scale = clamp(_box_w / 115, 0.7, 1.0);
+		draw_text_transformed(_x, _bottom - (_box_h * 0.13), characters[i].name, _name_scale, _name_scale, 0);
+		
+		// CURSOR / MARCA P1
+		if (_is_p1)
+			{
+			var _glow = 0.6 + (dsin(current_time / 4) * 0.4);
+			draw_set_alpha(_glow);
+			draw_set_color(c_lime);
+			draw_roundrect_ext(_left - 4, _top - 4, _right + 4, _bottom + 4, 14, 14, true);
+			draw_set_alpha(1.0);
+			
+			draw_set_color(c_lime);
+			var _p1_label = p1_css_ready ? "[P1 READY]" : "< P1 >";
+			draw_text_transformed(_x, _top - (_box_h * 0.1), _p1_label, 0.85, 0.85, 0);
+			}
+		
+		// CURSOR / MARCA P2 (solo online, o replay grabado en online)
+		if (_is_p2)
+			{
+			var _glow2 = 0.6 + (dsin(current_time / 4 + 90) * 0.4);
+			draw_set_alpha(_glow2);
+			draw_set_color(c_red);
+			draw_roundrect_ext(_left - 7, _top - 7, _right + 7, _bottom + 7, 14, 14, true);
+			draw_set_alpha(1.0);
+			
+			draw_set_color(c_red);
+			var _p2_label = p2_css_ready ? "[P2 READY]" : "< P2 >";
+			draw_text_transformed(_x, _bottom + (_box_h * 0.1), _p2_label, 0.85, 0.85, 0);
+			}
+		}
+
+	// --- ESTADO DE JUGADORES (arcade / online) ---
+	var _status_y = _gui_h * 0.78;
+	draw_set_font(fnt_menu);
+	draw_set_halign(fa_center);
+	
+	if (!_display_online)
+		{
+		// Modo Arcade: mostrar que la IA ya eligió
+		draw_set_color(c_black);
+		draw_text(_gui_w / 2 + 2, _status_y + 2, "CPU HAS CHOSEN " + characters[p2_css_cursor].name);
+		draw_set_color(c_yellow);
+		draw_text(_gui_w / 2, _status_y, "CPU HAS CHOSEN " + characters[p2_css_cursor].name);
+		}
+
+	// --- CUENTA REGRESIVA DE INICIO (cuando ambos están listos) ---
+	if (p1_css_ready && p2_css_ready && css_start_timer > -1)
+		{
+		var _count_text = "STARTING IN " + string(ceil(css_start_timer / 30 * 1)) + "...";
+		var _cy = _gui_h * 0.85;
+		
+		draw_set_color(c_black);
+		draw_text(_gui_w / 2 + 2, _cy + 2, _count_text);
+		draw_set_color(#FFDD00);
+		draw_text(_gui_w / 2, _cy, _count_text);
+		}
+
+	// --- PANEL INFERIOR DE INSTRUCCIONES ---
+	var _instr_y = _gui_h - (_gui_h * 0.05);
+	draw_set_color(c_black);
+	draw_text(_gui_w / 2 + 1, _instr_y + 1, "MOVE: [LEFT/RIGHT]  |  SELECT: [LIGHT ATTACK]  |  CANCEL: [HEAVY ATTACK]");
+	draw_set_color(c_yellow);
+	draw_text(_gui_w / 2, _instr_y, "MOVE: [LEFT/RIGHT]  |  SELECT: [LIGHT ATTACK]  |  CANCEL: [HEAVY ATTACK]");
+
+	// Reset de propiedades del renderizado
+	draw_set_alpha(1.0);
+	draw_set_color(c_white);
+	draw_set_halign(fa_left);
+	draw_set_valign(fa_top);
+	exit;
+	}
+
 //Ending countdown
 // Conteo de Rondas, "ROUND X" y "FIGHT!"
 if (game_meta_state == GAME_META_STATE.starting)

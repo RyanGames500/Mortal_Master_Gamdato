@@ -45,13 +45,53 @@ if (!global.replay_mode)
 game_state_is_loading = false;
 
 //Variables
-game_meta_state = GAME_META_STATE.starting;
+game_meta_state = GAME_META_STATE.char_select;
 game_paused = false;
 game_frame = 0;
 starting_frame = 50 * 3;
 ending_frame = 0;
-p1_select = 1; // JOE
-p2_select = 1; // JOE
+//sistema de seleccion de personajes
+//Roster de personajes disponibles
+characters = [
+    { name: "JOE",     char_id: 1, color: c_orange },
+    { name: "LEX",     char_id: 2, color: c_red },
+    { name: "BLITSEN", char_id: 3, color: c_yellow },
+    { name: "SAORI",   char_id: 4, color: c_fuchsia },
+    { name: "SCAR",    char_id: 5, color: c_lime }
+];
+char_count = array_length(characters);
+
+p1_css_cursor   = 1;
+p1_css_ready    = false;
+p1_css_last_dir = STICK_DIR.neutral;
+p1_select       = 0; // ID del personaje elegido por P1
+
+css_start_timer = -1;
+
+if (!global.online_mode)
+	{
+	if (global.replay_mode)
+		{
+		// Reproducción: usar exactamente el personaje que la CPU tuvo en la partida real
+		p2_css_cursor = global.replay_cpu_cursor;
+		}
+	else
+		{
+		// Partida real: elegir aleatoriamente, una sola vez
+		p2_css_cursor = irandom(char_count - 1);
+		}
+	
+	p2_select       = characters[p2_css_cursor].char_id;
+	p2_css_ready    = true;
+	p2_css_last_dir = STICK_DIR.neutral;
+	}
+else
+	{
+	p2_css_cursor   = 2;
+	p2_css_ready    = false;
+	p2_css_last_dir = STICK_DIR.neutral;
+	p2_select       = 0;
+	}
 //inicia sistema de sonido del sonido
 //Audio Groups
 audio_group_load(audiogroup_music_menu);
@@ -60,7 +100,7 @@ audio_group_load(audiogroup_sound_effects);
 audio_group_load(audiogroup_music);
 sound_system_init();
 //Spawn player instances
-game_players_spawn();
+//game_players_spawn();
 
 //Camera - start in the middle of the room
 cam_x = 0;
