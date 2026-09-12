@@ -58,11 +58,11 @@ btn2_visible = false;
 start_match = function()
 	{
 	show_debug_message("[mm] start_match slot=" + string(my_slot));
-
+	
 	//From here on the plugin watches everyone's connection and reports through
 	//matchmaking_match_closed if somebody drops
 	gmda_matchmakingMatchStarted();
-
+	global.replay_mode = false;
 	global.online_lobby_members = ggmr_lobby_members_save();
 	global.online_mode = true;
 	room_goto(rm_gameplay);

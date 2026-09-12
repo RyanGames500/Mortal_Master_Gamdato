@@ -14,11 +14,12 @@ if (previous_number_of_players != _current)
 	previous_number_of_players = _current;
 	}
 
-// Lógica de Inicio de Partida Online
+// Lógica de Inicio de Partida Online (alguien más en el lobby ya confirmó listo)
 if (ggmr_lobby_is_leader()) 
 	{
 	if (ggmr_lobby_everyone_is_ready() && ggmr_lobby_status_code() == GGMR_LOBBY_STATUS.ok) 
 		{
+		global.replay_mode = false;
 		ggmr_lobby_session_start();
 		global.online_lobby_members = ggmr_lobby_members_save();
 		global.online_mode = true;
@@ -30,6 +31,7 @@ else
 	{
 	if (ggmr_lobby_session_is_started())
 		{
+		global.replay_mode = false;
 		global.online_lobby_members = ggmr_lobby_members_save();
 		global.online_mode = true;
 		room_goto(rm_gameplay);
@@ -106,7 +108,6 @@ if (current_state == MENU_STATE.replays)
 		if (replay_index >= _max_replays) replay_index = 0;
 		}
 		
-	// CONFIRMAR SELECCIÓN (REPRODUCIR)
 	if (_confirm)
 		{
 		var _selected_file = replay_list[replay_index];
@@ -114,7 +115,7 @@ if (current_state == MENU_STATE.replays)
 		if (_selected_file == "BACK")
 			{
 			current_state = MENU_STATE.main;
-			menu_index = 3; // Regresa apuntando a REPLAYS
+			menu_index = 3;
 			}
 		else if (file_exists(_selected_file))
 			{
@@ -129,9 +130,11 @@ if (current_state == MENU_STATE.replays)
 				{
 				buffer_seek(global.replay_buffer, buffer_seek_start, 0);
 				
-				// Leer que personaje le toco a la CPU en esta partida grabada
 				global.replay_cpu_cursor = buffer_read(global.replay_buffer, buffer_u8);
 				global.replay_was_online = buffer_read(global.replay_buffer, buffer_u8); 
+				
+				// Limpiar cualquier resto de conexión online antes de entrar a un replay
+				ggmr_lobby_reset();
 				
 				global.replay_mode = true;
 				global.online_mode = false;
@@ -145,16 +148,14 @@ if (current_state == MENU_STATE.replays)
 			}
 		}
 
-	// BORRAR REPLAY SELECCIONADO
 	if (_delete_key)
 		{
 		var _selected_file = replay_list[replay_index];
 		
-		// No borrar la opción "BACK"
 		if (_selected_file != "BACK" && file_exists(_selected_file))
 			{
 			file_delete(_selected_file);
-			scan_replay_files(); // Refresca la lista
+			scan_replay_files();
 			
 			notice_text = "REPLAY DELETED!";
 			notice_timer = 75;
@@ -176,7 +177,6 @@ if (current_state == MENU_STATE.private_lobby) _current_list = private_lobby_opt
 
 var _max_items = array_length(_current_list);
 
-// Cambiar Selección
 if (_up)
 	{
 	menu_index--;
@@ -189,7 +189,6 @@ if (_down)
 	if (menu_index >= _max_items) menu_index = 0;
 	}
 
-// Confirmar Opción
 if (_confirm)
 	{
 	var _selected_text = _current_list[menu_index];
@@ -199,8 +198,10 @@ if (_confirm)
 		switch (_selected_text)
 			{
 			case "LOCAL VS":
+				// Limpiar CUALQUIER resto de estado de una sesión online o replay anterior
 				global.replay_mode = false;
 				global.online_mode = false;
+				ggmr_lobby_reset();
 				room_goto(rm_gameplay);
 			break;
 			
@@ -210,6 +211,8 @@ if (_confirm)
 			break;
 			
 			case "ONLINE MATCHMAKING":
+				global.replay_mode = false;
+				ggmr_lobby_reset();
 				current_state = MENU_STATE.online;
 				menu_index = 0;
 			break;
