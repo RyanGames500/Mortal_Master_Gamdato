@@ -12,9 +12,9 @@ function game_on_event(_ggmr_event)
 	switch (_ggmr_event)
 		{
 		case GGMR_EVENT.desync_detected:
-			//When a desync occurs online, end the game and return to the main menu
 			var _msg = argument_count > 1 ? argument[1] : "(No additional details)";
-			show_message("A desync has occurred\n" + _msg);
+			show_debug_message("Desync: " + _msg);
+			game_show_critical_overlay("DESYNC DETECTED", "Returning to main menu...");
 			room_goto(rm_main_menu);
 		break;
 		
@@ -27,15 +27,8 @@ function game_on_event(_ggmr_event)
 		break;
 		
 		case GGMR_EVENT.disconnect:
-			//show_message is a BLOCKING modal: it freezes the game waiting on a
-			//dialog that may not even be visible in fullscreen, and reads as a
-			//hang. The async version reports without stopping anything.
-			//
-			//Gamdato also watches this from the server and gets there on its
-			//own if the netcode never notices — for instance when the opponent
-			//closes the game before any inputs start flowing.
 			gmda_matchmakingMatchEnded();
-			show_message_async("Se perdio la conexion con el oponente");
+			game_show_critical_overlay("CONNECTION LOST", "The opponent has disconnected");
 			room_goto(rm_main_menu);
 		break;
 		

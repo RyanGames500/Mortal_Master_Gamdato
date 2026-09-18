@@ -431,4 +431,4 @@ if (fade_alpha > 0)
 	draw_rectangle(0, 0, camera_width, camera_height, false);
 	draw_set_alpha(1.0); // Resetear el alfa general para no afectar otros dibujos
 	}
-/* Copyright 2024 Springroll Games / Yosi */
+

@@ -41,7 +41,7 @@ function game_advance_frame(_inputs_array, _relative_frame = undefined)
 			}
 		
 		// 2. Grabado de Replays
-		if (replay_record && !global.replay_mode)
+		if (global.replay_record && !global.replay_mode)
 			{
 			if (_relative_frame != undefined && instance_number(obj_ggmr_session) > 0)
 				{
@@ -257,8 +257,11 @@ if (game_meta_state == GAME_META_STATE.char_select)
 					}
 				else
 					{
-					//Guardar archivos para las replays	
+					//Guardar archivos para las replays
+					if (global.replay_record)
+					{
 					save_current_replay();
+					}
 					
 					ggmr_session_end();
 					}

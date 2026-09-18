@@ -29,7 +29,7 @@ function hitbox_update()
 			//You can't hit your own hurtboxes
 			if (_hurtbox.owner != owner)
 				{
-				// Si la ronda no está en ejecucion o el rival ya no tiene vida, ignorar colision
+				// Si la ronda no está en ejecución o el rival ya no tiene vida, ignorar colisión
 				if (_hurtbox.owner.hp <= 0 || obj_game.game_meta_state != GAME_META_STATE.running) then continue;
 
 				//Hitboxes that can only hit grounded opponents
@@ -40,7 +40,16 @@ function hitbox_update()
 				
 				with (_hurtbox.owner)
 					{
-					//Grabs
+					// ==========================================
+					// POSICIÓN ESTILO KOF (Sobre la Hurtbox del Receptor)
+					// ==========================================
+					// Nacimiento en el borde del cuerpo del golpeado orientado hacia el impacto
+					var _vfx_x = x - (other.owner.facing * 12); 
+					var _vfx_y = clamp(other.y, bbox_top + 8, bbox_bottom - 8);
+
+					// ==========================================
+					// 1. AGARRES (GRABS)
+					// ==========================================
 					if (other.grab)
 						{
 						attack_stop();
@@ -54,10 +63,12 @@ function hitbox_update()
 						hsp = 0;
 						vsp = 0;
 						}
-					//Blocking
+					
+					// ==========================================
+					// 2. BLOQUEO ALTO / MEDIO (HIGH BLOCK)
+					// ==========================================
 					else if ((state == PLAYER_STATE.walk_backward || state == PLAYER_STATE.blockstun) && stick_check_direction(STICK_DIR.backward) && !other.low)
 						{
-						//Middle / High block
 						player_state_set(PLAYER_STATE.blockstun);
 						anim_sprite = sprites[$ "high_block"];  
 						player_damage(other.damage * block_multiplier);
@@ -65,10 +76,21 @@ function hitbox_update()
 						other.owner.block_pushback = other.knockback * facing;
 						
 						hit_sfx_play(snd_block);
+
+						// --- VFX CHISPA DE BLOQUEO SOBRE EL DEFENSOR ---
+						var _block_vfx = instance_create_layer(_vfx_x, _vfx_y, "VFX_Layer", obj_vfx);
+						_block_vfx.sprite_index = spr_effect_block_spark;
+						_block_vfx.image_xscale = other.owner.facing;
+						_block_vfx.anim_speed   = 0.4;
+						_block_vfx.lifetime     = sprite_get_number(_block_vfx.sprite_index) / _block_vfx.anim_speed;
+						_block_vfx.owner        = other.owner;
 						}
+
+					// ==========================================
+					// 3. BLOQUEO BAJO (LOW BLOCK)
+					// ==========================================
 					else if ((state == PLAYER_STATE.crouch || state == PLAYER_STATE.blockstun) && stick_check_direction(STICK_DIR.backward_down) && !other.high)
 						{
-						//Middle / Low block
 						player_state_set(PLAYER_STATE.blockstun);
 						anim_sprite = sprites[$ "low_block"];   
 						player_damage(other.damage * block_multiplier);
@@ -76,15 +98,26 @@ function hitbox_update()
 						other.owner.block_pushback = other.knockback * facing;
 						
 						hit_sfx_play(snd_block);
+
+						// --- VFX CHISPA DE BLOQUEO BAJO ---
+						var _block_vfx = instance_create_layer(_vfx_x, _vfx_y, "VFX_Layer", obj_vfx);
+						_block_vfx.sprite_index = spr_effect_block_spark;
+						_block_vfx.image_xscale = other.owner.facing;
+						_block_vfx.anim_speed   = 0.4;
+						_block_vfx.lifetime     = sprite_get_number(_block_vfx.sprite_index) / _block_vfx.anim_speed;
+						_block_vfx.owner        = other.owner;
 						}
-					//Hit
+
+					// ==========================================
+					// 4. IMPACTO LIMPIO (HIT)
+					// ==========================================
 					else
 						{
 						attack_stop();
 						
-						// Listas deterministas de sonidos para impactos
-						var _snd_heavy_list = [snd_hit_heavy,snd_hit_heavy_2,snd_hit_heavy_3];
-						var _snd_light_list = [snd_hit_light,snd_hit_light_2,snd_hit_light_3];
+						// Sonidos de impacto
+						var _snd_heavy_list = [snd_hit_heavy, snd_hit_heavy_2, snd_hit_heavy_3];
+						var _snd_light_list = [snd_hit_light, snd_hit_light_2, snd_hit_light_3];
 
 						if (other.damage > 8)
 							{
@@ -100,8 +133,16 @@ function hitbox_update()
 							
 							other.owner.sound_hit_light_index = (other.owner.sound_hit_light_index + 1) % array_length(_snd_light_list);
 							}
+
+						// --- VFX CHISPA DE IMPACTO DIRECTA EN EL RECEPTOR ---
+						var _spark = instance_create_layer(_vfx_x, _vfx_y, "VFX_Layer", obj_vfx);
+						_spark.sprite_index = spr_effect_blue_spark;
+						_spark.image_xscale = other.owner.facing;
+						_spark.anim_speed   = 0.4;
+						_spark.lifetime     = sprite_get_number(_spark.sprite_index) / _spark.anim_speed;
+						_spark.owner        = other.owner;
 						
-						//Grounded vs aerial hits
+						// Reacción de Hitstun (Suelo vs Aire)
 						if (bbox_bottom >= obj_ground.y && other.launch_speed == 0)
 							{
 							player_state_set(PLAYER_STATE.hitstun_ground);
@@ -123,7 +164,7 @@ function hitbox_update()
 						hitlag_frame = other.hitlag;
 						hsp = other.knockback * other.owner.facing;
 						
-						//Effects
+						// Cámara y líneas de acción
 						obj_game.cam_shake = other.damage * 1;
 						if (other.damage > 10)
 							{
@@ -144,7 +185,7 @@ function hitbox_update()
 			}
 		}
 	
-	//Other destruction checks
+	// Other destruction checks
 	if (to_be_destroyed || owner.state != PLAYER_STATE.attacking)
 		{
 		instance_destroy();

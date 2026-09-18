@@ -51,6 +51,9 @@ private_lobby_options = [
 	"SET LOBBY CODE",
 	"BACK"
 ];
+settings_options = ["MUSIC VOLUME", "SFX VOLUME", "MENU VOLUME", "SHOW HITBOXES", "RECORD REPLAYS", "SET NAME", "SET INPUT DELAY", "BACK"];
+
+
 
 // Variables para Teclado Virtual / Input en Pantalla (Reemplazo de get_string)
 input_target = ""; // "ip", "port", "code", "delay", "name"
@@ -64,5 +67,11 @@ notice_timer = 0;
 // 2. Variables para la lista de archivos
 replay_list = [];
 replay_index = 0;
+
+// Animación del menu
+sel_y_smooth = 0;
+sel_y_ready = false;
+menu_state_prev_draw = current_state;
+menu_transition = 1; // 0 = recien cambiado de pantalla, 1 = totalmente asentado
 
 scan_replay_files();

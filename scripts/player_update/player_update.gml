@@ -4,7 +4,6 @@ Contains the code that player instances will run every step.
 */
 function player_update(_inputs_array)
 	{
-	//Collect inputs from the buffer and update the local array
 	var _buffer = _inputs_array[@ player_number];
 	buffer_seek(_buffer, buffer_seek_start, 0);
 	inputs[@ INPUT.stick_dir] = buffer_read(_buffer, buffer_u8);
@@ -41,7 +40,6 @@ function player_update(_inputs_array)
 		inputs[@ INPUT.attack_light2] = min(inputs[@ INPUT.attack_light2] + 1, input_store_max);
 		}		
 	
-	// SI LA RONDA TERMINÓ: Forzar controles en neutro para no realizar acciones
 	if (obj_game.game_meta_state != GAME_META_STATE.running)
 		{
 		inputs[@ INPUT.stick_dir] = STICK_DIR.neutral;
@@ -51,7 +49,6 @@ function player_update(_inputs_array)
 		inputs[@ INPUT.pause] = input_store_max;
 		}
 
-	//Pausing the game
 	if (inputs[@ INPUT.pause] == 0)
 		{
 		if (!global.replay_mode)
@@ -60,7 +57,6 @@ function player_update(_inputs_array)
 			}
 		}
 	
-	//Motion input storage
 	if (motion_input_direction[@ 0] != inputs[@ INPUT.stick_dir])
 		{
 		array_insert(motion_input_direction, 0, inputs[@ INPUT.stick_dir]);
@@ -69,28 +65,24 @@ function player_update(_inputs_array)
 		array_delete(motion_input_frame, motion_input_array_size - 1, 1);
 		}
 	
-	//Block pushback
 	if (state == PLAYER_STATE.attacking && abs(block_pushback) > 1)
 		{
 		block_pushback *= block_pushback_friction;
 		player_move(block_pushback, 0);
 		}
 	
-	//Hitlag
 	if (hitlag_frame > 0)
 		{
 		hitlag_frame--;
 		return;
 		}
 	
-	//State machine
 	if (state_frame > 0)
 		{
 		state_frame--;
 		}
 	state_time++;
 	
-	//Prevent infinite state change loops
 	var _max_state_changes = 5;
 	repeat (_max_state_changes)
 		{
@@ -99,7 +91,6 @@ function player_update(_inputs_array)
 			{
 			case PLAYER_STATE.aerial:
 				{
-				//Animation
 				if (sign(hsp) == sign(facing))
 					{
 					anim_sprite = sprites[$ "jump_forward"];
@@ -114,14 +105,19 @@ function player_update(_inputs_array)
 					}
 				anim_speed = anim_speed_default;
 				
-				//Attacks
 				if (attack_allow_air()) then break;
 				
-				//Movement
 				vsp += grav;
 				player_move();
 				if (bbox_bottom >= obj_ground.y)
 					{
+					var _land_vfx = instance_create_layer(x, obj_ground.y, "VFX_Layer", obj_vfx);
+					_land_vfx.sprite_index = spr_effect_landing_dust;
+					_land_vfx.image_xscale = facing;
+					_land_vfx.anim_speed   = 0.2;
+					_land_vfx.lifetime     = sprite_get_number(spr_effect_landing_dust) / _land_vfx.anim_speed;
+					_land_vfx.owner        = id;
+
 					player_state_set(PLAYER_STATE.idle);
 					break;
 					}
@@ -130,19 +126,16 @@ function player_update(_inputs_array)
 			
 			case PLAYER_STATE.attacking:
 				{
-				//Run the attack script
 				script_execute(attack_script);
 				}
 			break;
 			
 			case PLAYER_STATE.blockstun:
 				{
-				//Movement
 				hsp = 0;
 				vsp = 0;
 				player_move();
 				
-				//Back to Idle or Crouch
 				if (state_frame <= 0)
 					{
 					if (stick_check_direction(STICK_DIR.down_any))
@@ -159,16 +152,13 @@ function player_update(_inputs_array)
 			
 			case PLAYER_STATE.crouch:
 				{
-				//Animation
 				anim_sprite = sprites[$ "crouch"];
 				anim_speed = anim_speed_default;
 				player_face_opponent();
 				
-				//Attacks
 				if (attack_allow_throw()) then break;
 				if (attack_allow_crouch()) then break;
 				
-				//Idle
 				if (!stick_check_direction(STICK_DIR.down_any))
 					{
 					player_state_set(PLAYER_STATE.idle);
@@ -179,15 +169,22 @@ function player_update(_inputs_array)
 			
 			case PLAYER_STATE.dash:
 				{
-				//Animation
+				if (state_frame == dash_time - 1)
+					{
+					var _dash_vfx = instance_create_layer(x, obj_ground.y, "VFX_Layer", obj_vfx);
+					_dash_vfx.sprite_index = spr_effect_step_dust;
+					_dash_vfx.image_xscale = facing;
+					_dash_vfx.anim_speed   = 0.2;
+					_dash_vfx.lifetime     = sprite_get_number(spr_effect_step_dust) / _dash_vfx.anim_speed;
+					_dash_vfx.owner        = id;
+					}
+
 				anim_sprite = sprites[$ "dash"];
 				anim_speed = anim_run_speed;
 				
-				//Speed
 				vsp = 0;
 				player_move();
 				
-				//Idle
 				if (state_frame == 0)
 					{
 					hsp = 0;
@@ -200,15 +197,22 @@ function player_update(_inputs_array)
 
 			case PLAYER_STATE.dash_left:
 				{
-				//Animation
+				if (state_frame == dash_time - 1)
+					{
+					var _dash_vfx = instance_create_layer(x, obj_ground.y, "VFX_Layer", obj_vfx);
+					_dash_vfx.sprite_index = spr_effect_step_dust;
+					_dash_vfx.image_xscale = -facing;
+					_dash_vfx.anim_speed   = 0.2;
+					_dash_vfx.lifetime     = sprite_get_number(spr_effect_step_dust) / _dash_vfx.anim_speed;
+					_dash_vfx.owner        = id;
+					}
+
 				anim_sprite = sprites[$ "dash_left"];
 				anim_speed = anim_speed_default;
 				
-				//Speed
 				vsp = 0;
 				player_move();
 				
-				//Idle
 				if (state_frame == 0)
 					{
 					hsp = 0;
@@ -217,19 +221,16 @@ function player_update(_inputs_array)
 					break;
 					}
 				}
-			break; 
+			break;
 
 			case PLAYER_STATE.grabbed:
 				{
-				//Animation
 				anim_sprite = sprites[$ "hitstun_ground"];
 				anim_speed = anim_speed_default;
 				
-				//No speed
 				hsp = 0;
 				vsp = 0;
 				
-				//Throw teching
 				if (state_time <= 12)
 					{
 					if (input_pressed(INPUT.attack_light, false) && input_pressed(INPUT.attack_heavy, false))
@@ -261,7 +262,6 @@ function player_update(_inputs_array)
 						}
 					}
 				
-				//End grab
 				if (state_frame == 0)
 					{
 					player_state_set(PLAYER_STATE.idle);
@@ -272,24 +272,27 @@ function player_update(_inputs_array)
 			
 			case PLAYER_STATE.hitstun_aerial:
 				{
-				//Animation
 				anim_sprite = sprites[$ "hitstun_aerial"];
 				anim_speed = anim_speed_default;
 				
-				//Movement
 				vsp += grav;
 				player_move();
 				
-				//End hitstun
 				if (state_frame == 0)
 					{
 					player_state_set(PLAYER_STATE.aerial);
 					break;
 					}
 				
-				//Transition to grounded hitstun
 				if (bbox_bottom >= obj_ground.y)
 					{
+					var _land_vfx = instance_create_layer(x, obj_ground.y, "VFX_Layer", obj_vfx);
+					_land_vfx.sprite_index = spr_effect_landing_dust;
+					_land_vfx.image_xscale = facing;
+					_land_vfx.anim_speed   = 0.2;
+					_land_vfx.lifetime     = sprite_get_number(spr_effect_landing_dust) / _land_vfx.anim_speed;
+					_land_vfx.owner        = id;
+
 					player_state_set(PLAYER_STATE.hitstun_ground);
 					break;
 					}
@@ -298,16 +301,13 @@ function player_update(_inputs_array)
 			
 			case PLAYER_STATE.hitstun_ground:
 				{
-				//Animation
 				anim_sprite = sprites[$ "hitstun_ground"];
 				anim_speed = anim_speed_default;
 				player_face_opponent();
 				
-				//Movement
 				hsp *= knockback_friction;
 				player_move();				
 				
-				//End hitstun
 				if (state_frame == 0)
 					{
 					player_state_set(PLAYER_STATE.idle);
@@ -318,12 +318,10 @@ function player_update(_inputs_array)
 			
 			case PLAYER_STATE.idle:
 				{
-				//Animation
 				anim_sprite = sprites[$ "idle"];
 				anim_speed = anim_idle_speed;
 				player_face_opponent();
 				
-				//Jumping
 				if (stick_check_direction(STICK_DIR.up_any))
 					{
 					if (stick_check_direction(STICK_DIR.forward_up))
@@ -344,14 +342,12 @@ function player_update(_inputs_array)
 					break;
 					}
 			
-				//Crouching
 				if (stick_check_direction(STICK_DIR.down_any))
 					{
 					player_state_set(PLAYER_STATE.crouch);
 					break;
 					}
 			
-				//Walking
 				if (stick_check_direction(STICK_DIR.backward))
 					{
 					player_state_set(PLAYER_STATE.walk_backward);
@@ -363,11 +359,9 @@ function player_update(_inputs_array)
 					break;
 					}
 				
-				//Attacks
 				if (attack_allow_throw()) then break;
 				if (attack_allow_ground()) then break;
 				
-				//Movement
 				hsp = 0;
 				vsp = 0;
 				player_move();
@@ -376,23 +370,19 @@ function player_update(_inputs_array)
 			
 			case PLAYER_STATE.walk_backward:
 			{
-			//Animation
 			anim_sprite = sprites[$ "walk_backward"];
 			anim_speed = anim_walk_speed;
 			player_face_opponent();
 
-			//Idle
 			if (!stick_check_direction(STICK_DIR.backward))
 				{
 				player_state_set(PLAYER_STATE.idle);
 				break;
 				}
 	
-			//Attacks
 			if (attack_allow_throw()) then break;
 			if (attack_allow_ground()) then break;
 	
-			//Dash hacia atrás (Solo para personajes permitidos)
 			if (has_backdash && input_motion_check([STICK_DIR.backward, STICK_DIR.neutral, STICK_DIR.backward], dash_input_leniency))
 				{
 				player_state_set(PLAYER_STATE.dash_left);
@@ -402,7 +392,6 @@ function player_update(_inputs_array)
 				break;
 				}
 
-			//Movement
 			hsp = -walk_speed * facing;
 			player_move();
 			}
@@ -410,23 +399,19 @@ function player_update(_inputs_array)
 			
 			case PLAYER_STATE.walk_forward:
 				{
-				//Animation
 				anim_sprite = sprites[$ "walk_forward"];
 				anim_speed = anim_walk_speed;
 				player_face_opponent();
 				
-				//Idle
 				if (!stick_check_direction(STICK_DIR.forward))
 					{
 					player_state_set(PLAYER_STATE.idle);
 					break;
 					}
 				
-				//Attacks
 				if (attack_allow_throw()) then break;
 				if (attack_allow_ground()) then break;
 				
-				//Dash
 				if (input_motion_check([STICK_DIR.forward, STICK_DIR.neutral, STICK_DIR.forward], dash_input_leniency))
 					{
 					player_state_set(PLAYER_STATE.dash);
@@ -436,7 +421,6 @@ function player_update(_inputs_array)
 					break;
 					}
 			
-				//Movement
 				hsp = walk_speed * facing;
 				player_move();
 				}
@@ -447,14 +431,19 @@ function player_update(_inputs_array)
 				anim_sprite = sprites[$ "knockdown"];
 				anim_speed = anim_idle_speed;
 				
-				// Usamos las variables nativas de física de tu motor
 				vsp += grav;
 				hsp *= knockback_friction;
 				player_move();
 				
-				// Al colisionar con el suelo (usando la verificación estándar del motor)
 				if (bbox_bottom >= obj_ground.y)
 					{
+					var _land_vfx = instance_create_layer(x, obj_ground.y, "VFX_Layer", obj_vfx);
+					_land_vfx.sprite_index = spr_effect_landing_dust;
+					_land_vfx.image_xscale = facing;
+					_land_vfx.anim_speed   = 0.2;
+					_land_vfx.lifetime     = sprite_get_number(spr_effect_landing_dust) / _land_vfx.anim_speed;
+					_land_vfx.owner        = id;
+
 					vsp = 0;
 					hsp = 0;
 					player_state_set(PLAYER_STATE.acostado);
@@ -477,17 +466,14 @@ function player_update(_inputs_array)
 			default: show_error("Unknown player state (" + string(state) + ")", true); break;
 			}
 		
-		//Exit state machine
 		if (!state_change) then break;
 		}
 	
-	//Passive script
 	if (passive != -1 && script_exists(passive))
 		{
 		script_execute(passive);
 		}
 	
-	//Animation
 	if (sprite_exists(anim_sprite))
 		{
 		anim_frame += anim_speed;
@@ -497,5 +483,4 @@ function player_update(_inputs_array)
 			}
 		}
 	}
-
 /* Copyright 2024 Springroll Games / Yosi */

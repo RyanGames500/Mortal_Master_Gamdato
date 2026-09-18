@@ -72,14 +72,22 @@ if (current_state == MENU_STATE.input_text)
 					buffer_delete(_b);
 					}
 			break;
+			
+			case "set_name":
+				if (input_string != "")
+					{
+					global.online_name = input_string;
+					obj_ggmr_lobby.lobby_member_name = input_string;
+					}
+			break;			
 			}
 		keyboard_string = "";
-		current_state = MENU_STATE.private_lobby;
+		current_state = (input_target == "set_name") ? MENU_STATE.settings : MENU_STATE.private_lobby;
 		}
 	else if (keyboard_check_pressed(vk_escape))
 		{
 		keyboard_string = "";
-		current_state = MENU_STATE.private_lobby;
+		current_state = (input_target == "set_name") ? MENU_STATE.settings : MENU_STATE.private_lobby;
 		}
 	exit;
 	}
@@ -133,7 +141,6 @@ if (current_state == MENU_STATE.replays)
 				global.replay_cpu_cursor = buffer_read(global.replay_buffer, buffer_u8);
 				global.replay_was_online = buffer_read(global.replay_buffer, buffer_u8); 
 				
-				// Limpiar cualquier resto de conexión online antes de entrar a un replay
 				ggmr_lobby_reset();
 				
 				global.replay_mode = true;
@@ -170,10 +177,88 @@ if (current_state == MENU_STATE.replays)
 	exit; 
 	}
 
+// --- 1B. LÓGICA DE NAVEGACIÓN EN SETTINGS ---
+if (current_state == MENU_STATE.settings)
+	{
+	var _max_settings = array_length(settings_options);
+	
+	if (_up)
+		{
+		menu_index--;
+		if (menu_index < 0) menu_index = _max_settings - 1;
+		}
+	if (_down)
+		{
+		menu_index++;
+		if (menu_index >= _max_settings) menu_index = 0;
+		}
+	
+	var _left_key = keyboard_check_pressed(vk_left);
+	var _right_key = keyboard_check_pressed(vk_right);
+	var _selected = settings_options[menu_index];
+	
+	if (_left_key || _right_key)
+		{
+		var _dir = _right_key ? 1 : -1;
+		switch (_selected)
+			{
+			case "MUSIC VOLUME":
+				setting().volume_music = clamp(setting().volume_music + (_dir * 0.1), 0, 1);
+			break;
+			case "SFX VOLUME":
+				setting().volume_sound_effects = clamp(setting().volume_sound_effects + (_dir * 0.1), 0, 1);
+			break;
+			case "MENU VOLUME":
+				setting().volume_menu = clamp(setting().volume_menu + (_dir * 0.1), 0, 1);
+			break;
+			case "SHOW HITBOXES":
+				global.show_hitboxes = !global.show_hitboxes;
+			break;
+			case "RECORD REPLAYS":
+				global.replay_record = !global.replay_record;
+			break;
+			case "SET INPUT DELAY":
+				global.online_input_delay = clamp(global.online_input_delay + _dir, 0, 20);
+			break;
+			}
+		}
+	
+	if (_confirm)
+		{
+		switch (_selected)
+			{
+			case "SHOW HITBOXES":
+				global.show_hitboxes = !global.show_hitboxes;
+			break;
+			case "RECORD REPLAYS":
+				global.replay_record = !global.replay_record;
+			break;
+			case "SET NAME":
+				current_state = MENU_STATE.input_text;
+				input_target = "set_name";
+				input_prompt = "YOUR NAME:";
+				keyboard_string = global.online_name;
+			break;
+			case "BACK":
+				current_state = MENU_STATE.main;
+				menu_index = 4;
+			break;
+			}
+		}
+	
+	if (_back)
+		{
+		current_state = MENU_STATE.main;
+		menu_index = 4;
+		}
+	exit;
+	}
+
 // --- 2. LÓGICA DE NAVEGACIÓN EN MENÚS ESTÁNDAR ---
 var _current_list = menu_options;
 if (current_state == MENU_STATE.online) _current_list = online_options;
 if (current_state == MENU_STATE.private_lobby) _current_list = private_lobby_options;
+if (current_state == MENU_STATE.settings) _current_list = settings_options;
 
 var _max_items = array_length(_current_list);
 
@@ -198,7 +283,6 @@ if (_confirm)
 		switch (_selected_text)
 			{
 			case "LOCAL VS":
-				// Limpiar CUALQUIER resto de estado de una sesión online o replay anterior
 				global.replay_mode = false;
 				global.online_mode = false;
 				ggmr_lobby_reset();
@@ -224,8 +308,8 @@ if (_confirm)
 			break;
 			
 			case "SETTINGS":
-				notice_text = "COMING SOON!";
-				notice_timer = 90;
+				current_state = MENU_STATE.settings;
+				menu_index = 0;
 			break;
 			
 			case "EXIT":
@@ -283,7 +367,7 @@ if (_confirm)
 		}
 	}
 
-// Retroceder de pantalla con ESC
+// Retroceder de pantalla con ESC----
 if (_back)
 	{
 	if (current_state == MENU_STATE.online)

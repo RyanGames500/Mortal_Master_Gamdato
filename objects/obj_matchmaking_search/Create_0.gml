@@ -114,3 +114,4 @@ leave_search = function(_reason = "Search cancelled")
 	state = "fade_out";
 	fade_timer = 0;
 	};
+mm_region = "latam";

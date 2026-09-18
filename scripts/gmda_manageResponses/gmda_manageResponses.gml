@@ -147,7 +147,7 @@ while (!is_undefined(_e)) {
 	if (!_e.success){
 		//Could not enter the queue: close the search overlay
 		if (instance_exists(obj_matchmaking_search)){ with(obj_matchmaking_search){ state = "fade_out"; fade_timer = 0; }}
-		show_message_async("Matchmaking: "+string(_e.error));
+		game_show_notice("Matchmaking: "+string(_e.error));
 	}
 	break;
 
@@ -156,7 +156,7 @@ while (!is_undefined(_e)) {
 	case "matchmaking_left":
 	case "matchmaking_cancelled":
 	case "matchmaking_confirmed":
-	if (!_e.success && !_e.expected) show_message_async("Matchmaking: "+string(_e.error));
+	if (!_e.success && !_e.expected) game_show_notice("Matchmaking: "+string(_e.error));
 	break;
 
 	case "matchmaking_status":
@@ -171,7 +171,7 @@ while (!is_undefined(_e)) {
 		_mm.joined_ok = true; //the server just confirmed the ticket
 		}
 	}else if (!_e.expected){
-		show_message_async("Matchmaking: "+string(_e.error));
+		game_show_notice("Matchmaking: "+string(_e.error));
 	}
 	break;
 
@@ -180,19 +180,18 @@ while (!is_undefined(_e)) {
 	//gmda_matchmakingState().peer_ms_left gives the worst connected player's ms
 	break;
 
-	case "matchmaking_match_closed":
-	//The match ends for everyone. The reason matters: it is not always the peer
+   case "matchmaking_match_closed":
 	if (room == rm_gameplay){
 	if (variable_global_exists("online_mode")) global.online_mode = false;
 	room_goto(rm_main_menu);
 	}
 	var _reason = variable_struct_exists(_e, "reason") ? string(_e.reason) : "";
 	switch (_reason){
-	case "no_server":  show_message_async("Lost connection to the server"); break;
-	case "match_gone": show_message_async("The match no longer exists"); break;
-	default:           show_message_async("The opponent lost connection"); break;
+	case "no_server":  game_show_critical_overlay("CONNECTION LOST", "Lost connection to the server"); break;
+	case "match_gone": game_show_critical_overlay("MATCH ENDED", "The match no longer exists"); break;
+	default:           game_show_critical_overlay("CONNECTION LOST", "The opponent lost connection"); break;
 	}
-	break;
+   break;
 
 	case "matchmaking_match_ended":
 	//The server no longer counts the match as live

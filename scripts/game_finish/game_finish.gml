@@ -5,7 +5,7 @@ A replay of the match will be saved.
 function game_finish()
 	{
 	//Save the replay if needed
-	if (replay_record && !global.replay_mode)
+	if (global.replay_record && !global.replay_mode)
 		{
 		//Trim off any extra bytes at the end of the buffer
 		buffer_resize(global.replay_buffer, buffer_tell(global.replay_buffer));
