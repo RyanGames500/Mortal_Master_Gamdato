@@ -1,21 +1,3 @@
-////Starting countdown
-//if (game_meta_state == GAME_META_STATE.starting)
-//	{
-//	draw_set_font(fnt_countdown);
-//	draw_set_halign(fa_center);
-//	draw_set_valign(fa_center);
-	
-//	//Each number lasts for 50 frames (not 60 frames)
-//	var _num = ceil(starting_frame / 50);
-//	draw_set_color(c_black);
-//	draw_text((camera_width div 2) + 6, camera_height div 2, _num);
-//	draw_text((camera_width div 2) - 6, camera_height div 2, _num);
-//	draw_text(camera_width div 2, (camera_height div 2) + 6, _num);
-//	draw_text(camera_width div 2, (camera_height div 2) - 6, _num);
-//	draw_set_color(c_white);
-//	draw_text(camera_width div 2, camera_height div 2, _num);
-//	}
-
 // ==========================================
 // PANTALLA DE SELECCIÓN DE PERSONAJES (CSS)
 // ==========================================
@@ -94,6 +76,9 @@ if (game_meta_state == GAME_META_STATE.char_select)
 		var _is_p1 = (i == p1_css_cursor);
 		var _is_p2 = (_display_online && i == p2_css_cursor);
 		
+		// Verificar si el personaje está bloqueado
+		var _is_locked = variable_struct_exists(characters[i], "locked") ? characters[i].locked : false;
+		
 		// Fondo de la tarjeta con leve glow si está seleccionada por alguien
 		var _highlighted = _is_p1 || _is_p2;
 		draw_set_alpha(_highlighted ? 0.95 : 0.75);
@@ -101,16 +86,40 @@ if (game_meta_state == GAME_META_STATE.char_select)
 		draw_roundrect_ext(_left, _top, _right, _bottom, 14, 14, false);
 		draw_set_alpha(1.0);
 		
-		// Borde con el color del personaje
-		var _char_color = variable_struct_exists(characters[i], "color") ? characters[i].color : c_gray;
+		// === DIBUJAR LA CARA DEL PERSONAJE ===
+		var _face_pad = 8;
+		var _face_x = _left + _face_pad;
+		var _face_y = _top + _face_pad;
+		var _face_w = _box_w - (_face_pad * 2);
+		var _face_h = (_box_h * 0.65) - _face_pad;
+		
+		var _subimg = variable_struct_exists(characters[i], "portrait_index") ? characters[i].portrait_index : i;
+
+		if (_is_locked)
+			{
+			// Si está bloqueado: silueta oscura y signo '?'
+			draw_sprite_stretched_ext(spr_chars_caras, _subimg, _face_x, _face_y, _face_w, _face_h, c_dkgray, 0.4);
+			draw_set_font(fnt_menu);
+			draw_set_color(c_gray);
+			draw_text_transformed(_x, _y - 10, "?", 1.5, 1.5, 0);
+			}
+		else
+			{
+			// Si está libre: se dibuja normal
+			draw_sprite_stretched(spr_chars_caras, _subimg, _face_x, _face_y, _face_w, _face_h);
+			}
+
+		// Borde con el color del personaje (o gris si está bloqueado)
+		var _char_color = _is_locked ? c_dkgray : (variable_struct_exists(characters[i], "color") ? characters[i].color : c_gray);
 		draw_set_color(_char_color);
 		draw_roundrect_ext(_left, _top, _right, _bottom, 14, 14, true);
 		
 		// Nombre del personaje
-		draw_set_font(fnt_menu);
-		draw_set_color(c_white);
+		draw_set_font(fnt_charSelect);
+		draw_set_color(_is_locked ? c_gray : c_white);
+		var _name_text = _is_locked ? "LOCKED" : characters[i].name;
 		var _name_scale = clamp(_box_w / 115, 0.7, 1.0);
-		draw_text_transformed(_x, _bottom - (_box_h * 0.13), characters[i].name, _name_scale, _name_scale, 0);
+		draw_text_transformed(_x + 3, _bottom - (_box_h * 0.13), _name_text, _name_scale, _name_scale, 0);
 		
 		// CURSOR / MARCA P1
 		if (_is_p1)
@@ -170,9 +179,9 @@ if (game_meta_state == GAME_META_STATE.char_select)
 	// --- PANEL INFERIOR DE INSTRUCCIONES ---
 	var _instr_y = _gui_h - (_gui_h * 0.05);
 	draw_set_color(c_black);
-	draw_text(_gui_w / 2 + 1, _instr_y + 1, "MOVE: [LEFT/RIGHT]  |  SELECT: [LIGHT ATTACK]  |  CANCEL: [HEAVY ATTACK]");
+	draw_text(_gui_w / 2 + 1, _instr_y + 1, "MOVE: [LEFT/RIGHT]  |  SELECT: [LIGHT ATTACK]  |  CANEL: [HEAVY ATTACK]");
 	draw_set_color(c_yellow);
-	draw_text(_gui_w / 2, _instr_y, "MOVE: [LEFT/RIGHT]  |  SELECT: [LIGHT ATTACK]  |  CANCEL: [HEAVY ATTACK]");
+	draw_text(_gui_w / 2, _instr_y, "MOVE: [LEFT/RIGHT]  |  SELECT: [LIGHT ATTACK]  |  CANEL: [HEAVY ATTACK]");
 
 	// Reset de propiedades del renderizado
 	draw_set_alpha(1.0);
@@ -431,4 +440,3 @@ if (fade_alpha > 0)
 	draw_rectangle(0, 0, camera_width, camera_height, false);
 	draw_set_alpha(1.0); // Resetear el alfa general para no afectar otros dibujos
 	}
-

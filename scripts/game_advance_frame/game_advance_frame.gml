@@ -88,8 +88,13 @@ if (game_meta_state == GAME_META_STATE.char_select)
 		
 		if (_atk0)
 			{
-			p1_css_ready = true;
-			p1_select = characters[p1_css_cursor].char_id;
+			// Verificar si el personaje P1 seleccionado está bloqueado
+			var _is_locked0 = variable_struct_exists(characters[p1_css_cursor], "locked") ? characters[p1_css_cursor].locked : false;
+			if (!_is_locked0)
+				{
+				p1_css_ready = true;
+				p1_select = characters[p1_css_cursor].char_id;
+				}
 			}
 		}
 	else if (_cancel0)
@@ -125,8 +130,13 @@ if (game_meta_state == GAME_META_STATE.char_select)
 			
 			if (_atk1)
 				{
-				p2_css_ready = true;
-				p2_select = characters[p2_css_cursor].char_id;
+				// Verificar si el personaje P2 seleccionado está bloqueado
+				var _is_locked1 = variable_struct_exists(characters[p2_css_cursor], "locked") ? characters[p2_css_cursor].locked : false;
+				if (!_is_locked1)
+					{
+					p2_css_ready = true;
+					p2_select = characters[p2_css_cursor].char_id;
+					}
 				}
 			}
 		else if (_cancel1)

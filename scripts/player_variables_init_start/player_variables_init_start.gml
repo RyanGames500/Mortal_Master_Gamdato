@@ -64,6 +64,8 @@ function player_variables_init_start()
 	
 	sound_hit_light_index = 0;
 	sound_hit_heavy_index = 0;
+	being_carried = false;
+	jump_impulse_done = false;
 	}
 
 

@@ -23,13 +23,6 @@ function saori_medium_crouch(_override_phase)
 		case 0:
 			{
 			attack_frame--;
-			
-			// Atajo de agarre
-			//if (state_time <= throw_input_leniency && input_pressed(INPUT.attack_heavy))
-			//	{
-			//	attack_start(attacks[$ "throw"]);
-			//	return;
-			//	}
 
 			// Pre-impacto (apoyo de manos)
 			if (attack_frame == 2) then anim_frame = 1;
@@ -73,16 +66,6 @@ function saori_medium_crouch(_override_phase)
 			if (attack_frame == 2)  then anim_frame = 6; // Postura agachada final
 			
 			player_move();
-			
-			// CANCELACIÓN AÉREA O PESADA: Permite derivar a Heavy Crouch (barredora/launcher)
-			if (attack_connected)
-				{
-				if (input_pressed(INPUT.attack_heavy))
-					{
-					attack_start(attacks[$ "heavy_crouch"]);
-					break;
-					}
-				}
 
 			//Stop
 			if (attack_frame <= 0)

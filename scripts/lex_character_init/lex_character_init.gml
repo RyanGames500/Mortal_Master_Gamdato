@@ -37,7 +37,9 @@ function lex_character_init()
 	sprites[$ "knockdown"		] = spr_lex_knockdown;
 	sprites[$ "acostado"		] = spr_lex_acostado; 
 	sprites[$ "high_block"		] = spr_lex_defenza_alta;
-	sprites[$ "low_block"		] = spr_lex_defenza_baja; 
+	sprites[$ "low_block"		] = spr_lex_defenza_baja;
+	sprites[$ "grabbed_carry"	] = spr_lex_grabbed_throw1;
+	sprites[$ "getup"			] = spr_lex_idle;
 	
 	//Attack scripts
 	attacks[$ "light_ground"	] = lex_light_ground;

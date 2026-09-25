@@ -44,7 +44,9 @@ function blocky_character_init()
 	sprites[$ "acostado"		] = spr_blocky_acostado;
     sprites[$ "runkick"		    ] = spr_blocky_runkick; 
     sprites[$ "high_block"		] = spr_blocky_defenza_alta;
-    sprites[$ "low_block"		] = spr_blocky_defenza_baja; 
+    sprites[$ "low_block"		] = spr_blocky_defenza_baja;
+	sprites[$ "grabbed_carry"	] = spr_blocky_grabbed_throw1;
+	sprites[$ "getup"			] = spr_blocky_idle;
 	
 	//Attack scripts
 	attacks[$ "light_ground"	] = blocky_light_ground;

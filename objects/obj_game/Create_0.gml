@@ -51,13 +51,14 @@ game_frame = 0;
 starting_frame = 50 * 3;
 ending_frame = 0;
 //sistema de seleccion de personajes
-//Roster de personajes disponibles
+// Roster de personajes disponibles
 characters = [
-    { name: "JOE",     char_id: 1, color: c_orange },
-    { name: "LEX",     char_id: 2, color: c_red },
-    { name: "BLITSEN", char_id: 3, color: c_yellow },
-    { name: "SAORI",   char_id: 4, color: c_fuchsia },
-    { name: "SCAR",    char_id: 5, color: c_lime }
+    { name: "JOE",     char_id: 1, color: c_orange,  portrait_index: 0, locked: false },
+    { name: "LEX",     char_id: 2, color: c_red,     portrait_index: 1, locked: false },
+    { name: "BLITSEN", char_id: 3, color: c_lime,    portrait_index: 2, locked: false },
+    { name: "SAORI",   char_id: 4, color: c_fuchsia, portrait_index: 3, locked: false },
+    { name: "SCAR",    char_id: 5, color: c_lime,    portrait_index: 4, locked: false },
+    { name: "BRAD",    char_id: 6, color: c_green,   portrait_index: 5, locked: false }
 ];
 char_count = array_length(characters);
 

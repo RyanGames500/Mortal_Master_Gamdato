@@ -43,7 +43,9 @@ function blitsen_character_init()
 	sprites[$ "knockdown"		] = spr_blitsen_knockdown;
 	sprites[$ "acostado"		] = spr_blitsen_acostado; 
 	sprites[$ "high_block"		] = spr_blitsen_defenza_alta;
-	sprites[$ "low_block"		] = spr_blitsen_defenza_baja; 
+	sprites[$ "low_block"		] = spr_blitsen_defenza_baja;
+	sprites[$ "grabbed_carry"	] = spr_blitsen_grabbed_throw1;
+	sprites[$ "getup"			] = spr_blitsen_idle;
 	
 	//Attack scripts
 	attacks[$ "light_ground"	] = blitsen_light_ground;

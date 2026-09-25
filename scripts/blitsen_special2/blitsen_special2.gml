@@ -20,12 +20,6 @@ function blitsen_special2(_override_phase)
 			{
 			attack_frame--;
 			
-			if (has_grab && state_time <= throw_input_leniency && input_pressed(INPUT.attack_light))
-				{
-				attack_start(attacks[$ "throw"]);
-				return;
-				}
-			
 			if (attack_frame == 9) then anim_frame = 1;
 			if (attack_frame == 6) then anim_frame = 2;
 			if (attack_frame == 3) then anim_frame = 3;

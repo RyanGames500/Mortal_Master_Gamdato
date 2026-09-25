@@ -26,13 +26,6 @@ function lex_medium_ground(_override_phase)
 			{
 			attack_frame--;
 			
-			// Throws
-			if (state_time <= throw_input_leniency && input_pressed(INPUT.attack_heavy))
-				{
-				attack_start(attacks[$ "throw"]);
-				return;
-				}
-			
 			// Transición de startup
 			if (attack_frame == 3) then anim_frame = 1;
 			

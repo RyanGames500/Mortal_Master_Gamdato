@@ -18,6 +18,7 @@ function game_players_spawn()
 			case 3: blitsen_character_init(); break;
 			case 4: saori_character_init(); break;
 			case 5: scar_character_init(); break;
+			case 6: brad_character_init(); break;
 			}
 		
 		player_variables_init_end();
@@ -39,6 +40,7 @@ function game_players_spawn()
 			case 3: blitsen_character_init(); break;
 			case 4: saori_character_init(); break;
 			case 5: scar_character_init(); break;
+			case 6: brad_character_init(); break;
 			}
 		
 		player_variables_init_end();

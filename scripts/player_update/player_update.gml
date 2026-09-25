@@ -225,22 +225,42 @@ function player_update(_inputs_array)
 
 			case PLAYER_STATE.grabbed:
 				{
-				anim_sprite = sprites[$ "hitstun_ground"];
-				anim_speed = anim_speed_default;
+				// SI ESTÁ SIENDO CARGADO, EL SCRIPT DEL ATAQUE CONTROLA EL SPRITE Y EL FRAME
+				if (!being_carried)
+					{
+					var _grab_sprite = sprites[$ "hitstun_ground"];
+					if (is_undefined(_grab_sprite))
+						{
+						_grab_sprite = sprites[$ "hitstun"];
+						if (is_undefined(_grab_sprite))
+							{
+							_grab_sprite = sprites[$ "idle"];
+							}
+						}
+					anim_sprite = _grab_sprite;
+					anim_speed = anim_speed_default;
+					}
 				
 				hsp = 0;
 				vsp = 0;
 				
+				// Lógica de Throw Tech (Romper agarre)
 				if (state_time <= 12)
 					{
 					if (input_pressed(INPUT.attack_light, false) && input_pressed(INPUT.attack_heavy, false))
 						{
+						var _break_sprite = sprites[$ "hitstun_ground"];
+						if (is_undefined(_break_sprite))
+							{
+							_break_sprite = sprites[$ "hitstun"];
+							}
+
 						with (obj_player)
 							{
 							if (id != other.id)
 								{
 								player_state_set(PLAYER_STATE.hitstun_ground);
-								anim_sprite = sprites[$ "hitstun_ground"];
+								anim_sprite = _break_sprite;
 								anim_speed = anim_speed_default;
 								player_face_opponent();
 								vsp = 0;
@@ -251,7 +271,7 @@ function player_update(_inputs_array)
 								}
 							}
 						player_state_set(PLAYER_STATE.hitstun_ground);
-						anim_sprite = sprites[$ "hitstun_ground"];
+						anim_sprite = _break_sprite;
 						anim_speed = anim_speed_default;
 						player_face_opponent();
 						vsp = 0;
@@ -264,6 +284,7 @@ function player_update(_inputs_array)
 				
 				if (state_frame == 0)
 					{
+					being_carried = false; // Resetear al terminar el agarre
 					player_state_set(PLAYER_STATE.idle);
 					break;
 					}

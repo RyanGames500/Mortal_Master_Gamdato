@@ -20,12 +20,6 @@ function saori_heavy_ground(_override_phase)
 			{
 			attack_frame--;
 			
-			//if (state_time <= throw_input_leniency && input_pressed(INPUT.attack_light))
-			//	{
-			//	attack_start(attacks[$ "throw"]);
-			//	return;
-			//	}
-			
 			// Frame de carga (Manos al pecho)
 			if (attack_frame == 4) then anim_frame = 1;
 			
