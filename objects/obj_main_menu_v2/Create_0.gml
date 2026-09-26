@@ -51,7 +51,7 @@ private_lobby_options = [
 	"SET LOBBY CODE",
 	"BACK"
 ];
-settings_options = ["MUSIC VOLUME", "SFX VOLUME", "MENU VOLUME", "SHOW HITBOXES", "RECORD REPLAYS", "SET NAME", "SET INPUT DELAY", "BACK"];
+settings_options = ["MUSIC VOLUME", "SFX VOLUME", "MENU VOLUME", "ENABLE SCANLINES", "RECORD REPLAYS", "SET NAME", "SET INPUT DELAY", "BACK"];
 
 
 
@@ -75,3 +75,4 @@ menu_state_prev_draw = current_state;
 menu_transition = 1; // 0 = recien cambiado de pantalla, 1 = totalmente asentado
 
 scan_replay_files();
+audio_group_load(audiogroup_music);

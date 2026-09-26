@@ -26,7 +26,7 @@ function brad_character_init()
 	sprite_index = spr_brad_ecb;
 	
 	//Palette
-	palette_sprite = spr_blocky_palette;
+	palette_sprite = spr_brad_palette;
 	
 	//Gameplay sprites
 	sprites[$ "idle"			] = spr_brad_idle;

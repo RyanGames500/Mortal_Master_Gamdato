@@ -26,7 +26,7 @@ function scar_character_init()
 	sprite_index = spr_scar_ecb;
 	
 	//Palette
-	palette_sprite = spr_blocky_palette;
+	palette_sprite = spr_scar_palette;
 	
 	//Gameplay sprites
 	sprites[$ "idle"			] = spr_scar_idle;

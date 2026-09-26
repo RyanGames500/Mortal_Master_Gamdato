@@ -18,8 +18,9 @@ function setting()
 	}
 
 //Settings
-global.show_hitboxes = true; //{bool} Whether hitboxes and hurtboxes are visible or not.
+global.show_hitboxes = false; //{bool} Whether hitboxes and hurtboxes are visible or not.
 global.replay_record = true; //{bool} Whether to record replays of matches or not.
+global.show_scanlines = true;
 
 //Gameplay
 #macro jostle_amount			5 //{int} The number of pixels per frame players get pushed when overlapping with other players.

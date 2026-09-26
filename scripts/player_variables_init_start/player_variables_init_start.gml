@@ -66,6 +66,11 @@ function player_variables_init_start()
 	sound_hit_heavy_index = 0;
 	being_carried = false;
 	jump_impulse_done = false;
+	//diferenciar espejos de cada peleador duplicado
+	current_pal = 0
+	override_surface=noone;
+	override_pal_index=0;
+	pal_swap_init_system(shd_pal_swapper,shd_pal_html_sprite,shd_pal_html_surface);
 	}
 
 

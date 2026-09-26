@@ -20,7 +20,7 @@ function lex_character_init()
 	sprite_index = spr_lex_ecb;
 	
 	//Palette
-	palette_sprite = spr_blocky_palette;
+	palette_sprite = spr_lex_palette;
 	
 	//Gameplay sprites
 	sprites[$ "idle"			] = spr_lex_idle;

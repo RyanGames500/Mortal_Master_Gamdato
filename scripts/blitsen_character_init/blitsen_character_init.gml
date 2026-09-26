@@ -26,7 +26,7 @@ function blitsen_character_init()
 	sprite_index = spr_blitsen_ecb;
 	
 	//Palette
-	palette_sprite = spr_blocky_palette;
+	palette_sprite = spr_blitsen_palette;
 	
 	//Gameplay sprites
 	sprites[$ "idle"			] = spr_blitsen_idle;

@@ -26,6 +26,8 @@ function audio_play_sound_adjusted()
 			_volume *= setting().volume_menu;
 			break;
 		case audiogroup_music:
+			_volume *= setting().volume_music;
+			break;
 		case audiogroup_music_menu:
 			_volume *= setting().volume_music;
 			break;

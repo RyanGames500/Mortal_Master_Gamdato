@@ -211,8 +211,8 @@ if (current_state == MENU_STATE.settings)
 			case "MENU VOLUME":
 				setting().volume_menu = clamp(setting().volume_menu + (_dir * 0.1), 0, 1);
 			break;
-			case "SHOW HITBOXES":
-				global.show_hitboxes = !global.show_hitboxes;
+			case "ENABLE SCANLINES":
+				global.show_scanlines = !global.show_scanlines;
 			break;
 			case "RECORD REPLAYS":
 				global.replay_record = !global.replay_record;
@@ -227,8 +227,8 @@ if (current_state == MENU_STATE.settings)
 		{
 		switch (_selected)
 			{
-			case "SHOW HITBOXES":
-				global.show_hitboxes = !global.show_hitboxes;
+			case "ENABLE SCANLINES":
+				global.show_scanlines = !global.show_scanlines;
 			break;
 			case "RECORD REPLAYS":
 				global.replay_record = !global.replay_record;

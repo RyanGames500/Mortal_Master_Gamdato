@@ -1,0 +1,1 @@
+global.show_scanlines = !global.show_scanlines;

@@ -15,7 +15,9 @@ function player_draw()
 	//Set the palette shader
 	//Since the first column of the palette sprite is the base palette, the columns used in-game are offset by +1
 	//palette_shader_texture_set(palette_sprite, player_number + 1);
+	pal_swap_set(palette_sprite,current_pal,false);
 	draw_sprite_ext(anim_sprite, anim_frame, x, y, sprite_scale * facing, sprite_scale, image_angle, image_blend, image_alpha);
+	pal_swap_reset();
 	//shader_reset();
 	}
 

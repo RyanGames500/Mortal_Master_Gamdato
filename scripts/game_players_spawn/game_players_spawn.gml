@@ -5,6 +5,7 @@ function game_players_spawn()
 	// --- PLAYER 1 ---
 	var _player1 = instance_create_layer((room_width div 2) - _spawn_distance, obj_ground.y, layer, obj_player);
 	_player1.player_number = 0;
+	_player1.current_pal = 0;
 	_player1.xstart = _player1.x;
 	_player1.ystart = _player1.y;
 	
@@ -27,6 +28,7 @@ function game_players_spawn()
 	// --- PLAYER 2 ---
 	var _player2 = instance_create_layer((room_width div 2) + _spawn_distance, obj_ground.y, layer, obj_player);
 	_player2.player_number = 1;
+	_player2.current_pal = 1;
 	_player2.xstart = _player2.x;
 	_player2.ystart = _player2.y;
 	

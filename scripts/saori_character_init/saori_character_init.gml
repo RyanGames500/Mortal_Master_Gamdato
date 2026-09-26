@@ -29,7 +29,7 @@ function saori_character_init()
 	sprite_index = spr_saori_ecb;
 	
 	//Palette
-	palette_sprite = spr_blocky_palette;
+	palette_sprite = spr_saori_palette;
 	
 	//Gameplay sprites
 	sprites[$ "idle"			] = spr_saori_idle;

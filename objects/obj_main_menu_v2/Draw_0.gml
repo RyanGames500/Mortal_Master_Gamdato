@@ -221,10 +221,10 @@ else if (current_state == MENU_STATE.settings)
 				if (_is_selected) _current_tooltip = "Adjust sound levels for " + string_lower(_label);
 			break;
 			
-			case "SHOW HITBOXES":
-				draw_set_color(global.show_hitboxes ? c_lime : c_red);
-				draw_text_transformed(_rx, _y_pos, global.show_hitboxes ? "[ ENABLED ]" : "[ DISABLED ]", 1.0 * _scale, 1.0 * _scale, 0);
-				if (_is_selected) _current_tooltip = "Toggle attack and hurtbox overlays for training";
+			case "ENABLE SCANLINES":
+				draw_set_color(global.show_scanlines ? c_lime : c_red);
+				draw_text_transformed(_rx, _y_pos, global.show_scanlines ? "[ ON ]" : "[ OFF ]", 1.0 * _scale, 1.0 * _scale, 0);
+				if (_is_selected) _current_tooltip = "Toggle retro arcade scanlines overlay";
 			break;
 			
 			case "RECORD REPLAYS":

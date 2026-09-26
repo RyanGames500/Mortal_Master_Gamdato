@@ -98,7 +98,6 @@ else
 audio_group_load(audiogroup_music_menu);
 audio_group_load(audiogroup_menu);
 audio_group_load(audiogroup_sound_effects);
-audio_group_load(audiogroup_music);
 sound_system_init();
 //Spawn player instances
 //game_players_spawn();
