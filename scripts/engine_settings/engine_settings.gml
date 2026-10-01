@@ -7,8 +7,8 @@ function setting()
 	static _settings = 
 		{
 		//Sound
-		volume_music :						1.0, //{real} The volume of the music, from 0 to 1. Anything over 1 will make the music louder than normal.
-		volume_sound_effects :				1.0, //{real} The volume of the sound effects, from 0 to 1. Anything over 1 will make the sound effects louder than normal.
+		volume_music :						0.1, //{real} The volume of the music, from 0 to 1. Anything over 1 will make the music louder than normal.
+		volume_sound_effects :				0.1, //{real} The volume of the sound effects, from 0 to 1. Anything over 1 will make the sound effects louder than normal.
 		volume_menu :						1.0, //{real} The volume of the menu music and sound effects, from 0 to 1.Anything over 1 will make the sounds louder than normal.
 		stereo_sound_effects :				false, //{bool} Whether the audio should be stereo or not.
 		//Collisions
@@ -19,8 +19,8 @@ function setting()
 
 //Settings
 global.show_hitboxes = false; //{bool} Whether hitboxes and hurtboxes are visible or not.
-global.replay_record = true; //{bool} Whether to record replays of matches or not.
-global.show_scanlines = true;
+global.replay_record = false; //{bool} Whether to record replays of matches or not.
+global.show_scanlines = false;
 
 //Gameplay
 #macro jostle_amount			5 //{int} The number of pixels per frame players get pushed when overlapping with other players.

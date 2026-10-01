@@ -58,7 +58,8 @@ characters = [
     { name: "BLITSEN", char_id: 3, color: c_lime,    portrait_index: 2, locked: false },
     { name: "SAORI",   char_id: 4, color: c_fuchsia, portrait_index: 3, locked: false },
     { name: "SCAR",    char_id: 5, color: c_lime,    portrait_index: 4, locked: false },
-    { name: "BRAD",    char_id: 6, color: c_green,   portrait_index: 5, locked: false }
+    { name: "BRAD",    char_id: 6, color: c_green,   portrait_index: 5, locked: false },
+	{ name: "MAYEL",   char_id: 7, color: c_yellow,   portrait_index: 6, locked: false }
 ];
 char_count = array_length(characters);
 

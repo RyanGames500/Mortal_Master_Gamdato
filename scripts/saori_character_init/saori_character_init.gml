@@ -30,7 +30,10 @@ function saori_character_init()
 	
 	//Palette
 	palette_sprite = spr_saori_palette;
-	
+
+	//hurtbox
+	hurtbox_sprite = spr_saori_hurtbox;
+
 	//Gameplay sprites
 	sprites[$ "idle"			] = spr_saori_idle;
 	sprites[$ "crouch"			] = spr_saori_crouch;

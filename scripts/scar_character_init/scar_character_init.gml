@@ -27,7 +27,10 @@ function scar_character_init()
 	
 	//Palette
 	palette_sprite = spr_scar_palette;
-	
+
+	//hurtbox
+	hurtbox_sprite = spr_scar_hurtbox;
+
 	//Gameplay sprites
 	sprites[$ "idle"			] = spr_scar_idle;
 	sprites[$ "crouch"			] = spr_scar_crouch;

@@ -27,7 +27,10 @@ function brad_character_init()
 	
 	//Palette
 	palette_sprite = spr_brad_palette;
-	
+
+	//hurtbox
+	hurtbox_sprite = spr_brad_hurtbox;
+
 	//Gameplay sprites
 	sprites[$ "idle"			] = spr_brad_idle;
 	sprites[$ "crouch"			] = spr_brad_crouch;

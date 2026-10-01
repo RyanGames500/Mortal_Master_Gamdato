@@ -33,4 +33,8 @@ custom_draw = -1;
 
 image_blend = c_red;
 
-/* Copyright 2024 Springroll Games / Yosi */
+//esclusivas de mayel
+boomerang_state = 0;
+brake_timer = 0;
+has_hit_forward = false;
+has_hit_return = false;

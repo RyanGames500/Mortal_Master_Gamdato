@@ -27,7 +27,10 @@ function blitsen_character_init()
 	
 	//Palette
 	palette_sprite = spr_blitsen_palette;
-	
+
+	//hurtbox
+	hurtbox_sprite = spr_blitsen_hurtbox;
+
 	//Gameplay sprites
 	sprites[$ "idle"			] = spr_blitsen_idle;
 	sprites[$ "crouch"			] = spr_blitsen_crouch;

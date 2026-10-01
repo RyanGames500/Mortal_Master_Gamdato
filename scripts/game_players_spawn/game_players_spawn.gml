@@ -11,7 +11,6 @@ function game_players_spawn()
 	
 	with (_player1)
 		{
-		// Leemos la variable p1_select desde obj_game usando "other"
 		switch (other.p1_select)
 			{
 			case 1: blocky_character_init(); break;
@@ -20,6 +19,7 @@ function game_players_spawn()
 			case 4: saori_character_init(); break;
 			case 5: scar_character_init(); break;
 			case 6: brad_character_init(); break;
+			case 7: mayel_character_init(); break;
 			}
 		
 		player_variables_init_end();
@@ -28,13 +28,13 @@ function game_players_spawn()
 	// --- PLAYER 2 ---
 	var _player2 = instance_create_layer((room_width div 2) + _spawn_distance, obj_ground.y, layer, obj_player);
 	_player2.player_number = 1;
-	_player2.current_pal = 1;
+	_player2.current_pal = (p1_select == p2_select) ? 1 : 0;
+	
 	_player2.xstart = _player2.x;
 	_player2.ystart = _player2.y;
 	
 	with (_player2)
 		{
-		// Leemos la variable p2_select desde obj_game usando "other"
 		switch (other.p2_select)
 			{
 			case 1: blocky_character_init(); break;
@@ -43,6 +43,7 @@ function game_players_spawn()
 			case 4: saori_character_init(); break;
 			case 5: scar_character_init(); break;
 			case 6: brad_character_init(); break;
+			case 7: mayel_character_init(); break;
 			}
 		
 		player_variables_init_end();

@@ -27,7 +27,10 @@ function blocky_character_init()
 	
 	//Palette
 	palette_sprite = spr_blocky_palette;
-	
+
+	//hurtbox
+	hurtbox_sprite = spr_blocky_hurtbox;
+
 	//Gameplay sprites
 	sprites[$ "idle"			] = spr_blocky_idle;
 	sprites[$ "crouch"			] = spr_blocky_crouch;
