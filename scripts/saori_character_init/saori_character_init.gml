@@ -53,6 +53,7 @@ function saori_character_init()
     sprites[$ "low_block"		] = spr_saori_defenza_baja;
 	sprites[$ "grabbed_carry"	] = spr_saori_grabbed_throw1;
 	sprites[$ "getup"			] = spr_saori_idle;
+	sprites[$ "throw_victim"	] = spr_mayel_lanzado;
 	
 	//Attack scripts
 	attacks[$ "light_ground"	] = saori_light_ground;

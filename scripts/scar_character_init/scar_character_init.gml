@@ -50,6 +50,7 @@ function scar_character_init()
 	sprites[$ "throw_2_hit"		] = spr_scar_Agarre2_agarrado;
 	sprites[$ "grabbed_carry"	] = spr_scar_grabbed_throw1;
 	sprites[$ "getup"			] = spr_scar_idle;
+	sprites[$ "throw_victim"	] = spr_mayel_lanzado;
 	
 	//Attack scripts
 	attacks[$ "light_ground"	] = scar_light_ground;

@@ -50,6 +50,7 @@ function blocky_character_init()
     sprites[$ "low_block"		] = spr_blocky_defenza_baja;
 	sprites[$ "grabbed_carry"	] = spr_blocky_grabbed_throw1;
 	sprites[$ "getup"			] = spr_blocky_idle;
+	sprites[$ "throw_victim"	] = spr_mayel_lanzado;
 	
 	//Attack scripts
 	attacks[$ "light_ground"	] = blocky_light_ground;

@@ -40,6 +40,7 @@ function lex_character_init()
 	sprites[$ "low_block"		] = spr_lex_defenza_baja;
 	sprites[$ "grabbed_carry"	] = spr_lex_grabbed_throw1;
 	sprites[$ "getup"			] = spr_lex_idle;
+	sprites[$ "throw_victim"	] = spr_mayel_lanzado;
 	
 	//Attack scripts
 	attacks[$ "light_ground"	] = lex_light_ground;

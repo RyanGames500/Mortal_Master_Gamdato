@@ -50,6 +50,7 @@ function brad_character_init()
     sprites[$ "low_block"		] = spr_brad_defenza_baja;
 	sprites[$ "grabbed_carry"	] = spr_brad_grabbed_throw1;
 	sprites[$ "getup"			] = spr_brad_idle;
+	sprites[$ "throw_victim"	] = spr_mayel_lanzado;
 	
 	//Attack scripts
 	attacks[$ "light_ground"	] = brad_light_ground;

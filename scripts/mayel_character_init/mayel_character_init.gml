@@ -54,6 +54,7 @@ function mayel_character_init()
     sprites[$ "low_block"		] = spr_mayel_defenza_baja;
 	sprites[$ "grabbed_carry"	] = spr_blocky_grabbed_throw1;
 	sprites[$ "getup"			] = spr_mayel_idle;
+	sprites[$ "throw_victim"	] = spr_mayel_lanzado;
 	
 	//Attack scripts
 	attacks[$ "light_ground"	] = mayel_light_ground;
@@ -65,7 +66,7 @@ function mayel_character_init()
 	attacks[$ "heavy_ground"	] = mayel_heavy_ground;
 	attacks[$ "heavy_crouch"	] = mayel_heavy_crouch;
 	attacks[$ "heavy_aerial"	] = mayel_heavy_aerial;
-	attacks[$ "throw"			] = blocky_throw;
+	attacks[$ "throw"			] = mayel_throw;
 
 	//sprite_inicial
 	anim_sprite = sprites[$ "idle"];
