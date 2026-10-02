@@ -10,7 +10,7 @@ function mayel_character_init()
 	dash_speed = 15;           // Dash explosivo para entrar
 	dash_time  = 22;           // Dash más corto y compacto
 	jump_hsp   = 9;            // Excelente impulso horizontal en el aire
-	jump_vsp   = -24;          // Salto rapido
+	jump_vsp   = -25;          // Salto rapido
 	grav       = 1.1;          // Cae rapido
 	
 	has_backdash = false;

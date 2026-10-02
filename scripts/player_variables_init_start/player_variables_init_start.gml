@@ -66,6 +66,7 @@ function player_variables_init_start()
 	sound_hit_heavy_index = 0;
 	being_carried = false;
 	jump_impulse_done = false;
+	air_hits = 0;
 	//diferenciar espejos de cada peleador duplicado
 	current_pal = 0
 	override_surface=noone;

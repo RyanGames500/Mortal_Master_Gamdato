@@ -49,7 +49,7 @@ function mayel_boomerang(_override_phase)
 					_hitbox.facing = facing;
 					
 					// Variables de estado del boomerang
-					_hitbox.hsp = 14 * facing;
+					_hitbox.hsp = 17 * facing;
 					_hitbox.vsp = 0;
 					
 					// Estados explícitos de control de vuelo

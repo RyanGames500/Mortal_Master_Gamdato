@@ -220,6 +220,7 @@ function brad_throw_brainbuster(_override_phase)
 					}
 
 				var _hitbox = hitbox_create(183, 97, 1.8, 0.9, 35, 3);
+				_hitbox.knockdown = true;
 				_hitbox.grab = false;
 				_hitbox.knockback = 15;
 				_hitbox.launch_speed = 18

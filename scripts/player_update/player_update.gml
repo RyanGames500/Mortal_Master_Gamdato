@@ -342,7 +342,7 @@ function player_update(_inputs_array)
 				anim_sprite = sprites[$ "idle"];
 				anim_speed = anim_idle_speed;
 				player_face_opponent();
-				
+				air_hits = 0;   // se acabo el combo
 				if (stick_check_direction(STICK_DIR.up_any))
 					{
 					if (stick_check_direction(STICK_DIR.forward_up))
@@ -452,6 +452,9 @@ function player_update(_inputs_array)
 				anim_sprite = sprites[$ "knockdown"];
 				anim_speed = anim_idle_speed;
 				
+				// Si no hay sprite "acostado" aparte, en el aire solo se repiten los cuadros 0-3
+				if (is_undefined(sprites[$ "acostado"]) && anim_frame >= 4) then anim_frame = 0;
+				
 				vsp += grav;
 				hsp *= knockback_friction;
 				player_move();
@@ -467,6 +470,7 @@ function player_update(_inputs_array)
 
 					vsp = 0;
 					hsp = 0;
+					anim_frame = 0;
 					player_state_set(PLAYER_STATE.acostado);
 					break;
 					}
@@ -475,11 +479,70 @@ function player_update(_inputs_array)
 			
 			case PLAYER_STATE.acostado:
 				{
-				anim_sprite = sprites[$ "acostado"];
-				anim_speed = anim_speed_default;
-				
 				hsp = 0;
 				vsp = 0;
+				
+				var _lying_total   = 30; // frames totales en el suelo (acostado + levantarse)
+				var _get_up_frames = 12; // últimos frames: se levanta
+				
+				// Si no murió (KO), se levanta al cumplirse el tiempo
+				if (hp > 0 && state_time >= _lying_total)
+					{
+					player_state_set(PLAYER_STATE.idle);
+					break;
+					}
+				
+				if (hp <= 0 || state_time < _lying_total - _get_up_frames)
+					{
+					// Acostado: usa el sprite "acostado" o, si no existe, los cuadros 4-6 del knockdown
+					var _lie_sprite = sprites[$ "acostado"];
+					var _lie_start = 0;
+					if (is_undefined(_lie_sprite))
+						{
+						_lie_sprite = sprites[$ "knockdown"];
+						_lie_start = 4;
+						}
+					var _lie_last = sprite_get_number(_lie_sprite) - 1;
+					
+					anim_sprite = _lie_sprite;
+					anim_speed = anim_speed_default;
+					if (anim_frame < _lie_start) then anim_frame = _lie_start;
+					if (anim_frame >= _lie_last)
+						{
+						anim_frame = _lie_last;
+						anim_speed = 0;
+						}
+					}
+				else
+					{
+					// Levantándose
+					var _up = sprites[$ "levantarse"];
+					if (!is_undefined(_up))
+						{
+						if (anim_sprite != _up)
+							{
+							anim_sprite = _up;
+							anim_frame = 0;
+							}
+						anim_speed = anim_speed_default;
+						var _last = sprite_get_number(_up) - 1;
+						if (anim_frame >= _last)
+							{
+							anim_frame = _last;
+							anim_speed = 0;
+							}
+						}
+					else
+						{
+						// Sin sprite de levantarse: se queda en el último cuadro acostado
+						var _hold = sprites[$ "acostado"];
+						if (is_undefined(_hold)) then _hold = sprites[$ "knockdown"];
+						anim_sprite = _hold;
+						anim_frame = sprite_get_number(_hold) - 1;
+						anim_speed = 0;
+						}
+					}
+				
 				player_move();
 				}
 			break;

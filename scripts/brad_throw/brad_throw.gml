@@ -174,6 +174,7 @@ function brad_throw(_override_phase)
 				var _hitbox = hitbox_create(152, 110, 1.3, 0.2, 20, 3);
 				_hitbox.grab = false;
 				_hitbox.knockback = 10;
+				_hitbox.knockdown = true;
 				_hitbox.launch_speed = 18;
 				_hitbox.hitstun = 35;
 				

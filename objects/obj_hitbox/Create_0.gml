@@ -30,9 +30,8 @@ to_be_destroyed = false;
 destroy_on_stop = false;
 custom_update = -1;
 custom_draw = -1;
-
 image_blend = c_red;
-
+knockdown = false;
 //esclusivas de mayel
 boomerang_state = 0;
 brake_timer = 0;

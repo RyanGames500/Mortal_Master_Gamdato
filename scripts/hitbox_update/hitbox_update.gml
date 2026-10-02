@@ -30,8 +30,9 @@ function hitbox_update()
 			if (_hurtbox.owner != owner)
 				{
 				// Si la ronda no está en ejecución o el rival ya no tiene vida, ignorar colisión
+				//if (_hurtbox.owner.hp <= 0 || obj_game.game_meta_state != GAME_META_STATE.running) then continue;
 				if (_hurtbox.owner.hp <= 0 || obj_game.game_meta_state != GAME_META_STATE.running) then continue;
-
+				if (_hurtbox.owner.state == PLAYER_STATE.knockdown || _hurtbox.owner.state == PLAYER_STATE.acostado) then continue;
 				//Hitboxes that can only hit grounded opponents
 				if (grounded_only)
 					{
@@ -142,24 +143,38 @@ function hitbox_update()
 						_spark.lifetime     = sprite_get_number(_spark.sprite_index) / _spark.anim_speed;
 						_spark.owner        = other.owner;
 						
-						// Reacción de Hitstun (Suelo vs Aire)
+						// Reacción de Hitstun (Suelo vs Remate/Límite vs Aire)
 						if (bbox_bottom >= obj_ground.y && other.launch_speed == 0)
 							{
+							air_hits = 0;
 							player_state_set(PLAYER_STATE.hitstun_ground);
 							anim_sprite = sprites[$ "hitstun_ground"];
 							anim_speed = anim_speed_default;
 							player_face_opponent();
 							vsp = 0;
 							}
+						else if (other.knockdown || air_hits >= 3)
+							{
+							// Remate o límite de combo: sale volando y cae acostado
+							air_hits = 0;
+							player_state_set(PLAYER_STATE.knockdown);
+							anim_sprite = sprites[$ "knockdown"];
+							anim_speed = anim_speed_default;
+							anim_frame = 0;
+							vsp = -other.launch_speed;
+							}
 						else
 							{
+							// Golpe en el aire o lanzador de juggle
+							air_hits++;
 							player_state_set(PLAYER_STATE.hitstun_aerial);
 							anim_sprite = sprites[$ "hitstun_aerial"];
 							anim_speed = anim_speed_default;
 							vsp = -other.launch_speed;
 							}
 						
-						player_damage(other.damage);
+						//player_damage(other.damage);
+						player_damage(other.damage * max(0.4, 1 - 0.2 * max(air_hits - 1, 0)));
 						state_frame = other.hitstun;
 						hitlag_frame = other.hitlag;
 						hsp = other.knockback * other.owner.facing;

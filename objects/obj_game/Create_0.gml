@@ -56,14 +56,14 @@ characters = [
     { name: "JOE",     char_id: 1, color: c_orange,  portrait_index: 0, locked: false },
     { name: "LEX",     char_id: 2, color: c_red,     portrait_index: 1, locked: false },
     { name: "BLITSEN", char_id: 3, color: c_lime,    portrait_index: 2, locked: false },
-    { name: "SAORI",   char_id: 4, color: c_fuchsia, portrait_index: 3, locked: false },
+    { name: "SAORI",   char_id: 4, color: c_fuchsia, portrait_index: 3, locked: true },
     { name: "SCAR",    char_id: 5, color: c_lime,    portrait_index: 4, locked: false },
     { name: "BRAD",    char_id: 6, color: c_green,   portrait_index: 5, locked: false },
-	{ name: "MAYEL",   char_id: 7, color: c_yellow,   portrait_index: 6, locked: false }
+	{ name: "MAYEL",   char_id: 7, color: c_yellow,   portrait_index: 6, locked: true }
 ];
 char_count = array_length(characters);
 
-p1_css_cursor   = 1;
+p1_css_cursor   = 0;
 p1_css_ready    = false;
 p1_css_last_dir = STICK_DIR.neutral;
 p1_select       = 0; // ID del personaje elegido por P1

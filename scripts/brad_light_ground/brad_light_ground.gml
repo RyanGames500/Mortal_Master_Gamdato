@@ -65,17 +65,20 @@ function brad_light_ground(_override_phase)
 			
 			player_move();
 			
-			// Cancelación al 2do Golpe (Mantiene la ventana de combo si conectó)
-			if (attack_frame < 8 && attack_connected)
+			//Cancel: si conectó, sube de fuerza
+			if (attack_connected && attack_frame < 24)
 				{
-				if (input_pressed(INPUT.attack_light, true))
+				if (input_pressed(INPUT.attack_light2))
 					{
 					attack_connected = false;
-					
-					anim_frame = 7; 
-					attack_phase = 2;
-					attack_frame = 4; // Startup 2do golpe
-					hsp = 6 * facing;  // Pequeño avance frontal
+					attack_start(attacks[$ "medium_aerial"]);
+					return;
+					}
+				if (input_pressed(INPUT.attack_heavy))
+					{
+					attack_connected = false;
+					attack_start(attacks[$ "heavy_aerial"]);
+					return;
 					}
 				}
 			

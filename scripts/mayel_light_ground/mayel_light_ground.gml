@@ -161,11 +161,12 @@ function mayel_light_ground(_override_phase)
 				anim_frame = 13; 
 				attack_phase = 5;
 				
-				// HITBOX DE REMATE: Empuja fuerte hacia atrás
+				// HITBOX DE REMATE: lanzador de juggle (el rival queda en el aire)
 				var _hitbox = hitbox_create(139, 18, 0.5, 0.5, 10, 6);
-				_hitbox.knockback = 12;      // Empuje de impacto horizontal
-				_hitbox.launch_speed = 10;   // Velocidad de despegue
-				_hitbox.angle = 35;          // Ángulo bajo para mandar al rival volando lejos
+				_hitbox.knockback = 4;       // Empuje horizontal bajo para poder seguirlo
+				_hitbox.launch_speed = 25;   // Velocidad de despegue
+				_hitbox.hitstun = 40;        // Que no se recupere antes de caer
+				_hitbox.angle = 35;
 				
 				if (attack_connected)
 					{
@@ -199,6 +200,24 @@ function mayel_light_ground(_override_phase)
 				hsp = 0;
 				}
 			player_move();
+			
+			// CANCEL DE SALTO: si el remate conectó y mantienes arriba, salta tras el rival
+			if (attack_connected && stick_check_direction(STICK_DIR.up_any))
+				{
+				attack_stop();
+				if (stick_check_direction(STICK_DIR.forward_up))
+					{
+					hsp = jump_hsp * facing;
+					}
+				else
+					{
+					hsp = 0;
+					}
+				vsp = -20;   // igual que el launch_speed del remate, para subir junto al rival
+				anim_frame = 0;
+				player_state_set(PLAYER_STATE.aerial);
+				break;
+				}
 			
 			// Fin del combo
 			if (attack_frame <= 0)
