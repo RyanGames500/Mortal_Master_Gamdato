@@ -36,6 +36,7 @@ function scar_medium_crouch(_override_phase)
 				
 				// Hitbox a nivel del suelo marcada como LOW
 				var _hitbox = hitbox_create(143, -14, 1.2, 1.7, 7, 4);
+				_hitbox.acid_finisher = true;
 				_hitbox.knockback = 6;
 				_hitbox.low = true; // Solo se puede bloquear agachado
 				_hitbox.hitstun = 26;

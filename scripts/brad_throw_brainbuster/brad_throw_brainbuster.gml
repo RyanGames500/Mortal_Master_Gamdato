@@ -225,7 +225,7 @@ function brad_throw_brainbuster(_override_phase)
 				_hitbox.knockback = 15;
 				_hitbox.launch_speed = 18
 				_hitbox.hitstun = 50;
-				
+				_hitbox.acid_finisher = true;
 				obj_game.cam_shake = 8;
 				}
 			

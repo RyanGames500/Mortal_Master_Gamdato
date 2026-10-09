@@ -37,6 +37,7 @@ function saori_special_dp(_override_phase)
 				
 				// HITBOX INICIAL (con la estela de energía)
 				var _hitbox = hitbox_create(76.5, -74, 0.6, 1, 10, 5);
+				_hitbox.acid_finisher = true;
 				_hitbox.hitlag = 12;
 				_hitbox.launch_speed = 20;
 				_hitbox.knockback = 12;

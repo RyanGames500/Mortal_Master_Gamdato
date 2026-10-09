@@ -152,4 +152,5 @@ fight_voice_played = false;
 wins_seen = [0, 0];
 win_anim_ms = [-100000, -100000];
 ecg_phase = 0;
+stage_has_acid = true;	// true solo en el escenario del ácido
 if (!instance_exists(obj_frost_overlay)) then instance_create_depth(0, 0, -10000, obj_frost_overlay);

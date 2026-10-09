@@ -43,6 +43,7 @@ function mariel_special_superkick(_override_phase)
 				hsp = 10 * facing; // Arranque fuerte hacia adelante
 				
 				var _hitbox = hitbox_create(60, -20, 1.8, 1.1, 20, 6);
+				_hitbox.acid_finisher = true;
 				_hitbox.grounded_only = true;  // Solo rivales en el suelo
 				_hitbox.hitlag = 18;           // Congelado largo = golpe pesado
 				_hitbox.knockback = 5;

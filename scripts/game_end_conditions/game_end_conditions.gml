@@ -76,7 +76,14 @@ function game_end_conditions()
 		if (p1_wins >= rounds_to_win || p2_wins >= rounds_to_win)
 			{
 			game_meta_state = GAME_META_STATE.ending;
-			ending_frame = 150;
+			
+			// Si el final fue por remate al ácido, dura más para que se aprecie
+			var _acid = false;
+			for (var _i = 0; _i < instance_number(obj_player); _i++)
+				{
+				if (instance_find(obj_player, _i).acid_ko) then _acid = true;
+				}
+			ending_frame = _acid ? ACID_FX_TOTAL : 150;
 			}
 		else
 			{

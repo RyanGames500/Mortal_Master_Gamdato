@@ -76,6 +76,11 @@ function player_variables_init_start()
 	combo_ended_n = 0;
 	frozen = false;
 	rage_frames = 0;
+	acid_ko = false;	// true = este jugador murió por un golpe marcado y debe caer al ácido
+	acid_ko = false;
+    acid_x = 0;
+    acid_y = 0;
+    acid_dir = 1;
 	//diferenciar espejos de cada peleador duplicado
 	current_pal = 0
 	override_surface=noone;

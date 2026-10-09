@@ -188,7 +188,22 @@ function hitbox_update()
 							vsp = -other.launch_speed;
 							}
 						
-						player_damage(other.damage * max(0.4, 1 - 0.2 * max(air_hits - 1, 0)));
+						// Daño final de este golpe (se calcula antes para saber si es el golpe mortal)
+						var _final_damage = other.damage * max(0.4, 1 - 0.2 * max(air_hits - 1, 0));
+						
+						if (other.acid_finisher && obj_game.stage_has_acid && ceil(hp - _final_damage) <= 0)
+							{
+							var _killer_wins = (other.owner.player_number == 0) ? obj_game.p1_wins : obj_game.p2_wins;
+							if (_killer_wins >= obj_game.rounds_to_win - 1)
+								{
+								acid_ko = true;
+								acid_x = x;
+								acid_y = y;
+								acid_dir = other.owner.facing;
+								}
+							}
+						
+						player_damage(_final_damage);
 						combo_register_hit();
 						state_frame = other.hitstun;
 						hitlag_frame = other.hitlag;
