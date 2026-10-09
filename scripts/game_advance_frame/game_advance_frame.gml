@@ -269,7 +269,17 @@ function game_advance_frame(_inputs_array, _relative_frame = undefined)
 				{
 				with (obj_hitbox) instance_destroy();
 				with (obj_vfx) instance_destroy();
-
+				with (obj_blood) instance_destroy(); 
+				with (obj_player)
+					{
+					combo_hits = 0;
+					combo_active = false;
+					combo_show = 0;
+					combo_final_hits = 0;
+					combo_final_show = 0;
+					combo_ended_n = 0;
+					}
+				combo_ended_seen = [0, 0];
 				with_synced_object(obj_player, player_round_reset);
 
 				var _mean_x = (room_width div 2);
@@ -282,7 +292,7 @@ function game_advance_frame(_inputs_array, _relative_frame = undefined)
 
 				// Al cambiar a Starting, en el siguiente frame la música volverá a sonar desde 0.
 				game_frame = 0;
-				starting_frame = 100;
+				starting_frame = 150;
 				game_meta_state = GAME_META_STATE.starting;
 				}
 			}

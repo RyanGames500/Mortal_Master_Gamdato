@@ -15,7 +15,8 @@ function hitbox_create(_x_offset, _y_offset, _xscale, _yscale, _damage, _lifetim
 	_hitbox.y_offset = _y_offset;
 	_hitbox.image_xscale = (_xscale * facing);
 	_hitbox.image_yscale = _yscale;
-	_hitbox.damage = _damage;
+	// Rage: +25% de daño mientras dura el buff
+	_hitbox.damage = _damage * ((rage_frames > 0) ? 1.25 : 1);
 	_hitbox.lifetime = _lifetime;
 	return _hitbox;
 	}

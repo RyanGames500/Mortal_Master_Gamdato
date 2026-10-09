@@ -192,7 +192,7 @@ if (game_meta_state == GAME_META_STATE.char_select)
 	}
 
 //Ending countdown
-// Conteo de Rondas, "ROUND X" y "FIGHT!"
+// Conteo de Rondas, "ROUND X" y "FIGHT!" (estilo cinematográfico)
 if (game_meta_state == GAME_META_STATE.starting)
 	{
 	draw_set_font(fnt_countdown);
@@ -204,29 +204,95 @@ if (game_meta_state == GAME_META_STATE.starting)
 	var _text = "ROUND " + string(_current_round);
 	
 	// Si es la ronda decisiva
-	if (p1_wins == rounds_to_win - 1 && p2_wins == rounds_to_win - 1)
+	var _is_final_round = (p1_wins == rounds_to_win - 1 && p2_wins == rounds_to_win - 1);
+	if (_is_final_round)
 		{
 		_text = "FINAL ROUND";
 		}
-
-	// Mostrar "ROUND X" en los primeros frames, luego el número / "FIGHT!"
+	
+	var _cx = camera_width div 2;
+	var _cy = camera_height div 2;
+	
 	if (starting_frame > 50)
 		{
-		// Sombra negra
+		// "ROUND X": texto discreto que aparece suave; al final se abre una línea dorada
+		var _age = max(0, 150 - starting_frame);          // 0..99
+		var _fade_in = min(1, _age / 15);
+		var _line_t = clamp((_age - 60) / 25, 0, 1);       // la línea crece entre los frames 60 y 85
+		
+		draw_set_alpha(_fade_in);
 		draw_set_color(c_black);
-		draw_text((camera_width div 2) + 4, (camera_height div 2) + 4, _text);
-		// Texto blanco
+		draw_text_transformed(_cx + 3, _cy + 3, _text, 0.6, 0.6, 0);
 		draw_set_color(c_white);
-		draw_text(camera_width div 2, camera_height div 2, _text);
+		draw_text_transformed(_cx, _cy, _text, 0.6, 0.6, 0);
+		
+		if (_line_t > 0)
+			{
+			var _lw = camera_width * _line_t;
+			draw_set_alpha(0.85);
+			draw_set_color(#FFDD00);
+			draw_rectangle(_cx - (_lw / 2), _cy + 38, _cx + (_lw / 2), _cy + 40, false);
+			}
 		}
 	else
 		{
-		// Momento de "FIGHT!"
+		// "FIGHT!": destello, entra grande y brillante, se enfría a dorado y se desvanece
+		var _age = 50 - starting_frame;                    // 0..49
+		var _pop = 1 + 0.5 * max(0, 1 - _age / 6);         // entra grande y se asienta
+		var _heat = clamp(_age / 18, 0, 1);                // 0 = blanco incandescente, 1 = dorado
+		var _col = merge_colour(c_white, #FFDD00, _heat);
+		var _fade_out = clamp(starting_frame / 12, 0, 1);  // se desvanece en los últimos 12 frames
+		
+		// Destello de pantalla en los primeros 6 frames
+		if (_age < 6)
+			{
+			draw_set_alpha(0.6 * (1 - _age / 6));
+			draw_set_color(c_white);
+			draw_rectangle(0, 0, camera_width, camera_height, false);
+			}
+		
+		// Línea dorada que se retrae al final
+		var _lw = camera_width * clamp(starting_frame / 20, 0, 1);
+		draw_set_alpha(0.85 * _fade_out);
+		draw_set_color(#FFDD00);
+		draw_rectangle(_cx - (_lw / 2), _cy + 52, _cx + (_lw / 2), _cy + 54, false);
+		
+		draw_set_alpha(_fade_out);
 		draw_set_color(c_black);
-		draw_text((camera_width div 2) + 4, (camera_height div 2) + 4, "FIGHT!");
-		draw_set_color(#FFDD00); // Amarillo brillante
-		draw_text(camera_width div 2, camera_height div 2, "FIGHT!");
+		draw_text_transformed(_cx + 5, _cy + 5, "FIGHT!", 1.3 * _pop, 1.3 * _pop, 0);
+		draw_set_color(_col);
+		draw_text_transformed(_cx, _cy, "FIGHT!", 1.3 * _pop, 1.3 * _pop, 0);
 		}
+	
+	draw_set_alpha(1.0);
+	draw_set_color(c_white);
+	
+	// Voces de ronda y fight (solo sonido, una vez por ronda)
+	var _round_voices = [snd_round_1, snd_round_2, snd_round_3, snd_round_4, snd_round_5];
+	if (starting_frame > 50 && !round_voice_played)
+		{
+		round_voice_played = true;
+		if (_is_final_round)
+			{
+			hit_sfx_play(snd_round_final);
+			}
+		else
+			{
+			hit_sfx_play(_round_voices[clamp(_current_round, 1, 5) - 1]);
+			}
+		}
+	if (starting_frame <= 50 && !fight_voice_played)
+		{
+		fight_voice_played = true;
+		hit_sfx_play(snd_fight);
+		}
+	}
+
+// Al salir de la cuenta regresiva se reinician las banderas de las voces
+if (game_meta_state != GAME_META_STATE.starting)
+	{
+	round_voice_played = false;
+	fight_voice_played = false;
 	}
 
 //Player HP bars & Meter bars
@@ -319,26 +385,33 @@ with (obj_player)
 		}
 
 
-	// === INDICADORES DE RONDAS GANADAS ===
-	var _dot_y = 65; 
+	// === RONDAS GANADAS: frascos de suero que se llenan ===
+	var _wins = (player_number == 0) ? obj_game.p1_wins : obj_game.p2_wins;
+	if (_wins != obj_game.wins_seen[player_number])
+		{
+		if (_wins > obj_game.wins_seen[player_number]) then obj_game.win_anim_ms[player_number] = current_time;
+		obj_game.wins_seen[player_number] = _wins;
+		}
+	var _fill_anim = clamp((current_time - obj_game.win_anim_ms[player_number]) / 700, 0, 1);
+	
 	for (var i = 0; i < obj_game.rounds_to_win; i++)
 		{
-		if (player_number == 0)
-			{
-			var _dot_x = (camera_width div 2) - 80 - (i * 20);
-			var _color = (obj_game.p1_wins > i) ? #FFDD00 : c_dkgray;
-			}
-		else
-			{
-			var _dot_x = (camera_width div 2) + 80 + (i * 20);
-			var _color = (obj_game.p2_wins > i) ? #FFDD00 : c_dkgray;
-			}
-	
-		draw_circle_color(_dot_x, _dot_y, 6, _color, _color, false);
-		draw_circle_color(_dot_x, _dot_y, 6, c_black, c_black, true); 
+		var _vx = (camera_width div 2) + ((player_number == 0) ? (-62 - (i * 18)) : (62 + (i * 18)));
+		var _f = 0;
+		if (i < _wins - 1) then _f = 1;
+		else if (i == _wins - 1) then _f = _fill_anim;
+		draw_round_vial(_vx, _ny + 2, _f);
 		}
 	}
-
+// === MONITOR DE SIGNOS VITALES (centro, bajo las barras) ===
+var _min_ratio = 1;
+var _any_ko = false;
+with (obj_player)
+	{
+	_min_ratio = min(_min_ratio, hp / max(hp_max, 1));
+	if (hp <= 0) then _any_ko = true;
+	}
+draw_ecg_monitor(camera_width div 2, 96, 88, 24, _min_ratio, _any_ko);
 
 // Mensaje de Ganador por Personaje (LEX WINS / JOE WINS) - CÓDIGO CORREGIDO
 if (game_meta_state == GAME_META_STATE.round_restart || game_meta_state == GAME_META_STATE.ending)
@@ -401,6 +474,70 @@ if (game_meta_state == GAME_META_STATE.round_restart || game_meta_state == GAME_
 		}
 	}
 
+// === CONTADOR DE COMBOS ===
+if (game_meta_state != GAME_META_STATE.starting)
+	{
+	with (obj_player)
+		{
+		// Este jugador es el golpeado; el texto va del lado del que le pega
+		
+		// Sonido: al terminar el combo suena solo la frase del golpe en que se quedó (solo cosmético)
+		if (combo_ended_n > obj_game.combo_ended_seen[player_number])
+			{
+			obj_game.combo_ended_seen[player_number] = combo_ended_n;
+			var _end_call = combo_callout(combo_final_hits);
+			if (!is_undefined(_end_call) && _end_call.snd != -1) then hit_sfx_play(_end_call.snd);
+			}
+		
+		var _live  = (combo_active && combo_hits >= COMBO_MIN_SHOW);
+		var _ended = (!combo_active && combo_final_show > 0 && combo_final_hits >= COMBO_MIN_SHOW);
+		// La frase sigue visible aunque empiece un combo nuevo; se apaga sola
+		var _call  = (combo_final_show > 0 && combo_final_hits >= COMBO_MIN_SHOW) ? combo_callout(combo_final_hits) : undefined;
+		
+		if (_live || _ended || !is_undefined(_call))
+			{
+			var _age = COMBO_SHOW_FRAMES - combo_show;
+			var _pop = _live ? (1 + 0.35 * max(0, 1 - _age / 6)) : 1;   // "rebote" al sumar un golpe
+			var _fade = min(1, combo_final_show / 20);                    // se desvanece al final
+			
+			var _cx = (player_number == 1) ? camera_width * 0.14 : camera_width * 0.86;
+			var _cy = camera_height * 0.32;
+			
+			draw_set_halign(fa_center);
+			draw_set_valign(fa_center);
+			
+			// "N HITS": el del combo en curso, o el del que acaba de terminar
+			if (_live || _ended)
+				{
+				var _n = _live ? combo_hits : combo_final_hits;
+				draw_set_alpha(_live ? 1 : _fade);
+				draw_set_font(fnt_menu);
+				var _txt = string(_n) + ((_n == 1) ? " HIT" : " HITS");
+				draw_set_color(c_black);
+				draw_text_transformed(_cx + 3, _cy + 3, _txt, 1.6 * _pop, 1.6 * _pop, 0);
+				draw_set_color(c_white);
+				draw_text_transformed(_cx, _cy, _txt, 1.6 * _pop, 1.6 * _pop, 0);
+				}
+			
+			// Frase del combo terminado
+			if (!is_undefined(_call))
+				{
+				draw_set_alpha(_fade);
+				draw_set_font(fnt_countdown);
+				draw_set_color(c_black);
+				draw_text_transformed(_cx + 15, _cy + 59, _call.text, 0.3, 0.3, 0);
+				draw_set_color(_call.col);
+				draw_text_transformed(_cx + 13, _cy + 56, _call.text, 0.3, 0.3, 0);
+				}
+			
+			draw_set_alpha(1.0);
+			draw_set_color(c_white);
+			draw_set_halign(fa_left);
+			draw_set_valign(fa_top);
+			}
+		}
+	}
+
 //Timer
 if (game_meta_state == GAME_META_STATE.running)
 	{
@@ -415,6 +552,45 @@ if (game_meta_state == GAME_META_STATE.running)
 	draw_text(camera_width div 2, (44) - 6, _timer);
 	draw_set_color(c_white);
 	draw_text(camera_width div 2, 44, _timer);
+	}
+
+// === RISA DEL ANFITRIÓN ===
+// Corre también en round_restart y ending, porque el KO cambia el estado del juego en ese mismo frame
+if (game_meta_state == GAME_META_STATE.running
+	|| game_meta_state == GAME_META_STATE.round_restart
+	|| game_meta_state == GAME_META_STATE.ending)
+	{
+	var _laughs = [snd_laugh_1, snd_laugh_2, snd_laugh_3];
+	with (obj_player)
+		{
+		var _prev = obj_game.laugh_state_seen[player_number];
+		var _entered_knockdown = (state == PLAYER_STATE.knockdown && _prev != PLAYER_STATE.knockdown);
+		obj_game.laugh_state_seen[player_number] = state;
+		
+		// Risa larga: la primera vez que a este jugador le queda poca vida
+		// (también si llega a 0 de un solo golpe sin haber pasado por ahí)
+		var _low = (hp <= hp_max * LAUGH_LOW_HP);
+		if (_low && !obj_game.laugh_low_seen[player_number])
+			{
+			obj_game.laugh_low_seen[player_number] = true;
+			obj_game.laugh_last_ms = current_time;
+			hit_sfx_play(snd_laugh_ko);
+			}
+		if (!_low) then obj_game.laugh_low_seen[player_number] = false;   // ronda nueva o vida recuperada
+		
+		// Risa corta: solo en 1 de cada LAUGH_EVERY lanzamientos y con pausa mínima
+		if (_entered_knockdown)
+			{
+			obj_game.laugh_count++;
+			if ((obj_game.laugh_count mod LAUGH_EVERY) == 0
+				&& (current_time - obj_game.laugh_last_ms) > LAUGH_COOLDOWN_MS)
+				{
+				obj_game.laugh_last_ms = current_time;
+				hit_sfx_play(_laughs[obj_game.laugh_index]);
+				obj_game.laugh_index = (obj_game.laugh_index + 1) mod array_length(_laughs);
+				}
+			}
+		}
 	}
 
 //Pausing

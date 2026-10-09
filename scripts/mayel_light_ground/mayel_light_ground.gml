@@ -213,7 +213,7 @@ function mayel_light_ground(_override_phase)
 					{
 					hsp = 0;
 					}
-				vsp = -20;   // igual que el launch_speed del remate, para subir junto al rival
+				vsp = -25;   // igual que el launch_speed del remate, para subir junto al rival
 				anim_frame = 0;
 				player_state_set(PLAYER_STATE.aerial);
 				break;

@@ -13,7 +13,7 @@ function blitsen_character_init()
 	dash_time = 20;
 	jump_hsp = 8.5;
 	jump_vsp = -25;
-	grav = 0.95;
+	grav = 1.2;
 	has_backdash = true;
 	has_grab = false;
 	hp_max = 100;

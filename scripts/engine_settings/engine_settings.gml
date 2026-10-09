@@ -18,9 +18,21 @@ function setting()
 	}
 
 //Settings
-global.show_hitboxes = false; //{bool} Whether hitboxes and hurtboxes are visible or not.
+global.show_hitboxes = true; //{bool} Whether hitboxes and hurtboxes are visible or not.
 global.replay_record = false; //{bool} Whether to record replays of matches or not.
 global.show_scanlines = false;
+
+//Combo contadores
+#macro COMBO_SUPER				4    //Golpes para "SUPER COMBO"
+#macro COMBO_ULTRA				5    //Golpes para "ULTRA COMBO"
+#macro COMBO_MEGA				6    //Golpes para "MEGA COMBO"
+#macro COMBO_MIN_SHOW			2    //Desde cuántos golpes se muestra el contador
+#macro COMBO_SHOW_FRAMES		90   //Cuánto se queda el texto tras el último golpe
+
+//risas
+#macro LAUGH_EVERY				3      //La risa corta suena en 1 de cada N lanzamientos
+#macro LAUGH_COOLDOWN_MS		8000   //Pausa mínima entre risas (en milisegundos)
+#macro LAUGH_LOW_HP				0.20   //Risa larga cuando a un jugador le queda este porcentaje de vida o menos
 
 //Gameplay
 #macro jostle_amount			5 //{int} The number of pixels per frame players get pushed when overlapping with other players.
@@ -28,6 +40,7 @@ global.show_scanlines = false;
 #macro knockback_friction		0.9 //{real} The friction multiplier on horizontal knockback.
 #macro block_pushback_friction	0.7 //{real} The friction multiplier on block pushback.
 #macro block_multiplier			0.25 //{real} The damage and hitstun multiplier for blocked attacks.
+#macro SHAKE_HEAVY				7   //Temblor de golpes fuertes y de aterrizaje (el mismo valor)
 #macro throw_input_leniency		2 //{int} How many frames at the start of normal attacks can be canceled into throws.
 #macro motion_input_leniency	25 //{int} The maximum number of frames you can take to do a motion input.
 #macro motion_input_array_size	10 //{int} How many stick directions are stored to detect motion inputs.

@@ -6,8 +6,8 @@ function lex_character_init()
 	dash_speed = 9;           
 	dash_time = 22;          
 	jump_hsp = 6;             
-	jump_vsp = -22;           
-	grav = 0.9;               
+	jump_vsp = -23;           
+	grav = 1.2;              
 	has_backdash = false;
 	has_grab = false;
 	hp_max = 120;

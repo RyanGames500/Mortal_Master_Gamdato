@@ -37,3 +37,4 @@ boomerang_state = 0;
 brake_timer = 0;
 has_hit_forward = false;
 has_hit_return = false;
+shake = 6;

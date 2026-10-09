@@ -83,6 +83,25 @@ function player_update(_inputs_array)
 		}
 	state_time++;
 	
+	//Combo: termina cuando el jugador sale de los estados de golpe
+	if (combo_active && state != PLAYER_STATE.hitstun_ground && state != PLAYER_STATE.hitstun_aerial
+		&& state != PLAYER_STATE.grabbed)
+		{
+		combo_active = false;
+		combo_final_hits = combo_hits;
+		combo_ended_n++;
+		
+		//La frase se queda al menos lo que dura su voz
+		combo_final_show = COMBO_SHOW_FRAMES;
+		var _fin = combo_callout(combo_hits);
+		if (!is_undefined(_fin) && _fin.snd != -1)
+			{
+			combo_final_show = max(COMBO_SHOW_FRAMES, ceil(audio_sound_length(_fin.snd) * 60));
+			}
+		}
+	if (combo_final_show > 0) then combo_final_show--;
+	if (combo_show > 0) then combo_show--;
+	
 	var _max_state_changes = 5;
 	repeat (_max_state_changes)
 		{
@@ -327,8 +346,15 @@ function player_update(_inputs_array)
 				player_face_opponent();
 				
 				hsp *= knockback_friction;
-				player_move();				
+				player_move();
 				
+				if (frozen)
+					{
+					anim_speed = 0;
+					hsp = 0;
+					vsp = 0;
+					}	
+					
 				if (state_frame == 0)
 					{
 					player_state_set(PLAYER_STATE.idle);
@@ -461,6 +487,12 @@ function player_update(_inputs_array)
 				
 				if (bbox_bottom >= obj_ground.y)
 					{
+					//temblor	
+					obj_game.cam_shake = max(obj_game.cam_shake, 7);
+					//sonido de impacto en piso
+					var _land_sounds = [snd_hit_floor1, snd_hit_floor2];
+					hit_sfx_play(_land_sounds[(obj_game.game_frame + state_time) mod 2]);
+					//efecto de polvo
 					var _land_vfx = instance_create_layer(x, obj_ground.y, "VFX_Layer", obj_vfx);
 					_land_vfx.sprite_index = spr_effect_landing_dust;
 					_land_vfx.image_xscale = facing;
@@ -482,8 +514,8 @@ function player_update(_inputs_array)
 				hsp = 0;
 				vsp = 0;
 				
-				var _lying_total   = 30; // frames totales en el suelo (acostado + levantarse)
-				var _get_up_frames = 12; // últimos frames: se levanta
+				var _lying_total   = 20; // frames totales en el suelo (acostado + levantarse)
+				var _get_up_frames = 8; // últimos frames: se levanta
 				
 				// Si no murió (KO), se levanta al cumplirse el tiempo
 				if (hp > 0 && state_time >= _lying_total)
@@ -557,7 +589,7 @@ function player_update(_inputs_array)
 		{
 		script_execute(passive);
 		}
-	
+	if (frozen && state != PLAYER_STATE.hitstun_ground) then frozen = false;	
 	if (sprite_exists(anim_sprite))
 		{
 		anim_frame += anim_speed;

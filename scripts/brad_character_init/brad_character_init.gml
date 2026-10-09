@@ -10,8 +10,8 @@ function brad_character_init()
 	dash_speed = 9;
 	dash_time = 18;
 	jump_hsp = 4;
-	jump_vsp = -24;
-	grav = 1.35;         // Sube: cae más rápido, menos tiempo vulnerable en el aire (típico de personajes pesados)
+	jump_vsp = -21;
+	grav = 1.2;
 	has_backdash = false; // Sin backdash: cada acercamiento es un compromiso real, sin escape fácil
 	has_grab = true;
 	hp_max = 200;
@@ -19,6 +19,7 @@ function brad_character_init()
 	hp_prev = hp_max;
 	
 	sprite_scale = 6.5;
+	air_hit_limit = 2;   // pesado: lo juguean menos
 	//dara tamaño personalizado a cada har desd aqui
 	//meter_max = 100; /150 default 100:perzonalizdo
 	

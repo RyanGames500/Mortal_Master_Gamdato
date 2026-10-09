@@ -65,20 +65,18 @@ function brad_light_ground(_override_phase)
 			
 			player_move();
 			
-			//Cancel: si conectó, sube de fuerza
-			if (attack_connected && attack_frame < 24)
+			// CANCELACIÓN AL 2DO GOLPE (CORREGIDO)
+			if (attack_frame < 8 && attack_connected)
 				{
-				if (input_pressed(INPUT.attack_light2))
+				if (input_pressed(INPUT.attack_light, true))
 					{
 					attack_connected = false;
-					attack_start(attacks[$ "medium_aerial"]);
-					return;
-					}
-				if (input_pressed(INPUT.attack_heavy))
-					{
-					attack_connected = false;
-					attack_start(attacks[$ "heavy_aerial"]);
-					return;
+					
+					anim_frame = 7; 
+					attack_phase = 2; // Pasa correctamente al 2do golpe
+					attack_frame = 4; // Startup del 2do golpe
+					hsp = 6 * facing; // Ligero avance horizontal
+					return; // Freno crítico para esperar el siguiente ciclo
 					}
 				}
 			
@@ -109,7 +107,7 @@ function brad_light_ground(_override_phase)
 				
 				// Hitbox 2do golpe
 				var _hitbox = hitbox_create(90, -54, 1.1, 0.3, 4, 4);
-				_hitbox.knockback = 5;
+				_hitbox.knockback = 4;
 				}
 			
 			player_move();
@@ -141,8 +139,9 @@ function brad_light_ground(_override_phase)
 					
 					anim_frame = 14; 
 					attack_phase = 4;
-					attack_frame = 6; // Startup del remate pesado
+					attack_frame = 6; // Startup del remate
 					hsp = 9 * facing; // Avance fuerte con impulso
+					return; // Freno crítico
 					}
 				}
 			
@@ -170,19 +169,19 @@ function brad_light_ground(_override_phase)
 				anim_frame = 16; 
 				attack_phase = 5;
 				
-				// Hitbox pesada con Knockback de lanzamiento hacia el suelo/frente
+				// Hitbox pesada con Knockback de lanzamiento
 				var _hitbox = hitbox_create(70, -45, 1.3, 0.4, 4, 2);
 				_hitbox.knockback = 9;
 				_hitbox.launch_speed = 8;
-				_hitbox.hit_angle = 310; // Ángulo hacia abajo/frente (Spike/Hard Knockdown)
+				_hitbox.hit_angle = 310;
 				
 				if (attack_connected)
 					{
-					attack_frame = 12; // Menos recovery si conectó
+					attack_frame = 12;
 					}
 				else
 					{
-					attack_frame = 20; // Castigo amplio si falla
+					attack_frame = 20;
 					}
 				}
 				

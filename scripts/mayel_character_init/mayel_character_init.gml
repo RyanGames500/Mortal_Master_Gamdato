@@ -11,14 +11,14 @@ function mayel_character_init()
 	dash_time  = 22;           // Dash más corto y compacto
 	jump_hsp   = 9;            // Excelente impulso horizontal en el aire
 	jump_vsp   = -25;          // Salto rapido
-	grav       = 1.1;          // Cae rapido
+	grav = 1.2;
 	
 	has_backdash = false;
 	has_grab     = true;
 	has_boomerang = true;
 	
 	// --- SALUD Y ESCALA ---
-	hp_max  = 90;             // Un poco menos de vida (130 en lugar de 150) por tener hurtbox pequeña
+	hp_max  = 70;             // Un poco menos de vida (130 en lugar de 150) por tener hurtbox pequeña
 	hp      = hp_max;
 	hp_prev = hp_max;
 	

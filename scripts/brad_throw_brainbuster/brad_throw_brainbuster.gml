@@ -28,7 +28,7 @@ function brad_throw_brainbuster(_override_phase)
 				anim_frame = 4;
 				var _hitbox = hitbox_create(110, -45, 1.3, 0.5, 0, 4);
 				_hitbox.grab = true;
-				_hitbox.hitstun = 60;
+				_hitbox.hitstun = 80;
 				_hitbox.grounded_only = true;
 				}
 			

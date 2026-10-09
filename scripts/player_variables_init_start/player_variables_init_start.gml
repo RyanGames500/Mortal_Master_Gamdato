@@ -67,6 +67,15 @@ function player_variables_init_start()
 	being_carried = false;
 	jump_impulse_done = false;
 	air_hits = 0;
+	air_hit_limit = 3;
+	combo_hits = 0;
+	combo_active = false;
+	combo_show = 0;
+	combo_final_hits = 0;
+	combo_final_show = 0;
+	combo_ended_n = 0;
+	frozen = false;
+	rage_frames = 0;
 	//diferenciar espejos de cada peleador duplicado
 	current_pal = 0
 	override_surface=noone;

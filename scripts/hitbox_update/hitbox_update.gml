@@ -30,9 +30,10 @@ function hitbox_update()
 			if (_hurtbox.owner != owner)
 				{
 				// Si la ronda no está en ejecución o el rival ya no tiene vida, ignorar colisión
-				//if (_hurtbox.owner.hp <= 0 || obj_game.game_meta_state != GAME_META_STATE.running) then continue;
 				if (_hurtbox.owner.hp <= 0 || obj_game.game_meta_state != GAME_META_STATE.running) then continue;
 				if (_hurtbox.owner.state == PLAYER_STATE.knockdown || _hurtbox.owner.state == PLAYER_STATE.acostado) then continue;
+				// Rage: los proyectiles no le hacen daño (los golpes normales sí)
+				if (destroy_on_stop && _hurtbox.owner.rage_frames > 0) then continue;
 				//Hitboxes that can only hit grounded opponents
 				if (grounded_only)
 					{
@@ -55,6 +56,7 @@ function hitbox_update()
 						{
 						attack_stop();
 						player_state_set(PLAYER_STATE.grabbed);
+						combo_register_hit();
 						anim_sprite = sprites[$ "hitstun_ground"];
 						anim_speed = anim_speed_default;
 						player_face_opponent();
@@ -80,7 +82,7 @@ function hitbox_update()
 
 						// --- VFX CHISPA DE BLOQUEO SOBRE EL DEFENSOR ---
 						var _block_vfx = instance_create_layer(_vfx_x, _vfx_y, "VFX_Layer", obj_vfx);
-						_block_vfx.sprite_index = spr_effect_block_spark;
+						_block_vfx.sprite_index = spr_effect_spark3;
 						_block_vfx.image_xscale = other.owner.facing;
 						_block_vfx.anim_speed   = 0.4;
 						_block_vfx.lifetime     = sprite_get_number(_block_vfx.sprite_index) / _block_vfx.anim_speed;
@@ -102,7 +104,7 @@ function hitbox_update()
 
 						// --- VFX CHISPA DE BLOQUEO BAJO ---
 						var _block_vfx = instance_create_layer(_vfx_x, _vfx_y, "VFX_Layer", obj_vfx);
-						_block_vfx.sprite_index = spr_effect_block_spark;
+						_block_vfx.sprite_index = spr_effect_spark3;
 						_block_vfx.image_xscale = other.owner.facing;
 						_block_vfx.anim_speed   = 0.4;
 						_block_vfx.lifetime     = sprite_get_number(_block_vfx.sprite_index) / _block_vfx.anim_speed;
@@ -115,7 +117,7 @@ function hitbox_update()
 					else
 						{
 						attack_stop();
-						
+						var _was_frozen = frozen;
 						// Sonidos de impacto
 						var _snd_heavy_list = [snd_hit_heavy, snd_hit_heavy_2, snd_hit_heavy_3];
 						var _snd_light_list = [snd_hit_light, snd_hit_light_2, snd_hit_light_3];
@@ -135,13 +137,26 @@ function hitbox_update()
 							other.owner.sound_hit_light_index = (other.owner.sound_hit_light_index + 1) % array_length(_snd_light_list);
 							}
 
-						// --- VFX CHISPA DE IMPACTO DIRECTA EN EL RECEPTOR ---
+						// --- VFX CHISPA DE IMPACTO: alterna entre spark1 y spark2 (determinista, sin random) ---
+						var _hit_sprites = [spr_effect_spark, spr_effect_spark2];
 						var _spark = instance_create_layer(_vfx_x, _vfx_y, "VFX_Layer", obj_vfx);
-						_spark.sprite_index = spr_effect_blue_spark;
+						_spark.sprite_index = _hit_sprites[(obj_game.game_frame + other.owner.player_number) mod 2];
 						_spark.image_xscale = other.owner.facing;
 						_spark.anim_speed   = 0.4;
 						_spark.lifetime     = sprite_get_number(_spark.sprite_index) / _spark.anim_speed;
 						_spark.owner        = other.owner;
+						
+						// Sangre: sale al terminar el congelado del golpe
+						if (other.launch_speed > 0)
+							{
+							// Lanzador (uppercut): sube en abanico
+							blood_spray(_vfx_x, _vfx_y, other.owner.facing, clamp(round(other.damage * 1.5), 8, 26), 0.5, 2, other.hitlag);
+							}
+						else
+							{
+							// Golpe normal: sale hacia donde va el golpe
+							blood_spray(_vfx_x, _vfx_y, other.owner.facing, clamp(round(other.damage * 1.2), 3, 14), 1, 0.7, other.hitlag);
+							}
 						
 						// Reacción de Hitstun (Suelo vs Remate/Límite vs Aire)
 						if (bbox_bottom >= obj_ground.y && other.launch_speed == 0)
@@ -153,7 +168,7 @@ function hitbox_update()
 							player_face_opponent();
 							vsp = 0;
 							}
-						else if (other.knockdown || air_hits >= 3)
+						else if (other.knockdown || air_hits >= air_hit_limit)
 							{
 							// Remate o límite de combo: sale volando y cae acostado
 							air_hits = 0;
@@ -173,14 +188,29 @@ function hitbox_update()
 							vsp = -other.launch_speed;
 							}
 						
-						//player_damage(other.damage);
 						player_damage(other.damage * max(0.4, 1 - 0.2 * max(air_hits - 1, 0)));
+						combo_register_hit();
 						state_frame = other.hitstun;
 						hitlag_frame = other.hitlag;
 						hsp = other.knockback * other.owner.facing;
+						if (_was_frozen)
+							{
+							air_hits = 0;
+							player_state_set(PLAYER_STATE.knockdown);
+							anim_sprite = sprites[$ "knockdown"];
+							anim_speed = anim_speed_default;
+							anim_frame = 0;
+							vsp = -9;
+							hsp = 4 * other.owner.facing;
+							player_damage(5);
+							}
+						frozen = false;
+						// Cámara: los golpes que lanzan o tiran al suelo tiemblan como el aterrizaje
+						var _shake = other.shake;
+						if (other.launch_speed > 0 || other.knockdown) then _shake = max(_shake, SHAKE_HEAVY);
+						obj_game.cam_shake = max(obj_game.cam_shake, _shake);
 						
-						// Cámara y líneas de acción
-						obj_game.cam_shake = other.damage * 1;
+						// Líneas de acción
 						if (other.damage > 10)
 							{
 							var _action_lines = instance_create_layer(x, y, "VFX_Layer", obj_vfx_action_lines);
@@ -207,3 +237,4 @@ function hitbox_update()
 		return;     
 		}
 	}
+/* Copyright 2024 Springroll Games / Yosi */
