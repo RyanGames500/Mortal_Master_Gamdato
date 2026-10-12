@@ -4,9 +4,9 @@ It is run every frame and allows motion input attacks to be performed.
 */
 function saori_passive()
 	{
-	var _special_cost = 25;	
-		
-	// Divekick: solo si está saltando o en uno de sus golpes aéreos normales
+	var _special_cost = METER_COST_SPECIAL;
+	
+	// Divekick: solo si esta saltando o en uno de sus golpes aereos normales
 	// (nunca en hitstun, bloqueo, agarre, knockdown ni dentro de otro especial)
 	var _in_air_normal = (state == PLAYER_STATE.attacking && bbox_bottom < obj_ground.y
 		&& (attack_script == attacks[$ "light_aerial"]
@@ -16,10 +16,9 @@ function saori_passive()
 	
 	if (_can_divekick)
 		{
-		// Comando: atrás, atrás
+		// Comando: atras, atras
 		if (input_motion_check([STICK_DIR.backward, STICK_DIR.backward]))
 			{
-			// Verifica la presión de ataque ligero en el frame
 			if (input_pressed(INPUT.attack_light) || input_pressed(INPUT.attack_light2))
 				{
 				if (attack_script != saori_special_divekick)
@@ -31,22 +30,18 @@ function saori_passive()
 				}
 			}
 		}
-		
-	if (state == PLAYER_STATE.idle ||
-		state == PLAYER_STATE.crouch ||
-		state == PLAYER_STATE.walk_forward ||
-		state == PLAYER_STATE.dash ||
-		(state == PLAYER_STATE.attacking && state_time < 5 && bbox_bottom >= obj_ground.y))
+	
+	// DP en piso (incluye cancel de normales)
+	if (special_state_ok())
 		{
-		// Comando: Down -> Forward -> Attack
+		// Comando: abajo, adelante + light o medium
 		if (input_motion_check([STICK_DIR.down, STICK_DIR.forward]))
 			{
 			if (input_pressed(INPUT.attack_light2) || input_pressed(INPUT.attack_light))
 				{
-				// Evita re-activar si ya está en el DP o no tiene barra
-				if (attack_script != saori_special_dp && meter >= _special_cost)
+				if (attack_script != saori_special_dp && meter_can_pay(_special_cost))
 					{
-					meter -= _special_cost;	
+					meter_pay(_special_cost);
 					attack_stop();
 					attack_start(saori_special_dp);
 					return;
@@ -54,9 +49,9 @@ function saori_passive()
 				}
 			}
 		}
-		
+	
 	// ==========================================
-	// CANCELACIONES DE COMBOS AÉREOS (Exclusivo Saori)
+	// CANCELACIONES DE COMBOS AEREOS (Exclusivo Saori)
 	// ==========================================
 	if (state == PLAYER_STATE.attacking)
 		{
@@ -76,7 +71,7 @@ function saori_passive()
 				return;
 				}
 			}
-
+		
 		// Cancelar Medium Aerial -> Heavy
 		if (attack_script == attacks[$ "medium_aerial"] && attack_frame < 10)
 			{
@@ -87,6 +82,6 @@ function saori_passive()
 				return;
 				}
 			}
-		}	
+		}
 	}
 /* Copyright 2024 Springroll Games / Yosi */

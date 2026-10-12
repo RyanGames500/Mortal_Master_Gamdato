@@ -26,7 +26,7 @@ function player_variables_init_start()
 	hp_prev = 0;
 	//barra de especiales, super y EX
 	meter = 0;
-	meter_max = 100;
+	meter_max = 300;
 	
 	attack_script = -1;
 	attack_frame = 0;
@@ -81,10 +81,15 @@ function player_variables_init_start()
     acid_x = 0;
     acid_y = 0;
     acid_dir = 1;
+	ex_flash = 0;		//frames restantes del brillo de EX (nuestro)
+	ex_glow_color = make_colour_rgb(255, 40, 40);	//color del brillo, se puede cambiar por personaje (nuestro)
+	hp_top = 0;
 	//diferenciar espejos de cada peleador duplicado
 	current_pal = 0
 	override_surface=noone;
 	override_pal_index=0;
+	step_shake = 0;		//temblor de camara al pisar (0 = ninguno) (nuestro)
+	land_shake = 0;		//temblor de camara al aterrizar (0 = ninguno) (nuestro)
 	pal_swap_init_system(shd_pal_swapper,shd_pal_html_sprite,shd_pal_html_surface);
 	}
 

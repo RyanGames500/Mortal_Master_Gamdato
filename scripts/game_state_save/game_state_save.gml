@@ -41,7 +41,12 @@ function game_state_save(_buffer)
 	buffer_write(_buffer, buffer_u8, obj_game.p2_css_last_dir);
 	buffer_write(_buffer, buffer_s16, obj_game.css_start_timer);
 	buffer_write(_buffer, buffer_s16, obj_game.p1_select);
-	buffer_write(_buffer, buffer_s16, obj_game.p2_select);	
+	buffer_write(_buffer, buffer_s16, obj_game.p2_select);
+	buffer_write(_buffer, buffer_s16, obj_game.stage_id);
+	buffer_write(_buffer, buffer_s8, obj_game.stage_step);
+	buffer_write(_buffer, buffer_s16, obj_game.stage_cursor);
+	buffer_write(_buffer, buffer_bool, obj_game.stage_atk_prev);
+	
 	//Trim off extra bytes
 	buffer_resize(_buffer, buffer_tell(_buffer));
 	

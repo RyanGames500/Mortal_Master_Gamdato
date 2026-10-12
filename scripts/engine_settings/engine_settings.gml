@@ -20,7 +20,7 @@ function setting()
 //Settings
 global.show_hitboxes = false; //{bool} Whether hitboxes and hurtboxes are visible or not.
 global.replay_record = false; //{bool} Whether to record replays of matches or not.
-global.show_scanlines = false;
+global.show_scanlines = true;
 
 //Combo contadores
 #macro COMBO_SUPER				4    //Golpes para "SUPER COMBO"
@@ -61,6 +61,13 @@ global.replay_was_online =		false;
 #macro input_store_length		6 //{int} The number of frames an input lasts.
 #macro input_store_max			30 //{int} The max number of frames into the past an input can be stored.
 #macro input_buffer_bytes		5 //{int} How many bytes are used to store inputs for each player.
+
+#macro EX_FREEZE_FRAMES			10	//pausa de ambos jugadores al activar un EX
+#macro METER_LEVEL_SIZE			100	//un nivel de barra
+#macro METER_COST_SPECIAL		25	//especial normal
+#macro METER_COST_EX			100	//especial EX (1 nivel)
+#macro METER_COST_SUPER			200	//super (2 niveles)
+#macro EX_BUTTON_WINDOW			3	//frames de margen para que dos botones cuenten como "a la vez"
 
 //Camera
 #macro camera_index				view_camera[0] //{int} The index of the camera being used.

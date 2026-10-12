@@ -2,15 +2,15 @@ function mariel_character_init()
 	{
 	//Properties
 	character_name = "MARIEL";
-	walk_speed = 4;           
-	dash_speed = 9;           
-	dash_time = 22;          
-	jump_hsp = 6;             
-	jump_vsp = -23;           
-	grav = 1.2;              
+	walk_speed = 5;			
+	dash_speed = 11;		
+	dash_time = 18;			
+	jump_hsp = 7;			
+	jump_vsp = -24;			
+	grav = 1.25;			
 	has_backdash = false;
 	has_grab = false;
-	hp_max = 120;
+	hp_max = 105;
 	hp = hp_max;
 	hp_prev = hp_max;   
 	
@@ -41,7 +41,7 @@ function mariel_character_init()
 	sprites[$ "acostado"		] = spr_mariel_acostado; 
 	sprites[$ "high_block"		] = spr_mariel_defenza_alta;
 	sprites[$ "low_block"		] = spr_mariel_defenza_baja;
-	sprites[$ "grabbed_carry"	] = spr_lex_grabbed_throw1;
+	sprites[$ "grabbed_carry"	] = spr_mariel_grabbed_throw1;
 	sprites[$ "getup"			] = spr_mariel_idle;
 	sprites[$ "throw_victim"	] = spr_mayel_lanzado;
 	
@@ -55,6 +55,7 @@ function mariel_character_init()
 	attacks[$ "heavy_ground"	] = mariel_heavy_ground;
 	attacks[$ "heavy_crouch"	] = mariel_heavy_crouch;
 	attacks[$ "heavy_aerial"	] = mariel_heavy_aerial;
+	attacks[$ "throw"			] = mayel_throw;
 	
 	
 	//sprite_inicial

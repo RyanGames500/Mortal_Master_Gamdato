@@ -1,5 +1,5 @@
 /*
-This is the character init script for Blocky.
+This is the character init script for Joe.
 It is called once at the start of the game and sets up all character-specific values.
 */
 function blocky_character_init()

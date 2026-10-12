@@ -1,3 +1,14 @@
+// Polvo en el piso (nuestro). Se llama desde dentro del script de ataque del jugador.
+function brad_throw_dust(_x, _y)
+	{
+	var _vfx = instance_create_layer(_x, _y, "VFX_Layer", obj_vfx);
+	_vfx.sprite_index = spr_effect_landing_dust;
+	_vfx.image_xscale = facing;
+	_vfx.anim_speed   = 0.2;
+	_vfx.lifetime     = sprite_get_number(spr_effect_landing_dust) / _vfx.anim_speed;
+	_vfx.owner        = id;
+	}
+
 function brad_throw_brainbuster(_override_phase)
 	{
 	var _phase = !is_undefined(_override_phase) ? _override_phase : attack_phase;
@@ -70,7 +81,8 @@ function brad_throw_brainbuster(_override_phase)
 			
 			if (_other_player != noone)
 				{
-				_other_player.state = PLAYER_STATE.grabbed;
+				// Evita que el agarre expire mientras lo cargas
+				_other_player.state_frame = max(_other_player.state_frame, 3);
 				_other_player.being_carried = true;
 				_other_player.hsp = 0;
 				_other_player.vsp = 0;
@@ -141,9 +153,15 @@ function brad_throw_brainbuster(_override_phase)
 				vsp = -30;
 				hsp = 2 * facing;
 				jump_impulse_done = true;
+				
+				// Despegue: polvo y temblor leve
+				brad_throw_dust(x, obj_ground.y);
+				obj_game.cam_shake = max(obj_game.cam_shake, 4);
 				}
 			
 			vsp += grav;
+			// Caída más fuerte después del punto más alto (se siente como un martillazo)
+			if (vsp > 0) then vsp += grav * 1.2;
 			player_move();
 			
 			if (vsp > 0)
@@ -153,7 +171,8 @@ function brad_throw_brainbuster(_override_phase)
 			
 			if (_other_player != noone)
 				{
-				_other_player.state = PLAYER_STATE.grabbed;
+				// Evita que el agarre expire en el aire
+				_other_player.state_frame = max(_other_player.state_frame, 3);
 				_other_player.being_carried = true;
 				_other_player.hsp = 0;
 				_other_player.vsp = 0;
@@ -180,6 +199,10 @@ function brad_throw_brainbuster(_override_phase)
 				hsp = 0;
 				jump_impulse_done = false;
 				
+				// Aterrizaje: polvo y temblor medio
+				brad_throw_dust(x, obj_ground.y);
+				obj_game.cam_shake = max(obj_game.cam_shake, 6);
+				
 				attack_phase = 3;
 				attack_frame = 6; // Azote más rápido en tierra
 				}
@@ -202,34 +225,38 @@ function brad_throw_brainbuster(_override_phase)
 					}
 				}
 			
-			// Momento exacto del azote (Sincronizado a la nueva velocidad)
+			// Momento exacto del azote
 			if (attack_frame == 5)
 				{
 				attack_connected = false;
-
+				
 				if (_other_player != noone)
 					{
+					// Ya no es "cargado": el hitbox lo manda a knockdown (daño, combo, sonido y chispa)
 					_other_player.being_carried = false;
-					_other_player.player_state_set(PLAYER_STATE.knockdown);
 					
 					_other_player.x = x + (45 * facing);
-					_other_player.y = y;
 					_other_player.image_xscale = facing;
-					_other_player.hsp = 8 * facing;
-					_other_player.vsp = -5;
+					_other_player.y = ceil(obj_ground.y - (_other_player.bbox_bottom - _other_player.y));
+					
+					// Polvo grande donde lo estrella
+					brad_throw_dust(_other_player.x, obj_ground.y);
+					
+					// Hitbox justo sobre el rival (desde su posicion real)
+					var _hx = (_other_player.x - x) * facing;
+					var _hy = _other_player.y - y;
+					var _hitbox = hitbox_create(_hx, _hy, 1.8, 1.5, 35, 3);
+					_hitbox.knockdown = true;
+					_hitbox.grab = false;
+					_hitbox.knockback = 30;
+					_hitbox.launch_speed = 20;
+					_hitbox.hitstun = 50;
+					_hitbox.hitlag = 16;
+					_hitbox.acid_finisher = true;
 					}
-
-				var _hitbox = hitbox_create(183, 97, 1.8, 0.9, 35, 3);
-				_hitbox.knockdown = true;
-				_hitbox.grab = false;
-				_hitbox.knockback = 15;
-				_hitbox.launch_speed = 18
-				_hitbox.hitstun = 50;
-				_hitbox.acid_finisher = true;
-				obj_game.cam_shake = 8;
+				
+				obj_game.cam_shake = max(obj_game.cam_shake, 8);
 				}
-			
-			//player_move();
 			
 			if (attack_frame <= 0)
 				{

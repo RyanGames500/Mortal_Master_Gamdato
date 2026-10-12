@@ -176,10 +176,16 @@ function draw_meter_bar(_x, _y, _width, _height, _pad, _meter, _meter_max, _dire
 	var _iy1 = _y + _pad;
 	var _iy2 = _y + _height + _pad;
 	
-	var _segs = 4;      // cada celda = 25 % de la barra = 1 especial de 25
-	var _gap = 3;
-	var _segw = (_width - (_gap * (_segs - 1))) / _segs;
-	var _glow = (_ratio >= 1) ? (0.5 + 0.5 * dsin(current_time / 3)) : 0;
+	var _levels = 3;			// niveles de barra
+	var _per = 4;				// celdas por nivel (cada celda = 25)
+	var _segs = _levels * _per;
+	var _gap = 2;				// espacio entre celdas del mismo nivel
+	var _lvl_gap = 6;			// espacio entre niveles
+	var _segw = (_width - (_gap * (_per - 1) * _levels) - (_lvl_gap * (_levels - 1))) / _segs;
+	
+	// colores por nivel: lleno / a medias
+	var _col_full = [make_colour_rgb(40, 210, 255), make_colour_rgb(255, 200, 40), make_colour_rgb(255, 70, 110)];
+	var _col_part = [make_colour_rgb(20, 130, 170), make_colour_rgb(170, 130, 20), make_colour_rgb(170, 40, 75)];
 	
 	// Marco de metal y fondo del cristal
 	draw_set_alpha(1);
@@ -190,18 +196,23 @@ function draw_meter_bar(_x, _y, _width, _height, _pad, _meter, _meter_max, _dire
 	draw_set_color(make_colour_rgb(4, 14, 22));
 	draw_rectangle(_ix1, _iy1, _ix2, _iy2, false);
 	
-	// Celdas de suero
+	// Celdas
 	for (var i = 0; i < _segs; i++)
 		{
+		var _lv = i div _per;
+		
+		// desplazamiento de la celda desde el inicio de la barra
+		var _off = (i * _segw) + ((i - _lv) * _gap) + (_lv * _lvl_gap);
+		
 		var _sx1, _sx2;
 		if (_direction == 1)
 			{
-			_sx1 = _ix1 + (i * (_segw + _gap));
+			_sx1 = _ix1 + _off;
 			_sx2 = _sx1 + _segw;
 			}
 		else
 			{
-			_sx2 = _ix2 - (i * (_segw + _gap));
+			_sx2 = _ix2 - _off;
 			_sx1 = _sx2 - _segw;
 			}
 		
@@ -223,8 +234,11 @@ function draw_meter_bar(_x, _y, _width, _height, _pad, _meter, _meter_max, _dire
 				_fx2 = _sx2;
 				}
 			
-			// Celda llena = azul brillante; celda a medias = azul más oscuro
-			var _col = (_p >= 1) ? make_colour_rgb(40, 210, 255) : make_colour_rgb(20, 130, 170);
+			// el nivel completo brilla
+			var _lvl_full = (_meter >= ((_lv + 1) * (_meter_max / _levels)));
+			var _glow = _lvl_full ? (0.5 + 0.5 * dsin(current_time / 3)) : 0;
+			
+			var _col = (_p >= 1) ? _col_full[_lv] : _col_part[_lv];
 			_col = merge_colour(_col, c_white, _glow * 0.4);
 			draw_set_color(_col);
 			draw_rectangle(_fx1, _iy1, _fx2, _iy2, false);

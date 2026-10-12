@@ -66,9 +66,9 @@ function cpu_input_script(_buffer, _player_number)
 		}
 	
 	// ---------- Ajustes de dificultad (0-100) ----------
-	var _block_chance = 50;    // probabilidad de bloquear cuando el rival ataca
-	var _aggression   = 50;    // probabilidad de atacar estando cerca
-	var _special_rate = 50;    // probabilidad de intentar un especial a media distancia
+	var _block_chance = 100;    // probabilidad de bloquear cuando el rival ataca
+	var _aggression   = 100;    // probabilidad de atacar estando cerca
+	var _special_rate = 100;    // probabilidad de intentar un especial a media distancia
 	
 	// ---------- Estado de la ventana de decisión (sin memoria entre frames) ----------
 	var _frame = obj_game.game_frame;

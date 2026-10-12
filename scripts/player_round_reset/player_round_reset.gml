@@ -9,7 +9,7 @@ function player_round_reset()
 	state_time = 0;
 
 	anim_sprite = sprites[$ "idle"];
-	sprite_index = anim_sprite;
+	//sprite_index = anim_sprite;
 	anim_frame = 0;
 	anim_speed = anim_speed_default;
 

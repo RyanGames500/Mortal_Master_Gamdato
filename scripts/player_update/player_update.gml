@@ -82,7 +82,8 @@ function player_update(_inputs_array)
 		state_frame--;
 		}
 	state_time++;
-	
+	if (ex_flash > 0) then ex_flash--;
+	hp_top = max(hp_top, hp);
 	//Combo: termina cuando el jugador sale de los estados de golpe
 	if (combo_active && state != PLAYER_STATE.hitstun_ground && state != PLAYER_STATE.hitstun_aerial
 		&& state != PLAYER_STATE.grabbed)
@@ -137,6 +138,7 @@ function player_update(_inputs_array)
 					_land_vfx.lifetime     = sprite_get_number(spr_effect_landing_dust) / _land_vfx.anim_speed;
 					_land_vfx.owner        = id;
 
+					player_land_shake();
 					player_state_set(PLAYER_STATE.idle);
 					break;
 					}
@@ -439,6 +441,7 @@ function player_update(_inputs_array)
 				break;
 				}
 
+			player_walk_shake();
 			hsp = -walk_speed * facing;
 			player_move();
 			}
@@ -468,6 +471,7 @@ function player_update(_inputs_array)
 					break;
 					}
 			
+				player_walk_shake();
 				hsp = walk_speed * facing;
 				player_move();
 				}

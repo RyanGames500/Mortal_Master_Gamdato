@@ -1,7 +1,19 @@
 /*
+Called by the GGMR session when the match ends.
+The replay is already saved by save_current_replay (with its header), so this only goes back to the menu.
+*/
+function game_finish()
+	{
+	//Change rooms
+	room_goto(rm_main_menu);
+	}
+
+/* Copyright 2024 Springroll Games / Yosi */
+
+/*
 Immediately ends the current match.
 A replay of the match will be saved.
-*/
+
 function game_finish()
 	{
 	//Save the replay if needed

@@ -25,6 +25,9 @@ function game_advance_frame(_inputs_array, _relative_frame = undefined)
 	{
 	with (obj_game)
 		{
+		// NUEVO: true si este frame es una re-simulación de rollback (la música no debe cambiar)
+		var _in_rollback = instance_exists(obj_ggmr_session) && ggmr_session_is_in_rollback();
+		
 		// 1. Manejo del Pause
 		if (game_paused)
 			{
@@ -41,7 +44,8 @@ function game_advance_frame(_inputs_array, _relative_frame = undefined)
 			}
 		
 		// 2. Grabado de Replays
-		if (global.replay_record && !global.replay_mode)
+		// No se graba el selector de personajes ni de escenario, el replay empieza en la pelea
+		if (global.replay_record && !global.replay_mode && game_meta_state != GAME_META_STATE.char_select)
 			{
 			if (_relative_frame != undefined && instance_number(obj_ggmr_session) > 0)
 				{
@@ -62,14 +66,17 @@ function game_advance_frame(_inputs_array, _relative_frame = undefined)
 		if (game_meta_state == GAME_META_STATE.char_select)
 			{
 			// --- GESTIÓN DE MÚSICA CSS ---
-			var _stage_inst = instance_find(obj_stage_manager, 0);
-			if (_stage_inst != noone)
+			if (!_in_rollback)
 				{
-				with (_stage_inst)
+				var _stage_inst = instance_find(obj_stage_manager, 0);
+				if (_stage_inst != noone)
 					{
-					if (!audio_is_playing(music))
+					with (_stage_inst)
 						{
-						stage_music_play(snd_music_char_select, 0, 0);
+						if (!audio_is_playing(music))
+							{
+							stage_music_play(snd_music_char_select, 0, 0);
+							}
 						}
 					}
 				}
@@ -159,30 +166,63 @@ function game_advance_frame(_inputs_array, _relative_frame = undefined)
 			// --- CONFIRMACIÓN Y TRANSICIÓN ---
 			if (p1_css_ready && p2_css_ready)
 				{
-				if (css_start_timer == -1) css_start_timer = 30;
-				
-				if (--css_start_timer <= 0)
+				// Primero el jugador 1 elige el escenario, y después arranca la cuenta atrás
+				if (stage_step == 0)
 					{
-					var _stage_inst = instance_find(obj_stage_manager, 0);
-					if (_stage_inst != noone)
+					stage_step = 1;
+					stage_cursor = stage_id;
+					stage_atk_prev = _atk0;		// hay que soltar el botón antes de poder confirmar
+					p1_css_last_dir = _dir0;
+					}
+				else if (stage_step == 1)
+					{
+					if (_dir0 != p1_css_last_dir)
 						{
-						with (_stage_inst)
+						if (_dir0 == STICK_DIR.backward || _dir0 == STICK_DIR.backward_up || _dir0 == STICK_DIR.backward_down)
 							{
-							if (audio_is_playing(music))
+							stage_cursor = (stage_cursor + STAGE_COUNT - 1) mod STAGE_COUNT;
+							}
+						else if (_dir0 == STICK_DIR.forward || _dir0 == STICK_DIR.forward_up || _dir0 == STICK_DIR.forward_down)
+							{
+							stage_cursor = (stage_cursor + 1) mod STAGE_COUNT;
+							}
+						}
+					p1_css_last_dir = _dir0;
+					
+					if (_atk0 && !stage_atk_prev)
+						{
+						stage_id = stage_cursor;
+						stage_step = 2;
+						css_start_timer = 30;
+						}
+					stage_atk_prev = _atk0;
+					}
+				else if (--css_start_timer <= 0)
+					{
+					if (!_in_rollback)
+						{
+						var _stage_inst = instance_find(obj_stage_manager, 0);
+						if (_stage_inst != noone)
+							{
+							with (_stage_inst)
 								{
-								audio_stop_sound(music);
-								music = -1;
+								if (audio_is_playing(music))
+									{
+									audio_stop_sound(music);
+									music = -1;
+									}
 								}
 							}
 						}
 
-					game_players_spawn();
-					game_meta_state = GAME_META_STATE.starting;
+					// La misma preparación que usa un replay al arrancar
+					game_match_setup();
 					}
 				}
 			else
 				{
 				css_start_timer = -1;
+				stage_step = 0;		// si alguien cancela, se vuelve a elegir el escenario
 				}
 			}
 		#endregion
@@ -196,14 +236,21 @@ function game_advance_frame(_inputs_array, _relative_frame = undefined)
 			// --- GESTIÓN DE MÚSICA DEL ESCENARIO ---
 			// Como la música se detiene al terminar el round anterior, esta condición
 			// la vuelve a activar DESDE EL PRINCIPIO para el nuevo round.
-			var _stage_inst = instance_find(obj_stage_manager, 0);
-			if (_stage_inst != noone)
+			// La pista sale del stage elegido. Se lee ANTES del with, porque
+			// dentro del with "stage_id" sería el de obj_stage_manager, no el de obj_game.
+			// NUEVO: no se arranca durante frames re-simulados de un rollback.
+			if (!_in_rollback)
 				{
-				with (_stage_inst)
+				var _music = stage_music_get(stage_id);
+				var _stage_inst = instance_find(obj_stage_manager, 0);
+				if (_stage_inst != noone)
 					{
-					if (!audio_is_playing(music))
+					with (_stage_inst)
 						{
-						stage_music_play(snd_toxi_city, 10.5, 90.0);
+						if (!audio_is_playing(music))
+							{
+							stage_music_play(_music.sound, _music.loop_start, _music.loop_end);
+							}
 						}
 					}
 				}
@@ -241,15 +288,18 @@ function game_advance_frame(_inputs_array, _relative_frame = undefined)
 			{
 			// --- DETENER MÚSICA AL FINALIZAR EL ROUND ---
 			// Apenas se declara el K.O. / Fin de ronda, detenemos el audio para que quede en silencio durante la pantalla de victoria/reset.
-			var _stage_inst = instance_find(obj_stage_manager, 0);
-			if (_stage_inst != noone)
+			if (!_in_rollback)
 				{
-				with (_stage_inst)
+				var _stage_inst = instance_find(obj_stage_manager, 0);
+				if (_stage_inst != noone)
 					{
-					if (audio_is_playing(music))
+					with (_stage_inst)
 						{
-						audio_stop_sound(music);
-						music = -1;
+						if (audio_is_playing(music))
+							{
+							audio_stop_sound(music);
+							music = -1;
+							}
 						}
 					}
 				}
@@ -303,15 +353,18 @@ function game_advance_frame(_inputs_array, _relative_frame = undefined)
 		else if (game_meta_state == GAME_META_STATE.ending)
 			{
 			// Garantizar que la música se apague en el fin de la partida completa
-			var _stage_inst = instance_find(obj_stage_manager, 0);
-			if (_stage_inst != noone)
+			if (!_in_rollback)
 				{
-				with (_stage_inst)
+				var _stage_inst = instance_find(obj_stage_manager, 0);
+				if (_stage_inst != noone)
 					{
-					if (audio_is_playing(music))
+					with (_stage_inst)
 						{
-						audio_stop_sound(music);
-						music = -1;
+						if (audio_is_playing(music))
+							{
+							audio_stop_sound(music);
+							music = -1;
+							}
 						}
 					}
 				}

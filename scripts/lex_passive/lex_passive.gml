@@ -1,90 +1,49 @@
 function lex_passive()
 	{
-	var _special_cost = 25;	
-		
-	// Hadoken input (Quarter Circle)
-	if (state == PLAYER_STATE.idle ||
-		state == PLAYER_STATE.crouch ||
-		state == PLAYER_STATE.walk_forward ||
-		state == PLAYER_STATE.dash ||
-		(state == PLAYER_STATE.attacking && state_time < 5 && bbox_bottom >= obj_ground.y))
+	// Estados desde los que se puede lanzar un especial (incluye cancel de normales)
+	if (!special_state_ok()) then return;
+	
+	// EX Bomba: atras, atras + light + light2 (se revisa primero)
+	if (input_motion_check([STICK_DIR.backward, STICK_DIR.backward])
+		&& meter_can_pay(METER_COST_EX)
+		&& input_ex_pair(INPUT.attack_light, INPUT.attack_light2))
 		{
-		if (input_motion_check([STICK_DIR.down, STICK_DIR.forward_down, STICK_DIR.forward]))
+		meter_pay(METER_COST_EX);
+		input_ex_consume();
+		attack_stop();
+		attack_start(lex_bomb_ex);
+		ex_activation_fx();
+		return;
+		}
+	
+	// Disparo (cuarto de circulo + light o heavy)
+	if (input_motion_check([STICK_DIR.down, STICK_DIR.forward_down, STICK_DIR.forward]))
+		{
+		if (input_pressed(INPUT.attack_light) || input_pressed(INPUT.attack_heavy))
 			{
-			if (input_pressed(INPUT.attack_light) || input_pressed(INPUT.attack_heavy))
+			if (attack_script != lex_shot && meter_can_pay(METER_COST_SPECIAL))
 				{
-				if (attack_script != lex_shot && meter >= _special_cost)
-					{
-					meter -= _special_cost;	
-					attack_stop();
-					attack_start(lex_shot);
-					return;
-					}
+				meter_pay(METER_COST_SPECIAL);
+				attack_stop();
+				attack_start(lex_shot);
+				return;
 				}
 			}
 		}
-		
-	if (state == PLAYER_STATE.idle ||
-		state == PLAYER_STATE.crouch ||
-		state == PLAYER_STATE.walk_forward ||
-		state == PLAYER_STATE.dash ||
-		(state == PLAYER_STATE.attacking && state_time < 5 && bbox_bottom >= obj_ground.y))
+	
+	// Bomba (atras, atras + light)
+	if (input_motion_check([STICK_DIR.backward, STICK_DIR.backward]))
 		{
-		if (input_motion_check([STICK_DIR.down, STICK_DIR.backward_down, STICK_DIR.backward]))
+		if (special_button_ok(INPUT.attack_light, INPUT.attack_light2))
 			{
-			if (input_pressed(INPUT.attack_light2))
+			if (attack_script != lex_bomb && meter_can_pay(METER_COST_SPECIAL))
 				{
-				if (attack_script != lex_shotgun && meter >= _special_cost)
-					{
-					meter -= _special_cost;	
-					attack_stop();
-					attack_start(lex_shotgun);
-					return;
-					}
-				}
-			}
-		}		
-
-	if (state == PLAYER_STATE.idle ||
-		state == PLAYER_STATE.crouch ||
-		state == PLAYER_STATE.walk_forward ||
-		state == PLAYER_STATE.dash ||
-		(state == PLAYER_STATE.attacking && state_time < 5 && bbox_bottom >= obj_ground.y))
-		{
-		if (input_motion_check([STICK_DIR.forward, STICK_DIR.forward]))
-			{
-			if (input_pressed(INPUT.attack_light2))
-				{
-				if (attack_script != lex_shot2 && meter >= _special_cost)
-					{
-					meter -= _special_cost;	
-					attack_stop();
-					attack_start(lex_shot2);
-					return;
-					}
+				meter_pay(METER_COST_SPECIAL);
+				attack_stop();
+				attack_start(lex_bomb);
+				return;
 				}
 			}
 		}
-
-	if (state == PLAYER_STATE.idle ||
-		state == PLAYER_STATE.crouch ||
-		state == PLAYER_STATE.walk_forward ||
-		state == PLAYER_STATE.dash ||
-		(state == PLAYER_STATE.attacking && state_time < 5 && bbox_bottom >= obj_ground.y))
-		{
-		if (input_motion_check([STICK_DIR.backward, STICK_DIR.backward]))
-			{
-			if (input_pressed(INPUT.attack_light))
-				{
-				if (attack_script != lex_bomb && meter >= _special_cost)
-					{
-					meter -= _special_cost;	
-					attack_stop();
-					attack_start(lex_bomb);
-					return;
-					}
-				}
-			}
-		}
-
 	}
+/* Copyright 2024 Springroll Games / Yosi */

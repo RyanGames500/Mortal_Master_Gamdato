@@ -4,92 +4,72 @@ It is run every frame and allows motion input attacks to be performed.
 */
 function blocky_passive()
 	{
-	var _special_cost = 25;	
-		
-	//Hadoken input
-	/*Only check for it during certain states
-	if (state == PLAYER_STATE.idle ||
-		state == PLAYER_STATE.crouch ||
-		state == PLAYER_STATE.walk_forward ||
-		state == PLAYER_STATE.dash ||
-		(state == PLAYER_STATE.attacking && state_time < 5 && bbox_bottom >= obj_ground.y))
+	if (!special_state_ok()) then return;
+	
+	// Si ya estamos en un EX no se vuelve a disparar nada
+	if (attack_script == blocky_runkick_ex || attack_script == blocky_runpunch_ex) then return;
+	
+	var _can_ex = meter_can_pay(METER_COST_EX);
+	var _can_special = meter_can_pay(METER_COST_SPECIAL);
+	
+	// Con barra para EX, light y medium esperan unos frames por si llega el segundo boton
+	var _light_ok  = (!_can_ex || inputs[@ INPUT.attack_light]  >= EX_BUTTON_WINDOW);
+	var _light2_ok = (!_can_ex || inputs[@ INPUT.attack_light2] >= EX_BUTTON_WINDOW);
+	
+	var _kick_motion  = input_motion_check([STICK_DIR.backward, STICK_DIR.forward]);
+	var _punch_motion = input_motion_check([STICK_DIR.backward, STICK_DIR.backward]);
+	var _ex_buttons   = input_ex_pair(INPUT.attack_light, INPUT.attack_light2);
+	
+	//--- EX Runkick: atras, adelante + light + medium ---
+	if (_can_ex && _kick_motion && _ex_buttons)
 		{
-		//Quarter circle motion
-		if (input_motion_check([STICK_DIR.down, STICK_DIR.forward_down, STICK_DIR.forward]))
-			{
-			if (input_pressed(INPUT.attack_light) || input_pressed(INPUT.attack_heavy))
-				{
-				if (attack_script != blocky_hadoken)
-					{
-					attack_stop();
-					attack_start(blocky_hadoken);
-					return;
-					}
-				}
-			}
-		}*/
-		
-     //Runkick input
-	//Only check for it during certain states
-	if (state == PLAYER_STATE.idle ||
-		state == PLAYER_STATE.crouch ||
-		state == PLAYER_STATE.walk_forward ||
-		state == PLAYER_STATE.dash ||
-		(state == PLAYER_STATE.attacking && state_time < 5 && bbox_bottom >= obj_ground.y))
-		{
-		//Quarter circle motion
-		if (input_motion_check([STICK_DIR.backward, STICK_DIR.forward]))
-			{
-			if (input_pressed(INPUT.attack_light2) || input_pressed(INPUT.attack_heavy))
-				{
-				if (attack_script != blocky_runkick && meter >= _special_cost)
-					{
-					meter -= _special_cost;	
-					attack_stop();
-					attack_start(blocky_runkick);
-					return;
-					}
-				}
-			}
+		meter_pay(METER_COST_EX);
+		input_ex_consume();
+		attack_stop();
+		attack_start(blocky_runkick_ex);
+		ex_activation_fx();
+		return;
 		}
-		
-     //RunPunch input
-	//Only check for it during certain states
-	if (state == PLAYER_STATE.idle ||
-		state == PLAYER_STATE.crouch ||
-		state == PLAYER_STATE.walk_forward ||
-		state == PLAYER_STATE.dash ||
-		(state == PLAYER_STATE.attacking && state_time < 5 && bbox_bottom >= obj_ground.y))
+	
+	//--- EX Runpunch: atras, atras + light + medium ---
+	if (_can_ex && _punch_motion && _ex_buttons)
 		{
-		//Quarter circle motion
-		if (input_motion_check([STICK_DIR.backward, STICK_DIR.backward]))
+		meter_pay(METER_COST_EX);
+		input_ex_consume();
+		attack_stop();
+		attack_start(blocky_runpunch_ex);
+		ex_activation_fx();
+		return;
+		}
+	
+	//--- Runkick normal (atras, adelante + medium o heavy) ---
+	if (_kick_motion)
+		{
+		if ((input_pressed(INPUT.attack_light2) && _light2_ok) || input_pressed(INPUT.attack_heavy))
 			{
-			if (input_pressed(INPUT.attack_light))
+			if (attack_script != blocky_runkick && _can_special)
 				{
-				if (attack_script != blocky_runpunch && meter >= _special_cost)
-					{
-					meter -= _special_cost;	
-					attack_stop();
-					attack_start(blocky_runpunch);
-					return;
-					}
-				}
-			}
-		}	
-		
-/*Agarre de Comando Terrestre (Light + Heavy)
-		if (input_pressed(INPUT.attack_light) && input_pressed(INPUT.attack_heavy))
-			{
-			if (attack_script != scar_throw)
-				{
-				input_reset(INPUT.attack_light);
-				input_reset(INPUT.attack_heavy);
+				meter_pay(METER_COST_SPECIAL);
 				attack_stop();
-				attack_start(scar_throw);
+				attack_start(blocky_runkick);
 				return;
 				}
 			}
-		}*/		
-		
-}		
+		}
+	
+	//--- Runpunch normal (atras, atras + light) ---
+	if (_punch_motion)
+		{
+		if (input_pressed(INPUT.attack_light) && _light_ok)
+			{
+			if (attack_script != blocky_runpunch && _can_special)
+				{
+				meter_pay(METER_COST_SPECIAL);
+				attack_stop();
+				attack_start(blocky_runpunch);
+				return;
+				}
+			}
+		}
+	}
 /* Copyright 2024 Springroll Games / Yosi */

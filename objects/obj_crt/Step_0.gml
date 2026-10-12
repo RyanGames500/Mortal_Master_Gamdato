@@ -1,0 +1,1 @@
+if (keyboard_check_pressed(vk_space)) then global.show_scanlines = !global.show_scanlines;

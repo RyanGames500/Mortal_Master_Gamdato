@@ -52,7 +52,7 @@ function mayel_character_init()
     sprites[$ "runkick"		    ] = spr_blocky_runkick; 
     sprites[$ "high_block"		] = spr_mayel_defenza_alta;
     sprites[$ "low_block"		] = spr_mayel_defenza_baja;
-	sprites[$ "grabbed_carry"	] = spr_blocky_grabbed_throw1;
+	sprites[$ "grabbed_carry"	] = spr_mayel_grabbed_throw1;
 	sprites[$ "getup"			] = spr_mayel_idle;
 	sprites[$ "throw_victim"	] = spr_mayel_lanzado;
 	

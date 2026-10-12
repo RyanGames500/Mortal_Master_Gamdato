@@ -1,4 +1,4 @@
-/// @description Navegación por Control / Teclado y Red
+/// @description Navegación por Control / Teclado / Mouse / Touch y Red
 
 // Disminuir temporizador del aviso emergente
 if (notice_timer > 0)
@@ -45,12 +45,72 @@ if (instance_exists(obj_matchmaking_search))
 	exit;
 	}
 
+// ==========================================
+// PUNTERO: mouse (PC) o dedo (Android / iOS)
+// ==========================================
+var _is_touch = (os_type == os_android || os_type == os_ios);
+var _ptr_x = device_mouse_x_to_gui(0);
+var _ptr_y = device_mouse_y_to_gui(0);
+var _tap = device_mouse_check_button_pressed(0, mb_left);
+var _ptr_moved = (_ptr_x != ptr_last_x || _ptr_y != ptr_last_y);
+ptr_last_x = _ptr_x;
+ptr_last_y = _ptr_y;
+
+// Busca el rectangulo bajo el puntero (el ultimo registrado tiene prioridad)
+var _hit = undefined;
+if (_tap || (_ptr_moved && !_is_touch))
+	{
+	for (var h = array_length(hit_rects) - 1; h >= 0; h--)
+		{
+		var _r = hit_rects[h];
+		if (point_in_rectangle(_ptr_x, _ptr_y, _r.l, _r.t, _r.r, _r.b))
+			{
+			_hit = _r;
+			break;
+			}
+		}
+	}
+var _tap_hit = (_tap && !is_undefined(_hit)) ? _hit : undefined;
+var _hover_hit = (!_tap && !is_undefined(_hit)) ? _hit : undefined;
+
+// Cualquier toque que no sea sobre una "X" desarma el borrado de replays
+if (_tap && (is_undefined(_tap_hit) || _tap_hit.kind != "del"))
+	{
+	delete_armed = -1;
+	}
+
 // Modo Ingreso de Texto
 if (current_state == MENU_STATE.input_text)
 	{
+	// En celular abre el teclado virtual una sola vez al entrar
+	if (_is_touch && !text_kb_opened)
+		{
+		keyboard_virtual_show(kbv_type_default, kbv_returnkey_done, kbv_autocapitalize_none, false);
+		text_kb_opened = true;
+		}
+	
 	input_string = keyboard_string;
 	
-	if (keyboard_check_pressed(vk_enter))
+	var _enter = keyboard_check_pressed(vk_enter);
+	var _esc = keyboard_check_pressed(vk_escape);
+	
+	if (!is_undefined(_tap_hit))
+		{
+		if (_tap_hit.kind == "ok")
+			{
+			_enter = true;
+			}
+		else if (_tap_hit.kind == "cancel")
+			{
+			_esc = true;
+			}
+		else if (_tap_hit.kind == "field" && _is_touch)
+			{
+			keyboard_virtual_show(kbv_type_default, kbv_returnkey_done, kbv_autocapitalize_none, false);
+			}
+		}
+	
+	if (_enter)
 		{
 		switch (input_target)
 			{
@@ -82,11 +142,15 @@ if (current_state == MENU_STATE.input_text)
 			break;			
 			}
 		keyboard_string = "";
+		text_kb_opened = false;
+		if (_is_touch) then keyboard_virtual_hide();
 		current_state = (input_target == "set_name") ? MENU_STATE.settings : MENU_STATE.private_lobby;
 		}
-	else if (keyboard_check_pressed(vk_escape))
+	else if (_esc)
 		{
 		keyboard_string = "";
+		text_kb_opened = false;
+		if (_is_touch) then keyboard_virtual_hide();
 		current_state = (input_target == "set_name") ? MENU_STATE.settings : MENU_STATE.private_lobby;
 		}
 	exit;
@@ -98,11 +162,46 @@ var _down = keyboard_check_pressed(vk_down);
 var _confirm = keyboard_check_pressed(vk_enter);
 var _back = keyboard_check_pressed(vk_escape);
 
+// Boton BACK tactil / mouse (vale para todas las pantallas)
+if (!is_undefined(_tap_hit) && _tap_hit.kind == "back")
+	{
+	_back = true;
+	}
+
 // --- 1. LOGICA DE NAVEGACION EN REPLAYS ---
 if (current_state == MENU_STATE.replays)
 	{
 	var _max_replays = array_length(replay_list);
 	var _delete_key = keyboard_check_pressed(vk_delete) || keyboard_check_pressed(vk_backspace);
+	
+	// Mouse / touch
+	if (!is_undefined(_hover_hit) && _hover_hit.kind == "item")
+		{
+		replay_index = _hover_hit.i;
+		}
+	if (!is_undefined(_tap_hit))
+		{
+		if (_tap_hit.kind == "item")
+			{
+			replay_index = _tap_hit.i;
+			_confirm = true;
+			}
+		else if (_tap_hit.kind == "del")
+			{
+			replay_index = _tap_hit.i;
+			if (delete_armed == _tap_hit.i)
+				{
+				_delete_key = true;
+				delete_armed = -1;
+				}
+			else
+				{
+				delete_armed = _tap_hit.i;
+				notice_text = "TAP X AGAIN TO DELETE";
+				notice_timer = 75;
+				}
+			}
+		}
 	
 	if (_up)
 		{
@@ -127,20 +226,8 @@ if (current_state == MENU_STATE.replays)
 			}
 		else if (file_exists(_selected_file))
 			{
-			if (variable_global_exists("replay_buffer") && buffer_exists(global.replay_buffer))
+			if (replay_open(_selected_file))
 				{
-				buffer_delete(global.replay_buffer);
-				}
-				
-			global.replay_buffer = buffer_load(_selected_file);
-			
-			if (global.replay_buffer != -1)
-				{
-				buffer_seek(global.replay_buffer, buffer_seek_start, 0);
-				
-				global.replay_cpu_cursor = buffer_read(global.replay_buffer, buffer_u8);
-				global.replay_was_online = buffer_read(global.replay_buffer, buffer_u8); 
-				
 				ggmr_lobby_reset();
 				
 				global.replay_mode = true;
@@ -149,7 +236,7 @@ if (current_state == MENU_STATE.replays)
 				}
 			else
 				{
-				notice_text = "ERROR LOADING REPLAY!";
+				notice_text = "REPLAY NOT COMPATIBLE!";
 				notice_timer = 90;
 				}
 			}
@@ -163,6 +250,7 @@ if (current_state == MENU_STATE.replays)
 			{
 			file_delete(_selected_file);
 			scan_replay_files();
+			replay_index = clamp(replay_index, 0, array_length(replay_list) - 1);
 			
 			notice_text = "REPLAY DELETED!";
 			notice_timer = 75;
@@ -181,6 +269,58 @@ if (current_state == MENU_STATE.replays)
 if (current_state == MENU_STATE.settings)
 	{
 	var _max_settings = array_length(settings_options);
+	
+	// Mouse / touch
+	if (!is_undefined(_hover_hit) && _hover_hit.kind == "item")
+		{
+		menu_index = _hover_hit.i;
+		}
+	if (!is_undefined(_tap_hit))
+		{
+		var _row_label = "";
+		if (_tap_hit.i >= 0 && _tap_hit.i < _max_settings)
+			{
+			_row_label = settings_options[_tap_hit.i];
+			}
+		
+		if (_tap_hit.kind == "item")
+			{
+			menu_index = _tap_hit.i;
+			// Las filas de toggle / accion se confirman con un toque
+			if (_row_label == "ENABLE SCANLINES" || _row_label == "RECORD REPLAYS" || _row_label == "SET NAME" || _row_label == "BACK")
+				{
+				_confirm = true;
+				}
+			}
+		else if (_tap_hit.kind == "bar")
+			{
+			// 11 casillas: la primera (a la izquierda de las barras) = 0, luego 0.1 ... 1.0
+			menu_index = _tap_hit.i;
+			var _frac = clamp((_ptr_x - _tap_hit.l) / (_tap_hit.r - _tap_hit.l), 0, 0.999);
+			var _v = floor(_frac * 11) / 10;
+			switch (_row_label)
+				{
+				case "MUSIC VOLUME":
+					setting().volume_music = _v;
+				break;
+				case "SFX VOLUME":
+					setting().volume_sound_effects = _v;
+				break;
+				case "MENU VOLUME":
+					setting().volume_menu = _v;
+				break;
+				}
+			}
+		else if (_tap_hit.kind == "step")
+			{
+			menu_index = _tap_hit.i;
+			var _sdir = (_ptr_x < ((_tap_hit.l + _tap_hit.r) / 2)) ? -1 : 1;
+			if (_row_label == "SET INPUT DELAY")
+				{
+				global.online_input_delay = clamp(global.online_input_delay + _sdir, 0, 20);
+				}
+			}
+		}
 	
 	if (_up)
 		{
@@ -261,6 +401,17 @@ if (current_state == MENU_STATE.private_lobby) _current_list = private_lobby_opt
 if (current_state == MENU_STATE.settings) _current_list = settings_options;
 
 var _max_items = array_length(_current_list);
+
+// Mouse / touch
+if (!is_undefined(_hover_hit) && _hover_hit.kind == "item")
+	{
+	menu_index = _hover_hit.i;
+	}
+if (!is_undefined(_tap_hit) && _tap_hit.kind == "item")
+	{
+	menu_index = _tap_hit.i;
+	_confirm = true;
+	}
 
 if (_up)
 	{
@@ -367,7 +518,7 @@ if (_confirm)
 		}
 	}
 
-// Retroceder de pantalla con ESC----
+// Retroceder de pantalla con ESC o con el boton BACK
 if (_back)
 	{
 	if (current_state == MENU_STATE.online)

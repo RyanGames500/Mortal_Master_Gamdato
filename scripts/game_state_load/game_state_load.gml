@@ -36,7 +36,7 @@ function game_state_load(_buffer)
 	obj_game.cam_y = buffer_read(_buffer, buffer_f64);
 	obj_game.p1_wins = buffer_read(_buffer, buffer_s16);
 	obj_game.p2_wins = buffer_read(_buffer, buffer_s16);
-	obj_game.round_restart_frame = buffer_read(_buffer, buffer_s16);	
+	obj_game.round_restart_frame = buffer_read(_buffer, buffer_s16);
 	obj_game.p1_css_cursor = buffer_read(_buffer, buffer_s16);
 	obj_game.p2_css_cursor = buffer_read(_buffer, buffer_s16);
 	obj_game.p1_css_ready = buffer_read(_buffer, buffer_bool);
@@ -46,6 +46,14 @@ function game_state_load(_buffer)
 	obj_game.css_start_timer = buffer_read(_buffer, buffer_s16);
 	obj_game.p1_select = buffer_read(_buffer, buffer_s16);
 	obj_game.p2_select = buffer_read(_buffer, buffer_s16);
+	obj_game.stage_id = buffer_read(_buffer, buffer_s16);
+	obj_game.stage_step = buffer_read(_buffer, buffer_s8);
+	obj_game.stage_cursor = buffer_read(_buffer, buffer_s16);
+	obj_game.stage_atk_prev = buffer_read(_buffer, buffer_bool);
+	
+	//Everything that depends on the stage (acid finisher, floor height)
+	stage_apply();
+	
 	//Register sync ids again and update any variables that previously held instance ids
 	//If you add any new variables that hold instance ids, they MUST be updated with <game_state_find_new_id> in this section.
 	with (obj_player)

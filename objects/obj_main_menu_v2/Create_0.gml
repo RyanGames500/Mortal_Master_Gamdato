@@ -74,5 +74,11 @@ sel_y_ready = false;
 menu_state_prev_draw = current_state;
 menu_transition = 1; // 0 = recien cambiado de pantalla, 1 = totalmente asentado
 
+hit_rects = [];			// rectangulos tocables (los llena el Draw cada frame)
+ptr_last_x = -1;
+ptr_last_y = -1;
+text_kb_opened = false;
+delete_armed = -1;
+
 scan_replay_files();
 audio_group_load(audiogroup_music);

@@ -69,6 +69,6 @@
   "nineSlice": null,
   "parent": {
     "name": "Brad Stage",
-    "path": "folders/Stages/Brad Stage.yy",
+    "path": "folders/[Engine]/stages/arenas/Brad Stage.yy",
   },
 }

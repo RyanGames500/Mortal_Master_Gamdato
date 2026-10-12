@@ -239,7 +239,7 @@ function hitbox_update()
 					{
 					attack_connected = true;
 					hitlag_frame = other.hitlag;
-					meter = clamp(meter + 8, 0, meter_max);
+					meter = clamp(meter + 16, 0, meter_max);
 					}
 				}
 			}

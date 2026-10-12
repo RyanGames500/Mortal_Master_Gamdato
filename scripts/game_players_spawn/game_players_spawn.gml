@@ -22,6 +22,7 @@ function game_players_spawn()
 			case 7: mayel_character_init(); break;
 			case 8: danny_character_init(); break;
 			case 9: mariel_character_init(); break;
+			case 10: demon_character_init(); break;
 			}
 		
 		player_variables_init_end();
@@ -48,6 +49,7 @@ function game_players_spawn()
 			case 7: mayel_character_init(); break;
 			case 8: danny_character_init(); break;
 			case 9: mariel_character_init(); break;
+			case 10: demon_character_init(); break;
 			}
 		
 		player_variables_init_end();

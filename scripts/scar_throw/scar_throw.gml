@@ -38,7 +38,7 @@ function scar_throw(_override_phase)
 			}
 		break;
 		
-		//--- DETECCIÓN Y CAMBIO DE ESTADO ---
+		//--- DETECCION Y CAMBIO DE ESTADO ---
 		case 1:
 			{
 			attack_frame--;
@@ -52,7 +52,6 @@ function scar_throw(_override_phase)
 				attack_phase = 2;
 				attack_frame = 80;
 				
-				// AL CONECTAR: Forzar estado grabbed en el rival para cancelar sus ataques
 				var _other_player = noone;
 				with (obj_player)
 					{
@@ -64,7 +63,6 @@ function scar_throw(_override_phase)
 					}
 				if (_other_player != noone)
 					{
-					_other_player.state = PLAYER_STATE.grabbed;
 					_other_player.being_carried = true;
 					_other_player.hsp = 0;
 					_other_player.vsp = 0;
@@ -88,12 +86,11 @@ function scar_throw(_override_phase)
 			}
 		break;
 		
-//--- MULTI-HITS Y SECUENCIA DE GOLPES ---
+		//--- MULTI-HITS Y SECUENCIA DE GOLPES ---
 		case 2:
 			{
 			attack_frame--;
 			
-			// Forzar a Scar a quedarse 100% congelado en el sitio sin deslizarse
 			hsp = 0;
 			vsp = 0;
 			
@@ -107,19 +104,45 @@ function scar_throw(_override_phase)
 					}
 				}
 			
+			// Si el rival rompio el agarre (tech) ya no esta en grabbed: se aborta la secuencia
+			if (_other_player != noone && attack_frame < 79 && _other_player.state != PLAYER_STATE.grabbed)
+				{
+				_other_player.being_carried = false;
+				attack_connected = false;
+				anim_frame = 27;
+				attack_phase = 3;
+				attack_frame = 20;
+				break;
+				}
+			
+			// Retroceso cosmetico del rival durante 3 frames despues de cada golpe
+			var _recoil = 0;
+			if ((attack_frame <= 62 && attack_frame > 59)
+			 || (attack_frame <= 42 && attack_frame > 39)
+			 || (attack_frame <= 22 && attack_frame > 19))
+				{
+				_recoil = 4;
+				}
+			
 			if (_other_player != noone)
 				{
-				_other_player.state = PLAYER_STATE.grabbed;
 				_other_player.being_carried = true;
 				_other_player.hsp = 0;
 				_other_player.vsp = 0;
-				_other_player.x = x + (105 * facing);
+				_other_player.x = x + ((105 + _recoil) * facing);
 				_other_player.y = y - 28;
+				
+				// el rival mira hacia Scar con el mecanismo del propio motor
+				with (_other_player)
+					{
+					player_face_opponent();
+					}
 				}
 			
 			if (attack_frame == 74) then anim_frame = 7;
 			if (attack_frame == 68) then anim_frame = 8;
 			
+			// GOLPE 1
 			if (attack_frame == 62)
 				{
 				anim_frame = 11;
@@ -129,7 +152,7 @@ function scar_throw(_override_phase)
 					_other_player.hitstun = 60;
 					hitlag_frame = 5;
 					_other_player.hitlag_frame = 5;
-					obj_game.cam_shake = 3;				
+					obj_game.cam_shake = max(obj_game.cam_shake, 3);
 					hit_sfx_play(snd_hit_light_3);
 					}
 				}
@@ -137,6 +160,7 @@ function scar_throw(_override_phase)
 			if (attack_frame == 54) then anim_frame = 13;
 			if (attack_frame == 48) then anim_frame = 14;
 			
+			// GOLPE 2
 			if (attack_frame == 42)
 				{
 				anim_frame = 16;
@@ -144,9 +168,9 @@ function scar_throw(_override_phase)
 					{
 					player_damage(10, _other_player);
 					_other_player.hitstun = 60;
-					hitlag_frame = 5;
-					_other_player.hitlag_frame = 5;
-					obj_game.cam_shake = 3;
+					hitlag_frame = 6;
+					_other_player.hitlag_frame = 6;
+					obj_game.cam_shake = max(obj_game.cam_shake, 4);
 					hit_sfx_play(snd_hit_light_3);
 					}
 				}
@@ -154,6 +178,7 @@ function scar_throw(_override_phase)
 			if (attack_frame == 34) then anim_frame = 18;
 			if (attack_frame == 28) then anim_frame = 19;
 			
+			// GOLPE 3
 			if (attack_frame == 22)
 				{
 				anim_frame = 21;
@@ -161,13 +186,13 @@ function scar_throw(_override_phase)
 					{
 					player_damage(4, _other_player);
 					_other_player.hitstun = 60;
-					hitlag_frame = 5;
-					_other_player.hitlag_frame = 5;
-					obj_game.cam_shake = 3;
+					hitlag_frame = 7;
+					_other_player.hitlag_frame = 7;
+					obj_game.cam_shake = max(obj_game.cam_shake, 5);
 					hit_sfx_play(snd_hit_light_3);
 					}
 				}
-
+			
 			if (attack_frame == 16) then anim_frame = 23;
 			if (attack_frame == 10) then anim_frame = 25;
 			
@@ -176,23 +201,49 @@ function scar_throw(_override_phase)
 				{
 				anim_frame = 27;
 				attack_connected = false;
+				obj_game.cam_shake = max(obj_game.cam_shake, 8);
+				
+				var _rival_muerto = false;
+				var _hx = 85;
+				var _hy = -35;
 				
 				if (_other_player != noone)
 					{
 					_other_player.being_carried = false;
 					_other_player.y = ceil(obj_ground.y - (_other_player.bbox_bottom - _other_player.y));
+					
+					_hx = (_other_player.x - x) * facing;
+					_hy = (_other_player.y - y) - 35;
+					
+					_rival_muerto = (_other_player.hp <= 0);
 					}
 				
-				var _hitbox = hitbox_create(85, -35, 1.0, 1.0, 15, 5);
-				_hitbox.grab = false;
-				_hitbox.knockback = 18;
-				_hitbox.launch_speed = 10;
+				if (_rival_muerto)
+					{
+					// KO: el hitbox ya no llega (la ronda termino), asi que lo mandamos
+					// nosotros a knockdown. El estado knockdown/acostado hace el resto.
+					with (_other_player)
+						{
+						player_state_set(PLAYER_STATE.knockdown);
+						anim_frame = 0;
+						hsp = 10 * other.facing;
+						vsp = -12;
+						}
+					}
+				else
+					{
+					var _hitbox = hitbox_create(_hx, _hy, 1.4, 1.5, 15, 4);
+					_hitbox.grab = false;
+					_hitbox.knockback = 18;
+					_hitbox.launch_speed = 10;
+					_hitbox.knockdown = true;
+					_hitbox.hitstun = 40;
+					_hitbox.hitlag = 13;
+					}
 				
 				attack_phase = 3;
 				attack_frame = 20;
 				}
-			
-			//player_move();
 			}
 		break;
 		
@@ -214,4 +265,3 @@ function scar_throw(_override_phase)
 		break;
 		}
 	}
-/* Copyright 2024 Springroll Games / Yosi */
