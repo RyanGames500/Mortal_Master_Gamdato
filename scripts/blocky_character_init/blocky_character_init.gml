@@ -1,5 +1,5 @@
 /*
-This is the character init script for Blocky.
+This is the character init script for Joe.
 It is called once at the start of the game and sets up all character-specific values.
 */
 function blocky_character_init()
@@ -27,7 +27,10 @@ function blocky_character_init()
 	
 	//Palette
 	palette_sprite = spr_blocky_palette;
-	
+
+	//hurtbox
+	hurtbox_sprite = spr_blocky_hurtbox;
+
 	//Gameplay sprites
 	sprites[$ "idle"			] = spr_blocky_idle;
 	sprites[$ "crouch"			] = spr_blocky_crouch;
@@ -44,7 +47,10 @@ function blocky_character_init()
 	sprites[$ "acostado"		] = spr_blocky_acostado;
     sprites[$ "runkick"		    ] = spr_blocky_runkick; 
     sprites[$ "high_block"		] = spr_blocky_defenza_alta;
-    sprites[$ "low_block"		] = spr_blocky_defenza_baja; 
+    sprites[$ "low_block"		] = spr_blocky_defenza_baja;
+	sprites[$ "grabbed_carry"	] = spr_blocky_grabbed_throw1;
+	sprites[$ "getup"			] = spr_blocky_idle;
+	sprites[$ "throw_victim"	] = spr_mayel_lanzado;
 	
 	//Attack scripts
 	attacks[$ "light_ground"	] = blocky_light_ground;

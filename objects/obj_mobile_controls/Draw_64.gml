@@ -48,6 +48,15 @@ draw_circle(light_x2, light_y2, btn_r, false);
 draw_set_alpha(0.9);
 draw_set_color(c_black);
 draw_text(light_x2, light_y2, "C");
+
+//--- EX (light + light2 a la vez) ---
+draw_set_alpha(ex_down ? _live + 0.2 : _idle + 0.1);
+draw_set_color(c_red);
+draw_circle(ex_x, ex_y, btn_r, false);
+draw_set_alpha(0.95);
+draw_set_color(c_white);
+draw_text(ex_x, ex_y, "EX");
+
 //--- Pause ---
 draw_set_alpha(pause_down ? _live : _idle);
 draw_set_color(c_white);

@@ -13,12 +13,13 @@ light_prev = light_down;
 heavy_prev = heavy_down;
 pause_prev = pause_down;
 light_prev2 = light_down2;
-
+ex_prev = ex_down;
 
 light_down = false;
 light_down2 = false;
 heavy_down = false;
 pause_down = false;
+ex_down = false;
 
 var _px = 0;
 var _py = 0;
@@ -38,24 +39,29 @@ for (var i = 0; i < 5; i++)
 	//Buttons are tested first and with a more generous radius than the drawn
 	//one: a thumb does not land pixel-perfect, and missing an attack by 10 px
 	//feels like the game not responding.
-	if (point_distance(_mx, _my, light_x, light_y) <= btn_r * 1.25)
-		{
-		light_down = true;
-		continue;
-		}
-	if (point_distance(_mx, _my, heavy_x, heavy_y) <= btn_r * 1.25)
-		{
-		heavy_down = true;
-		continue;
-		}
 	if (point_distance(_mx, _my, pause_x, pause_y) <= pause_r * 1.4)
 		{
 		pause_down = true;
 		continue;
 		}
-	if (point_distance(_mx, _my, light_x, light_y) <= btn_r * 3.25)
+	if (point_distance(_mx, _my, heavy_x, heavy_y) <= btn_r * 1.2)
+		{
+		heavy_down = true;
+		continue;
+		}
+	if (point_distance(_mx, _my, light_x, light_y) <= btn_r * 1.2)
+		{
+		light_down = true;
+		continue;
+		}
+	if (point_distance(_mx, _my, light_x2, light_y2) <= btn_r * 1.2)
 		{
 		light_down2 = true;
+		continue;
+		}
+	if (point_distance(_mx, _my, ex_x, ex_y) <= btn_r * 1.2)
+		{
+		ex_down = true;
 		continue;
 		}
 	//The pad accepts a finger from well beyond its drawn radius, and takes the
@@ -109,7 +115,10 @@ else
 	}
 
 //--- Edges ---
-light_pressed = light_down && !light_prev;
+var _ex_pressed = ex_down && !ex_prev;
+
+//EX = light + light2 en el MISMO frame (lo que pide input_ex_pair)
+light_pressed = (light_down && !light_prev) || _ex_pressed;
+light_pressed2 = (light_down2 && !light_prev2) || _ex_pressed;
 heavy_pressed = heavy_down && !heavy_prev;
 pause_pressed = pause_down && !pause_prev;
-light_pressed2 = light_down2 && !light_prev2;

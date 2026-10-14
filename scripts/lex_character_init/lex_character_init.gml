@@ -6,8 +6,8 @@ function lex_character_init()
 	dash_speed = 9;           
 	dash_time = 22;          
 	jump_hsp = 6;             
-	jump_vsp = -22;           
-	grav = 0.9;               
+	jump_vsp = -23;           
+	grav = 1.2;              
 	has_backdash = false;
 	has_grab = false;
 	hp_max = 120;
@@ -20,7 +20,7 @@ function lex_character_init()
 	sprite_index = spr_lex_ecb;
 	
 	//Palette
-	palette_sprite = spr_blocky_palette;
+	palette_sprite = spr_lex_palette;
 	
 	//Gameplay sprites
 	sprites[$ "idle"			] = spr_lex_idle;
@@ -37,7 +37,10 @@ function lex_character_init()
 	sprites[$ "knockdown"		] = spr_lex_knockdown;
 	sprites[$ "acostado"		] = spr_lex_acostado; 
 	sprites[$ "high_block"		] = spr_lex_defenza_alta;
-	sprites[$ "low_block"		] = spr_lex_defenza_baja; 
+	sprites[$ "low_block"		] = spr_lex_defenza_baja;
+	sprites[$ "grabbed_carry"	] = spr_lex_grabbed_throw1;
+	sprites[$ "getup"			] = spr_lex_idle;
+	sprites[$ "throw_victim"	] = spr_mayel_lanzado;
 	
 	//Attack scripts
 	attacks[$ "light_ground"	] = lex_light_ground;

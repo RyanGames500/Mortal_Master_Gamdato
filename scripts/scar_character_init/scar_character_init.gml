@@ -14,7 +14,7 @@ function scar_character_init()
 	grav = 1.2;
 	has_backdash = false;
 	has_grab = true;
-	hp_max = 170;
+	hp_max = 150;
 	hp = hp_max;
 	hp_prev = hp_max;
 	
@@ -26,8 +26,11 @@ function scar_character_init()
 	sprite_index = spr_scar_ecb;
 	
 	//Palette
-	palette_sprite = spr_blocky_palette;
-	
+	palette_sprite = spr_scar_palette;
+
+	//hurtbox
+	hurtbox_sprite = spr_scar_hurtbox;
+
 	//Gameplay sprites
 	sprites[$ "idle"			] = spr_scar_idle;
 	sprites[$ "crouch"			] = spr_scar_crouch;
@@ -44,7 +47,10 @@ function scar_character_init()
 	sprites[$ "acostado"		] = spr_scar_acostado;
     sprites[$ "high_block"		] = spr_scar_defenza_alta;
     sprites[$ "low_block"		] = spr_scar_defenza_baja;
-	sprites[$ "throw_2_hit"		] = sprScar_Agarre2_agarrado;
+	sprites[$ "throw_2_hit"		] = spr_scar_Agarre2_agarrado;
+	sprites[$ "grabbed_carry"	] = spr_scar_grabbed_throw1;
+	sprites[$ "getup"			] = spr_scar_idle;
+	sprites[$ "throw_victim"	] = spr_mayel_lanzado;
 	
 	//Attack scripts
 	attacks[$ "light_ground"	] = scar_light_ground;

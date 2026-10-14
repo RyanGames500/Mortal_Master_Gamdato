@@ -7,13 +7,13 @@ function game_state_hash()
 	var _string = "";
 	var _array = [];
 	
-	//For players: record the x, y, state, and hp.
+	//For players: record the x, y, state, hp, meter, air_hits, being_carried, combo_hits, acid_ko and rage_frames.
 	with_synced_object
 		(
 		obj_player,
 		function (_array)
 			{
-			array_push(_array, string(x) + " " + string(y) + " " + string(state) + " " + string(hp) + " ");
+			array_push(_array, string(x) + " " + string(y) + " " + string(state) + " " + string(hp) + " " + string(meter) + " " + string(air_hits) + " " + string(being_carried ? 1 : 0) + " " + string(combo_hits) + " " + string(acid_ko ? 1 : 0) + " " + string(rage_frames) + " ");
 			},
 		_array,
 		);

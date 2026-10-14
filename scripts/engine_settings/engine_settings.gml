@@ -7,8 +7,8 @@ function setting()
 	static _settings = 
 		{
 		//Sound
-		volume_music :						1.0, //{real} The volume of the music, from 0 to 1. Anything over 1 will make the music louder than normal.
-		volume_sound_effects :				1.0, //{real} The volume of the sound effects, from 0 to 1. Anything over 1 will make the sound effects louder than normal.
+		volume_music :						0.1, //{real} The volume of the music, from 0 to 1. Anything over 1 will make the music louder than normal.
+		volume_sound_effects :				0.1, //{real} The volume of the sound effects, from 0 to 1. Anything over 1 will make the sound effects louder than normal.
 		volume_menu :						1.0, //{real} The volume of the menu music and sound effects, from 0 to 1.Anything over 1 will make the sounds louder than normal.
 		stereo_sound_effects :				false, //{bool} Whether the audio should be stereo or not.
 		//Collisions
@@ -17,13 +17,30 @@ function setting()
 	return _settings;
 	}
 
+//Settings
+global.show_hitboxes = false; //{bool} Whether hitboxes and hurtboxes are visible or not.
+global.replay_record = false; //{bool} Whether to record replays of matches or not.
+global.show_scanlines = true;
+
+//Combo contadores
+#macro COMBO_SUPER				4    //Golpes para "SUPER COMBO"
+#macro COMBO_ULTRA				5    //Golpes para "ULTRA COMBO"
+#macro COMBO_MEGA				6    //Golpes para "MEGA COMBO"
+#macro COMBO_MIN_SHOW			2    //Desde cuántos golpes se muestra el contador
+#macro COMBO_SHOW_FRAMES		90   //Cuánto se queda el texto tras el último golpe
+
+//risas
+#macro LAUGH_EVERY				3      //La risa corta suena en 1 de cada N lanzamientos
+#macro LAUGH_COOLDOWN_MS		8000   //Pausa mínima entre risas (en milisegundos)
+#macro LAUGH_LOW_HP				0.20   //Risa larga cuando a un jugador le queda este porcentaje de vida o menos
+
 //Gameplay
 #macro jostle_amount			5 //{int} The number of pixels per frame players get pushed when overlapping with other players.
 #macro anim_speed_default		0.3 //{real} The default animation speed to use.
 #macro knockback_friction		0.9 //{real} The friction multiplier on horizontal knockback.
 #macro block_pushback_friction	0.7 //{real} The friction multiplier on block pushback.
 #macro block_multiplier			0.25 //{real} The damage and hitstun multiplier for blocked attacks.
-#macro show_hitboxes			true //{bool} Whether hitboxes and hurtboxes are visible or not.
+#macro SHAKE_HEAVY				7   //Temblor de golpes fuertes y de aterrizaje (el mismo valor)
 #macro throw_input_leniency		2 //{int} How many frames at the start of normal attacks can be canceled into throws.
 #macro motion_input_leniency	25 //{int} The maximum number of frames you can take to do a motion input.
 #macro motion_input_array_size	10 //{int} How many stick directions are stored to detect motion inputs.
@@ -34,7 +51,6 @@ function setting()
 #macro anim_run_speed			0.2//{real} the velocity from idle animation
 
 //Replays
-#macro replay_record			true //{bool} Whether to record replays of matches or not.		
 #macro replay_filename			"replay.ggmr" //{string} The name of the file used for saving replays.
 global.replay_buffer =			buffer_create(1, buffer_grow, 1); //{buffer} The buffer used to store replays before saving to files.
 global.replay_mode =			false //{bool} Whether replay mode is enabled or not.
@@ -46,6 +62,13 @@ global.replay_was_online =		false;
 #macro input_store_max			30 //{int} The max number of frames into the past an input can be stored.
 #macro input_buffer_bytes		5 //{int} How many bytes are used to store inputs for each player.
 
+#macro EX_FREEZE_FRAMES			10	//pausa de ambos jugadores al activar un EX
+#macro METER_LEVEL_SIZE			100	//un nivel de barra
+#macro METER_COST_SPECIAL		25	//especial normal
+#macro METER_COST_EX			100	//especial EX (1 nivel)
+#macro METER_COST_SUPER			200	//super (2 niveles)
+#macro EX_BUTTON_WINDOW			3	//frames de margen para que dos botones cuenten como "a la vez"
+
 //Camera
 #macro camera_index				view_camera[0] //{int} The index of the camera being used.
 #macro camera_width				1280 //{int} The width of the camera.
@@ -56,6 +79,11 @@ global.online_mode =			false; //{bool} Whether the game is online or local.
 global.online_lobby_members =	""; //{string} The string storing the lobby members to be loaded after a match finishes.
 global.online_input_delay =		0; //{int} The input delay used in online games.
 global.online_name =			"No Name"; //{string} The local player's name.
+global.notice_queue =			[];
+global.critical_overlay_active = false;
+global.critical_overlay_text = "";
+global.critical_overlay_subtext = "";
+global.critical_overlay_timer = 0;
 
 //Matchmaking server
 #macro version_string			"1.0.0" //{string} The current game version.
@@ -64,12 +92,9 @@ global.online_name =			"No Name"; //{string} The local player's name.
 #macro private_lobby_key		"" ///{string} The key needed for using private lobbies.
 global.news =					"Could not contact the matchmaking server!"; //{string} The news fetched from the matchmaking server.
 
-
 //Sound
 #macro hit_sound_default					snd_hit_light //{asset} The default sound played on hit.
 #macro hit_sound_replace					false //{bool} Whether hit sounds will stop sounds of the same index that are currently being played or not.
 #macro hit_sound_pitch_variance				0.2 //{real} The maximum amount of pitch shift a hit sound can have.
 #macro hit_sound_priority_default			10 //{real} The priority of hit sounds. All stage music is played at a priority of 0 by default.
 #macro hit_sound_replay_timer_default		10 //{int} The number of frames before a hit sound can be played again during local matches. Please note: In online matches, the <GGMR_PREDICTION_FRAMES_MAX> is used instead.
-//Collisions
-/* Copyright 2024 Springroll Games / Yosi */

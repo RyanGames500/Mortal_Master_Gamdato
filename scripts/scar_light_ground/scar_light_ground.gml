@@ -22,6 +22,13 @@ function scar_light_ground(_override_phase)
 			{
 			attack_frame--;
 
+			// Throws
+			if (state_time <= throw_input_leniency && input_pressed(INPUT.attack_heavy))
+				{
+				attack_start(attacks[$ "throw"]);
+				return;
+				}
+
 			// Transición al inicio de la ráfaga antes del golpe completo
 			if (attack_frame == 1) then anim_frame = 1;
 

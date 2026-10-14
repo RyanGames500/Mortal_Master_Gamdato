@@ -15,7 +15,7 @@
     "path": "audiogroups/audiogroup_sound_effects",
   },
   "soundFile": "snd_hit_light_3.wav",
-  "duration": 0.125986,
+  "duration": 0.301315,
   "parent": {
     "name": "SFX",
     "path": "folders/sound/SFX.yy",

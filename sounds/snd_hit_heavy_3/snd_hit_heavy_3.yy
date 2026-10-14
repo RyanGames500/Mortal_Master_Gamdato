@@ -15,7 +15,7 @@
     "path": "audiogroups/audiogroup_sound_effects",
   },
   "soundFile": "snd_hit_heavy_3.wav",
-  "duration": 0.474127,
+  "duration": 0.253333,
   "parent": {
     "name": "SFX",
     "path": "folders/sound/SFX.yy",

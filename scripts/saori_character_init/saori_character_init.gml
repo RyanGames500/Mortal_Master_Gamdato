@@ -14,9 +14,9 @@ function saori_character_init()
 	
 	jump_hsp = 12;
 	jump_vsp = -29;             
-	grav = 1.3;                
+	grav = 1.2;                
 	
-	hp_max = 80;
+	hp_max = 90;
 	hp = hp_max;
 	hp_prev = hp_max;
 	
@@ -29,8 +29,11 @@ function saori_character_init()
 	sprite_index = spr_saori_ecb;
 	
 	//Palette
-	palette_sprite = spr_blocky_palette;
-	
+	palette_sprite = spr_saori_palette;
+
+	//hurtbox
+	hurtbox_sprite = spr_saori_hurtbox;
+
 	//Gameplay sprites
 	sprites[$ "idle"			] = spr_saori_idle;
 	sprites[$ "crouch"			] = spr_saori_crouch;
@@ -47,7 +50,10 @@ function saori_character_init()
 	sprites[$ "acostado"		] = spr_saori_acostado;
     sprites[$ "runkick"		    ] = spr_blocky_runkick; 
     sprites[$ "high_block"		] = spr_saori_defenza_alta;
-    sprites[$ "low_block"		] = spr_saori_defenza_baja; 
+    sprites[$ "low_block"		] = spr_saori_defenza_baja;
+	sprites[$ "grabbed_carry"	] = spr_saori_grabbed_throw1;
+	sprites[$ "getup"			] = spr_saori_idle;
+	sprites[$ "throw_victim"	] = spr_mayel_lanzado;
 	
 	//Attack scripts
 	attacks[$ "light_ground"	] = saori_light_ground;

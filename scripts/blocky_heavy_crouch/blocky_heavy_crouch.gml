@@ -23,7 +23,14 @@ function blocky_heavy_crouch(_override_phase)
 		case 0:
 			{
 			attack_frame--;
-			
+						//Animation
+			if (attack_frame == 5)
+				{
+				anim_frame = 1;
+				
+				//Silbido del uppercut (solo sonido; se omite durante un rollback)
+				if (!ggmr_session_is_in_rollback()) then hit_sfx_play(snd_whoosh_heavy);
+				}
 			//Throws
 			if (state_time <= throw_input_leniency && input_pressed(INPUT.attack_light))
 				{
@@ -42,10 +49,11 @@ function blocky_heavy_crouch(_override_phase)
 				attack_frame = 30;
 				hsp = 2 * facing;
 				
-				var _hitbox = hitbox_create(90, -80, 1, 1, 5, 4);
-				_hitbox.hitlag = 10;
-				_hitbox.launch_speed = 10;
-				_hitbox.high = true;
+				var _hitbox = hitbox_create(60, -90, 0.7, 1.2, 14, 5);
+				_hitbox.hitlag = 7;          // congelado corto, como en el video
+				_hitbox.launch_speed = 30;   // vuelo de ~55 frames; el real del video serían ~43
+				_hitbox.knockback = 15;       // casi vertical
+				_hitbox.knockdown = true;    // cae acostado
 				}
 			
 			//Movement

@@ -4,6 +4,6 @@ if (custom_draw != -1 && script_exists(custom_draw))
 	script_execute(custom_draw);
 	}
 
-if (show_hitboxes) then draw_self();
+if (global.show_hitboxes) then draw_self();
 
 /* Copyright 2024 Springroll Games / Yosi */

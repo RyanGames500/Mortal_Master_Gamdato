@@ -51,6 +51,9 @@ private_lobby_options = [
 	"SET LOBBY CODE",
 	"BACK"
 ];
+settings_options = ["MUSIC VOLUME", "SFX VOLUME", "MENU VOLUME", "ENABLE SCANLINES", "RECORD REPLAYS", "SET NAME", "SET INPUT DELAY", "BACK"];
+
+
 
 // Variables para Teclado Virtual / Input en Pantalla (Reemplazo de get_string)
 input_target = ""; // "ip", "port", "code", "delay", "name"
@@ -65,4 +68,17 @@ notice_timer = 0;
 replay_list = [];
 replay_index = 0;
 
+// Animación del menu
+sel_y_smooth = 0;
+sel_y_ready = false;
+menu_state_prev_draw = current_state;
+menu_transition = 1; // 0 = recien cambiado de pantalla, 1 = totalmente asentado
+
+hit_rects = [];			// rectangulos tocables (los llena el Draw cada frame)
+ptr_last_x = -1;
+ptr_last_y = -1;
+text_kb_opened = false;
+delete_armed = -1;
+
 scan_replay_files();
+audio_group_load(audiogroup_music);

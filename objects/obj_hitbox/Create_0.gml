@@ -30,7 +30,12 @@ to_be_destroyed = false;
 destroy_on_stop = false;
 custom_update = -1;
 custom_draw = -1;
-
 image_blend = c_red;
-
-/* Copyright 2024 Springroll Games / Yosi */
+knockdown = false;
+//esclusivas de mayel
+boomerang_state = 0;
+brake_timer = 0;
+has_hit_forward = false;
+has_hit_return = false;
+shake = 6;
+acid_finisher = false;	// true = este golpe puede mandar al rival al ácido si es el golpe mortal

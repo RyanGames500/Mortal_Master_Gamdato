@@ -20,12 +20,6 @@ function blitsen_heavy_ground(_override_phase)
 			{
 			attack_frame--;
 			
-			//if (has_grab && state_time <= throw_input_leniency && input_pressed(INPUT.attack_light))
-			//	{
-			//	attack_start(attacks[$ "throw"]);
-			//	return;
-			//	}
-			
 			if (attack_frame == 8) then anim_frame = 1;
 			if (attack_frame == 5) then anim_frame = 2;
 			if (attack_frame == 2) then anim_frame = 3;

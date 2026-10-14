@@ -18,6 +18,7 @@ function saori_special_dp(_override_phase)
 			}
 		break;
 		
+		// Startup (invulnerable)
 		case 0:
 			{
 			attack_frame--;
@@ -26,7 +27,7 @@ function saori_special_dp(_override_phase)
 				{
 				anim_frame = 1; // Inicia el impacto del gancho
 				attack_phase = 1;
-				attack_frame = 28;
+				attack_frame = 90; // Contador de seguridad: la fase aérea dura hasta aterrizar
 				
 				// Elevación explosiva
 				hsp = 7 * facing;
@@ -34,12 +35,12 @@ function saori_special_dp(_override_phase)
 				
 				invincible = true;
 				
-				// HITBOX INICIAL (Frame 2 del sprite con la estela de energía)
+				// HITBOX INICIAL (con la estela de energía)
 				var _hitbox = hitbox_create(76.5, -74, 0.6, 1, 10, 5);
+				_hitbox.acid_finisher = true;
 				_hitbox.hitlag = 12;
 				_hitbox.launch_speed = 20;
 				_hitbox.knockback = 12;
-				_hitbox.angle = 85;
 				_hitbox.hitstun = 45;
 				}
 			
@@ -47,48 +48,95 @@ function saori_special_dp(_override_phase)
 			}
 		break;
 		
+		// Fase aérea: dura hasta que toca el suelo
 		case 1:
 			{
 			attack_frame--;
+			var _elapsed = 90 - attack_frame;   // frames desde el despegue
 			
-			// Quita invulnerabilidad tras pasar los frames de impacto activo
-			if (attack_frame < 24)
-				{
-				invincible = false;
-				}
-
-			// Gravedad y física
+			// Invulnerable solo durante los primeros frames activos
+			if (_elapsed >= 5) then invincible = false;
+			
+			// Gravedad
 			vsp += grav;
-
-			// TIMELINE DE ANIMACIÓN Y HITBOX TARDÍA
-			if (attack_frame == 26) then anim_frame = 2; // Estela de impacto completa
 			
-			if (attack_frame == 24)
+			// Animación según el avance del salto
+			if (_elapsed == 2) then anim_frame = 2;            // Estela de impacto completa
+			if (_elapsed >= 4 && vsp < 3) then anim_frame = 3; // Punto más alto con destellos
+			if (vsp >= 3)  then anim_frame = 4;                // Empieza a caer
+			if (vsp >= 8)  then anim_frame = 5;
+			if (vsp >= 12) then anim_frame = 6;
+			
+			// HITBOX TARDÍA (solo pega si la primera falló)
+			if (_elapsed == 4)
 				{
-				anim_frame = 3; // Punto más alto con destellos de energía
-				
-				// HITBOX TARDÍA (Frames aéreos continuos)
 				var _hitbox_late = hitbox_create(76, -74, 0.7, 1, 6, 8);
 				_hitbox_late.hitlag = 8;
 				_hitbox_late.launch_speed = 12;
 				_hitbox_late.knockback = 8;
-				_hitbox_late.angle = 75;
 				_hitbox_late.hitstun = 25;
 				}
-
-			// Transición de caída en el aire (Frames 4, 5, 6, 7)
-			if (attack_frame == 18) then anim_frame = 4;
-			if (attack_frame == 12) then anim_frame = 5;
-			if (attack_frame == 6)  then anim_frame = 6;
-			if (attack_frame == 2)  then anim_frame = 7;
 			
 			player_move();
 			
-			// Si toca el suelo recupera estado
-			if (bbox_bottom >= obj_ground.y && attack_frame < 20)
+			// Aterriza: pasa a la recuperación
+			if (bbox_bottom >= obj_ground.y && _elapsed > 6 && vsp > 0)
 				{
+				invincible = false;
+				y = ceil(obj_ground.y - (bbox_bottom - y));
+				hsp = 0;
+				vsp = 0;
+				
+				// Aterrizaje: pose agachada + polvo (en vez de congelar el último frame del shoryu)
+				var _land_sprite = sprites[$ "crouch"];
+				if (!is_undefined(_land_sprite))
+					{
+					anim_sprite = _land_sprite;
+					anim_frame = 0;
+					anim_speed = anim_speed_default;
+					}
+				var _land_vfx = instance_create_layer(x, obj_ground.y, "VFX_Layer", obj_vfx);
+				_land_vfx.sprite_index = spr_effect_landing_dust;
+				_land_vfx.image_xscale = facing;
+				_land_vfx.anim_speed   = 0.2;
+				_land_vfx.lifetime     = sprite_get_number(spr_effect_landing_dust) / _land_vfx.anim_speed;
+				_land_vfx.owner        = id;
+				
+				attack_phase = 2;
+				// Castigo: si falla, queda indefensa más tiempo. Si pegó o la bloquearon, menos.
+				attack_frame = attack_connected ? 8 : 20;
+				break;
+				}
+			
+			// Seguridad: nunca se queda atascada en esta fase
+			if (attack_frame <= 0)
+				{
+				invincible = false;
 				attack_stop();
 				break;
+				}
+			}
+		break;
+		
+		// Recuperación al aterrizar (el castigo)
+		case 2:
+			{
+			attack_frame--;
+			
+			hsp = 0;
+			vsp = 0;
+			player_move();
+			
+			// Los últimos frames se va levantando (idle) para que no se vea congelada
+			if (attack_frame == 5)
+				{
+				var _idle_sprite = sprites[$ "idle"];
+				if (!is_undefined(_idle_sprite))
+					{
+					anim_sprite = _idle_sprite;
+					anim_frame = 0;
+					anim_speed = anim_idle_speed;
+					}
 				}
 			
 			if (attack_frame <= 0)

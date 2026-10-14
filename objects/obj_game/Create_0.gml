@@ -51,17 +51,23 @@ game_frame = 0;
 starting_frame = 50 * 3;
 ending_frame = 0;
 //sistema de seleccion de personajes
-//Roster de personajes disponibles
+// Roster de personajes disponibles
 characters = [
-    { name: "JOE",     char_id: 1, color: c_orange },
-    { name: "LEX",     char_id: 2, color: c_red },
-    { name: "BLITSEN", char_id: 3, color: c_yellow },
-    { name: "SAORI",   char_id: 4, color: c_fuchsia },
-    { name: "SCAR",    char_id: 5, color: c_lime }
+    { name: "JOE",     char_id: 1, color: c_orange,  portrait_index: 0, locked: false },
+    { name: "LEX",     char_id: 2, color: c_red,     portrait_index: 1, locked: false },
+    { name: "BLITSEN", char_id: 3, color: c_lime,    portrait_index: 2, locked: false },
+    { name: "SAORI",   char_id: 4, color: c_fuchsia, portrait_index: 3, locked: false },
+    { name: "SCAR",    char_id: 5, color: c_aqua,    portrait_index: 4, locked: false },
+    { name: "BRAD",    char_id: 6, color: c_green,   portrait_index: 5, locked: false },
+	{ name: "MAYEL",   char_id: 7, color: c_yellow,  portrait_index: 6, locked: false },
+	{ name: "DANNY",   char_id: 8, color: c_blue,    portrait_index: 7, locked: false },
+	{ name: "MARIEL",  char_id: 9, color: c_silver,  portrait_index: 8, locked: false },
+	{ name: "DEMON",   char_id: 10, color: c_purple, portrait_index: 9, locked: true  },
+	{ name: "BEAR",    char_id: 11, color: c_purple, portrait_index: 10, locked: true }
 ];
 char_count = array_length(characters);
 
-p1_css_cursor   = 1;
+p1_css_cursor   = 0;
 p1_css_ready    = false;
 p1_css_last_dir = STICK_DIR.neutral;
 p1_select       = 0; // ID del personaje elegido por P1
@@ -72,16 +78,17 @@ if (!global.online_mode)
 	{
 	if (global.replay_mode)
 		{
-		// Reproducción: usar exactamente el personaje que la CPU tuvo en la partida real
-		p2_css_cursor = global.replay_cpu_cursor;
+		// Reproducción: el replay ya trae los personajes, la pelea arranca directo (ver el Step)
+		p2_css_cursor	= 0;
+		p2_select       = global.replay_p2_select;
 		}
 	else
 		{
 		// Partida real: elegir aleatoriamente, una sola vez
 		p2_css_cursor = irandom(char_count - 1);
+		p2_select       = characters[p2_css_cursor].char_id;
 		}
 	
-	p2_select       = characters[p2_css_cursor].char_id;
 	p2_css_ready    = true;
 	p2_css_last_dir = STICK_DIR.neutral;
 	}
@@ -97,7 +104,6 @@ else
 audio_group_load(audiogroup_music_menu);
 audio_group_load(audiogroup_menu);
 audio_group_load(audiogroup_sound_effects);
-audio_group_load(audiogroup_music);
 sound_system_init();
 //Spawn player instances
 //game_players_spawn();
@@ -136,6 +142,22 @@ p2_wins = 0;
 round_restart_frame = 0;
 // Transición de pantalla entre rondas
 fade_alpha = 0.0;
+combo_tier_played = [0, 0];   //solo cosmético: qué frase ya sonó para cada jugador
+combo_ended_seen = [0, 0];   //solo cosmético: último combo cuya frase ya sonó para cada jugador
 
-
-/* Copyright 2024 Springroll Games / Yosi */
+laugh_state_seen = [PLAYER_STATE.idle, PLAYER_STATE.idle];   //solo cosmético
+laugh_last_ms = -100000;
+laugh_index = 0;
+laugh_count = 0;
+laugh_low_seen = [false, false];
+round_voice_played = false;
+fight_voice_played = false;
+wins_seen = [0, 0];
+win_anim_ms = [-100000, -100000];
+ecg_phase = 0;
+stage_id = 0;
+stage_step = 0;			// 0 = sin elegir, 1 = eligiendo, 2 = elegido (cuenta atrás)
+stage_cursor = 0;
+stage_atk_prev = false;
+stage_has_acid = stage_get(stage_id).has_acid;	// true solo en el escenario del ácido
+if (!instance_exists(obj_frost_overlay)) then instance_create_depth(0, 0, -10000, obj_frost_overlay);

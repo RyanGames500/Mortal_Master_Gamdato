@@ -185,7 +185,12 @@ switch (state)
 		//Waits for the cancel to land before asking for a new ticket
 		if (_mm.ticket_id == "" && !_mm.in_queue && !_mm.found)
 			{
-			gamdato_matchmaking_start({ team_size: mm_team_size, auto_accept: mm_auto_accept });
+			gamdato_matchmaking_start({ 
+				team_size: mm_team_size, 
+				auto_accept: mm_auto_accept,
+				region: mm_region 
+			});
+			
 			search_time = 0;
 			join_timeout = 0;
 			joined_ok = false;

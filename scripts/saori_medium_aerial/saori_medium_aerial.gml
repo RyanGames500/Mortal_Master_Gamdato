@@ -48,17 +48,6 @@ function saori_medium_aerial(_override_phase)
 			if (attack_frame == 10) then anim_frame = 3;
 			if (attack_frame == 6)  then anim_frame = 4;
 			if (attack_frame == 2)  then anim_frame = 5;
-			
-			// CANCELACIÓN AÉREA: Permite cancelar a Heavy durante los frames del golpe
-			if (attack_frame <= 15)
-				{
-				if (input_pressed(INPUT.attack_heavy))
-					{
-					attack_stop();
-					attack_start(attacks[$ "heavy_aerial"]);
-					break;
-					}
-				}
 
 			vsp += grav;
 			player_move();

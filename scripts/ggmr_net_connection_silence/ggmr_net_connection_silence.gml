@@ -9,10 +9,16 @@ function ggmr_net_connection_silence()
 	with (obj_ggmr_net)
 		{
 		var _id = argument[0];
+		
+		// 1. Si la conexión es nula, vacía o inválida, retornar 0 para evitar el crash
+		if (is_undefined(_id) || _id == -1 || _id == noone) then return 0;
+		
 		var _data = net_connections[? string(_id)];
+		
+		// 2. Si la estructura de la conexión no existe dentro del mapa, retornar 0
+		if (is_undefined(_data)) then return 0;
+		
 		return (current_time - _data.last_packet_timestamp);
 		}
-	ggmr_crash("obj_ggmr_net did not exist when ggmr_net_connection_silence was called");
+	return 0;
 	}
-
-/* Copyright 2024 Springroll Games / Yosi */

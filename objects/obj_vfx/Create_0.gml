@@ -11,7 +11,7 @@ sync_id_assign();
 
 //Variables
 lifetime = 10;
-anim_speed = 0;
+anim_speed = 1;
 owner = noone;
 
 image_speed = 0;

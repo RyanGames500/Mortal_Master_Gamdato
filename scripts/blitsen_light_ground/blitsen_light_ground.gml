@@ -26,13 +26,6 @@ function blitsen_light_ground(_override_phase)
 			{
 			attack_frame--;
 			
-			// Throws
-			if (state_time <= throw_input_leniency && input_pressed(INPUT.attack_heavy))
-				{
-				attack_start(attacks[$ "throw"]);
-				return;
-				}
-			
 			// Transición de startup
 			if (attack_frame == 2) then anim_frame = 1;
 			

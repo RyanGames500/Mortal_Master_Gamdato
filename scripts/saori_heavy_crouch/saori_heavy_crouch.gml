@@ -24,13 +24,6 @@ function saori_heavy_crouch(_override_phase)
 			{
 			attack_frame--;
 			
-			//Atajo de agarre (Throw)
-			//if (state_time <= throw_input_leniency && input_pressed(INPUT.attack_light))
-			//	{
-			//	attack_start(attacks[$ "throw"]);
-			//	return;
-			//	}
-			
 			//Carga agachada previa
 			if (attack_frame == 4) then anim_frame = 1;
 			

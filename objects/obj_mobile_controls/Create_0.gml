@@ -31,10 +31,13 @@ light_down = false;
 light_down2 = false;
 heavy_down = false;
 pause_down = false;
+ex_down = false;
 light_prev = false;
 heavy_prev = false;
 pause_prev = false;
 light_prev2 = false;
+ex_prev = false;
+
 //--- Geometry (GUI coordinates, recomputed in case the screen rotates) ---
 pad_x = 0;
 pad_y = 0;
@@ -53,6 +56,8 @@ pause_y = 0;
 pause_r = 0;
 light_x2 = 0;
 light_y2 = 0;
+ex_x = 0;
+ex_y = 0;
 
 layout = function()
 	{
@@ -77,8 +82,13 @@ layout = function()
 	pause_x = _gw - pause_r * 1.6;
 	pause_y = pause_r * 1.6;
 	
-	light_x2 = heavy_x - btn_r * 2.3;
-	light_y2 = _gh - btn_r * 3.5;	
+	//C (light2): arriba de A, con espacio para que las zonas no se pisen
+	light_x2 = light_x;
+	light_y2 = light_y - btn_r * 2.6;
+	
+	//EX: a la izquierda de B (manda light + light2 en el mismo frame)
+	ex_x = light_x - btn_r * 2.3;
+	ex_y = heavy_y;
 	};
 
 layout();

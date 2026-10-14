@@ -19,12 +19,7 @@ function blitsen_medium_crouch(_override_phase)
 		case 0:
 			{
 			attack_frame--;
-			
-			if (has_grab && state_time <= throw_input_leniency && input_pressed(INPUT.attack_heavy))
-				{
-				attack_start(attacks[$ "throw"]);
-				return;
-				}
+		
 			
 			if (attack_frame == 3) then anim_frame = 1;
 			

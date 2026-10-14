@@ -13,7 +13,7 @@ function blitsen_character_init()
 	dash_time = 20;
 	jump_hsp = 8.5;
 	jump_vsp = -25;
-	grav = 0.95;
+	grav = 1.2;
 	has_backdash = true;
 	has_grab = false;
 	hp_max = 100;
@@ -26,8 +26,11 @@ function blitsen_character_init()
 	sprite_index = spr_blitsen_ecb;
 	
 	//Palette
-	palette_sprite = spr_blocky_palette;
-	
+	palette_sprite = spr_blitsen_palette;
+
+	//hurtbox
+	hurtbox_sprite = spr_blitsen_hurtbox;
+
 	//Gameplay sprites
 	sprites[$ "idle"			] = spr_blitsen_idle;
 	sprites[$ "crouch"			] = spr_blitsen_crouch;
@@ -43,7 +46,10 @@ function blitsen_character_init()
 	sprites[$ "knockdown"		] = spr_blitsen_knockdown;
 	sprites[$ "acostado"		] = spr_blitsen_acostado; 
 	sprites[$ "high_block"		] = spr_blitsen_defenza_alta;
-	sprites[$ "low_block"		] = spr_blitsen_defenza_baja; 
+	sprites[$ "low_block"		] = spr_blitsen_defenza_baja;
+	sprites[$ "grabbed_carry"	] = spr_blitsen_grabbed_throw1;
+	sprites[$ "getup"			] = spr_blitsen_idle;
+	sprites[$ "throw_victim"	] = spr_mayel_lanzado;
 	
 	//Attack scripts
 	attacks[$ "light_ground"	] = blitsen_light_ground;

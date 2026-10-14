@@ -29,6 +29,7 @@ enum PLAYER_STATE
 	attacking,
 	knockdown,
 	acostado,
+	getup,
 	
 	LENGTH,
 	}

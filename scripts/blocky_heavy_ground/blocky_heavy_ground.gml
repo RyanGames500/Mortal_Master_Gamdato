@@ -38,6 +38,7 @@ function blocky_heavy_ground(_override_phase)
 				
 				var _hitbox = hitbox_create(5, -10, 2.5, 2.5, 20, 4);
 				_hitbox.sprite_index = spr_hitbox_circle;
+				_hitbox.acid_finisher = true;
 				_hitbox.hitlag = 13;
 				_hitbox.knockback = 20;
 				_hitbox.launch_speed = 20;

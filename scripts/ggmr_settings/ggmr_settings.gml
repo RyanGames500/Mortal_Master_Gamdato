@@ -46,7 +46,7 @@ Este script se ejecuta automáticamente al inicio del juego.
 #macro GGMR_SPECTATOR_FRAMES					3 //{int} El número de frames a enviar a los espectadores en cada paso (step). Enviar más frames evita que los espectadores se congelen si pierden algunos paquetes.
 #macro GGMR_SPECTATOR_ACCEL_THRESHOLD			3 //{int} El número de frames atrasado que puede estar un espectador antes de acelerar.
 
-#macro GGMR_SESSION_GC_DURING_FRAME_DROPS		true //{bool} Si el juego debe ejecutar el recolector de basura (garbage collector) cuando espera a que el juego del oponente se ponga al día o no.
+#macro GGMR_SESSION_GC_DURING_FRAME_DROPS		false //{bool} Si el juego debe ejecutar el recolector de basura (garbage collector) cuando espera a que el juego del oponente se ponga al día o no.
 #macro GGMR_SESSION_GC_DURING_ROLLBACKS			false //{bool} Si el juego debe ejecutar el recolector de basura cuando ocurre un rollback o no.
 #macro GGMR_SESSION_GC_DURING_NONROLLBACKS		false //{bool} Si el juego debe ejecutar el recolector de basura en frames que no sean de rollback o no.
 #macro GGMR_SESSION_GC_AUTO_DISABLE				false //{bool} Si el juego debe desactivar la recolección automática de basura o no.
