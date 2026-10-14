@@ -61,22 +61,6 @@ function draw_round_vial(_x, _y, _fill)
 	}
 
 
-///@param {real} p   posición dentro del ciclo, de 0 a 1
-/*
-Forma de un latido: onda P, complejo QRS (el pico) y onda T.
-*/
-function ecg_wave(_p)
-	{
-	var _y = 0;
-	_y += 0.16 * exp(-sqr((_p - 0.15) / 0.04));    // onda P
-	_y -= 0.20 * exp(-sqr((_p - 0.28) / 0.022));   // Q
-	_y += 1.00 * exp(-sqr((_p - 0.33) / 0.020));   // R (el pico)
-	_y -= 0.32 * exp(-sqr((_p - 0.38) / 0.024));   // S
-	_y += 0.28 * exp(-sqr((_p - 0.62) / 0.06));    // onda T
-	return _y;
-	}
-
-
 ///@param {real} cx
 ///@param {real} y
 ///@param {real} w
@@ -85,9 +69,19 @@ function ecg_wave(_p)
 ///@param {bool} ko          si alguien está en KO, línea plana
 /*
 Monitor de signos vitales. Es solo visual: no lee ni cambia el estado del juego.
+Liviano: el latido es una forma fija hecha de rectas (sin exp/sqr) y se recortan los segmentos al monitor.
 */
 function draw_ecg_monitor(_cx, _y, _w, _h, _min_ratio, _ko)
 	{
+	// Forma de UN latido (x de 0 a 1, y positivo hacia arriba): base, onda P, Q, R (pico), S, base, onda T, base
+	static _kx = [0, 0.09, 0.15, 0.21, 0.26, 0.28, 0.33, 0.38, 0.42, 0.52, 0.62, 0.72, 1.0];
+	static _ky = [0, 0,    0.16, 0,    0,   -0.20, 1.00, -0.32, 0,    0,    0.28, 0,    0];
+	// Segmentos ya recortados al monitor (se calculan una vez por frame y se usan en las dos pasadas)
+	static _sx1 = array_create(48, 0);
+	static _sy1 = array_create(48, 0);
+	static _sx2 = array_create(48, 0);
+	static _sy2 = array_create(48, 0);
+	
 	var _x1 = _cx - (_w div 2);
 	var _x2 = _x1 + _w;
 	var _y2 = _y + _h;
@@ -122,24 +116,63 @@ function draw_ecg_monitor(_cx, _y, _w, _h, _min_ratio, _ko)
 		draw_line(_x1, gy, _x2, gy);
 		}
 	
+	// Segmentos del trazo
+	var _cnt = 0;
+	if (_ko)
+		{
+		// Línea plana
+		_sx1[0] = _x1;
+		_sy1[0] = _mid;
+		_sx2[0] = _x2;
+		_sy2[0] = _mid;
+		_cnt = 1;
+		}
+	else
+		{
+		var _per = _w / 1.4;			// ancho de un latido en píxeles
+		var _amp = _h * 0.36;			// altura del pico
+		var _ph = obj_game.ecg_phase;
+		for (var k = 0; k < 3; k++)
+			{
+			var _ox = _x1 + ((k - _ph) * _per);
+			if (_ox >= _x2 || (_ox + _per) <= _x1) then continue;	// latido totalmente fuera del monitor
+			for (var s = 0; s < 12; s++)
+				{
+				var _ax = _ox + (_kx[s] * _per);
+				var _ay = _mid - (_ky[s] * _amp);
+				var _bx = _ox + (_kx[s + 1] * _per);
+				var _by = _mid - (_ky[s + 1] * _amp);
+				if (_bx <= _x1 || _ax >= _x2) then continue;
+				// Recortar al borde izquierdo y derecho del monitor
+				if (_ax < _x1)
+					{
+					_ay += (_by - _ay) * ((_x1 - _ax) / (_bx - _ax));
+					_ax = _x1;
+					}
+				if (_bx > _x2)
+					{
+					_by = _ay + ((_by - _ay) * ((_x2 - _ax) / (_bx - _ax)));
+					_bx = _x2;
+					}
+				_sx1[_cnt] = _ax;
+				_sy1[_cnt] = _ay;
+				_sx2[_cnt] = _bx;
+				_sy2[_cnt] = _by;
+				_cnt++;
+				}
+			}
+		}
+	
 	// Trazo (primero un halo, luego la línea fina)
 	var _col = _ko ? make_colour_rgb(190, 30, 30) : (_low ? make_colour_rgb(255, 80, 80) : make_colour_rgb(90, 255, 150));
-	var _n = _w - 2;
 	for (var pass = 0; pass < 2; pass++)
 		{
 		draw_set_color(_col);
 		draw_set_alpha((pass == 0) ? 0.28 : 1);
 		var _lw = (pass == 0) ? 3 : 1;
-		var _prev = _mid;
-		for (var i = 0; i <= _n; i++)
+		for (var j = 0; j < _cnt; j++)
 			{
-			var _v = _ko ? 0 : ecg_wave(frac(obj_game.ecg_phase + ((i / _n) * 1.4)));
-			var _py = _mid - (_v * _h * 0.36);
-			if (i > 0)
-				{
-				draw_line_width(_x1 + i, _prev, _x1 + 1 + i, _py, _lw);
-				}
-			_prev = _py;
+			draw_line_width(_sx1[j], _sy1[j], _sx2[j], _sy2[j], _lw);
 			}
 		}
 	

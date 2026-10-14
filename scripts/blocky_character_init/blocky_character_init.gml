@@ -14,7 +14,7 @@ function blocky_character_init()
 	grav = 1.2;
 	has_backdash = false;
 	has_grab = true;
-	hp_max = 150;
+	hp_max = 99999;
 	hp = hp_max;
 	hp_prev = hp_max;
 	

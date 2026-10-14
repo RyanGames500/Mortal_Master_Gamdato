@@ -45,7 +45,7 @@ global.show_scanlines = true;
 #macro motion_input_leniency	25 //{int} The maximum number of frames you can take to do a motion input.
 #macro motion_input_array_size	10 //{int} How many stick directions are stored to detect motion inputs.
 #macro dash_input_leniency		15 //{int} How many frames are checked for double tap dash inputs.
-#macro match_time				99 //{int} How many seconds each match can last.
+#macro match_time				1 //{int} How many seconds each match can last.
 #macro anim_walk_speed          0.2//{real} the velocity from walk animation
 #macro anim_idle_speed          0.1//{real} the velocity from idle animation
 #macro anim_run_speed			0.2//{real} the velocity from idle animation

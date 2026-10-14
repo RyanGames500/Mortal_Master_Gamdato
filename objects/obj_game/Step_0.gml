@@ -11,11 +11,11 @@ if (global.replay_mode)
 		game_advance_frame(input_buffers);
 		}
 	
-	//Read inputs from the buffer
+	//Leer los inputs desde el buffer
 	input_replay_load_index(input_buffers, 0);
 	input_replay_load_index(input_buffers, 1);
 	
-	//Load data for desync detection
+	//Cargar los datos para detectar desincronización (desync)
 	var _expected = buffer_read(global.replay_buffer, buffer_string);
 	var _actual = game_state_hash();
 	if (_actual != _expected)
@@ -23,13 +23,13 @@ if (global.replay_mode)
 		show_error("Replay desync. Expected: " + _expected + ". Actual: " + _actual, true);
 		}
 	
-	//Advance the game by 1 frame
+	//Avanzar el juego 1 frame
 	game_advance_frame(input_buffers);
 	}
 else
 	{
-	//Run the session script
-	//The game may be advanced by multiple frames, depending on what the GGMR session decides
+	//Ejecutar el script de la sesión
+	//El juego puede avanzar varios frames, según lo que decida la sesión de GGMR
 	ggmr_session_advance_frame();
 	}
 

@@ -840,3 +840,5 @@ if (fade_alpha > 0)
 	draw_rectangle(0, 0, camera_width, camera_height, false);
 	draw_set_alpha(1.0); // Resetear el alfa general para no afectar otros dibujos
 	}
+draw_set_font(fnt_menu68);
+draw_set_color(c_white); draw_text(100, 100, "fps " + string(fps) + "  real " + string(round(fps_real)));

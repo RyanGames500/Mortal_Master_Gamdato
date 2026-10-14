@@ -10,7 +10,7 @@ function lex_character_init()
 	grav = 1.2;              
 	has_backdash = false;
 	has_grab = false;
-	hp_max = 120;
+	hp_max = 9999;
 	hp = hp_max;
 	hp_prev = hp_max;   
 	

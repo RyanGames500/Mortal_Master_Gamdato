@@ -45,11 +45,11 @@ function game_end_conditions()
 	
 	// Check KO por tiempo
 	var _time_out = false;
-	if (match_time - (game_frame div 60) <= 0)
-		{
-		_end_game = true;
-		_time_out = true;
-		}
+	//if (match_time - (game_frame div 60) <= 0)
+	//	{
+	//	_end_game = true;
+	//	_time_out = true;
+	//	}
 	
 	// Evaluación de victoria de ronda y match
 	if (_end_game && obj_game.game_meta_state == GAME_META_STATE.running)
