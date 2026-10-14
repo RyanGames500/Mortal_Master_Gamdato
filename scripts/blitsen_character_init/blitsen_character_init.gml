@@ -16,7 +16,7 @@ function blitsen_character_init()
 	grav = 1.2;
 	has_backdash = true;
 	has_grab = false;
-	hp_max = 9999;
+	hp_max = 100;
 	hp = hp_max;
 	hp_prev = hp_max;
 	

@@ -17,7 +17,7 @@ session_callbacks =
 	advance_frame : ggmr_callback_default,
 	save_game :		ggmr_callback_default,
 	load_game :		ggmr_callback_default,
-	finish_game :	ggmr_callback_default,
+	finish_game :		ggmr_callback_default,
 	on_event :		ggmr_callback_default,
 	};
 

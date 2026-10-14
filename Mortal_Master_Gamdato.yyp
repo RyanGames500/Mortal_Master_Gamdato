@@ -600,7 +600,6 @@
     {"id":{"name":"spr_lex_dash","path":"sprites/spr_lex_dash/spr_lex_dash.yy",},"order":5,},
     {"id":{"name":"main_menu_button_script","path":"scripts/main_menu_button_script/main_menu_button_script.yy",},"order":0,},
     {"id":{"name":"blitsen_heavy_aerial","path":"scripts/blitsen_heavy_aerial/blitsen_heavy_aerial.yy",},"order":3,},
-    {"id":{"name":"fnt_menu68","path":"fonts/fnt_menu68/fnt_menu68.yy",},"order":6,},
     {"id":{"name":"brad_throw","path":"scripts/brad_throw/brad_throw.yy",},"order":2,},
     {"id":{"name":"main_menu_ui_refresh","path":"scripts/main_menu_ui_refresh/main_menu_ui_refresh.yy",},"order":1,},
     {"id":{"name":"spr_lex_light_aerial","path":"sprites/spr_lex_light_aerial/spr_lex_light_aerial.yy",},"order":4,},
