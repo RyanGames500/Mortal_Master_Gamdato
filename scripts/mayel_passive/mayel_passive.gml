@@ -4,7 +4,7 @@ It is run every frame and allows motion input attacks to be performed.
 */
 function mayel_passive()
 	{
-	// Martillo y boomerang (en piso, incluye cancel de normales; no gastan barra)
+	// Martillo y boomerang (en piso, incluye cancel de normales; gastan barra)
 	if (special_state_ok())
 		{
 		//hammer
@@ -12,8 +12,9 @@ function mayel_passive()
 			{
 			if (input_pressed(INPUT.attack_light) || input_pressed(INPUT.attack_heavy))
 				{
-				if (attack_script != mayel_hammer && !mayel_projectile_exists())
+				if (attack_script != mayel_hammer && !mayel_projectile_exists() && meter_can_pay(METER_COST_SPECIAL))
 					{
+					meter_pay(METER_COST_SPECIAL);
 					attack_stop();
 					attack_start(mayel_hammer);
 					return;
@@ -26,8 +27,9 @@ function mayel_passive()
 			{
 			if (input_pressed(INPUT.attack_light2))
 				{
-				if (attack_script != mayel_boomerang && !mayel_projectile_exists())
+				if (attack_script != mayel_boomerang && !mayel_projectile_exists() && meter_can_pay(METER_COST_SPECIAL))
 					{
+					meter_pay(METER_COST_SPECIAL);
 					attack_stop();
 					attack_start(mayel_boomerang);
 					return;

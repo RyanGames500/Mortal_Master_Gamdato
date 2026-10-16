@@ -119,6 +119,9 @@ if (current_state == MENU_STATE.input_text)
 					{
 					var _b = buffer_create(1, buffer_grow, 1);
 					server_send_packet(obj_ggmr_net.net_socket, _b, "private_lobby_find", input_string);
+show_debug_message("[menu] lobby packet -> " + string(server_ip_address) + ":" + string(server_port));
+notice_text = "SENT TO " + string(server_ip_address) + ":" + string(server_port);
+notice_timer = 240;
 					buffer_delete(_b);
 					}
 			break;
@@ -129,6 +132,9 @@ if (current_state == MENU_STATE.input_text)
 					lobby_code = input_string;
 					var _b = buffer_create(1, buffer_grow, 1);
 					server_send_packet(obj_ggmr_net.net_socket, _b, "private_lobby_reserve", lobby_code);
+show_debug_message("[menu] lobby packet -> " + string(server_ip_address) + ":" + string(server_port));
+notice_text = "SENT TO " + string(server_ip_address) + ":" + string(server_port);
+notice_timer = 240;					
 					buffer_delete(_b);
 					}
 			break;
@@ -394,6 +400,21 @@ if (current_state == MENU_STATE.settings)
 	exit;
 	}
 
+// --- Sala privada: armar las filas según el estado del lobby ---
+if (current_state == MENU_STATE.private_lobby)
+	{
+	// Aceptación automática opcional (el código de la sala hace de contraseña)
+	if (private_lobby_auto_accept && ggmr_lobby_is_leader()
+		&& ds_list_size(obj_ggmr_lobby.lobby_join_requests) > 0
+		&& ds_list_size(obj_ggmr_lobby.lobby_members) < GGMR_MEMBERS_MAX)
+		{
+		ggmr_lobby_join_request_accept(0);
+		}
+	
+	private_lobby_menu_build();
+	menu_index = clamp(menu_index, 0, array_length(private_lobby_options) - 1);
+	}
+
 // --- 2. LÓGICA DE NAVEGACIÓN EN MENÚS ESTÁNDAR ---
 var _current_list = menu_options;
 if (current_state == MENU_STATE.online) _current_list = online_options;
@@ -494,23 +515,54 @@ if (_confirm)
 		}
 	else if (current_state == MENU_STATE.private_lobby)
 		{
-		switch (_selected_text)
+		var _action = private_lobby_actions[menu_index];
+		var _arg = private_lobby_args[menu_index];
+		
+		switch (_action)
 			{
-			case "JOIN LOBBY BY CODE":
-				current_state = MENU_STATE.input_text;
-				input_target = "code";
-				input_prompt = "ENTER LOBBY CODE:";
-				keyboard_string = "";
-			break;
-			
-			case "SET LOBBY CODE":
+			case "set_code":
 				current_state = MENU_STATE.input_text;
 				input_target = "set_code";
 				input_prompt = "SET NEW LOBBY CODE:";
 				keyboard_string = "";
 			break;
 			
-			case "BACK":
+			case "join_code":
+				current_state = MENU_STATE.input_text;
+				input_target = "code";
+				input_prompt = "ENTER LOBBY CODE:";
+				keyboard_string = "";
+			break;
+			
+			case "accept":
+				if (_arg < ds_list_size(obj_ggmr_lobby.lobby_join_requests))
+					{
+					ggmr_lobby_join_request_accept(_arg);
+					main_menu_ui_refresh();
+					}
+			break;
+			
+			case "ready":
+				ggmr_lobby_ready_up();
+			break;
+			
+			case "kick":
+				if (ggmr_lobby_is_leader())
+					{
+					ggmr_lobby_member_kick(_arg);
+					main_menu_ui_refresh();
+					}
+			break;
+			
+			case "leave":
+				// Si eres invitado sales; si eres anfitrión echa a todos. Ambos casos los resuelve el motor.
+				ggmr_lobby_reset();
+				menu_index = 0;
+			break;
+			
+			case "back":
+				// Si hay alguien en la sala, salir limpiamente antes de volver
+				if (ds_list_size(obj_ggmr_lobby.lobby_members) > 1) then ggmr_lobby_reset();
 				current_state = MENU_STATE.online;
 				menu_index = 1;
 			break;
@@ -528,6 +580,7 @@ if (_back)
 		}
 	else if (current_state == MENU_STATE.private_lobby)
 		{
+		if (ds_list_size(obj_ggmr_lobby.lobby_members) > 1) then ggmr_lobby_reset();
 		current_state = MENU_STATE.online;
 		menu_index = 1;
 		}

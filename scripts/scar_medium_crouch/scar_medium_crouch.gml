@@ -39,7 +39,7 @@ function scar_medium_crouch(_override_phase)
 				_hitbox.acid_finisher = true;
 				_hitbox.knockback = 6;
 				_hitbox.low = true; // Solo se puede bloquear agachado
-				_hitbox.hitstun = 26;
+				_hitbox.hitstun = 16;
 				_hitbox.blockstun = 18;
 				_hitbox.hitlag = 8;
 				}
