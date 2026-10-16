@@ -1,4 +1,119 @@
-#macro STAGE_COUNT	3		// cantidad de stages que existen en stage_get
+#macro STAGE_COUNT	7		// cantidad de stages que existen en stage_get
+
+/*
+Bombillos animados de una capa (nuestro).
+sprite: sprite chico animado, origen Middle Centre
+spots: lista de [x, y] del centro de cada bombillo, en pixeles del arte original de la capa
+frame_ms: milisegundos por frame
+offset: desfase entre bombillos para que no parpadeen todos iguales (0 = sincronizados)
+Solo dibujo: usa current_time, no toca la lógica ni el rollback.
+*/
+function stage_lamps(_sprite, _spots, _frame_ms = 120, _offset = 3)
+	{
+	return {
+		sprite: _sprite,
+		spots: _spots,
+		frame_ms: _frame_ms,
+		offset: _offset,
+		};
+	}
+
+/*
+Dibuja los bombillos de una copia de la capa (nuestro).
+_tx, _y: esquina de esa copia de la capa. Solo dibuja los que se ven en cámara.
+*/
+function stage_draw_lamps(_layer, _tx, _y, _s, _cam_x)
+	{
+	var _l = _layer.lamps;
+	if (is_undefined(_l)) then return;
+	
+	var _spr = _l.sprite;
+	var _n = sprite_get_number(_spr);
+	var _margin = sprite_get_width(_spr) * _s;
+	var _spots = _l.spots;
+	
+	for (var _k = 0; _k < array_length(_spots); _k++)
+		{
+		var _px = _tx + _spots[_k][0] * _s;
+		if (_px < _cam_x - _margin || _px > _cam_x + camera_width + _margin) then continue;
+		
+		var _frame = floor(current_time / _l.frame_ms + _k * _l.offset) mod _n;
+		draw_sprite_ext(_spr, _frame, _px, _y + _spots[_k][1] * _s, _s, _s, 0, c_white, 1.0);
+		}
+	}
+
+/*
+Hash entero determinista (nuestro). Sustituye a random(): mismo número de entrada, mismo resultado
+en los dos jugadores, en los replays y después de un rollback. Devuelve 0 o más.
+*/
+function stage_hash(_n)
+	{
+	var _x = (_n * 73856093) & $7FFFFFFF;
+	_x = ((_x ^ (_x >> 13)) * 1274126177) & $7FFFFFFF;
+	return _x ^ (_x >> 16);
+	}
+
+/*
+Silueta que pasa de vez en cuando detrás de los árboles (nuestro).
+sprite: strip animado, origen Bottom Centre
+feet_y: Y de los pies en el arte original de la capa (la del fondo)
+period: frames de cada "turno" (600 = 10 s a 60 fps). En cada turno hay un sorteo
+chance: probabilidad en % de que aparezca en un turno
+duration: frames que se ve cuando aparece (menor que period)
+speed: pixeles del arte por frame que camina (0 = parada)
+alpha: opacidad máxima (para que se vea como sombra)
+anim_div: frames del juego por cada frame de animación
+Solo dibujo: lee obj_game.game_frame y no cambia ningún estado.
+*/
+function stage_ghost(_sprite, _feet_y, _period = 600, _chance = 40, _duration = 300, _speed = 0.25, _alpha = 0.6, _anim_div = 8)
+	{
+	return {
+		sprite: _sprite,
+		feet_y: _feet_y,
+		period: _period,
+		chance: _chance,
+		duration: _duration,
+		speed: _speed,
+		alpha: _alpha,
+		anim_div: _anim_div,
+		};
+	}
+
+/*
+Dibuja la silueta de una capa si le toca aparecer (nuestro).
+_y: la misma Y de la capa (ya trae art_y y y_off)
+*/
+function stage_draw_ghost(_layer, _cam_x, _y, _s)
+	{
+	var _g = _layer.ghost;
+	if (is_undefined(_g)) then return;
+	if (!instance_exists(obj_game)) then return;
+	
+	var _t = obj_game.game_frame;
+	var _slot = _t div _g.period;
+	var _local = _t mod _g.period;
+	
+	// ¿Este turno hay visita?
+	if ((stage_hash(_slot) mod 100) >= _g.chance) then return;
+	
+	// Cuándo empieza dentro del turno y cuánto lleva visible
+	var _start = stage_hash(_slot + 7919) mod max(1, _g.period - _g.duration);
+	var _t_in = _local - _start;
+	if (_t_in < 0 || _t_in >= _g.duration) then return;
+	
+	// Aparece y se va suavemente (30 frames)
+	var _a = min(1, min(_t_in, _g.duration - 1 - _t_in) / 30) * _g.alpha;
+	
+	// Dónde: un punto de la pantalla y hacia dónde camina, ambos sacados del turno
+	var _h = stage_hash(_slot + 104729);
+	var _dir = (((_h div 7) mod 2) == 0) ? 1 : -1;
+	var _sx = 0.15 + 0.7 * ((_h mod 1000) / 1000);
+	var _x = _cam_x + (camera_width * _sx) + (_dir * _g.speed * _s * _t_in);
+	
+	var _frame = (_t_in div _g.anim_div) mod sprite_get_number(_g.sprite);
+	draw_sprite_ext(_g.sprite, _frame, _x, _y + (_g.feet_y * _s), _s * _dir, _s, 0, c_white, _a);
+	}
+
 /*
 Crea una capa de stage con valores por defecto.
 parallax: cuánto se mueve con la cámara (0 = fija al mundo)
@@ -9,8 +124,11 @@ wave: ondulación suave (ácido)
 acid_fx: justo después de esta capa se dibuja el cuerpo hundiéndose y la salpicadura
 scale: escala a la que se dibuja la capa (los personajes usan 6)
 front: true = se dibuja por delante de los personajes (lo hace obj_stage_front)
+lamps: bombillos animados (stage_lamps), o undefined
+x_off: desplazamiento horizontal en pixeles del arte original (negativo = a la izquierda, positivo = a la derecha)
+ghost: silueta que aparece de vez en cuando (stage_ghost), o undefined. Se dibuja justo después de esta capa
 */
-function stage_layer(_sprite, _parallax = 0, _y_off = 0, _tile = false, _mirror = false, _wave = false, _acid_fx = false, _scale = 6, _front = false)
+function stage_layer(_sprite, _parallax = 0, _y_off = 0, _tile = false, _mirror = false, _wave = false, _acid_fx = false, _scale = 6, _front = false, _lamps = undefined, _x_off = 0, _ghost = undefined)
 	{
 	return {
 		sprite: _sprite,
@@ -22,6 +140,9 @@ function stage_layer(_sprite, _parallax = 0, _y_off = 0, _tile = false, _mirror 
 		acid_fx: _acid_fx,
 		scale: _scale,
 		front: _front,
+		lamps: _lamps,
+		x_off: _x_off,
+		ghost: _ghost,
 		};
 	}
 
@@ -78,7 +199,64 @@ function stage_get(_id)
 					stage_layer(spr_stage3_fondo6, 0.15, -31, true, true, false, false, 5, true),
 					],
 				};
-		
+
+		case 3: //Ciudad Perdida
+			return {
+				name: "City Lost",
+				has_acid: false,
+				ground_y: -30,
+				art_y: 0,
+				layers: [
+					stage_layer(spr_stage4_fondo1, 0, 0, true, false, false, false, 4, false, undefined,-200),
+					],
+				};
+
+		case 4: // Sala de control del laboratorio (nombre nuestro, cámbialo si quieres)
+			return {
+				name: "Desert",
+				has_acid: false,
+				ground_y: -20,
+				art_y: -90,
+				layers: [
+					stage_layer(spr_stage5_fondo1, 0.30, 0, true, true, false, false, 5),
+					stage_layer(spr_stage5_fondo4, 0.20, 0, true, true, false, false, 5),
+					stage_layer(spr_stage5_fondo2, 0.14, 0, true, true, false, false, 5),
+					stage_layer(spr_stage5_fondo3, 0.09, 0, true, true, false, false, 5),
+					stage_layer(spr_stage5_fondo5, 0.00, 0, true, true, false, false, 5),
+					stage_layer(spr_stage5_fondo6, -0.10, 5, true, true, false, false, 5,true),
+					],
+				};
+
+		case 5: // Sala de control del laboratorio (nombre nuestro, cámbialo si quieres)
+			return {
+				name: "Blitsen Jungle",
+				has_acid: false,
+				ground_y: -20,
+				art_y: -77,
+				layers: [
+					stage_layer(spr_stage6_fondo1, 0.30, 0, true, true, false, false, 5, false, undefined, 0, stage_ghost(spr_sombra_char, 131)),
+					stage_layer(spr_stage6_fondo2, 0.20, 0, true, true, false, false, 5),
+					stage_layer(spr_stage6_fondo3, 0.14, 0, true, true, false, false, 5),
+					stage_layer(spr_stage6_fondo4, 0.09, 0, true, true, false, false, 5),
+					stage_layer(spr_stage6_fondo5, 0.00, 0, true, true, false, false, 5,true),
+					stage_layer(spr_stage6_fondo6, -0.10, 0, true, true, false, false, 5,true),
+					],
+				};
+
+		case 6: // Sala de control del laboratorio (nombre nuestro, cámbialo si quieres)
+			return {
+				name: "Joe City",
+				has_acid: false,
+				ground_y: -20,
+				art_y: -77,
+				layers: [
+					stage_layer(spr_stage7_fondo1, 0.30, 0, true, true, false, false, 5),
+					stage_layer(spr_stage7_fondo2, 0.12, 0, true, true, false, false, 5),
+					stage_layer(spr_stage7_fondo3, 0.00, 0, true, true, false, false, 5),
+					stage_layer(spr_stage7_fondo4, -0.10, 0, true, true, false, false, 5, true),
+					],
+				};
+
 		default:
 			return stage_get(0);
 		}
@@ -100,11 +278,13 @@ function stage_draw_layer(_layer, _cam_x, _cam_y, _dx, _art_y)
 	var _y = _cam_y + 796 - _h + (_layer.y_off * _s) + _art_y;
 	if (_layer.wave) then _y += round(sin(current_time * 0.0025) * 3);
 	
-	var _x0 = _dx * _layer.parallax;
+	var _x0 = (_dx * _layer.parallax) + (_layer.x_off * _s);
 	
 	if (!_layer.tile)
 		{
 		draw_sprite_ext(_spr, 0, _x0, _y, _s, _s, 0, c_white, 1.0);
+		stage_draw_lamps(_layer, _x0, _y, _s, _cam_x);
+		stage_draw_ghost(_layer, _cam_x, _y, _s);
 		return;
 		}
 	
@@ -119,8 +299,10 @@ function stage_draw_layer(_layer, _cam_x, _cam_y, _dx, _art_y)
 		else
 			{
 			draw_sprite_ext(_spr, 0, _x0 + (_i * _w), _y, _s, _s, 0, c_white, 1.0);
+			stage_draw_lamps(_layer, _x0 + (_i * _w), _y, _s, _cam_x);
 			}
 		}
+	stage_draw_ghost(_layer, _cam_x, _y, _s);
 	}
 	
 /*
@@ -196,7 +378,19 @@ function stage_music_get(_id)
 		
 		case 2: // Sala de control: cambia snd_toxi_city por tu pista y ajusta los dos tiempos
 			return { sound: snd_toxi_city, loop_start: 10.5, loop_end: 90.0 };
-		
+
+		case 3: // Sala de control: cambia snd_toxi_city por tu pista y ajusta los dos tiempos
+			return { sound: snd_toxi_city, loop_start: 10.5, loop_end: 90.0 };
+
+		case 4: // Sala de control: cambia snd_toxi_city por tu pista y ajusta los dos tiempos
+			return { sound: snd_toxi_city, loop_start: 10.5, loop_end: 90.0 };
+
+		case 5: // Sala de control: cambia snd_toxi_city por tu pista y ajusta los dos tiempos
+			return { sound: snd_toxi_city, loop_start: 10.5, loop_end: 90.0 };
+
+		case 6: // Sala de control: cambia snd_toxi_city por tu pista y ajusta los dos tiempos
+			return { sound: snd_toxi_city, loop_start: 10.5, loop_end: 90.0 };
+
 		default:
 			return stage_music_get(0);
 		}

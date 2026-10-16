@@ -42,7 +42,7 @@ function scar_heavy_ground(_override_phase)
 				_hitbox.hitlag = 12;
 				_hitbox.knockback = 20;
 				_hitbox.launch_speed = 8;
-				_hitbox.hitstun = 36;      
+				_hitbox.hitstun = 16;      
 				_hitbox.blockstun = 24;
 				}
 			

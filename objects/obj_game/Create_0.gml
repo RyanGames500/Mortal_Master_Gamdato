@@ -62,8 +62,8 @@ characters = [
 	{ name: "MAYEL",   char_id: 7, color: c_yellow,  portrait_index: 6, locked: false },
 	{ name: "DANNY",   char_id: 8, color: c_blue,    portrait_index: 7, locked: false },
 	{ name: "MARIEL",  char_id: 9, color: c_silver,  portrait_index: 8, locked: false },
-	{ name: "DEMON",   char_id: 10, color: c_purple, portrait_index: 9, locked: true  },
-	{ name: "BEAR",    char_id: 11, color: c_purple, portrait_index: 10, locked: true }
+	{ name: "DEMON",   char_id: 10, color: c_purple, portrait_index: 9, locked: false },
+	{ name: "BEAR",    char_id: 11, color: c_maroon, portrait_index: 10, locked: false}
 ];
 char_count = array_length(characters);
 

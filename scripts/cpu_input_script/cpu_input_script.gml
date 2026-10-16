@@ -64,7 +64,14 @@ function cpu_input_script(_buffer, _player_number)
 		buffer_write(_buffer, buffer_bool, false);
 		return;
 		}
-	
+
+	// ---------- Jefe Bear: usa su propio cerebro ----------
+	if (_cpu.passive == bear_passive)
+		{
+		bear_cpu_input(_buffer, _cpu, _opponent);
+		return;
+		}
+
 	// ---------- Ajustes de dificultad (0-100) ----------
 	var _block_chance = 100;    // probabilidad de bloquear cuando el rival ataca
 	var _aggression   = 100;    // probabilidad de atacar estando cerca

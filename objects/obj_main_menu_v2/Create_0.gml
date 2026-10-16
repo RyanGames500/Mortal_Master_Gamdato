@@ -46,11 +46,12 @@ online_options = [
 	"BACK"
 ];
 
-private_lobby_options = [
-	"JOIN LOBBY BY CODE",
-	"SET LOBBY CODE",
-	"BACK"
-];
+// Se rearma cada frame en el Step con private_lobby_menu_build()
+private_lobby_options = ["SET LOBBY CODE", "JOIN LOBBY BY CODE", "BACK"];
+private_lobby_actions = ["set_code", "join_code", "back"];
+private_lobby_args = [0, 0, 0];
+// true = el anfitrión acepta solo a quien entra con su código (sin botón ACCEPT)
+private_lobby_auto_accept = false;
 settings_options = ["MUSIC VOLUME", "SFX VOLUME", "MENU VOLUME", "ENABLE SCANLINES", "RECORD REPLAYS", "SET NAME", "SET INPUT DELAY", "BACK"];
 
 
