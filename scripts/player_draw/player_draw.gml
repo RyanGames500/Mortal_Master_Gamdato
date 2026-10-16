@@ -3,9 +3,12 @@ The script player instances call to draw themselves.
 */
 function player_draw()
 	{
-	//Remate al ácido: el rival vuela hacia el charco (el hundimiento lo dibuja el fondo)
+	//Remate de stage: el rival vuela (el hundimiento lo dibuja el fondo)
 	if (acid_ko && obj_game.game_meta_state == GAME_META_STATE.ending)
 		{
+		// Raíz: la víctima completa la dibuja la capa del fondo (root_fx_draw_layer)
+		if (obj_game.stage_has_root) then return;
+		
 		var _pose = acid_fx_pose(id);
 		if (_pose.phase == 0) then acid_fx_draw_body(id, _pose);
 		return;

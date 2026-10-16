@@ -231,12 +231,13 @@ function stage_get(_id)
 			return {
 				name: "Blitsen Jungle",
 				has_acid: false,
+				has_root: true,
 				ground_y: -20,
 				art_y: -77,
 				layers: [
 					stage_layer(spr_stage6_fondo1, 0.30, 0, true, true, false, false, 5, false, undefined, 0, stage_ghost(spr_sombra_char, 131)),
 					stage_layer(spr_stage6_fondo2, 0.20, 0, true, true, false, false, 5),
-					stage_layer(spr_stage6_fondo3, 0.14, 0, true, true, false, false, 5),
+					stage_layer(spr_stage6_fondo3, 0.14, 0, true, true, false, true, 5),
 					stage_layer(spr_stage6_fondo4, 0.09, 0, true, true, false, false, 5),
 					stage_layer(spr_stage6_fondo5, 0.00, 0, true, true, false, false, 5,true),
 					stage_layer(spr_stage6_fondo6, -0.10, 0, true, true, false, false, 5,true),
@@ -304,7 +305,16 @@ function stage_draw_layer(_layer, _cam_x, _cam_y, _dx, _art_y)
 		}
 	stage_draw_ghost(_layer, _cam_x, _y, _s);
 	}
-	
+
+/*
+true si el stage tiene remate de raíz (nuestro). Los stages sin el campo has_root cuentan como false.
+*/
+function stage_get_has_root(_id)
+	{
+	var _s = stage_get(_id);
+	return variable_struct_exists(_s, "has_root") ? _s.has_root : false;
+	}
+
 /*
 Aplica lo que depende del stage actual: si hay ácido y la altura del piso.
 Se llama al cargar un estado, al arrancar la partida y cada Begin Step del piso.
@@ -313,6 +323,7 @@ function stage_apply()
 	{
 	var _stage = stage_get(obj_game.stage_id);
 	obj_game.stage_has_acid = _stage.has_acid;
+	obj_game.stage_has_root = variable_struct_exists(_stage, "has_root") ? _stage.has_root : false;
 	if (instance_exists(obj_ground)) then obj_ground.y = obj_ground.base_y + _stage.ground_y;
 	}
 	

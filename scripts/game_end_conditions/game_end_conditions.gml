@@ -83,7 +83,7 @@ function game_end_conditions()
 				{
 				if (instance_find(obj_player, _i).acid_ko) then _acid = true;
 				}
-			ending_frame = _acid ? ACID_FX_TOTAL : 150;
+				ending_frame = _acid ? (obj_game.stage_has_root ? ROOT_FX_TOTAL : ACID_FX_TOTAL) : 150;
 			}
 		else
 			{

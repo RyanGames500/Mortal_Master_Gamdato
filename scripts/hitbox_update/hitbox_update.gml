@@ -191,7 +191,7 @@ function hitbox_update()
 						// Daño final de este golpe (se calcula antes para saber si es el golpe mortal)
 						var _final_damage = other.damage * max(0.4, 1 - 0.2 * max(air_hits - 1, 0));
 						
-						if (other.acid_finisher && obj_game.stage_has_acid && ceil(hp - _final_damage) <= 0)
+						if (other.acid_finisher && (obj_game.stage_has_acid || obj_game.stage_has_root) && ceil(hp - _final_damage) <= 0)
 							{
 							var _killer_wins = (other.owner.player_number == 0) ? obj_game.p1_wins : obj_game.p2_wins;
 							if (_killer_wins >= obj_game.rounds_to_win - 1)
