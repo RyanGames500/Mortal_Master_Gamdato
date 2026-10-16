@@ -46,7 +46,11 @@ function game_state_save(_buffer)
 	buffer_write(_buffer, buffer_s8, obj_game.stage_step);
 	buffer_write(_buffer, buffer_s16, obj_game.stage_cursor);
 	buffer_write(_buffer, buffer_bool, obj_game.stage_atk_prev);
-	
+	for (var _pi = 0; _pi < STAGE_PROP_MAX; _pi++)
+		{
+		buffer_write(_buffer, buffer_s32, obj_game.stage_prop_used[_pi]);
+		}
+		
 	//Trim off extra bytes
 	buffer_resize(_buffer, buffer_tell(_buffer));
 	

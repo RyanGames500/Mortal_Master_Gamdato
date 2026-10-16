@@ -593,6 +593,7 @@ function player_update(_inputs_array)
 		{
 		script_execute(passive);
 		}
+	stage_props_check();	
 	if (frozen && state != PLAYER_STATE.hitstun_ground) then frozen = false;	
 	if (sprite_exists(anim_sprite))
 		{

@@ -50,7 +50,10 @@ function game_state_load(_buffer)
 	obj_game.stage_step = buffer_read(_buffer, buffer_s8);
 	obj_game.stage_cursor = buffer_read(_buffer, buffer_s16);
 	obj_game.stage_atk_prev = buffer_read(_buffer, buffer_bool);
-	
+	for (var _pi = 0; _pi < STAGE_PROP_MAX; _pi++)
+		{
+		obj_game.stage_prop_used[@ _pi] = buffer_read(_buffer, buffer_s32);
+		}	
 	//Everything that depends on the stage (acid finisher, floor height)
 	stage_apply();
 	

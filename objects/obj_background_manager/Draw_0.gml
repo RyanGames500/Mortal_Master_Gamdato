@@ -36,4 +36,5 @@ for (var _l = 0; _l < array_length(_stage.layers); _l++)
 		}
 	}
 
-/* Copyright 2024 Springroll Games / Yosi */
+// Objetos del escenario (detrás de los personajes)
+stage_props_draw();
