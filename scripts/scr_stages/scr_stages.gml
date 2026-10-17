@@ -128,7 +128,7 @@ lamps: bombillos animados (stage_lamps), o undefined
 x_off: desplazamiento horizontal en pixeles del arte original (negativo = a la izquierda, positivo = a la derecha)
 ghost: silueta que aparece de vez en cuando (stage_ghost), o undefined. Se dibuja justo después de esta capa
 */
-function stage_layer(_sprite, _parallax = 0, _y_off = 0, _tile = false, _mirror = false, _wave = false, _acid_fx = false, _scale = 6, _front = false, _lamps = undefined, _x_off = 0, _ghost = undefined)
+function stage_layer(_sprite, _parallax = 0, _y_off = 0, _tile = false, _mirror = false, _wave = false, _acid_fx = false, _scale = 6, _front = false, _lamps = undefined, _x_off = 0, _ghost = undefined, _crowd = undefined)
 	{
 	return {
 		sprite: _sprite,
@@ -143,6 +143,7 @@ function stage_layer(_sprite, _parallax = 0, _y_off = 0, _tile = false, _mirror 
 		lamps: _lamps,
 		x_off: _x_off,
 		ghost: _ghost,
+		crowd: _crowd,
 		};
 	}
 
@@ -231,19 +232,20 @@ function stage_get(_id)
 			return {
 				name: "Blitsen Jungle",
 				has_acid: false,
+				has_root: true,
 				ground_y: -20,
 				art_y: -77,
 				layers: [
 					stage_layer(spr_stage6_fondo1, 0.30, 0, true, true, false, false, 5, false, undefined, 0, stage_ghost(spr_sombra_char, 131)),
 					stage_layer(spr_stage6_fondo2, 0.20, 0, true, true, false, false, 5),
-					stage_layer(spr_stage6_fondo3, 0.14, 0, true, true, false, false, 5),
+					stage_layer(spr_stage6_fondo3, 0.14, 0, true, true, false, true, 5),
 					stage_layer(spr_stage6_fondo4, 0.09, 0, true, true, false, false, 5),
 					stage_layer(spr_stage6_fondo5, 0.00, 0, true, true, false, false, 5,true),
 					stage_layer(spr_stage6_fondo6, -0.10, 0, true, true, false, false, 5,true),
 					],
 				};
 
-		case 6: // Sala de control del laboratorio (nombre nuestro, cámbialo si quieres)
+		case 6: // Joe City
 			return {
 				name: "Joe City",
 				has_acid: false,
@@ -282,7 +284,11 @@ function stage_draw_layer(_layer, _cam_x, _cam_y, _dx, _art_y)
 	
 	if (!_layer.tile)
 		{
+		stage_draw_crowd(_layer, _x0, _y, _s, _cam_x, true, false);
+		stage_draw_crowd(_layer, _x0, _y, _s, _cam_x, true, false, true);
 		draw_sprite_ext(_spr, 0, _x0, _y, _s, _s, 0, c_white, 1.0);
+		stage_draw_crowd(_layer, _x0, _y, _s, _cam_x, false, false);
+		stage_draw_crowd(_layer, _x0, _y, _s, _cam_x, false, false, true);
 		stage_draw_lamps(_layer, _x0, _y, _s, _cam_x);
 		stage_draw_ghost(_layer, _cam_x, _y, _s);
 		return;
@@ -290,21 +296,40 @@ function stage_draw_layer(_layer, _cam_x, _cam_y, _dx, _art_y)
 	
 	var _first = floor((_cam_x - _x0) / _w);
 	var _last = floor((_cam_x + camera_width - _x0) / _w);
+	
+	// Gente con posiciones del mundo detrás de todas las copias de la capa
+	stage_draw_crowd(_layer, 0, _y, _s, _cam_x, true, false, true);
+	
 	for (var _i = _first; _i <= _last; _i++)
 		{
-		if (_layer.mirror && (abs(_i) mod 2) == 1)
+		var _tx = _x0 + (_i * _w);
+		var _mir = (_layer.mirror && (abs(_i) mod 2) == 1);
+		stage_draw_crowd(_layer, _tx, _y, _s, _cam_x, true, _mir);
+		if (_mir)
 			{
-			draw_sprite_ext(_spr, 0, _x0 + ((_i + 1) * _w), _y, -_s, _s, 0, c_white, 1.0);
+			draw_sprite_ext(_spr, 0, _tx + _w, _y, -_s, _s, 0, c_white, 1.0);
 			}
 		else
 			{
-			draw_sprite_ext(_spr, 0, _x0 + (_i * _w), _y, _s, _s, 0, c_white, 1.0);
-			stage_draw_lamps(_layer, _x0 + (_i * _w), _y, _s, _cam_x);
+			draw_sprite_ext(_spr, 0, _tx, _y, _s, _s, 0, c_white, 1.0);
+			stage_draw_lamps(_layer, _tx, _y, _s, _cam_x);
 			}
+		stage_draw_crowd(_layer, _tx, _y, _s, _cam_x, false, _mir);
 		}
+	
+	stage_draw_crowd(_layer, 0, _y, _s, _cam_x, false, false, true);
 	stage_draw_ghost(_layer, _cam_x, _y, _s);
 	}
-	
+
+/*
+true si el stage tiene remate de raíz (nuestro). Los stages sin el campo has_root cuentan como false.
+*/
+function stage_get_has_root(_id)
+	{
+	var _s = stage_get(_id);
+	return variable_struct_exists(_s, "has_root") ? _s.has_root : false;
+	}
+
 /*
 Aplica lo que depende del stage actual: si hay ácido y la altura del piso.
 Se llama al cargar un estado, al arrancar la partida y cada Begin Step del piso.
@@ -313,6 +338,7 @@ function stage_apply()
 	{
 	var _stage = stage_get(obj_game.stage_id);
 	obj_game.stage_has_acid = _stage.has_acid;
+	obj_game.stage_has_root = variable_struct_exists(_stage, "has_root") ? _stage.has_root : false;
 	if (instance_exists(obj_ground)) then obj_ground.y = obj_ground.base_y + _stage.ground_y;
 	}
 	
@@ -393,5 +419,84 @@ function stage_music_get(_id)
 
 		default:
 			return stage_music_get(0);
+		}
+	}
+	
+/*
+Grupo de gente de fondo que festeja (nuestro). Se pone en una capa (último parámetro de stage_layer).
+x_from, x_to: de dónde a dónde se reparten, en pixeles del arte de esa capa
+count: cuántos
+feet_y: Y de los pies en el arte de la capa
+unit: tamaño de cada figura (el equipo principal usa 8.5; más chico = más lejos)
+behind: true = se dibuja DETRÁS del sprite de la capa (ej. detrás de la malla), false = delante
+seed: número cualquiera; cambia cómo se reparten (usa uno distinto por grupo)
+calm: % de la gente que no festeja, solo está parada
+*/
+function stage_crowd(_x_from, _x_to, _count, _feet_y, _unit = 6, _behind = true, _seed = 1, _calm = 30, _rows = 1, _row_dy = 12, _world = false)
+	{
+	return {
+		x_from: _x_from,
+		x_to: _x_to,
+		count: _count,
+		feet_y: _feet_y,
+		unit: _unit,
+		behind: _behind,
+		seed: _seed,
+		calm: _calm,
+		rows: _rows,
+		row_dy: _row_dy,
+		world: _world,
+		};
+	}
+
+/* Dibuja los grupos de gente de una capa (nuestro). Solo dibujo, todo sale de stage_hash y game_frame */
+function stage_draw_crowd(_layer, _tx, _y, _s, _cam_x, _behind, _flip, _world_pass = false)
+	{
+	var _all = _layer.crowd;
+	if (is_undefined(_all)) then return;
+	if (!is_array(_all)) then _all = [_all];
+	if (!instance_exists(obj_game)) then return;
+	var _aw = sprite_get_width(_layer.sprite);
+	
+	for (var _r = 0; _r < array_length(_all); _r++)
+		{
+		var _c = _all[_r];
+		if (_c.behind != _behind) then continue;
+		if (_c.world != _world_pass) then continue;
+		var _step = (_c.x_to - _c.x_from) / max(1, _c.count);
+		
+		// Las filas de atrás (más arriba) primero, para que las de adelante las tapen
+		for (var _row = _c.rows - 1; _row >= 0; _row--)
+			{
+			var _py = _y + ((_c.feet_y - (_row * _c.row_dy)) * _s);
+			var _unit = _c.unit * (1 - (_row * 0.06));
+			
+			for (var _i = 0; _i < _c.count; _i++)
+				{
+				var _h = stage_hash((_c.seed * 1000) + (_row * 97) + _i);
+				var _ax = _c.x_from + ((_i + 0.5 + ((_row mod 2) * 0.5)) * _step) + ((((_h mod 100) / 100) - 0.5) * _step * 0.5);
+				var _px;
+				var _dir;
+				if (_c.world)
+					{
+					_px = _ax;
+					_dir = (_ax < (room_width * 0.5)) ? 1 : -1;
+					}
+				else
+					{
+					if (_flip) then _ax = _aw - _ax;
+					_px = _tx + (_ax * _s);
+					_dir = (_ax < (_aw * 0.5)) ? 1 : -1;
+					}
+				if (_px < _cam_x - 250 || _px > _cam_x + camera_width + 250) then continue;
+				
+				var _style = 3 + ((_h div 100) mod 4);
+				var _calm = (((_h div 400) mod 100) < _c.calm);
+				
+				global.npc_u = _unit;
+				stage_npc_draw_fig(_px, _py, _dir, _style, _calm ? -2 : -1);
+				global.npc_u = -1;
+				}
+			}
 		}
 	}

@@ -13,20 +13,29 @@ for (var _l = 0; _l < array_length(_stage.layers); _l++)
 	if (_layer.front) then continue;
 	stage_draw_layer(_layer, _cam_x, _cam_y, _dx, _stage.art_y);
 	
-	// Remate al ácido: cuerpo hundiéndose (detrás del barandal) y salpicadura
+	// Remate de stage: raíz (jala al rival al suelo) o ácido (cuerpo hundiéndose y salpicadura)
 	if (_layer.acid_fx)
 		{
-		for (var _i = 0; _i < instance_number(obj_player); _i++)
+		if (obj_game.stage_has_root)
 			{
-			var _v = instance_find(obj_player, _i);
-			if (_v.acid_ko && obj_game.game_meta_state == GAME_META_STATE.ending)
-				{
-				var _pose = acid_fx_pose(_v);
-				if (_pose.phase >= 1) then acid_fx_draw_body(_v, _pose);
-				}
+			root_fx_draw_layer();
 			}
-		acid_fx_draw_particles();
+		else
+			{
+			for (var _i = 0; _i < instance_number(obj_player); _i++)
+				{
+				var _v = instance_find(obj_player, _i);
+				if (_v.acid_ko && obj_game.game_meta_state == GAME_META_STATE.ending)
+					{
+					var _pose = acid_fx_pose(_v);
+					if (_pose.phase >= 1) then acid_fx_draw_body(_v, _pose);
+					}
+				}
+			acid_fx_draw_particles();
+			}
 		}
 	}
 
-/* Copyright 2024 Springroll Games / Yosi */
+// Objetos del escenario (detrás de los personajes)
+stage_props_draw();
+//stage_npcs_draw();

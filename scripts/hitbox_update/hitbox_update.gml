@@ -31,6 +31,7 @@ function hitbox_update()
 				{
 				// Si la ronda no está en ejecución o el rival ya no tiene vida, ignorar colisión
 				if (_hurtbox.owner.hp <= 0 || obj_game.game_meta_state != GAME_META_STATE.running) then continue;
+				if (_hurtbox.owner.npc_seq >= 0) then continue;	// agarrado por el escenario: no se le puede pegar
 				if (_hurtbox.owner.state == PLAYER_STATE.knockdown || _hurtbox.owner.state == PLAYER_STATE.acostado) then continue;
 				// Rage: los proyectiles no le hacen daño (los golpes normales sí)
 				if (destroy_on_stop && _hurtbox.owner.rage_frames > 0) then continue;
@@ -191,7 +192,7 @@ function hitbox_update()
 						// Daño final de este golpe (se calcula antes para saber si es el golpe mortal)
 						var _final_damage = other.damage * max(0.4, 1 - 0.2 * max(air_hits - 1, 0));
 						
-						if (other.acid_finisher && obj_game.stage_has_acid && ceil(hp - _final_damage) <= 0)
+						if (other.acid_finisher && (obj_game.stage_has_acid || obj_game.stage_has_root) && ceil(hp - _final_damage) <= 0)
 							{
 							var _killer_wins = (other.owner.player_number == 0) ? obj_game.p1_wins : obj_game.p2_wins;
 							if (_killer_wins >= obj_game.rounds_to_win - 1)

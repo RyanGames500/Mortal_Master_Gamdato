@@ -84,6 +84,12 @@ function player_variables_init_start()
 	ex_flash = 0;		//frames restantes del brillo de EX (nuestro)
 	ex_glow_color = make_colour_rgb(255, 40, 40);	//color del brillo, se puede cambiar por personaje (nuestro)
 	hp_top = 0;
+		// Personajes del escenario (nuestro)
+	npc_seq = -1;		// -1 = libre; 0 o más = frames de la secuencia de agarre
+	npc_idx = 0;		// qué equipo lo agarró
+	npc_linger = 0;		// frames seguidos dentro de la zona de un equipo
+	npc_back = -1;
+	npc_back_idx = 0;
 	//diferenciar espejos de cada peleador duplicado
 	current_pal = 0
 	override_surface=noone;
