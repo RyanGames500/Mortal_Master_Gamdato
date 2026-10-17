@@ -38,3 +38,4 @@ for (var _l = 0; _l < array_length(_stage.layers); _l++)
 
 // Objetos del escenario (detrás de los personajes)
 stage_props_draw();
+//stage_npcs_draw();

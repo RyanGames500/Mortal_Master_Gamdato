@@ -1,6 +1,6 @@
 #macro STAGE_PROP_MAX		4		// máximo de objetos por escenario
 #macro STAGE_PROP_RESPAWN	1200	// frames hasta que el objeto vuelve (1200 = 20 s). -1 = no vuelve en ese round
-#macro STAGE_PROP_DEBUG		true	// true = dibuja el alcance de cada objeto (para colocarlos)
+#macro STAGE_PROP_DEBUG		false	// true = dibuja el alcance de cada objeto (para colocarlos)
 
 /*
 Define un objeto del escenario (nuestro).
@@ -31,8 +31,8 @@ function stage_props_get(_id)
 			];
 		
 		case 4: return [
-			stage_prop((room_width div 2) - 450, -32, spr_palo, 120, 6, 0),
-			stage_prop((room_width div 2) + 450, -32, spr_roca, 120, 6, 2),
+			stage_prop((room_width div 2) - 650, -32, spr_palo, 120, 6, 0),
+			stage_prop((room_width div 2) + 650, -32, spr_roca, 120, 6, 2),
 			];
 		
 		default: return [];
@@ -350,7 +350,7 @@ function stage_prop_proj_update()
 			if (_hurtbox.owner.hp <= 0 || obj_game.game_meta_state != GAME_META_STATE.running) then continue;
 			if (_hurtbox.owner.state == PLAYER_STATE.knockdown || _hurtbox.owner.state == PLAYER_STATE.acostado) then continue;
 			if (_hurtbox.owner.rage_frames > 0) then continue;	// igual que los demás proyectiles
-			
+			if (_hurtbox.owner.npc_seq >= 0) then continue;
 			with (_hurtbox.owner)
 				{
 				var _vfx_x = x - (other.owner.facing * 12);

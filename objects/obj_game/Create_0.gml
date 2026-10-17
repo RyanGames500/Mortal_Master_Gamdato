@@ -163,5 +163,8 @@ stage_has_acid = stage_get(stage_id).has_acid;	// true solo en el escenario del 
 stage_has_root = stage_get_has_root(stage_id);	// true solo en el escenario con remate de raíz (nuestro)
 stage_props = [];
 stage_props_for = -1;
-stage_prop_used = array_create(STAGE_PROP_MAX, 0);	// hasta qué game_frame está usado cada objeto (se guarda en el rollback)
+stage_prop_used = array_create(STAGE_PROP_MAX, 0);
+stage_npcs = [];
+stage_npcs_for = -1;
+stage_npc_used = array_create(STAGE_NPC_MAX, 0);	// hasta qué game_frame no puede agarrar cada equipo (se guarda en el rollback)
 if (!instance_exists(obj_frost_overlay)) then instance_create_depth(0, 0, -10000, obj_frost_overlay);

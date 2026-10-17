@@ -593,7 +593,8 @@ function player_update(_inputs_array)
 		{
 		script_execute(passive);
 		}
-	stage_props_check();	
+		stage_props_check();	// objetos del escenario
+	stage_npc_check();		// personajes del escenario	
 	if (frozen && state != PLAYER_STATE.hitstun_ground) then frozen = false;	
 	if (sprite_exists(anim_sprite))
 		{

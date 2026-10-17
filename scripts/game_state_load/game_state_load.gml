@@ -53,7 +53,11 @@ function game_state_load(_buffer)
 	for (var _pi = 0; _pi < STAGE_PROP_MAX; _pi++)
 		{
 		obj_game.stage_prop_used[@ _pi] = buffer_read(_buffer, buffer_s32);
-		}	
+		}
+	for (var _ni = 0; _ni < STAGE_NPC_MAX; _ni++)
+		{
+		obj_game.stage_npc_used[@ _ni] = buffer_read(_buffer, buffer_s32);
+		}
 	//Everything that depends on the stage (acid finisher, floor height)
 	stage_apply();
 	

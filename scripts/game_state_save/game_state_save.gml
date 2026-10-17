@@ -50,7 +50,10 @@ function game_state_save(_buffer)
 		{
 		buffer_write(_buffer, buffer_s32, obj_game.stage_prop_used[_pi]);
 		}
-		
+	for (var _ni = 0; _ni < STAGE_NPC_MAX; _ni++)
+		{
+		buffer_write(_buffer, buffer_s32, obj_game.stage_npc_used[_ni]);
+		}	
 	//Trim off extra bytes
 	buffer_resize(_buffer, buffer_tell(_buffer));
 	

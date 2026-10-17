@@ -26,4 +26,7 @@ function player_round_reset()
 	sound_hit_light_index = 0;
 	sound_hit_heavy_index = 0;
 	attack_connected = false;
+	npc_seq = -1;
+	npc_linger = 0;
+	npc_back = -1;
 	}

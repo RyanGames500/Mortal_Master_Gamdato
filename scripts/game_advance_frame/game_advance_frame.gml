@@ -340,6 +340,8 @@ function game_advance_frame(_inputs_array, _relative_frame = undefined)
 				cam_shake = 0.0;
 				camera_set_view_pos(camera_index, cam_x_display, cam_y_display);
 				stage_props_reset();
+				stage_npcs_reset();
+				
 				game_frame = 0;
 				starting_frame = 150;
 				game_meta_state = GAME_META_STATE.starting;
