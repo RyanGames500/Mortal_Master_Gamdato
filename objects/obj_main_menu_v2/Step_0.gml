@@ -460,7 +460,16 @@ if (_confirm)
 				ggmr_lobby_reset();
 				room_goto(rm_gameplay);
 			break;
-			
+
+			case "ARCADE":
+				global.replay_mode = false;
+				global.online_mode = false;
+				global.arcade_mode = 1;
+				global.arcade = undefined;
+				ggmr_lobby_reset();
+				room_goto(rm_gameplay);
+			break;
+
 			case "SURVIVAL":
 				notice_text = "COMING SOON!";
 				notice_timer = 90;

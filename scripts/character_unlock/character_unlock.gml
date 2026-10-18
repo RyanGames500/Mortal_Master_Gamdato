@@ -11,19 +11,16 @@ function character_unlock(_char_name)
 			{
 			if (characters[i].name == _char_name)
 				{
-				// Si ya estaba desbloqueado no hacer nada
 				if (!characters[i].locked) return false;
 				
-				// Desbloquear en memoria
 				characters[i].locked = false;
 				
-				// Guardar permanentemente en el archivo INI
-				//ini_open("save_data.ini");
-				//ini_write_bool("Unlocks", _char_name, true);
-				//ini_close();
+				ini_open("save_data.ini");
+				ini_write_real("Unlocks", _char_name, 1);
+				ini_close();
 				
-				show_debug_message("¡Personaje " + _char_name + " desbloqueado exitosamente!");
-				return true; //char desbloqueado
+				show_debug_message("Personaje " + _char_name + " desbloqueado");
+				return true;
 				}
 			}
 		}
