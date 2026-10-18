@@ -33,6 +33,7 @@ text_alpha = 0;
 // Listas de Opciones por Pantalla
 menu_options = [
 	"LOCAL VS",
+	"ARCADE",
 	"SURVIVAL",
 	"ONLINE MATCHMAKING",
 	"REPLAYS",

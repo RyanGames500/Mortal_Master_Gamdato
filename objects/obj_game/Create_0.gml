@@ -63,10 +63,20 @@ characters = [
 	{ name: "DANNY",   char_id: 8, color: c_blue,    portrait_index: 7, locked: false },
 	{ name: "MARIEL",  char_id: 9, color: c_silver,  portrait_index: 8, locked: false },
 	{ name: "DEMON",   char_id: 10, color: c_purple, portrait_index: 9, locked: false },
-	{ name: "BEAR",    char_id: 11, color: c_maroon, portrait_index: 10, locked: false}
+	{ name: "BEAR",    char_id: 11, color: c_maroon, portrait_index: 10, locked: false},
+	{ name: "NINJA",   char_id: 12, color: c_red,    portrait_index: 11, locked: true }
 ];
 char_count = array_length(characters);
-
+// Cargar desbloqueos guardados
+ini_open("save_data.ini");
+for (var _u = 0; _u < char_count; _u++)
+	{
+	if (characters[_u].locked && ini_read_real("Unlocks", characters[_u].name, 0) == 1)
+		{
+		characters[_u].locked = false;
+		}
+	}
+ini_close();
 p1_css_cursor   = 0;
 p1_css_ready    = false;
 p1_css_last_dir = STICK_DIR.neutral;
@@ -85,7 +95,7 @@ if (!global.online_mode)
 	else
 		{
 		// Partida real: elegir aleatoriamente, una sola vez
-		p2_css_cursor = irandom(char_count - 1);
+	do { p2_css_cursor = irandom(char_count - 1); } until (!characters[p2_css_cursor].locked);
 		p2_select       = characters[p2_css_cursor].char_id;
 		}
 	

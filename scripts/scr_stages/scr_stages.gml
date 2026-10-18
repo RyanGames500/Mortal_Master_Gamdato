@@ -500,3 +500,4 @@ function stage_draw_crowd(_layer, _tx, _y, _s, _cam_x, _behind, _flip, _world_pa
 			}
 		}
 	}
+	

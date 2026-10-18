@@ -162,7 +162,29 @@ function game_advance_frame(_inputs_array, _relative_frame = undefined)
 					css_start_timer = -1;
 					}
 				}
-			
+
+			// --- ARCADE
+			if (!global.online_mode && !global.replay_mode)
+				{
+				if (global.arcade_mode == 1 && p1_css_ready)
+					{
+					arcade_begin(p1_select);
+					room_goto(rm_arcade_map);
+					return;
+					}
+				if (arcade_active())
+					{
+					var _f = arcade_fight();
+					p1_select = global.arcade.p1;
+					p2_select = _f.opp;
+					stage_id = _f.stage;
+					p1_css_ready = true;
+					p2_css_ready = true;
+					stage_step = 2;
+					if (css_start_timer < 0) then css_start_timer = 2;
+					}
+				}
+
 			// --- CONFIRMACIÓN Y TRANSICIÓN ---
 			if (p1_css_ready && p2_css_ready)
 				{
@@ -279,6 +301,7 @@ function game_advance_frame(_inputs_array, _relative_frame = undefined)
 			
 			camera_update();
 			game_end_conditions();
+			if (!_in_rollback && arcade_active()) then arcade_track_damage();
 			}
 		#endregion
 

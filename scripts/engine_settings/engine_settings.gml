@@ -21,6 +21,8 @@ function setting()
 global.show_hitboxes = false; //{bool} Whether hitboxes and hurtboxes are visible or not.
 global.replay_record = false; //{bool} Whether to record replays of matches or not.
 global.show_scanlines = true;
+global.arcade_mode = 0;
+global.arcade = undefined;
 
 //Combo contadores
 #macro COMBO_SUPER				4    //Golpes para "SUPER COMBO"
