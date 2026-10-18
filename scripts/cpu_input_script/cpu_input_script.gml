@@ -73,9 +73,11 @@ function cpu_input_script(_buffer, _player_number)
 		}
 
 	// ---------- Ajustes de dificultad (0-100) ----------
-	var _block_chance = 100;    // probabilidad de bloquear cuando el rival ataca
-	var _aggression   = 100;    // probabilidad de atacar estando cerca
-	var _special_rate = 100;    // probabilidad de intentar un especial a media distancia
+	var _lvl = arcade_cpu_level() / 100;   // 1.0 fuera del arcade
+	var _block_chance = round(lerp(10, 100, _lvl));   // probabilidad de bloquear cuando el rival ataca
+	var _aggression   = round(lerp(35, 100, _lvl));   // probabilidad de atacar estando cerca
+	var _special_rate = round(lerp(10, 100, _lvl));   // probabilidad de intentar un especial a media distancia
+	var _combo_rate   = round(lerp(5, 100, _lvl));    // probabilidad de encadenar cuando el golpe conectó (nuestro)
 	
 	// ---------- Estado de la ventana de decisión (sin memoria entre frames) ----------
 	var _frame = obj_game.game_frame;
@@ -86,6 +88,7 @@ function cpu_input_script(_buffer, _player_number)
 	
 	var _dist = abs(_opponent.x - _cpu.x);
 	var _opp_attacking = (_opponent.state == PLAYER_STATE.attacking);
+	var _opp_blocking = (_opponent.state == PLAYER_STATE.blockstun);
 	var _opp_down = (_opponent.state == PLAYER_STATE.knockdown || _opponent.state == PLAYER_STATE.acostado);
 	
 	// ---------- Qué puede hacer este personaje (según su init) ----------
@@ -101,6 +104,29 @@ function cpu_input_script(_buffer, _player_number)
 		{
 		// Mientras está golpeada no puede hacer nada útil
 		_stick_dir = STICK_DIR.neutral;
+		}
+	else if (_cpu.state == PLAYER_STATE.attacking)
+		{
+		// Atacando: se queda quieta. Si el golpe conectó, repite el botón de ese ataque
+		// (cada ataque decide si acepta la cadena en su ventana de cancelación)
+		_stick_dir = STICK_DIR.neutral;
+		if (_cpu.attack_connected && !_opp_down && _r < _combo_rate && (_t == 0 || _t == 4))
+			{
+			var _atk = _cpu.attack_script;
+			var _list = _cpu.attacks;
+			if (_atk == _list[$ "light_ground"] || _atk == _list[$ "light_crouch"] || _atk == _list[$ "light_aerial"])
+				{
+				_attack_light = true;
+				}
+			else if (_atk == _list[$ "medium_ground"] || _atk == _list[$ "medium_crouch"] || _atk == _list[$ "medium_aerial"])
+				{
+				_attack_light2 = true;
+				}
+			else if (_atk == _list[$ "heavy_ground"] || _atk == _list[$ "heavy_crouch"] || _atk == _list[$ "heavy_aerial"])
+				{
+				_attack_heavy = true;
+				}
+			}
 		}
 	else if (_opp_attacking && _dist < 220 && _r < _block_chance)
 		{
@@ -149,6 +175,16 @@ function cpu_input_script(_buffer, _player_number)
 			{
 			_stick_dir = STICK_DIR.neutral;   // no pega a rivales caídos
 			}
+		else if (_opp_blocking && _can_throw && _lvl >= 0.6 && _r < _aggression)
+			{
+			// El rival se cubre: lo agarra (light + heavy a la vez)
+			_stick_dir = STICK_DIR.neutral;
+			if (_t == 0)
+				{
+				_attack_light = true;
+				_attack_heavy = true;
+				}
+			}
 		else if (_r < _aggression)
 			{
 			_stick_dir = (cpu_rand(_win, _pn + 11, 100) < 30) ? STICK_DIR.down : STICK_DIR.neutral;
@@ -188,5 +224,3 @@ function cpu_input_script(_buffer, _player_number)
 	buffer_write(_buffer, buffer_bool, _pause);
 	buffer_write(_buffer, buffer_bool, _attack_light2);
 	}
-
-/* Copyright 2024 Springroll Games / Yosi */

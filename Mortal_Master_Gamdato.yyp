@@ -1031,6 +1031,7 @@
     {"resourceType":"GMFolder","resourceVersion":"1.0","name":"scripts","folderPath":"folders/Characters/Scar/Attacks/scripts.yy","order":2,},
     {"resourceType":"GMFolder","resourceVersion":"1.0","name":"sprites","folderPath":"folders/Characters/Scar/Attacks/sprites.yy","order":1,},
     {"resourceType":"GMFolder","resourceVersion":"1.0","name":"sprites","folderPath":"folders/Characters/Scar/sprites.yy","order":1,},
+    {"resourceType":"GMFolder","resourceVersion":"1.0","name":"SECRETOS","folderPath":"folders/Characters/SECRETOS.yy","order":13,},
     {"resourceType":"GMFolder","resourceVersion":"1.0","name":"Effects","folderPath":"folders/Effects.yy","order":0,},
     {"resourceType":"GMFolder","resourceVersion":"1.0","name":"Scripts","folderPath":"folders/Effects/Scripts.yy","order":0,},
     {"resourceType":"GMFolder","resourceVersion":"1.0","name":"Sprites","folderPath":"folders/Effects/Sprites.yy","order":0,},
@@ -1044,7 +1045,6 @@
     {"resourceType":"GMFolder","resourceVersion":"1.0","name":"risas","folderPath":"folders/sound/risas.yy","order":5,},
     {"resourceType":"GMFolder","resourceVersion":"1.0","name":"rounds","folderPath":"folders/sound/rounds.yy","order":6,},
     {"resourceType":"GMFolder","resourceVersion":"1.0","name":"SFX","folderPath":"folders/sound/SFX.yy","order":3,},
-    {"resourceType":"GMFolder","resourceVersion":"1.0","name":"SECRETOS","folderPath":"folders/Characters/SECRETOS.yy","order":13,},
   ],
   "AudioGroups": [
     {"resourceType":"GMAudioGroup","resourceVersion":"1.3","name":"audiogroup_default","targets":-1,},

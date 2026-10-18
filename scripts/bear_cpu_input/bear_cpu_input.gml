@@ -1,21 +1,17 @@
-/*
-Cerebro de la CPU del jefe Bear (nuestro).
-Sin memoria entre frames: todo sale de game_frame y del estado de los jugadores, igual que cpu_input_script.
-Escribe el buffer con el mismo formato que cpu_input_script.
-*/
 function bear_cpu_input(_buffer, _cpu, _opponent)
 	{
 	// ---------- Ajustes del jefe (0-100) | todos estimados, ajústalos jugando ----------
-	var _block_chance = 50;		// probabilidad de bloquear cuando el rival ataca cerca
-	var _aggression   = 75;		// probabilidad de atacar estando cerca
-	var _near = 190;			// distancia "cerca" en píxeles
-	var _mid  = 380;			// distancia "media"; más allá es "lejos"
+	var _block_chance = 25;		// probabilidad de bloquear cuando el rival ataca cerca
+	var _aggression   = 92;		// probabilidad de atacar estando cerca
+	var _near = 230;			// distancia "cerca" en píxeles
+	var _mid  = 430;			// distancia "media"; más allá es "lejos"
+	var _taunt_rate = 70;		// probabilidad de burlarse cuando el rival está caído
 	
-	// Fase furiosa: con menos de la mitad de vida ataca más y bloquea menos
+	// Fase furiosa: con menos de la mitad de vida ataca todo el tiempo y casi no bloquea
 	if (_cpu.hp <= _cpu.hp_max * 0.5)
 		{
-		_aggression = 92;
-		_block_chance = 30;
+		_aggression = 100;
+		_block_chance = 10;
 		}
 	
 	// ---------- Acciones (nuestras) ----------
@@ -51,8 +47,8 @@ function bear_cpu_input(_buffer, _cpu, _opponent)
 		}
 	else if (_cpu.state == PLAYER_STATE.attacking)
 		{
-		// Atacando: se queda quieto para no ensuciar el ataque, salvo cancelar un golpe que conectó en zarpazo+onda
-		if (_cpu.attack_connected && _meter_ok && _dist < _mid && _pick < 40) then _act = _A_CLAW;
+		// Atacando: se queda quieto, salvo cancelar un golpe que conectó en zarpazo+onda
+		if (_cpu.attack_connected && _meter_ok && _dist < _mid && _pick < 70) then _act = _A_CLAW;
 		else _act = _A_NONE;
 		}
 	else if (_opp_attacking && _dist < 220 && _r < _block_chance)
@@ -62,63 +58,65 @@ function bear_cpu_input(_buffer, _cpu, _opponent)
 		}
 	else if (_opp_down)
 		{
-		// Rival en el suelo: no le pega; a veces se burla (solo parado y no pegado a él)
-		if (_cpu.state == PLAYER_STATE.idle && _dist > _near && _pick < 35) then _act = _A_TAUNT;
+		// Rival en el suelo: se burla (parado y sin estar pegado a él) o se acerca a presionar
+		if (_cpu.state == PLAYER_STATE.idle && _dist > 120 && _pick < _taunt_rate) then _act = _A_TAUNT;
+		else if (_dist > _near && _pick < 90) then _act = _A_FORWARD;
 		else _act = _A_NONE;
 		}
 	else if (_dist > _mid)
 		{
-		// LEJOS: proyectiles si tiene barra, si no se acerca
+		// LEJOS: proyectiles si tiene barra, si no se acerca; a veces se ríe de lejos
 		if (_meter_ok)
 			{
 			if (_pick < 30) then _act = _A_MISSILES;
-			else if (_pick < 55) then _act = _A_FIRE;
-			else if (_pick < 65) then _act = _A_CHARGE;
+			else if (_pick < 50) then _act = _A_FIRE;
+			else if (_pick < 62) then _act = _A_CHARGE;
+			else if (_pick < 70) then _act = _A_TAUNT;
 			else _act = _A_FORWARD;
 			}
 		else
 			{
-			_act = (_pick < 80) ? _A_FORWARD : _A_NONE;
+			if (_pick < 82) then _act = _A_FORWARD;
+			else if (_pick < 92) then _act = _A_TAUNT;
+			else _act = _A_NONE;
 			}
 		}
 	else if (_dist > _near)
 		{
-		// MEDIA: mezcla de especiales, esperar o acercarse
+		// MEDIA: especiales casi siempre, si no se acerca
 		if (_meter_ok)
 			{
-			if (_pick < 20) then _act = _A_CLAW;
-			else if (_pick < 35) then _act = _A_MISSILES;
-			else if (_pick < 50) then _act = _A_FIRE;
-			else if (_pick < 62) then _act = _A_CHARGE;
-			else if (_pick < 75) then _act = _A_NONE;
+			if (_pick < 25) then _act = _A_CLAW;
+			else if (_pick < 40) then _act = _A_MISSILES;
+			else if (_pick < 52) then _act = _A_FIRE;
+			else if (_pick < 68) then _act = _A_CHARGE;
 			else _act = _A_FORWARD;
 			}
 		else
 			{
-			if (_pick < 60) then _act = _A_FORWARD;
-			else _act = _A_NONE;
+			_act = _A_FORWARD;
 			}
 		}
 	else
 		{
-		// CERCA: normales, agarre, especial pegado o un paso atrás
+		// CERCA: normales, agarre, especial pegado; casi no retrocede
 		if (_r < _aggression)
 			{
-			if (_pick < 22) then _act = _A_LIGHT;
-			else if (_pick < 42) then _act = _A_MEDIUM;
-			else if (_pick < 58) then _act = _A_HEAVY;
-			else if (_pick < 68) then _act = _can_throw ? _A_THROW : _A_HEAVY;
-			else if (_pick < 82) then _act = _meter_ok ? _A_CLAW : _A_MEDIUM;
-			else if (_pick < 90) then _act = _meter_ok ? _A_CHARGE : _A_LIGHT;
-			else _act = _A_RETREAT;
+			if (_pick < 18) then _act = _A_LIGHT;
+			else if (_pick < 34) then _act = _A_MEDIUM;
+			else if (_pick < 48) then _act = _A_HEAVY;
+			else if (_pick < 58) then _act = _can_throw ? _A_THROW : _A_HEAVY;
+			else if (_pick < 80) then _act = _meter_ok ? _A_CLAW : _A_MEDIUM;
+			else if (_pick < 92) then _act = _meter_ok ? _A_CHARGE : _A_LIGHT;
+			else _act = _meter_ok ? _A_FIRE : _A_MEDIUM;
 			}
-		else if (_r < _aggression + 15)
+		else if (_r < _aggression + 6)
 			{
 			_act = _A_RETREAT;
 			}
 		else
 			{
-			_act = _A_NONE;
+			_act = _A_MEDIUM;
 			}
 		}
 	
@@ -215,4 +213,3 @@ function bear_cpu_input(_buffer, _cpu, _opponent)
 	buffer_write(_buffer, buffer_bool, false);		// pausa
 	buffer_write(_buffer, buffer_bool, _light2);
 	}
-/* Copyright 2024 Springroll Games / Yosi */

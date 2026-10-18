@@ -82,6 +82,7 @@ function arcade_fight()
 	}
 
 /* Arma el arcade con el personaje elegido: sortea rivales y deja a Demon y Bear al final */
+/* Arma el arcade con el personaje elegido: sortea rivales y deja a Demon y Bear al final */
 function arcade_begin(_p1)
 	{
 	var _pool = [];
@@ -132,6 +133,7 @@ function arcade_begin(_p1)
 		bonus: false,		// true = toca un evento especial al volver al mapa
 		hit: false,		// true = el jugador recibió daño en esta pelea
 		hp_last: 99999,
+		omen_seen: false,	// true = se vio una silueta en esta pelea
 		side: undefined,	// pelea secreta en curso
 		offer: undefined,	// pelea secreta ofrecida en el mapa
 		seen: [],
@@ -142,18 +144,22 @@ function arcade_begin(_p1)
 	}
 
 /* Se llama al terminar una pelea: _won = true si ganó el jugador */
+/* Se llama al terminar una pelea: _won = true si ganó el jugador */
 function arcade_match_result(_won)
 	{
 	var _a = global.arcade;
 	var _flawless = !_a.hit;
+	var _omen = _a.omen_seen;
+	var _stage_now = !is_undefined(_a.side) ? _a.side.stage : _a.fights[min(_a.index, array_length(_a.fights) - 1)].stage;
 	_a.hit = false;
+	_a.omen_seen = false;
 	_a.hp_last = 99999;
 	_a.notice = "";
 	
 	// Pelea secreta: no cuenta continuaciones ni avanza el mapa
 	if (!is_undefined(_a.side))
 		{
-		if (_won && character_unlock(_a.side.reward)) then _a.notice = _a.side.reward + " DESBLOQUEADO";
+		if (_won) then _a.notice = _a.side.notice;
 		_a.side = undefined;
 		_a.travel = -2;
 		return;
@@ -167,9 +173,9 @@ function arcade_match_result(_won)
 		else
 			{
 			if ((_a.index mod ARCADE_BONUS_EVERY) == 0) then _a.bonus = true;
-			if (true)
+			if (_flawless)
 				{
-				var _s = arcade_secret_pick(_a);
+				var _s = arcade_secret_pick(_a, _stage_now, _omen);
 				if (!is_undefined(_s))
 					{
 					array_push(_a.seen, _s.id);
@@ -188,19 +194,22 @@ function arcade_match_result(_won)
 	
 /* Peleas secretas del arcade. Para agregar otra, añade una entrada aquí */
 global.arcade_secrets = [
-	{ id: "ninja", opp: 12, stage: 3, reward: "NINJA",
+	{ id: "ninja", opp: 12, stage: 3, need_stage: 4, need_omen: true,
+	  notice: "NINJA ROJO DERROTADO",
 	  text: "Peleaste sin recibir un solo golpe. Una sombra roja se mueve entre los arboles y te corta el paso." },
 ];
 
 /* Mide si el jugador 1 recibió daño (solo lectura; no toca la simulación) */
+/* Mide si el jugador 1 recibió daño y si hubo silueta (solo lectura; no toca la simulación) */
 function arcade_track_damage()
 	{
 	var _a = global.arcade;
+	if (!is_undefined(stage_omen_state())) then _a.omen_seen = true;
 	with (obj_player)
 		{
 		if (player_number == 0)
 			{
-			if (hp < _a.hp_last) then _a.hit = true;
+			if (_a.hp_last != 99999 && hp < _a.hp_last) then _a.hit = true;
 			_a.hp_last = hp;
 			}
 		}
@@ -216,12 +225,38 @@ function arcade_secret_seen(_a, _id)
 	return false;
 	}
 
-/* Primer secreto que aún no se ofreció, o undefined */
-function arcade_secret_pick(_a)
+/* Primer secreto cuya condición se cumple y que aún no se ofreció, o undefined */
+function arcade_secret_pick(_a, _stage, _omen)
 	{
 	for (var _i = 0; _i < array_length(global.arcade_secrets); _i++)
 		{
-		if (!arcade_secret_seen(_a, global.arcade_secrets[_i].id)) then return global.arcade_secrets[_i];
+		var _sc = global.arcade_secrets[_i];
+		if (arcade_secret_seen(_a, _sc.id)) then continue;
+		if (_stage != _sc.need_stage) then continue;
+		if (_sc.need_omen && !_omen) then continue;
+		return _sc;
 		}
 	return undefined;
+	}
+	
+/* Nivel de la CPU (0 a 100) según la pelea del arcade. Fuera del arcade siempre es 100 */
+function arcade_cpu_level()
+	{
+	if (!arcade_active()) then return 100;
+	var _a = global.arcade;
+	
+	// Pelea secreta: difícil
+	if (!is_undefined(_a.side)) then return 85;
+	
+	var _n = array_length(_a.fights);
+	var _i = min(_a.index, _n - 1);
+	var _opp = _a.fights[_i].opp;
+	
+	// Jefes
+	if (_opp == ARCADE_CHAR_BEAR) then return 100;
+	if (_opp == ARCADE_CHAR_DEMON) then return 92;
+	
+	// Peleas normales: suben de 25 a 85
+	var _normals = max(_n - 2, 2);
+	return round(lerp(25, 85, _i / (_normals - 1)));
 	}	
