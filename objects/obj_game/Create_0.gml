@@ -64,7 +64,7 @@ characters = [
 	{ name: "MARIEL",  char_id: 9, color: c_silver,  portrait_index: 8, locked: false },
 	{ name: "DEMON",   char_id: 10, color: c_purple, portrait_index: 9, locked: false },
 	{ name: "BEAR",    char_id: 11, color: c_maroon, portrait_index: 10, locked: false},
-	{ name: "NINJA",   char_id: 12, color: c_red,    portrait_index: 11, locked: true }
+	//{ name: "NINJA",   char_id: 12, color: c_red,    portrait_index: 11, locked: true }
 ];
 char_count = array_length(characters);
 // Cargar desbloqueos guardados

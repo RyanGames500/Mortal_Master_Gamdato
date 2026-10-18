@@ -114,6 +114,98 @@ function stage_draw_ghost(_layer, _cam_x, _y, _s)
 	draw_sprite_ext(_g.sprite, _frame, _x, _y + (_g.feet_y * _s), _s * _dir, _s, 0, c_white, _a);
 	}
 
+
+/* Siluetas negras del desierto (nuestro). Cada "X" es un pixel. Solo dibujo. */
+global.stage_omen_bitmaps = [
+	[ // platillo volador
+	"..........XXXX..........",
+	"........XXXXXXXX........",
+	".......XXXXXXXXXX.......",
+	"..XXXXXXXXXXXXXXXXXXXX..",
+	".XXXXXXXXXXXXXXXXXXXXXX.",
+	"..XXXXXXXXXXXXXXXXXXXX..",
+	"....XX..XXXXXXXX..XX....",
+	"....X....X....X....X...."
+	],
+	[ // nube
+	"........XXXX..........",
+	"......XXXXXXXX..XXX...",
+	"..XXX.XXXXXXXXXXXXXXX.",
+	".XXXXXXXXXXXXXXXXXXXXX",
+	"XXXXXXXXXXXXXXXXXXXXXX",
+	".XXXXXXXXXXXXXXXXXXXX."
+	],
+	[ // silla
+	"XX........",
+	"XX........",
+	"XX........",
+	"XX........",
+	"XXXXXXXXXX",
+	"XXXXXXXXXX",
+	"XXXXXXXXXX",
+	"XX......XX",
+	"XX......XX",
+	"XX......XX",
+	"XX......XX"
+	]
+];
+global.stage_omen_zoom = [1, 1.4, 1.6];
+
+/*
+¿Hay una silueta visible ahora? Devuelve undefined o { type, t_in, dur, h }.
+Solo en arcade. Depende de la pelea (index y continues) y de game_frame, así que es determinista.
+*/
+function stage_omen_state()
+	{
+	if (!instance_exists(obj_game)) then return undefined;
+	if (!arcade_active()) then return undefined;
+	var _a = global.arcade;
+	var _seed = (_a.index * 977) + (_a.continues * 31) + 5;
+	if ((stage_hash(_seed) mod 100) >= 100) then return undefined;	// 50% de las peleas dejar en 50
+	var _start = 240 + (stage_hash(_seed + 7919) mod 900);
+	var _dur = 600;
+	var _t_in = obj_game.game_frame - _start;
+	if (_t_in < 0 || _t_in >= _dur) then return undefined;
+	return { type: stage_hash(_seed + 104729) mod 3, t_in: _t_in, dur: _dur, h: stage_hash(_seed + 31337) };
+	}
+
+/* Dibuja la silueta si le toca (nuestro). Solo dibujo. */
+function stage_draw_omen(_layer, _cam_x, _y, _s)
+	{
+	if (!_layer.omen) then return;
+	var _o = stage_omen_state();
+	if (is_undefined(_o)) then return;
+	
+	var _bm = global.stage_omen_bitmaps[_o.type];
+	var _u = round(_s * global.stage_omen_zoom[_o.type]);
+	var _alpha = min(1, min(_o.t_in, _o.dur - 1 - _o.t_in) / 40) * 0.9;
+	var _dir = (((_o.h div 7) mod 2) == 0) ? 1 : -1;
+	var _sx = 0.2 + 0.6 * ((_o.h mod 1000) / 1000);
+	var _x0 = floor(_cam_x + (camera_width * _sx) + (_dir * 0.12 * _s * _o.t_in));
+	var _y0 = floor(_y + ((10 + ((_o.h div 13) mod 30)) * _s) + (sin(_o.t_in * 0.04) * 6));
+	
+	draw_set_color(c_black);
+	draw_set_alpha(_alpha);
+	for (var _r = 0; _r < array_length(_bm); _r++)
+		{
+		var _row = _bm[_r];
+		var _c = 1;
+		var _n = string_length(_row);
+		while (_c <= _n)
+			{
+			if (string_char_at(_row, _c) == "X")
+				{
+				var _e = _c;
+				while (_e < _n && string_char_at(_row, _e + 1) == "X") { _e++; }
+				draw_rectangle(_x0 + ((_c - 1) * _u), _y0 + (_r * _u), _x0 + (_e * _u) - 1, _y0 + ((_r + 1) * _u) - 1, false);
+				_c = _e + 1;
+				}
+			else _c++;
+			}
+		}
+	draw_set_alpha(1);
+	draw_set_color(c_white);
+	}
 /*
 Crea una capa de stage con valores por defecto.
 parallax: cuánto se mueve con la cámara (0 = fija al mundo)
@@ -128,7 +220,7 @@ lamps: bombillos animados (stage_lamps), o undefined
 x_off: desplazamiento horizontal en pixeles del arte original (negativo = a la izquierda, positivo = a la derecha)
 ghost: silueta que aparece de vez en cuando (stage_ghost), o undefined. Se dibuja justo después de esta capa
 */
-function stage_layer(_sprite, _parallax = 0, _y_off = 0, _tile = false, _mirror = false, _wave = false, _acid_fx = false, _scale = 6, _front = false, _lamps = undefined, _x_off = 0, _ghost = undefined, _crowd = undefined)
+function stage_layer(_sprite, _parallax = 0, _y_off = 0, _tile = false, _mirror = false, _wave = false, _acid_fx = false, _scale = 6, _front = false, _lamps = undefined, _x_off = 0, _ghost = undefined, _crowd = undefined, _omen = false)
 	{
 	return {
 		sprite: _sprite,
@@ -144,6 +236,7 @@ function stage_layer(_sprite, _parallax = 0, _y_off = 0, _tile = false, _mirror 
 		x_off: _x_off,
 		ghost: _ghost,
 		crowd: _crowd,
+		omen: _omen,
 		};
 	}
 
@@ -212,19 +305,19 @@ function stage_get(_id)
 					],
 				};
 
-		case 4: // Sala de control del laboratorio (nombre nuestro, cámbialo si quieres)
+		case 4: // Desert
 			return {
 				name: "Desert",
 				has_acid: false,
 				ground_y: -20,
 				art_y: -90,
 				layers: [
-					stage_layer(spr_stage5_fondo1, 0.30, 0, true, true, false, false, 5),
+					stage_layer(spr_stage5_fondo1, 0.30, 0, true, true, false, false, 5, false, undefined, 0, undefined, undefined, true),
 					stage_layer(spr_stage5_fondo4, 0.20, 0, true, true, false, false, 5),
 					stage_layer(spr_stage5_fondo2, 0.14, 0, true, true, false, false, 5),
 					stage_layer(spr_stage5_fondo3, 0.09, 0, true, true, false, false, 5),
 					stage_layer(spr_stage5_fondo5, 0.00, 0, true, true, false, false, 5),
-					stage_layer(spr_stage5_fondo6, -0.10, 5, true, true, false, false, 5,true),
+					stage_layer(spr_stage5_fondo6, -0.10, 5, true, true, false, false, 5, true),
 					],
 				};
 
@@ -291,6 +384,7 @@ function stage_draw_layer(_layer, _cam_x, _cam_y, _dx, _art_y)
 		stage_draw_crowd(_layer, _x0, _y, _s, _cam_x, false, false, true);
 		stage_draw_lamps(_layer, _x0, _y, _s, _cam_x);
 		stage_draw_ghost(_layer, _cam_x, _y, _s);
+		stage_draw_omen(_layer, _cam_x, _y, _s);
 		return;
 		}
 	
@@ -319,6 +413,7 @@ function stage_draw_layer(_layer, _cam_x, _cam_y, _dx, _art_y)
 	
 	stage_draw_crowd(_layer, 0, _y, _s, _cam_x, false, false, true);
 	stage_draw_ghost(_layer, _cam_x, _y, _s);
+	stage_draw_omen(_layer, _cam_x, _y, _s);
 	}
 
 /*
