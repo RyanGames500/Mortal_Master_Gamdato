@@ -45,7 +45,7 @@ global.arcade = undefined;
 #macro SHAKE_HEAVY				7   //Temblor de golpes fuertes y de aterrizaje (el mismo valor)
 #macro throw_input_leniency		2 //{int} How many frames at the start of normal attacks can be canceled into throws.
 #macro motion_input_leniency	25 //{int} The maximum number of frames you can take to do a motion input.
-#macro motion_input_array_size	10 //{int} How many stick directions are stored to detect motion inputs.
+#macro motion_input_array_size	16  //10 //{int} How many stick directions are stored to detect motion inputs.
 #macro dash_input_leniency		15 //{int} How many frames are checked for double tap dash inputs.
 #macro match_time				99 //{int} How many seconds each match can last.
 #macro anim_walk_speed          0.2//{real} the velocity from walk animation

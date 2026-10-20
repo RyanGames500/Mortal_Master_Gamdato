@@ -39,7 +39,8 @@ function hurtbox_update()
 		x = owner.x + (x_offset * owner.facing);
 		y = owner.y + y_offset;
 		}
-	
+	//Invulnerable (supers, nuestro): la hurtbox se aleja para que nada la toque
+	if (owner.super_invuln) then x = -100000;	
 	//Hitlag
 	if (owner.hitlag_frame > 0) then return;
 	

@@ -1,5 +1,5 @@
 /// @description Navegación por Control / Teclado / Mouse / Touch y Red
-
+pad_menu_pump(0);
 // Disminuir temporizador del aviso emergente
 if (notice_timer > 0)
 	{

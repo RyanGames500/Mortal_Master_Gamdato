@@ -1,3 +1,14 @@
+/* Devuelve el indice del primer mando conectado, o -1 si no hay (nuestro) */
+function input_pad_find()
+	{
+	var _n = gamepad_get_device_count();
+	for (var _i = 0; _i < _n; _i++)
+		{
+		if (gamepad_is_connected(_i)) then return _i;
+		}
+	return -1;
+	}
+
 ///@param {buffer} buffer			The buffer to collect inputs in
 ///@param {int} player_number		The player to collect inputs for
 /*
@@ -7,6 +18,7 @@ Please note: By default, inputs are accumulated instead of overwriting what is i
 */
 function input_collect_local(_buffer, _player_number)
 	{
+	pad_keys_release();	
 	buffer_seek(_buffer, buffer_seek_start, 0);
 	
 	if (!global.online_mode && _player_number == 1)
@@ -22,11 +34,46 @@ function input_collect_local(_buffer, _player_number)
 	var _pause = false;
 	var _attack_light2 = false;
 	
+	//Mando (nuestro): se usa el primero que este conectado, no siempre es el indice 0
+	var _pad = input_pad_find();
+	static _last_pad = -2;
+	if (_pad != _last_pad)
+		{
+		_last_pad = _pad;
+		show_debug_message("MANDO: indice " + string(_pad) + (_pad >= 0 ? " - " + gamepad_get_description(_pad) : " (ninguno conectado)"));
+		}
+	
 	//Collect the inputs from the keyboard and the controller
 	var _rl = sign(keyboard_check(ord("D")) - keyboard_check(ord("A")));
 	var _ud = sign(keyboard_check(ord("S")) - keyboard_check(ord("W")));
-	if (abs(gamepad_axis_value(0, gp_axislh)) > 0.5) then _rl = sign(gamepad_axis_value(0, gp_axislh));
-	if (abs(gamepad_axis_value(0, gp_axislv)) > 0.5) then _ud = sign(gamepad_axis_value(0, gp_axislv));
+	
+	//El teclado manda: el mando solo suma cuando el teclado esta en neutro (stick o cruceta)
+	if (_pad >= 0)
+		{
+		if (_rl == 0)
+			{
+			if (abs(gamepad_axis_value(_pad, gp_axislh)) > 0.5)
+				{
+				_rl = sign(gamepad_axis_value(_pad, gp_axislh));
+				}
+			else
+				{
+				_rl = sign(gamepad_button_check(_pad, gp_padr) - gamepad_button_check(_pad, gp_padl));
+				}
+			}
+		if (_ud == 0)
+			{
+			if (abs(gamepad_axis_value(_pad, gp_axislv)) > 0.5)
+				{
+				_ud = sign(gamepad_axis_value(_pad, gp_axislv));
+				}
+			else
+				{
+				_ud = sign(gamepad_button_check(_pad, gp_padd) - gamepad_button_check(_pad, gp_padu));
+				}
+			}
+		}
+	
 	//Touch pad direction (mobile-controls folder). It goes BEFORE the mapping to
 	//STICK_DIR: overwriting it afterwards would have no effect.
 	//It adds to the previous input instead of replacing it, so the same build
@@ -48,10 +95,10 @@ function input_collect_local(_buffer, _player_number)
 	else if (abs(angle_difference(_angle, 225)) <= 22.5) then _stick_dir = STICK_DIR.backward_down;
 	else if (abs(angle_difference(_angle, 270)) <= 22.5) then _stick_dir = STICK_DIR.down;
 	
-	_attack_light = keyboard_check_pressed(ord("J")) || gamepad_button_check_pressed(0, gp_face1);
-	_attack_heavy = keyboard_check_pressed(ord("L")) || gamepad_button_check_pressed(0, gp_face2);
-	_pause = keyboard_check_pressed(vk_backspace) || gamepad_button_check_pressed(0, gp_start);
-	_attack_light2 = keyboard_check_pressed(ord("K")) || gamepad_button_check_pressed(0, gp_face3);
+	_attack_light = keyboard_check_pressed(ord("J")) || (_pad >= 0 && gamepad_button_check_pressed(_pad, gp_face1));
+	_attack_heavy = keyboard_check_pressed(ord("L")) || (_pad >= 0 && gamepad_button_check_pressed(_pad, gp_face2));
+	_pause = keyboard_check_pressed(vk_backspace) || (_pad >= 0 && gamepad_button_check_pressed(_pad, gp_start));
+	_attack_light2 = keyboard_check_pressed(ord("K")) || (_pad >= 0 && gamepad_button_check_pressed(_pad, gp_face3));
 
 	//Touch pad attacks. The object already delivers a one-frame edge, just like
 	//keyboard_check_pressed, so it adds straight in.
