@@ -70,7 +70,7 @@ function player_update(_inputs_array)
 		block_pushback *= block_pushback_friction;
 		player_move(block_pushback, 0);
 		}
-	
+	if (super_fx > 0) then super_fx--;	
 	if (hitlag_frame > 0)
 		{
 		hitlag_frame--;
@@ -83,6 +83,7 @@ function player_update(_inputs_array)
 		}
 	state_time++;
 	if (ex_flash > 0) then ex_flash--;
+	
 	hp_top = max(hp_top, hp);
 	//Combo: termina cuando el jugador sale de los estados de golpe
 	if (combo_active && state != PLAYER_STATE.hitstun_ground && state != PLAYER_STATE.hitstun_aerial

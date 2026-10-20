@@ -90,6 +90,13 @@ function player_variables_init_start()
 	npc_linger = 0;		// frames seguidos dentro de la zona de un equipo
 	npc_back = -1;
 	npc_back_idx = 0;
+	super_id = 0;		//que super se esta lanzando, para mostrar su nombre (nuestro)
+	super_fx = 0;		//frames restantes del efecto de super (nuestro)
+	super_hit_fx = 0;	//frames restantes del destello de impacto (nuestro)
+	super_invuln = false;	//true = el jugador es intocable (supers) (nuestro)
+	super_zoom = 1.0;
+	super_green = 0;	
+	super_lock = false;	
 	//diferenciar espejos de cada peleador duplicado
 	current_pal = 0
 	override_surface=noone;

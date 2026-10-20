@@ -7,6 +7,18 @@ function game_check_player_ko(_result_array)
 	{
 	if (hp <= 0)
 		{
+		// Super cinematico en curso (nuestro): el rival no muere hasta el golpe final, se queda en 1 de vida
+		var _lock = false;
+		with (obj_player)
+			{
+			if (id != other.id && variable_instance_exists(id, "super_lock") && super_lock) then _lock = true;
+			}
+		if (_lock)
+			{
+			hp = 1;
+			return;
+			}
+		
 		_result_array[@ 0] = true; // _end_game
 		if (player_number == 0) _result_array[@ 1] = true; // _p1_dead
 		if (player_number == 1) _result_array[@ 2] = true; // _p2_dead

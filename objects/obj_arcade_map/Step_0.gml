@@ -1,3 +1,5 @@
+pad_menu_pump(2);
+
 if (is_undefined(global.arcade)) then exit;
 phase_t++;
 

@@ -1,3 +1,5 @@
+pad_menu_pump(2);
+
 if (is_undefined(global.arcade)) then exit;
 var _sh = (shake > 0) ? random_range(-shake, shake) : 0;
 
