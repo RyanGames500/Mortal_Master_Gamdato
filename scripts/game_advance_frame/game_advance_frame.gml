@@ -121,7 +121,7 @@ function game_advance_frame(_inputs_array, _relative_frame = undefined)
 				css_start_timer = -1;
 				}
 			
-			if (global.online_mode)
+				if (global.online_mode || local_vs_human())
 				{
 				var _buf1 = _inputs_array[@ 1];
 				

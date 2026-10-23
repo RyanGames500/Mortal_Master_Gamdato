@@ -71,6 +71,7 @@ function player_update(_inputs_array)
 		player_move(block_pushback, 0);
 		}
 	if (super_fx > 0) then super_fx--;	
+	if (state != PLAYER_STATE.attacking && super_fx <= 0) then super_id = 0;	// el fondo de super se apaga cuando termina el super
 	if (hitlag_frame > 0)
 		{
 		hitlag_frame--;

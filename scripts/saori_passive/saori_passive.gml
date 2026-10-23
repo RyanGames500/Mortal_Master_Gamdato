@@ -6,6 +6,35 @@ function saori_passive()
 	{
 	var _special_cost = METER_COST_SPECIAL;
 	
+	//--- SUPERS: cancelan cualquier ataque que ya conecto (golpe o bloqueo) ---
+	if (attack_script != saori_super_dives && attack_script != saori_super_combo && super_state_ok())
+		{
+		// Super 2: doble media luna + heavy, toda la barra
+		if (meter_can_pay(METER_COST_SUPER_MAX) && input_pressed(INPUT.attack_heavy) && super_motion_check())
+			{
+			meter_pay(METER_COST_SUPER_MAX);
+			input_ex_consume();
+			attack_stop();
+			attack_start(saori_super_combo);
+			super_activation_fx(2);
+			return;
+			}
+		
+		// Super 1: doble media luna + medium, 2 barras
+		if (meter_can_pay(METER_COST_SUPER) && input_pressed(INPUT.attack_light2) && super_motion_check())
+			{
+			meter_pay(METER_COST_SUPER);
+			input_ex_consume();
+			attack_stop();
+			attack_start(saori_super_dives);
+			super_activation_fx(1);
+			return;
+			}
+		}
+	
+	// Si ya estamos en un super no se dispara nada mas
+	if (attack_script == saori_super_dives || attack_script == saori_super_combo) then return;
+	
 	// Divekick: solo si esta saltando o en uno de sus golpes aereos normales
 	// (nunca en hitstun, bloqueo, agarre, knockdown ni dentro de otro especial)
 	var _in_air_normal = (state == PLAYER_STATE.attacking && bbox_bottom < obj_ground.y

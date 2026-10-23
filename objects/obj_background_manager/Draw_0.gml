@@ -1,6 +1,9 @@
-// Cámara
-var _cam_x = camera_get_view_x(camera_index);
-var _cam_y = camera_get_view_y(camera_index);
+// Cámara. Con zoom la vista se achica, así que el escenario usa una "cámara virtual" sin zoom
+// calculada desde el CENTRO de la vista: así las capas se agrandan junto con los personajes.
+var _vw = camera_get_view_width(camera_index);
+var _vh = camera_get_view_height(camera_index);
+var _cam_x = camera_get_view_x(camera_index) + ((_vw - camera_width) * 0.5);
+var _cam_y = camera_get_view_y(camera_index) + ((_vh - camera_height) * 0.5);
 
 // 0 cuando la cámara está centrada (el escenario mide 480 * 6 = 2880)
 var _dx = _cam_x - (((480 * 6) - camera_width) / 2);
@@ -39,3 +42,4 @@ for (var _l = 0; _l < array_length(_stage.layers); _l++)
 // Objetos del escenario (detrás de los personajes)
 stage_props_draw();
 //stage_npcs_draw();
+game_draw_super_bg();

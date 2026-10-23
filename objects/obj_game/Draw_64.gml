@@ -8,7 +8,7 @@ if (game_meta_state == GAME_META_STATE.char_select)
 	var _s = clamp(_gui_w / 1280, 0.6, 1.4);
 	var _t = current_time;
 	
-	var _display_online = global.replay_mode ? global.replay_was_online : global.online_mode;
+	var _display_online = global.replay_mode ? global.replay_was_online : (global.online_mode || local_vs_human());
 	
 	// Paleta del laboratorio
 	var _c_wall = make_colour_rgb(62, 78, 80);
@@ -841,4 +841,4 @@ if (fade_alpha > 0)
 	draw_set_alpha(1.0); // Resetear el alfa general para no afectar otros dibujos
 	}
 game_draw_super_fx();
-game_draw_super_green();
+//game_draw_super_green();

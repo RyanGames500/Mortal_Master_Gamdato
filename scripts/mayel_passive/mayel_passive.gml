@@ -4,6 +4,37 @@ It is run every frame and allows motion input attacks to be performed.
 */
 function mayel_passive()
 	{
+	// Si ya estamos en un super no se dispara nada mas
+	if (attack_script == mayel_super_tornado || attack_script == mayel_super_jonron) then return;
+	
+	//--- SUPER 2: Jonron de Martillo (doble media luna + heavy, 3 barras). Solo en el piso ---
+	if (super_state_ok())
+		{
+		if (meter_can_pay(METER_COST_SUPER_MAX) && input_pressed(INPUT.attack_heavy) && super_motion_check())
+			{
+			meter_pay(METER_COST_SUPER_MAX);
+			input_ex_consume();
+			attack_stop();
+			attack_start(mayel_super_jonron);
+			super_activation_fx(2);
+			return;
+			}
+		}
+	
+	//--- SUPER 1: Tornado de Capa (doble media luna + medium, 2 barras). En el piso o en el aire ---
+	if (super_state_ok() || mayel_super_air_ok())
+		{
+		if (meter_can_pay(METER_COST_SUPER) && input_pressed(INPUT.attack_light2) && super_motion_check())
+			{
+			meter_pay(METER_COST_SUPER);
+			input_ex_consume();
+			attack_stop();
+			attack_start(mayel_super_tornado);
+			super_activation_fx(1);
+			return;
+			}
+		}
+	
 	// Martillo y boomerang (en piso, incluye cancel de normales; gastan barra)
 	if (special_state_ok())
 		{

@@ -1,5 +1,34 @@
 function brad_passive()
 	{
+	//--- SUPERS (cancelan cualquier ataque que ya conecto) ---
+	if (attack_script != brad_super_roll && attack_script != brad_super_grab)
+		{
+		// Super 2: doble media luna + heavy, toda la barra. Solo en el suelo
+		if (super_state_ok() && meter_can_pay(METER_COST_SUPER_MAX) && input_pressed(INPUT.attack_heavy) && super_motion_check())
+			{
+			meter_pay(METER_COST_SUPER_MAX);
+			input_ex_consume();
+			attack_stop();
+			attack_start(brad_super_grab);
+			super_activation_fx(2);
+			return;
+			}
+		
+		// Super 1: doble media luna + medium, 2 barras. En el suelo o en el aire
+		if ((super_state_ok() || brad_super_air_ok()) && meter_can_pay(METER_COST_SUPER) && input_pressed(INPUT.attack_light2) && super_motion_check())
+			{
+			meter_pay(METER_COST_SUPER);
+			input_ex_consume();
+			attack_stop();
+			attack_start(brad_super_roll);
+			super_activation_fx(1);
+			return;
+			}
+		}
+	
+	// Si ya estamos en un super no se dispara nada mas
+	if (attack_script == brad_super_roll || attack_script == brad_super_grab) then return;
+	
 	// Estados desde los que se puede lanzar un especial (incluye cancel de normales)
 	if (!special_state_ok()) then return;
 	

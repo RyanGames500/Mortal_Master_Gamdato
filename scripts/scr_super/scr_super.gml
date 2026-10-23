@@ -1,6 +1,7 @@
 /* Supers (nuestro). Activacion, pausa y efectos; la logica de cada super vive en el script de cada personaje. */
+#macro SUPER_CHARGE_FRAMES		5	//pausa del rival justo antes del golpe final (60 frames = 1 segundo): menos = el golpe sale mas rapido
 #macro SUPER_FREEZE_FRAMES		20	//pausa de ambos jugadores al activar un super
-#macro SUPER_FX_FRAMES			30	//duracion total del efecto (incluye la pausa)
+#macro SUPER_FX_FRAMES			20	//duracion total del efecto (incluye la pausa)
 #macro SUPER_DIM_ALPHA			0.4	//que tanto se oscurece la pantalla (0 a 1)
 #macro SUPER_MOTION_LENIENCY	80	//45 //frames para completar la doble media luna
 #macro METER_COST_SUPER_MAX		300	//super cinematico: toda la barra
@@ -75,6 +76,7 @@ function game_draw_super_fx()
 	with (obj_player)
 		{
 		if (super_fx <= 0) then continue;
+		if (super_id == 2) then continue;	// los de 3 barras usan el fondo de game_draw_super_bg
 		
 		var _t = 1 - (super_fx / SUPER_FX_FRAMES);		// 0 al activar, 1 al terminar
 		var _fade = 1 - _t;
@@ -143,7 +145,7 @@ function game_draw_super_fx()
 Linea de tiempo de un super cinematico (nuestro).
 super_ev crea un evento: en el frame _t de la secuencia, pone el sprite y frame de la pose,
 opcionalmente da un impulso hacia adelante (_mv) y opcionalmente lanza un golpe (_hit).
-_hit = [x_offset, y_offset, ancho, alto, daño, lanzamiento]  (lanzamiento 0 = no lanza)
+_hit = [x_offset, y_offset, ancho, alto, daño, lanzamiento, empuje (opcional, por defecto 3)]  (lanzamiento 0 = no lanza)
 Regla: dos golpes deben estar separados por 5 frames o mas.
 */
 function super_ev(_t, _spr, _f, _mv = 0, _hit = undefined)
@@ -152,6 +154,7 @@ function super_ev(_t, _spr, _f, _mv = 0, _hit = undefined)
 	}
 
 //Ejecuta los eventos de la linea de tiempo que caen en el frame _t. Lo llama el jugador que lanza el super.
+//_hit = [x, y, ancho, alto, daño, lanzamiento, empuje (opcional, por defecto 3)]
 function super_timeline_run(_tl, _t)
 	{
 	for (var _i = 0; _i < array_length(_tl); _i++)
@@ -169,55 +172,10 @@ function super_timeline_run(_tl, _t)
 			attack_connected = false;
 			var _hb = hitbox_create(_h[0], _h[1], _h[2], _h[3], _h[4], 4);
 			_hb.hitlag = 4;
-			_hb.knockback = 3;
+			_hb.knockback = (array_length(_h) > 6) ? _h[6] : 3;
 			_hb.hitstun = 60;
 			if (_h[5] > 0) then _hb.launch_speed = _h[5];
 			obj_game.cam_shake = max(obj_game.cam_shake, 4);
 			}
 		}
 	}
-	
-/*
-Capa verde de la carga final (nuestro). Se dibuja ENCIMA de todo, en pantalla completa.
-Sube con super_green (0 a 1). Solo visual: no toca la simulacion.
-*/
-function game_draw_super_green()
-	{
-	var _g = 0;
-	with (obj_player)
-		{
-		_g = max(_g, super_green);
-		}
-	if (_g <= 0) then return;
-	
-	var _w = display_get_gui_width();
-	var _h = display_get_gui_height();
-	var _pulse = 0.85 + 0.15 * dsin(current_time * 0.5);
-	
-	// Velo verde normal
-	draw_set_alpha(0.38 * _g * _pulse);
-	draw_set_color(make_colour_rgb(15, 190, 60));
-	draw_rectangle(0, 0, _w, _h, false);
-	
-	// Brillo aditivo, mas fuerte en los bordes (viñeta luminosa)
-	gpu_set_blendmode(bm_add);
-	var _edge = make_colour_rgb(40, 255, 100);
-	var _in   = c_black;
-	var _bw   = _w * 0.28;
-	var _bh   = _h * 0.30;
-	draw_set_alpha(0.75 * _g * _pulse);
-	draw_rectangle_colour(0, 0, _w, _bh, _edge, _edge, _in, _in, false);			// arriba
-	draw_rectangle_colour(0, _h - _bh, _w, _h, _in, _in, _edge, _edge, false);	// abajo
-	draw_rectangle_colour(0, 0, _bw, _h, _edge, _in, _in, _edge, false);			// izquierda
-	draw_rectangle_colour(_w - _bw, 0, _w, _h, _in, _edge, _edge, _in, false);	// derecha
-	
-	// Brillo general
-	draw_set_alpha(0.22 * _g * _pulse);
-	draw_set_color(make_colour_rgb(30, 255, 90));
-	draw_rectangle(0, 0, _w, _h, false);
-	gpu_set_blendmode(bm_normal);
-	
-	draw_set_alpha(1);
-	draw_set_color(c_white);
-	}
-	

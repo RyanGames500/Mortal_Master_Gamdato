@@ -457,6 +457,7 @@ if (_confirm)
 			case "LOCAL VS":
 				global.replay_mode = false;
 				global.online_mode = false;
+				global.local_vs_human = true;		// dos humanos
 				ggmr_lobby_reset();
 				room_goto(rm_gameplay);
 			break;
@@ -464,6 +465,7 @@ if (_confirm)
 			case "ARCADE":
 				global.replay_mode = false;
 				global.online_mode = false;
+				global.local_vs_human = false;		// el rival es la CPU
 				global.arcade_mode = 1;
 				global.arcade = undefined;
 				ggmr_lobby_reset();
