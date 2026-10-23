@@ -84,7 +84,7 @@ p1_select       = 0; // ID del personaje elegido por P1
 
 css_start_timer = -1;
 
-if (!global.online_mode)
+if (!global.online_mode && !local_vs_human())
 	{
 	if (global.replay_mode)
 		{
@@ -124,6 +124,7 @@ cam_y = 0;
 cam_x_display = (room_width div 2) - (camera_width div 2);
 cam_y_display = 0;
 cam_shake = 0.0;
+cam_zoom_display = 1.0;
 camera_set_view_pos(camera_index, cam_x_display, cam_y_display);
 
 //Finalize the session

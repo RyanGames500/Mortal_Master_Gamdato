@@ -1,9 +1,10 @@
 /*
 Super 2 de Joe: FURIA DEL CAMPEON (nuestro). Doble media luna + heavy, toda la barra (300).
-Estilo "Blazin Move": coreografia fluida de golpes, acercamiento LENTO con verde encima de todo y golpe final de fuego.
+Estilo "Blazin Move": coreografia fluida de golpes; justo antes del golpe final el rival queda
+congelado una pausa corta (SUPER_CHARGE_FRAMES) mientras Joe carga el puño, y sale el golpe de fuego.
 Solo continua si el primer golpe CONECTA limpio. Si lo bloquean o falla, se corta y Joe queda castigable.
 Durante la coreografia el rival no puede morir (super_lock): se queda en 1 de vida hasta el golpe final.
-Fases: 0 = carga, 1 = embestida, 2 = primer golpe, 3 = coreografia (linea de tiempo), 4 = acercamiento + verde,
+Fases: 0 = carga, 1 = embestida, 2 = primer golpe, 3 = coreografia (linea de tiempo), 4 = pausa antes del golpe final,
        5 = golpe final de fuego, 6 = recuperacion.
 */
 function blocky_super_cine(_override_phase)
@@ -24,7 +25,7 @@ function blocky_super_cine(_override_phase)
 		super_ev(44, spr_blocky_light_ground2, 14, 0, [110, 0, 2.0, 1.2, 9, 12])
 	];
 	
-	var _charge_len = 75;		// duracion de la carga final (frames)
+	var _charge_len = SUPER_CHARGE_FRAMES;		// pausa antes del golpe final (macro en scr_super)
 	
 	var _phase = !is_undefined(_override_phase) ? _override_phase : attack_phase;
 	if (_phase >= 0 && _phase <= 5) then vsp = 0;		// secuencia en el piso: nada lo eleva
@@ -42,8 +43,6 @@ function blocky_super_cine(_override_phase)
 			attack_connected = false;
 			super_invuln = true;
 			super_lock = false;
-			super_zoom = 1.25;
-			super_green = 0;
 			ex_glow_color = make_colour_rgb(90, 255, 120);
 			}
 		break;
@@ -52,8 +51,6 @@ function blocky_super_cine(_override_phase)
 			{
 			super_invuln = false;
 			super_lock = false;
-			super_zoom = 1.0;
-			super_green = 0;
 			}
 		break;
 		
@@ -106,7 +103,6 @@ function blocky_super_cine(_override_phase)
 				attack_frame = 14;
 				attack_connected = false;
 				super_invuln = false;		// desde aqui, si falla o lo bloquean, queda vendido
-				super_zoom = 1.45;
 				anim_sprite = spr_blocky_light_ground;
 				anim_frame = 2;
 				
@@ -134,13 +130,11 @@ function blocky_super_cine(_override_phase)
 					attack_frame = 0;		// aqui cuenta hacia arriba: tiempo de la coreografia
 					super_invuln = true;
 					super_lock = true;		// el rival no puede morir hasta el golpe final
-					super_zoom = 1.55;
 					}
 				else
 					{
 					anim_sprite = spr_blocky_super_fist;
 					anim_frame = 7;
-					super_zoom = 1.0;
 					attack_phase = 6;
 					attack_frame = 50;
 					}
@@ -149,7 +143,6 @@ function blocky_super_cine(_override_phase)
 				{
 				anim_sprite = spr_blocky_super_fist;
 				anim_frame = 7;
-				super_zoom = 1.0;
 				attack_phase = 6;
 				attack_frame = 50;
 				}
@@ -167,7 +160,7 @@ function blocky_super_cine(_override_phase)
 			
 			if (attack_frame > 50)
 				{
-				// Terminaron los golpes: el rival queda suspendido, Joe carga el puño y empieza el acercamiento lento
+				// Terminaron los golpes: el rival queda congelado y Joe carga el puño
 				attack_phase = 4;
 				attack_frame = _charge_len;
 				anim_sprite = spr_blocky_super_fist;
@@ -179,28 +172,21 @@ function blocky_super_cine(_override_phase)
 			}
 		break;
 		
-		// Carga final: acercamiento lento + verde que va subiendo encima de todo
+		// Pausa corta antes del golpe final: el rival congelado, Joe carga el puño
 		case 4:
 			{
 			attack_frame--;
 			
-			// el rival queda suspendido
+			// el rival queda congelado
 			with (obj_player)
 				{
 				if (id != other.id) then hitlag_frame = max(hitlag_frame, 2);
 				}
 			
-			// progreso 0 -> 1 (suavizado al inicio y al final)
-			var _t = 1 - (attack_frame / _charge_len);
-			var _s = _t * _t * (3 - 2 * _t);
-			super_zoom  = 1.7 + (0.85 * _s);		// 1.7 -> 2.55 despacio
-			super_green = _t;						// el verde crece de a poco
-			
-			if (attack_frame == 50) then anim_frame = 1;
-			if (attack_frame == 25) then anim_frame = 2;
+			if (attack_frame == ((_charge_len * 2) div 3)) then anim_frame = 1;
+			if (attack_frame == (_charge_len div 3)) then anim_frame = 2;
 			
 			ex_flash = max(ex_flash, 10);
-			if ((attack_frame mod 6) == 0) then obj_game.cam_shake = max(obj_game.cam_shake, 2 + (_t * 4));
 			
 			if (attack_frame <= 0)
 				{
@@ -213,7 +199,7 @@ function blocky_super_cine(_override_phase)
 				
 				// Golpe final de fuego: manda a volar
 				var _fin = hitbox_create(190, -40, 2.8, 1.6, 40, 22);
-				_fin.hitlag = 30;
+				_fin.hitlag = 12;
 				_fin.launch_speed = 24;
 				_fin.high = true;
 				_fin.knockback = 34;
@@ -228,7 +214,7 @@ function blocky_super_cine(_override_phase)
 			}
 		break;
 		
-		// Golpe final: el fuego se anima; al conectar explota y se congela todo con el destello
+		// Golpe final: el fuego se anima; al conectar explota
 		case 5:
 			{
 			attack_frame--;
@@ -267,13 +253,10 @@ function blocky_super_cine(_override_phase)
 			}
 		break;
 		
-		// Recuperacion (vulnerable): la camara vuelve a su lugar y el verde se apaga
+		// Recuperacion (vulnerable)
 		case 6:
 			{
 			attack_frame--;
-			
-			super_zoom = 1.0;
-			super_green = max(0, super_green - 0.06);
 			
 			if (attack_frame == 14) then anim_frame = 8;
 			
