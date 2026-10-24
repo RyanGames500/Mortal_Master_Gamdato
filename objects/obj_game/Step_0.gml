@@ -17,6 +17,8 @@ if (!global.online_mode)
 		game_paused = true;
 		pause_index = 0;
 		}
+		// La lista de movimientos se cierra sola si el juego se reanuda (por ejemplo con el boton de pausa tactil)
+	if (!game_paused) then global.training_ml_open = false;	
 	}
 //Replays
 if (global.replay_mode)
