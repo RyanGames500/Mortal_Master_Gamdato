@@ -78,6 +78,29 @@ function player_update(_inputs_array)
 		return;
 		}
 	
+	// Combo garantizado: si el rival prepara un super y yo estoy en medio de un combo, me quedo congelado hasta que me pegue (nuestro)
+	var _super_prep = false;
+	if (combo_active && (state == PLAYER_STATE.hitstun_ground || state == PLAYER_STATE.hitstun_aerial || state == PLAYER_STATE.grabbed))
+		{
+		with (obj_player)
+			{
+			// 90 = maximo de frames del super que espero el golpe (si el super falla, no me quedo congelado para siempre)
+			if (id != other.id && state == PLAYER_STATE.attacking && super_id != 0 && state_time <= 90)
+				{
+				_super_prep = true;
+				}
+			}
+		}
+	if (_super_prep)
+		{
+		if (super_freeze_hits < 0) then super_freeze_hits = combo_hits;
+		if (combo_hits == super_freeze_hits) then return;		// el super todavia no me pega: sigo congelado
+		}
+	else
+		{
+		super_freeze_hits = -1;
+		}
+	
 	if (state_frame > 0)
 		{
 		state_frame--;
@@ -87,7 +110,19 @@ function player_update(_inputs_array)
 	
 	hp_top = max(hp_top, hp);
 	//Combo: termina cuando el jugador sale de los estados de golpe
-	if (combo_active && state != PLAYER_STATE.hitstun_ground && state != PLAYER_STATE.hitstun_aerial
+	//Un super rival que ya conecto mantiene vivo el combo aunque el engine mande al rival a knockdown a medio super (nuestro)
+	var _super_keep = false;
+	if (combo_active)
+		{
+		with (obj_player)
+			{
+			if (id != other.id && state == PLAYER_STATE.attacking && super_id != 0 && (super_lock || attack_connected))
+				{
+				_super_keep = true;
+				}
+			}
+		}
+	if (combo_active && !_super_keep && state != PLAYER_STATE.hitstun_ground && state != PLAYER_STATE.hitstun_aerial
 		&& state != PLAYER_STATE.grabbed)
 		{
 		combo_active = false;

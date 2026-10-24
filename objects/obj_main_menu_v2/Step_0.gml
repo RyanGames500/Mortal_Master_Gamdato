@@ -494,7 +494,25 @@ if (_confirm)
 				current_state = MENU_STATE.settings;
 				menu_index = 0;
 			break;
-			
+
+
+			case "TRAINING":
+				global.replay_mode = false;
+				global.online_mode = false;
+				global.local_vs_human = false;
+				global.arcade_mode = 0;
+				global.arcade = undefined;
+				global.training = true;
+				global.training_dummy = 0;
+				global.training_fd = undefined;
+				global.training_bar = [[], []];
+				global.training_adv = [0, 0];
+				global.training_bar_total = 0;
+				global.training_rec_state = 0;				
+				ggmr_lobby_reset();
+				room_goto(rm_gameplay);
+			break;
+
 			case "EXIT":
 				game_end();
 			break;

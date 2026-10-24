@@ -23,7 +23,9 @@ global.replay_record = false; //{bool} Whether to record replays of matches or n
 global.show_scanlines = true;
 global.arcade_mode = 0;
 global.arcade = undefined;
-
+global.training = false;
+global.training_inf_hp = true;		// true = la vida se rellena sola cuando vuelves a estar libre
+global.training_inf_meter = true;	// true = la barra siempre esta llena
 //Combo contadores
 #macro COMBO_SUPER				4    //Golpes para "SUPER COMBO"
 #macro COMBO_ULTRA				5    //Golpes para "ULTRA COMBO"

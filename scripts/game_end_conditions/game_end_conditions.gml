@@ -57,7 +57,7 @@ function game_end_conditions()
 	
 	// Check KO por tiempo
 	var _time_out = false;
-	if (match_time - (game_frame div 60) <= 0)
+	if (!global.training && match_time - (game_frame div 60) <= 0)
 		{
 		_end_game = true;
 		_time_out = true;

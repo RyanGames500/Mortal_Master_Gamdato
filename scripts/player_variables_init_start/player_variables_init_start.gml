@@ -96,7 +96,8 @@ function player_variables_init_start()
 	super_invuln = false;	//true = el jugador es intocable (supers) (nuestro)
 	super_zoom = 1.0;
 	super_green = 0;	
-	super_lock = false;	
+	super_lock = false;
+	super_freeze_hits = -1;		// golpes del combo cuando empezo a congelarme un super rival (nuestro)
 	//diferenciar espejos de cada peleador duplicado
 	current_pal = 0
 	override_surface=noone;

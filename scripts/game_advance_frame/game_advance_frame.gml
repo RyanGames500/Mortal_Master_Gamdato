@@ -82,7 +82,7 @@ function game_advance_frame(_inputs_array, _relative_frame = undefined)
 				}
 
 			var _buf0 = _inputs_array[@ 0];
-			
+			var _tr_p1_ready = p1_css_ready;			
 			var _dir0    = buffer_peek(_buf0, 0, buffer_u8);
 			var _atk0    = buffer_peek(_buf0, 1, buffer_bool); // Confirmar
 			var _cancel0 = buffer_peek(_buf0, 2, buffer_bool); // Deseleccionar
@@ -115,15 +115,15 @@ function game_advance_frame(_inputs_array, _relative_frame = undefined)
 						}
 					}
 				}
-			else if (_cancel0)
+			else if (_cancel0 && !(global.training && p2_css_ready))
 				{
 				p1_css_ready = false;
 				css_start_timer = -1;
 				}
 			
-				if (global.online_mode || local_vs_human())
+				if (global.online_mode || local_vs_human() || (global.training && _tr_p1_ready))
 				{
-				var _buf1 = _inputs_array[@ 1];
+				var _buf1 = global.training ? _buf0 : _inputs_array[@ 1];
 				
 				var _dir1    = buffer_peek(_buf1, 0, buffer_u8);
 				var _atk1    = buffer_peek(_buf1, 1, buffer_bool);
@@ -300,6 +300,7 @@ function game_advance_frame(_inputs_array, _relative_frame = undefined)
 			with_synced_object(obj_vfx, vfx_update);
 			
 			camera_update();
+			if (global.training) then training_update();			
 			game_end_conditions();
 			if (!_in_rollback && arcade_active()) then arcade_track_damage();
 			}

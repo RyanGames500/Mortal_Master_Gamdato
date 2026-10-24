@@ -54,16 +54,38 @@ function input_collect_local(_buffer, _player_number)
 	pad_keys_release();
 	buffer_seek(_buffer, buffer_seek_start, 0);
 	
+	// Entrenamiento: grabar y repetir (nuestro)
+	if (global.training)
+		{
+		// mientras grabas, P1 se queda quieto (tus controles manejan al dummy)
+		if (global.training_rec_state == 1 && _player_number == 0) then return;
+		
+		// repitiendo: el dummy usa lo grabado
+		if (global.training_rec_state == 2 && _player_number == 1)
+			{
+			training_rec_play(_buffer);
+			return;
+			}
+		}
+	
+	// Entrenamiento: el dummy (jugador 2) segun el modo elegido (nuestro)
+	if (global.training && _player_number == 1 && global.training_dummy != 5 && global.training_rec_state != 1)
+		{
+		training_dummy_input(_buffer);
+		return;
+		}
+	
 	var _vs = local_vs_human();
-	if (!global.online_mode && _player_number == 1 && !_vs)
+	if (!global.online_mode && !global.training && _player_number == 1 && !_vs)
 		{
 		cpu_input_script(_buffer, _player_number);
 		return;
 		}
 	
-	// En el VS de 2 humanos, el segundo jugador (buffer 1) usa los controles de P2.
+	// En el VS de 2 humanos (y en el entrenamiento con JUGADOR 2), el segundo jugador usa los controles de P2.
+	// Mientras grabas, el dummy lo manejas con los controles de P1.
 	// Online no: ahi cada uno usa los suyos de siempre.
-	var _p2 = (_vs && _player_number == 1);
+	var _p2 = ((_vs || global.training) && _player_number == 1 && global.training_rec_state != 1);
 	
 	//Input local vars
 	var _stick_dir = STICK_DIR.neutral;
@@ -174,6 +196,9 @@ function input_collect_local(_buffer, _player_number)
 	if (_attack_heavy) then buffer_poke(_buffer, 2, buffer_bool, _attack_heavy);
 	if (_pause) then buffer_poke(_buffer, 3, buffer_bool, _pause);
 	if (_attack_light2) then buffer_poke(_buffer, 4, buffer_bool, _attack_light2);
+	
+	// Entrenamiento: mientras grabas, se guardan los inputs del dummy (nuestro)
+	if (global.training && global.training_rec_state == 1 && _player_number == 1) then training_rec_capture(_buffer);
 	
 	return;
 	}

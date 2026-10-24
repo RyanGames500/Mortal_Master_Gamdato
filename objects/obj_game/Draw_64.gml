@@ -765,7 +765,7 @@ if (game_meta_state != GAME_META_STATE.starting)
 //Timer
 if (game_meta_state == GAME_META_STATE.running)
 	{
-	var _timer = match_time - (game_frame div 60);
+	var _timer = global.training ? match_time : (match_time - (game_frame div 60));
 	draw_set_font(fnt_timer);
 	draw_set_halign(fa_center);
 	draw_set_valign(fa_center);
@@ -824,11 +824,19 @@ if (game_paused)
 	draw_set_color(c_black);
 	draw_rectangle(0, 0, camera_width, camera_height, false);
 	draw_set_alpha(1.0);
-	draw_set_font(fnt_timer);
-	draw_set_halign(fa_center);
-	draw_set_valign(fa_center);
-	draw_set_color(c_white);
-	draw_text(camera_width div 2, camera_height div 2, "PAUSED");
+	
+	if (global.online_mode)
+		{
+		draw_set_font(fnt_timer);
+		draw_set_halign(fa_center);
+		draw_set_valign(fa_center);
+		draw_set_color(c_white);
+		draw_text(camera_width div 2, camera_height div 2, "PAUSED");
+		}
+	else
+		{
+		pause_menu_draw();
+		}
 	}
 
 
@@ -840,5 +848,7 @@ if (fade_alpha > 0)
 	draw_rectangle(0, 0, camera_width, camera_height, false);
 	draw_set_alpha(1.0); // Resetear el alfa general para no afectar otros dibujos
 	}
+
+training_draw_hud();
 game_draw_super_fx();
 //game_draw_super_green();
