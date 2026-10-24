@@ -84,7 +84,7 @@ p1_select       = 0; // ID del personaje elegido por P1
 
 css_start_timer = -1;
 
-if (!global.online_mode && !local_vs_human())
+if (!global.online_mode && !local_vs_human() && !global.training)
 	{
 	if (global.replay_mode)
 		{

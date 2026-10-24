@@ -1,3 +1,23 @@
+// Menu de pausa y salida al menu principal (nuestro): solo offline
+if (!global.online_mode)
+	{
+	// Selector de personaje y replays: ESC sale directo al menu principal
+	if (keyboard_check_pressed(vk_escape) && (game_meta_state == GAME_META_STATE.char_select || global.replay_mode))
+		{
+		game_exit_to_menu();
+		exit;
+		}
+	
+	if (game_paused)
+		{
+		pause_menu_update();
+		}
+	else if (keyboard_check_pressed(vk_escape) && game_meta_state == GAME_META_STATE.running && !global.replay_mode)
+		{
+		game_paused = true;
+		pause_index = 0;
+		}
+	}
 //Replays
 if (global.replay_mode)
 	{

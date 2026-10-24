@@ -38,6 +38,7 @@ menu_options = [
 	"ONLINE MATCHMAKING",
 	"REPLAYS",
 	"SETTINGS",
+	"TRAINING",
 	"EXIT"
 ];
 

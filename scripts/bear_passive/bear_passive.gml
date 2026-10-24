@@ -4,6 +4,23 @@ It is run every frame and allows motion input attacks to be performed.
 */
 function bear_passive()
 	{
+	//--- SUPER (3 barras): doble media luna + fuerte. Cancela cualquier ataque que ya conecto (golpe o bloqueo) ---
+	if (attack_script != bear_super_beam && super_state_ok())
+		{
+		if (meter_can_pay(METER_COST_SUPER_MAX) && input_pressed(INPUT.attack_light2) && super_motion_check())
+			{
+			meter_pay(METER_COST_SUPER_MAX);
+			input_ex_consume();
+			attack_stop();
+			attack_start(bear_super_beam);
+			super_activation_fx(2);
+			return;
+			}
+		}
+	
+	// Si ya estamos en el super no se dispara nada mas
+	if (attack_script == bear_super_beam) then return;
+	
 	// Solo desde estados donde se puede lanzar un especial (incluye cancel de normales)
 	if (!special_state_ok()) then return;
 	
