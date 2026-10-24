@@ -19,7 +19,11 @@ global.training_max_dmg = 0;		// dano de combo mas alto de la sesion
 global.training_rec_state = 0;		// 0 nada, 1 grabando, 2 repitiendo
 global.training_rec = [];			// frames grabados del dummy
 global.training_rec_pos = 0;		// frame actual de la repeticion
-
+global.training_ml_open = false;		// true = lista de movimientos abierta
+global.training_ml_idx = 0;			// personaje que se esta viendo
+global.training_ml_names = ["BEAR", "BLITSEN", "JOE", "BRAD", "DANNY", "DEMON", "LEX", "MARIEL", "MAYEL", "SAORI", "SCAR", "NINJA"];
+global.training_fdb = [];			// frame data guardado de cada movimiento (se llena solo)
+global.training_ml_tab = 0;			// 0 = especiales, 1 = normales
 /* Entradas del dummy (jugador 2) segun el modo elegido. Se llama desde input_collect_local. */
 function training_dummy_input(_buffer)
 	{
@@ -190,6 +194,13 @@ function training_fd_update()
 				_fd.adv_td = -1;
 				}
 			}
+		// Guarda el dano (y KD / agarre) del movimiento para la lista de movimientos
+		if (_conn && !_fd.prev_conn && script_exists(_p.attack_script))
+			{
+			var _rec = training_fdb_get(_p.attack_script, true);
+			if (_o.state != PLAYER_STATE.blockstun) then _rec.dmg = _fd.d_dmg;
+			if (_fd.d_hit == "KD" || _fd.d_hit == "AGARRE") then _rec.hit = _fd.d_hit;
+			}			
 		_fd.prev_conn = _conn;
 		
 		// --- 2) Ventaja: frames hasta que cada uno puede actuar, contados desde que termina el hitlag ---
@@ -211,7 +222,11 @@ function training_fd_update()
 					var _adv = _fd.adv_td - _fd.adv_ta;
 					var _txt = ((_adv > 0) ? "+" : "") + string(_adv);
 					if (_fd.adv_kind == 2) then _fd.d_block = _txt; else _fd.d_hit = _txt;
-					
+					if (script_exists(_fd.adv_script))
+						{
+						var _rec2 = training_fdb_get(_fd.adv_script, true);
+						if (_fd.adv_kind == 2) then _rec2.blk = _txt; else _rec2.hit = _txt;
+						}					
 					// numeros que se muestran a la derecha del frame meter
 					global.training_adv[_n] = _adv;
 					global.training_adv[1 - _n] = -_adv;
@@ -312,6 +327,15 @@ function training_fd_update()
 				_fd.d_startup = "-";
 				_fd.d_active = "-";
 				_fd.d_recovery = string(_fd.frame);
+				}
+			
+			// Guarda startup / activos / recuperacion para la lista de movimientos
+			if (script_exists(_fd.script))
+				{
+				var _rec3 = training_fdb_get(_fd.script, true);
+				_rec3.st = _fd.d_startup;
+				_rec3.ac = _fd.d_active;
+				_rec3.rc = _fd.d_recovery;
 				}
 			}
 		}
@@ -900,5 +924,405 @@ function game_exit_to_menu()
 	global.arcade = undefined;
 	global.training = false;
 	global.training_rec_state = 0;
+	global.training_ml_open = false;	
 	room_goto(rm_main_menu);
 	}
+	
+/* Abre la lista de movimientos empezando en el personaje del jugador 1 (nuestro). Lo llama el menu de pausa. */
+function training_ml_show()
+	{
+	global.training_ml_open = true;
+	global.training_ml_tab = 0;
+	var _p = training_player(0);
+	if (_p != noone)
+		{
+		for (var _i = 0; _i < array_length(global.training_ml_names); _i++)
+			{
+			if (global.training_ml_names[_i] == _p.character_name)
+				{
+				global.training_ml_idx = _i;
+				break;
+				}
+			}
+		}
+	}
+/*
+Movimientos de un personaje (nuestro). Cada fila: [nombre, comando en fichas, costo de barra, tipo].
+Tipo: 0 especial, 1 EX, 2 super. Costo: 100 = 1 barra.
+Fichas del comando: ver training_ml_draw_cmd. Sacado de los *_passive de cada personaje.
+*/
+function training_ml_data(_name)
+	{
+	var _qcf = "D DF F";				// cuarto de circulo adelante
+	var _sup = "D DF F D DF F";			// super: 2 cuartos de circulo adelante
+	
+	switch (_name)
+		{
+		case "BEAR":
+			return [
+				["ALIENTO DE FUEGO", "B F + M", 25, 0, bear_fire_breath],
+				["ZARPAZO + ONDA", _qcf + " + M", 25, 0, bear_claw_wave],
+				["MISILES", "D B + H", 25, 0, bear_missiles],
+				["EMBESTIDA", "B F + H", 25, 0, bear_charge],
+				["BURLA", "D D + L", 0, 0, bear_taunt],
+				["SUPER CANON", _sup + " + M", 300, 2, bear_super_beam]
+				];
+		case "BLITSEN":
+			return [
+				["ESPECIAL 1", "D F + M", 15, 0, blitsen_special1],
+				["ESPECIAL 2", "B F + L", 15, 0, blitsen_special2],
+				["SUPER LATIGO", _sup + " + M", 200, 2, blitsen_super_whip],
+				["SUPER AGARRE", _sup + " + H", 300, 2, blitsen_super_grab]
+				];
+		case "JOE":
+			return [
+				["PUNO CORRIDO", "B B + L", 25, 0, blocky_runpunch],
+				["PATADA CORRIDA", "B F + M / H", 25, 0, blocky_runkick],
+				["PUNO CORRIDO EX", "B B + L + M", 100, 1, blocky_runpunch_ex],
+				["PATADA CORRIDA EX", "B F + L + M", 100, 1, blocky_runkick_ex],
+				["SUPER PUNO", _sup + " + M", 200, 2, blocky_super_fist],
+				["SUPER CINEMATICO", _sup + " + H", 300, 2, blocky_super_cine]
+				];
+		case "BRAD":
+			return [
+				["RODADA", "D B + M", 25, 0, brad_roll],
+				["AGARRE", "D B + H", 25, 0, brad_throw],
+				["RODADA REBOTE EX", "D B + L + M", 100, 1, brad_roll_ex],
+				["AGARRE MARTILLEO EX", "D B + H + M", 100, 1, brad_throw_ex],
+				["SUPER RODADA", _sup + " + M", 200, 2, brad_super_roll],
+				["SUPER AGARRE", _sup + " + H", 300, 2, brad_super_grab]
+				];
+		case "DANNY":
+			return [
+				["MINAS DE ESCARCHA", "D DB B + M", 15, 0, danny_frost_mines],
+				["BOLA DE HIELO", _qcf + " + M", 25, 0, danny_frost_ball]
+				];
+		case "DEMON":
+			return [
+				["ESPECIAL DE SUELO", _qcf + " + M", 25, 0, demon_special_ground],
+				["PROYECTIL", "B F + L", 25, 0, demon_proyectil],
+				["DEVORAR EX", "H + M", 100, 1, demon_throw_ex]
+				];
+		case "LEX":
+			return [
+				["DISPARO", _qcf + " + L / H", 25, 0, lex_shot],
+				["BOMBA", "B B + L", 25, 0, lex_bomb],
+				["BOMBA EX", "B B + L + M", 100, 1, lex_bomb_ex],
+				["SUPER MISIL", _sup + " + M", 200, 2, lex_super_missile],
+				["SUPER CINEMATICO", _sup + " + H", 300, 2, lex_super_cine]
+				];
+		case "MARIEL":
+			return [
+				["SUPERPATADA", _qcf + " + L", 25, 0, mariel_special_superkick],
+				["SUPER DE RAGE", "B F + H", 200, 2, mariel_special_super],
+				["EMBESTIDA DEMOLEDORA", _sup + " + M", 200, 2, mariel_super_slam],
+				["TERREMOTO", _sup + " + H", 300, 2, mariel_super_terremoto]
+				];
+		case "MAYEL":
+			return [
+				["MARTILLO", _qcf + " + L / H", 25, 0, mayel_hammer],
+				["BUMERAN", "B F + M", 25, 0, mayel_boomerang],
+				["TORPEDO (AIRE)", "B F + M", 25, 0, mayel_volando],
+				["TORNADO DE CAPA", _sup + " + M", 200, 2, mayel_super_tornado],
+				["JONRON DE MARTILLO", _sup + " + H", 300, 2, mayel_super_jonron]
+				];
+		case "SAORI":
+			return [
+				["PICADA (AIRE)", "B B + L / M", 0, 0, saori_special_divekick],
+				["DRAGON PUNCH", "D F + L / M", 25, 0, saori_special_dp],
+				["SUPER PICADAS", _sup + " + M", 200, 2, saori_super_dives],
+				["SUPER COMBO", _sup + " + H", 300, 2, saori_super_combo]
+				];
+		case "SCAR":
+			return [
+				["SUPER MURO", _sup + " + M", 200, 2, scar_super_wall],
+				["SUPER AGARRE", _sup + " + H", 300, 2, scar_super_grab]
+				];
+		}
+	return [];
+	}
+
+
+
+/* Dibuja la lista de movimientos con su frame data (solo dibujo). Se llama desde pause_menu_draw. */
+/* Dibuja la lista de movimientos con su frame data (solo dibujo). Se llama desde pause_menu_draw. */
+function training_draw_movelist()
+	{
+	var _gw = display_get_gui_width();
+	var _gh = display_get_gui_height();
+	var _pw = 1200;
+	var _px = (_gw - _pw) * 0.5;
+	var _py = 70;
+	var _ph = _gh - 140;
+	var _name = global.training_ml_names[global.training_ml_idx];
+	var _rows = (global.training_ml_tab == 0) ? training_ml_data(_name) : training_ml_data_normals(_name);
+	var _gray = make_colour_rgb(130, 130, 150);
+	var _gold = make_colour_rgb(255, 200, 60);
+	
+	// fondo
+	draw_set_alpha(0.88);
+	draw_set_color(make_colour_rgb(12, 12, 20));
+	draw_rectangle(_px, _py, _px + _pw, _py + _ph, false);
+	draw_set_alpha(1);
+	draw_set_color(make_colour_rgb(240, 190, 70));
+	draw_rectangle(_px, _py, _px + _pw, _py + _ph, true);
+	
+	draw_set_font(fnt_menu);
+	draw_set_valign(fa_top);
+	
+	// titulo con flechas
+	draw_set_halign(fa_center);
+	training_draw_txt(_gw * 0.5, _py + 10, "<   " + _name + "   >", 0.8, c_white);
+	
+	// pestañas
+	training_draw_txt((_gw * 0.5) - 170, _py + 58, "ESPECIALES", 0.5, (global.training_ml_tab == 0) ? _gold : _gray);
+	training_draw_txt((_gw * 0.5) + 170, _py + 58, "NORMALES", 0.5, (global.training_ml_tab == 1) ? _gold : _gray);
+	
+	// encabezados
+	var _cx0 = _px + 24;
+	var _cx1 = _px + 340;
+	var _cols = [650, 725, 815, 900, 980, 1055, 1130];
+	var _heads = ["BARRA", "INICIO", "ACTIVO", "RECUP", "GOLPE", "BLOQ", "DANO"];
+	var _hy = _py + 100;
+	draw_set_halign(fa_left);
+	training_draw_txt(_cx0, _hy, "MOVIMIENTO", 0.36, _gray);
+	training_draw_txt(_cx1, _hy, "COMANDO", 0.36, _gray);
+	draw_set_halign(fa_center);
+	for (var _h = 0; _h < 7; _h++)
+		{
+		training_draw_txt(_px + _cols[_h], _hy, _heads[_h], 0.36, _gray);
+		}
+	
+	// filas
+	var _n = array_length(_rows);
+	var _rh = min(44, floor(320 / max(1, _n)));
+	if (_n == 0)
+		{
+		draw_set_halign(fa_center);
+		training_draw_txt(_gw * 0.5, _py + 190, "SIN ESPECIALES NI SUPERS", 0.55, c_white);
+		}
+	for (var _i = 0; _i < _n; _i++)
+		{
+		var _r = _rows[_i];
+		var _y = _hy + 34 + (_i * _rh);
+		var _col = c_white;
+		if (_r[3] == 1) then _col = make_colour_rgb(110, 190, 255);		// EX
+		if (_r[3] == 2) then _col = _gold;								// super
+		
+		draw_set_halign(fa_left);
+		draw_set_valign(fa_top);
+		training_draw_txt(_cx0, _y, _r[0], 0.5, _col);
+		training_ml_draw_cmd(_cx1, _y + 12, _r[1]);
+		
+		// numeros medidos de este movimiento (si ya lo usaste)
+		var _rec = training_fdb_get(_r[4], false);
+		var _vals = ["-", "-", "-", "-", "-", "-"];
+		if (!is_undefined(_rec))
+			{
+			_vals = [_rec.st, _rec.ac, _rec.rc, _rec.hit, _rec.blk, _rec.dmg];
+			}
+		
+		draw_set_halign(fa_center);
+		training_draw_txt(_px + _cols[0], _y, (_r[2] == 0) ? "-" : string(_r[2]), 0.45, _col);
+		for (var _k = 0; _k < 6; _k++)
+			{
+			var _t = _vals[_k];
+			var _cxk = _px + _cols[_k + 1];
+			if (_t == "-" || _t == "...")
+				{
+				training_draw_txt(_cxk, _y, "-", 0.45, _gray);
+				}
+			else if (_k == 3 || _k == 4)
+				{
+				// ventaja: verde si es +, rojo si es -
+				draw_set_halign(fa_left);
+				training_draw_adv(_cxk - (string_width(_t) * 0.225), _y, _t, 0.45);
+				draw_set_halign(fa_center);
+				}
+			else
+				{
+				training_draw_txt(_cxk, _y, _t, 0.45, c_white);
+				}
+			}
+		}
+	
+	// leyenda de botones con iconos (mando y teclado)
+	var _touch = instance_exists(obj_mobile_controls) && obj_mobile_controls.active;
+	var _ly = _py + _ph - 96;
+	var _lx = _px + 140;
+	var _bc = [make_colour_rgb(50, 190, 90), make_colour_rgb(60, 130, 230), make_colour_rgb(160, 80, 220)];
+	var _bl = ["L", "M", "H"];
+	var _bt = _touch ? ["= A", "= C", "= B"] : ["= A   /   J", "= X   /   K", "= B   /   L"];
+	draw_set_valign(fa_top);
+	for (var _b = 0; _b < 3; _b++)
+		{
+		var _bx = _lx + (_b * 320);
+		training_draw_btn(_bx, _ly + 12, _bc[_b], _bl[_b], 1);
+		draw_set_halign(fa_left);
+		draw_set_valign(fa_top);
+		training_draw_txt(_bx + 24, _ly, _bt[_b], 0.5, c_white);
+		}
+	
+	// ayuda abajo
+	draw_set_halign(fa_center);
+	draw_set_valign(fa_top);
+	training_draw_txt(_gw * 0.5, _py + _ph - 62, "SE LLENA SOLO AL USAR CADA MOVIMIENTO   |   GOLPE / BLOQ = VENTAJA   |   100 = 1 BARRA", 0.36, make_colour_rgb(190, 190, 210));
+	training_draw_txt(_gw * 0.5, _py + _ph - 34, _touch ? "TOCA EL CENTRO: ESPECIALES / NORMALES   |   LADOS: PERSONAJE   |   TOCA ABAJO: VOLVER" : "ARRIBA / ABAJO: ESPECIALES / NORMALES   |   IZQ / DER: PERSONAJE   |   ENTER O ESC: VOLVER", 0.36, make_colour_rgb(190, 190, 210));
+	
+	draw_set_color(c_white);
+	draw_set_alpha(1);
+	draw_set_halign(fa_left);
+	draw_set_valign(fa_top);
+	}
+	
+/* Dibuja un comando con iconos (nuestro). Fichas separadas por espacio:
+   F B D U DF DB UF UB = flechas (F = adelante, mirando a la derecha), L M H = botones, + y / = simbolos.
+   Devuelve la x donde termino. Solo dibujo. */
+function training_ml_draw_cmd(_x, _cy, _cmd)
+	{
+	var _s = _cmd + " ";
+	var _tok = "";
+	for (var _i = 1; _i <= string_length(_s); _i++)
+		{
+		var _c = string_char_at(_s, _i);
+		if (_c != " ")
+			{
+			_tok += _c;
+			}
+		else if (_tok != "")
+			{
+			var _ang = -1;
+			var _col = -1;
+			switch (_tok)
+				{
+				case "F":	_ang = 0;	break;
+				case "UF":	_ang = 45;	break;
+				case "U":	_ang = 90;	break;
+				case "UB":	_ang = 135;	break;
+				case "B":	_ang = 180;	break;
+				case "DB":	_ang = 225;	break;
+				case "D":	_ang = 270;	break;
+				case "DF":	_ang = 315;	break;
+				case "L":	_col = make_colour_rgb(50, 190, 90);	break;
+				case "M":	_col = make_colour_rgb(60, 130, 230);	break;
+				case "H":	_col = make_colour_rgb(160, 80, 220);	break;
+				}
+			
+			if (_ang >= 0)
+				{
+				training_draw_arrow(_x + 13, _cy, _ang, 1);
+				_x += 28;
+				}
+			else if (_col != -1)
+				{
+				training_draw_btn(_x + 13, _cy, _col, _tok, 1);
+				_x += 30;
+				}
+			else
+				{
+				var _w = max(18, (string_width(_tok) * 0.5) + 10);
+				draw_set_halign(fa_center);
+				draw_set_valign(fa_middle);
+				training_draw_txt(_x + (_w * 0.5), _cy, _tok, 0.5, c_white);
+				draw_set_halign(fa_left);
+				draw_set_valign(fa_top);
+				_x += _w;
+				}
+			_tok = "";
+			}
+		}
+	return _x;
+	}
+	
+/* Busca (o crea) el registro de frame data de un movimiento (nuestro). _fn = la funcion del ataque. */
+function training_fdb_get(_fn, _create)
+	{
+	for (var _i = 0; _i < array_length(global.training_fdb); _i++)
+		{
+		if (global.training_fdb[_i].fn == _fn) then return global.training_fdb[_i];
+		}
+	if (!_create) then return undefined;
+	var _e = { fn: _fn, st: "-", ac: "-", rc: "-", hit: "-", blk: "-", dmg: "-" };
+	array_push(global.training_fdb, _e);
+	return _e;
+	}	
+	
+/* Filas de golpes normales (nuestro): parado, agachado y aereo de L, M y H. _th = agarre o -1 si no tiene. */
+function training_ml_normals(_ls, _ms, _hs, _lc, _mc, _hc, _la, _ma, _ha, _th)
+	{
+	var _r = [
+		["LIGERO", "L", 0, 0, _ls],
+		["MEDIO", "M", 0, 0, _ms],
+		["FUERTE", "H", 0, 0, _hs],
+		["AGACHADO LIGERO", "D + L", 0, 0, _lc],
+		["AGACHADO MEDIO", "D + M", 0, 0, _mc],
+		["AGACHADO FUERTE", "D + H", 0, 0, _hc],
+		["AEREO LIGERO", "AIRE + L", 0, 0, _la],
+		["AEREO MEDIO", "AIRE + M", 0, 0, _ma],
+		["AEREO FUERTE", "AIRE + H", 0, 0, _ha]
+		];
+	if (_th != -1) then array_push(_r, ["AGARRE", "L + H", 0, 0, _th]);
+	return _r;
+	}
+
+/* Golpes normales de un personaje (nuestro). Sacado de los *_character_init. */
+function training_ml_data_normals(_name)
+	{
+	switch (_name)
+		{
+		case "BEAR":
+			return [
+				["LIGERO", "L", 0, 0, bear_light_ground],
+				["MEDIO", "M", 0, 0, bear_medium_ground],
+				["FUERTE", "H", 0, 0, bear_heavy_ground],
+				["AGACHADO (TODOS)", "D + L / M / H", 0, 0, bear_heavy_ground],
+				["AGARRE", "L + H", 0, 0, demon_throw]
+				];
+		case "DEMON":
+			return [
+				["LIGERO", "L", 0, 0, demon_light_ground],
+				["MEDIO", "M", 0, 0, demon_medium_ground],
+				["FUERTE", "H", 0, 0, demon_heavy_ground],
+				["AGACHADO (TODOS)", "D + L / M / H", 0, 0, demon_heavy_crouch],
+				["AGARRE", "L + H", 0, 0, demon_throw]
+				];
+		case "BLITSEN":
+			return training_ml_normals(blitsen_light_ground, blitsen_medium_ground, blitsen_heavy_ground,
+				blitsen_light_crouch, blitsen_medium_crouch, blitsen_heavy_crouch,
+				blitsen_light_aerial, blitsen_medium_aerial, blitsen_heavy_aerial, -1);
+		case "JOE":
+			return training_ml_normals(blocky_light_ground, blocky_light_ground2, blocky_heavy_ground,
+				blocky_light_crouch, blocky_medium_crouch, blocky_heavy_crouch,
+				blocky_light_aerial, blocky_medium_aerial, blocky_heavy_aerial, blocky_throw);
+		case "BRAD":
+			return training_ml_normals(brad_light_ground, brad_medium_ground, brad_heavy_ground,
+				brad_light_crouch, brad_medium_crouch, brad_heavy_crouch,
+				brad_light_aerial, brad_medium_aerial, brad_heavy_aerial, brad_throw_brainbuster);
+		case "DANNY":
+		case "NINJA":
+			return training_ml_normals(danny_light_ground, danny_medium_ground, danny_heavy_ground,
+				danny_light_crouch, danny_medium_crouch, danny_heavy_crouch,
+				danny_light_aerial, danny_medium_aerial, danny_heavy_aerial, -1);
+		case "LEX":
+			return training_ml_normals(lex_light_ground, lex_medium_ground, lex_heavy_ground,
+				lex_light_crouch, lex_medium_crouch, lex_heavy_crouch,
+				lex_light_aerial, lex_medium_aerial, lex_heavy_aerial, -1);
+		case "MARIEL":
+			return training_ml_normals(mariel_light_ground, mariel_medium_ground, mariel_heavy_ground,
+				mariel_light_crouch, mariel_medium_crouch, mariel_heavy_crouch,
+				mariel_light_aerial, mariel_medium_aerial, mariel_heavy_aerial, -1);
+		case "MAYEL":
+			return training_ml_normals(mayel_light_ground, mayel_medium_ground, mayel_heavy_ground,
+				mayel_light_crouch, mayel_medium_crouch, mayel_heavy_crouch,
+				mayel_light_aerial, mayel_medium_aerial, mayel_heavy_aerial, mayel_throw);
+		case "SAORI":
+			return training_ml_normals(saori_light_ground, saori_medium_ground, saori_heavy_ground,
+				saori_light_crouch, saori_medium_crouch, saori_heavy_crouch,
+				saori_light_aerial, saori_medium_aerial, saori_heavy_aerial, -1);
+		case "SCAR":
+			return training_ml_normals(scar_light_ground, scar_medium_ground, scar_heavy_ground,
+				scar_light_crouch, scar_medium_crouch, scar_heavy_crouch,
+				scar_light_aerial, scar_medium_aerial, scar_heavy_aerial, scar_throw);
+		}
+	return [];
+	}	

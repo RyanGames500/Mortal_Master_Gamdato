@@ -1,6 +1,6 @@
 ///@description Draw the pad
 
-if (!active) exit;
+if (!active || (!global.online_mode && instance_exists(obj_game) && obj_game.game_paused)) exit;
 
 //Translucent on purpose: it sits on the lower part of the screen, which is
 //where the fight happens. Visible enough to place a thumb without hiding the
