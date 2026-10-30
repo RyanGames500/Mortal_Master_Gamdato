@@ -58,6 +58,7 @@ function game_state_load(_buffer)
 		{
 		obj_game.stage_npc_used[@ _ni] = buffer_read(_buffer, buffer_s32);
 		}
+	obj_game.intro_count = buffer_read(_buffer, buffer_s16);		
 	//Everything that depends on the stage (acid finisher, floor height)
 	stage_apply();
 	

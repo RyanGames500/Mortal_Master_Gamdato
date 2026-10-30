@@ -10,7 +10,7 @@ Fases: 0 = giro y primer golpe, 1 = lo atrapa, 2 = suben girando, 3 = pausa y re
 //--- GIRO Y PRIMER GOLPE ---
 #macro MS1_SPIN_SPEED	0.8		//velocidad del giro: cuadros de la animacion por frame (0.5 = lento, 1 = normal, 2 = muy rapido)
 #macro MS1_FIRST_T		18		//frames del giro inicial (la ventana para pegar)
-#macro MS1_DMG_FIRST	5		//dano del primer golpe
+#macro MS1_DMG_FIRST	3		//dano del primer golpe
 #macro MS1_MISS_LAG		30		//si falla o lo bloquean
 //--- SUBIDA ---
 #macro MS1_PULL_T		10		//frames que tarda en jalar al rival al centro del tornado

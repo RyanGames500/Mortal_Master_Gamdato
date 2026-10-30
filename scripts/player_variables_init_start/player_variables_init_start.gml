@@ -97,7 +97,11 @@ function player_variables_init_start()
 	super_zoom = 1.0;
 	super_green = 0;	
 	super_lock = false;
-	super_freeze_hits = -1;		// golpes del combo cuando empezo a congelarme un super rival (nuestro)
+	super_freeze_hits = -1;
+	ch_phase = 0;		// fase de mi ataque: 0 startup, 1 activo, 2 recuperacion (nuestro)
+	ch_script = -1;		// ataque que estoy midiendo (nuestro)
+	ch_kind = 0;		// 1 counter, 2 punish counter: el ultimo que recibi (nuestro)
+	ch_show = 0;		// frames que se muestra el letrero (nuestro)	
 	//diferenciar espejos de cada peleador duplicado
 	current_pal = 0
 	override_surface=noone;

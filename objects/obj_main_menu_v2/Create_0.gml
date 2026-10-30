@@ -42,6 +42,13 @@ menu_options = [
 	"EXIT"
 ];
 
+// Demo (nuestro): solo estos modos
+if (global.demo_mode)
+	{
+	menu_options = ["LOCAL VS", "ARCADE", "TRAINING", "SETTINGS"];
+	if (os_browser == browser_not_a_browser) then array_push(menu_options, "EXIT");
+	}
+
 online_options = [
 	"QUICK PLAY",
 	"SALA PRIVADA",

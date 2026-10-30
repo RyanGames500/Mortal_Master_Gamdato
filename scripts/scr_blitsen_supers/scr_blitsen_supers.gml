@@ -15,8 +15,8 @@ Sprites nuevos (nuestros): spr_blitsen_summon, spr_fosa_grow, spr_fosa_idle, spr
 #macro FOSA_ROOT_DMG		6
 #macro FOSA_CHOMPS			6		//cuantas mordidas
 #macro FOSA_CHOMP_LEN		16		//frames de cada mordida
-#macro FOSA_CHOMP_DMG		5
-#macro FOSA_SPIT_DMG		28		//daño de la escupida final
+#macro FOSA_CHOMP_DMG		2
+#macro FOSA_SPIT_DMG		15		//daño de la escupida final
 #macro FOSA_SPIT_LAUNCH		24
 #macro FOSA_SPIT_KNOCK		30
 #macro FOSA_SUMMON_LEN		26		//invocacion antes de lanzar las raices

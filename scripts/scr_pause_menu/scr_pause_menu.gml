@@ -12,17 +12,17 @@ function pause_menu_label(_id)
 	{
 	switch (_id)
 		{
-		case "resume":	return "REANUDAR";
-		case "moves":	return "LISTA DE MOVIMIENTOS";
+		case "resume":	return "RESUME";
+		case "moves":	return "MOVE LIST";
 		case "dummy":	return "DUMMY: " + global.training_dummy_names[global.training_dummy];
-		case "rec":		return "GRABACION: " + ((global.training_rec_state == 1) ? "GRABANDO" : ((global.training_rec_state == 2) ? "REPITIENDO" : "NO"));
-		case "hp":		return "VIDA INFINITA: " + (global.training_inf_hp ? "SI" : "NO");
-		case "meter":	return "BARRA INFINITA: " + (global.training_inf_meter ? "SI" : "NO");
-		case "hitbox":	return "HITBOXES: " + (global.show_hitboxes ? "SI" : "NO");
-		case "fd":		return "FRAME DATA: " + (global.training_framedata ? "SI" : "NO");
-		case "inputs":	return "INPUTS: " + (global.training_inputs ? "SI" : "NO");
-		case "reset":	return "REINICIAR POSICION";
-		case "exit":	return "SALIR AL MENU";
+		case "rec":		return "RECORDING: " + ((global.training_rec_state == 1) ? "RECORDING" : ((global.training_rec_state == 2) ? "PLAYING" : "OFF"));
+		case "hp":		return "INFINITE HEALTH: " + (global.training_inf_hp ? "ON" : "OFF");
+		case "meter":	return "INFINITE METER: " + (global.training_inf_meter ? "ON" : "OFF");
+		case "hitbox":	return "HITBOXES: " + (global.show_hitboxes ? "ON" : "OFF");
+		case "fd":		return "FRAME DATA: " + (global.training_framedata ? "ON" : "OFF");
+		case "inputs":	return "INPUTS: " + (global.training_inputs ? "ON" : "OFF");
+		case "reset":	return "RESET POSITION";
+		case "exit":	return "EXIT TO MENU";
 		}
 	return _id;
 	}
@@ -184,57 +184,53 @@ function pause_menu_draw()
 		training_draw_movelist();
 		return;
 		}
-	
+
 	var _items = pause_menu_items();
 	var _n = array_length(_items);
 	var _idx = variable_instance_exists(id, "pause_index") ? clamp(pause_index, 0, _n - 1) : 0;
-	var _rh = 48;		// alto de cada fila (igual que en pause_menu_update)
-	
+	var _rh = 48;
+
 	var _cx = camera_width div 2;
 	var _top = (camera_height div 2) - ((_n * _rh) div 2);
-	
+
+	var _w = 640;
+	var _h = 40;
+	var _sl = 26;
+
 	draw_set_font(fnt_menu);
 	draw_set_halign(fa_center);
-	draw_set_valign(fa_center);
+	draw_set_valign(fa_middle);
 	draw_set_alpha(1);
-	
-	// Titulo
-	draw_set_color(c_white);
-	draw_text_transformed(_cx, _top - 50, global.training ? "PAUSA - ENTRENAMIENTO" : "PAUSA", 1.1, 1.1, 0);
-	
-	// Opciones
+
+	var _tw = 560;
+	var _th = 46;
+	var _title = global.training ? "PAUSE - TRAINING" : "PAUSE";
+	menu_b_para(_cx - (_tw / 2) + (_sl / 2), _top - 80, _tw, _th, _sl, MENU_B_ACC, 1);
+	draw_set_alpha(1);
+	draw_set_color(MENU_B_INK);
+	draw_text_transformed(_cx, _top - 80 + (_th / 2), _title, 1.1, 1.1, 0);
+
 	for (var _i = 0; _i < _n; _i++)
 		{
 		var _y = _top + (_i * _rh);
+		var _sel = (_i == _idx);
+		var _off = _sel ? 24 : 0;
 		var _txt = pause_menu_label(_items[_i]);
-		if (_i == _idx)
-			{
-			draw_set_color(c_black);
-			draw_text_transformed(_cx + 3, _y + 3, "> " + _txt + " <", 0.8, 0.8, 0);
-			draw_set_color(make_colour_rgb(110, 230, 150));
-			draw_text_transformed(_cx, _y, "> " + _txt + " <", 0.8, 0.8, 0);
-			}
-		else
-			{
-			draw_set_color(c_black);
-			draw_text_transformed(_cx + 3, _y + 3, _txt, 0.8, 0.8, 0);
-			draw_set_color(c_white);
-			draw_text_transformed(_cx, _y, _txt, 0.8, 0.8, 0);
-			}
+
+		menu_b_strip(_cx - (_w / 2) + (_sl / 2) + _off, _y - (_h / 2), _w, _h, _sl, _sel, 1);
+
+		draw_set_alpha(1);
+		draw_set_halign(fa_center);
+		draw_set_valign(fa_middle);
+		draw_set_color(_sel ? MENU_B_INK : MENU_B_TEXT);
+		draw_text_transformed(_cx + _off, _y, _txt, _sel ? 0.9 : 0.8, _sel ? 0.9 : 0.8, 0);
 		}
-	
-	// Ayuda
+
 	var _touch = instance_exists(obj_mobile_controls) && obj_mobile_controls.active;
-	draw_set_color(make_colour_rgb(180, 190, 190));
-	if (_touch)
-		{
-		draw_text_transformed(_cx, _top + (_n * _rh) + 24, "TOCA UNA OPCION", 0.45, 0.45, 0);
-		}
-	else
-		{
-		draw_text_transformed(_cx, _top + (_n * _rh) + 24, "ARRIBA/ABAJO: MOVER    IZQ/DER: CAMBIAR    ENTER: ELEGIR    ESC: REANUDAR", 0.45, 0.45, 0);
-		}
-	
+	var _help = _touch ? "TAP AN OPTION" : "UP/DOWN: MOVE   |   LEFT/RIGHT: CHANGE   |   ENTER: SELECT   |   ESC: RESUME";
+	menu_b_draw_footer(camera_width, camera_height, 0.7, _help);
+
+	draw_set_alpha(1);
 	draw_set_color(c_white);
 	draw_set_halign(fa_left);
 	draw_set_valign(fa_top);

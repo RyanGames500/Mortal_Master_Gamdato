@@ -77,7 +77,7 @@ function player_update(_inputs_array)
 		hitlag_frame--;
 		return;
 		}
-	
+	counter_phase_update();	
 	// Combo garantizado: si el rival prepara un super y yo estoy en medio de un combo, me quedo congelado hasta que me pegue (nuestro)
 	var _super_prep = false;
 	if (combo_active && (state == PLAYER_STATE.hitstun_ground || state == PLAYER_STATE.hitstun_aerial || state == PLAYER_STATE.grabbed))

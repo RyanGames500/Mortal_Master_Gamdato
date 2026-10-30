@@ -1,3 +1,4 @@
+#macro STAGE_NPC_ENABLED	false	// false = no hay NPC en ningun escenario
 #macro STAGE_NPC_MAX		2		// máximo de equipos por escenario
 #macro STAGE_NPC_COOLDOWN	900		// frames hasta que el equipo puede agarrar otra vez (900 = 15 s)
 #macro STAGE_NPC_DEBUG		false	// true = dibuja la zona de cada equipo
@@ -14,40 +15,35 @@
 #macro NPC_B_HOME_BACK		120		// dónde espera B: px detrás de A (hacia el lado contrario de la arena)
 #macro NPC_B_RUN			22		// frames que tarda B en llegar corriendo hasta el jugador
 #macro NPC_B_RETURN			32		// frames que tarda B en volver a su lugar
-/*
-Define un equipo de 2 personajes del escenario (nuestro).
-_x: posición de A (el que agarra)
-_dir: 1 si el equipo está a la izquierda de la arena (golpean hacia la derecha), -1 si está a la derecha
-_a_idle, _a_grab: sprites de A (esperando / agarrando). Origen Bottom Centre, dibujados mirando a la derecha
-_b_idle, _b_punch: sprites de B (esperando / pegando)
-Con -1 en un sprite se dibuja un bloque de color de prueba.
-_reach: qué tan cerca de A debe pasar el jugador · _delay: frames que debe estar en la zona
-*/
-function stage_npc(_x, _dir, _a_idle, _a_grab, _b_idle, _b_punch, _reach = 150, _scale = 6, _delay = 10)
+#macro NPC_Y_OFFSET			-164		// sube (negativo) o baja (positivo) a todos los NPC del escenario
+#macro NPC_OUTLINE_PX		4			// grosor del borde en pixeles de pantalla (0 = sin borde)
+#macro NPC_OUTLINE_COL		c_black		// color del borde
+
+function stage_npc(_x, _dir, _a_idle, _a_grab, _b_idle, _b_punch, _reach = 150, _scale = 6, _delay = 10, _b_run = -1, _b_punch2 = -1, _dy = 0)
 	{
-	return { x: _x, dir: _dir, a_idle: _a_idle, a_grab: _a_grab, b_idle: _b_idle, b_punch: _b_punch,
-		reach: _reach, scale: _scale, delay: _delay, solo: false };
+	return { x: _x, dir: _dir, a_idle: _a_idle, a_grab: _a_grab, b_idle: _b_idle, b_punch: _b_punch, b_run: _b_run, b_punch2: _b_punch2,
+		reach: _reach, scale: _scale, delay: _delay, solo: false, dy: _dy };
 	}
-/*
-NPC solitario (nuestro): si pasas por delante de él te da un golpe fuerte y te manda hacia atrás.
-_x: posición · _dir: 1 si mira a la derecha, -1 si mira a la izquierda
-_idle, _punch: sus sprites (origen Bottom Centre, dibujados mirando a la derecha). Con -1 dibuja un bloque de prueba
-*/
-function stage_npc_solo(_x, _dir, _idle, _punch, _reach = 200, _scale = 6, _delay = 6)
+
+function stage_npc_solo(_x, _dir, _idle, _punch, _reach = 200, _scale = 6, _delay = 6, _dy = 0)
 	{
-	return { x: _x, dir: _dir, a_idle: _idle, a_grab: _punch, b_idle: -1, b_punch: -1,
-		reach: _reach, scale: _scale, delay: _delay, solo: true };
+	return { x: _x, dir: _dir, a_idle: _idle, a_grab: _punch, b_idle: -1, b_punch: -1, b_run: -1, b_punch2: -1,
+		reach: _reach, scale: _scale, delay: _delay, solo: true, dy: _dy };
 	}
-/*
-Equipos de cada escenario (nuestro). Agrega un case por escenario.
-*/
+
 function stage_npcs_get(_id)
 	{
+	if (!STAGE_NPC_ENABLED) then return [];		
 	switch (_id)
 		{
 		case 6: return [
-			stage_npc((room_width div 2) - 900, 1, -1, -1, -1, -1),		// equipo de dos: agarra y golpea
-			stage_npc_solo((room_width div 2) + 900, -1, -1, -1),		// solitario: pega a quien pasa por delante
+			// equipo de dos: A agarra, B pega alternando dos golpes
+			stage_npc((room_width div 2) - 900, 1,
+				spr_npc_hoodie_cheer, spr_npc_hoodie_grab,
+				spr_npc_hoodie_cheer, spr_npc_hoodie_punch,
+				150, 6, 10, -1, spr_npc_hoodie_punch2),
+			// solitario: festeja y pega
+			stage_npc_solo((room_width div 2) + 900, -1, spr_npc_hoodie_cheer, spr_npc_hoodie_punch),
 			];
 		
 		default: return [];
@@ -236,12 +232,28 @@ function stage_npc_release(_team)
 	hsp = _team.dir * 10;
 	}
 
-/* Dibuja un sprite, o el personaje hecho por código si todavía no existe (nuestro) */
+/* Dibuja un sprite con borde, o el personaje hecho por codigo si todavia no existe */
 function stage_npc_draw_one(_spr, _frame, _x, _y, _xs, _ys, _style, _t, _mode = 0)
 	{
 	if (sprite_exists(_spr))
 		{
-		draw_sprite_ext(_spr, min(_frame, sprite_get_number(_spr) - 1), _x, _y, _xs, _ys, 0, c_white, 1);
+		var _f = min(_frame, sprite_get_number(_spr) - 1);
+		
+		// Borde: la silueta teñida, corrida hacia los 8 lados
+		if (NPC_OUTLINE_PX > 0)
+			{
+			var _o = NPC_OUTLINE_PX * (abs(_ys) / 6);
+			for (var _ox = -1; _ox <= 1; _ox++)
+				{
+				for (var _oy = -1; _oy <= 1; _oy++)
+					{
+					if (_ox == 0 && _oy == 0) then continue;
+					draw_sprite_ext(_spr, _f, _x + (_ox * _o), _y + (_oy * _o), _xs, _ys, 0, NPC_OUTLINE_COL, 1);
+					}
+				}
+			}
+		
+		draw_sprite_ext(_spr, _f, _x, _y, _xs, _ys, 0, c_white, 1);
 		}
 	else
 		{
@@ -249,10 +261,6 @@ function stage_npc_draw_one(_spr, _frame, _x, _y, _xs, _ys, _style, _t, _mode = 
 		}
 	}
 
-/*
-Dibuja los equipos (detrás de los personajes). Se llama desde obj_background_manager (Draw).
-Su animación sale del contador npc_seq del jugador agarrado.
-*/
 function stage_npcs_draw()
 	{
 	var _teams = stage_npcs_list();
@@ -262,7 +270,7 @@ function stage_npcs_draw()
 		{
 		var _tm = _teams[_i];
 		var _s = _tm.scale;
-		var _y = obj_ground.y;
+		var _y = obj_ground.y + NPC_Y_OFFSET + _tm.dy;
 		
 		// Jugador atrapado por este equipo (_t) o que acaba de ser soltado (_back)
 		var _t = -1;
@@ -281,7 +289,7 @@ function stage_npcs_draw()
 			var _start = NPC_SOLO_HIT - 8;
 			if (_t < _start)
 				{
-				stage_npc_draw_one(_tm.a_idle, game_frame_idx(), _ax, _y, _tm.dir * _s, _s, 2, _t);
+				stage_npc_draw_one(_tm.a_idle, npc_idle_idx(_tm.a_idle, _i), _ax, _y, _tm.dir * _s, _s, 2, _t);
 				}
 			else
 				{
@@ -293,14 +301,14 @@ function stage_npcs_draw()
 			// A: festeja, o agarra
 			if (_t < 0)
 				{
-				stage_npc_draw_one(_tm.a_idle, game_frame_idx(), _ax, _y, _tm.dir * _s, _s, 0, _t);
+				stage_npc_draw_one(_tm.a_idle, npc_idle_idx(_tm.a_idle, _i), _ax, _y, _tm.dir * _s, _s, 0, _t);
 				}
 			else
 				{
 				stage_npc_draw_one(_tm.a_grab, floor(_t / NPC_ANIM_SPEED), _ax, _y, _tm.dir * _s, _s, 0, _t);
 				}
 			
-			// B: espera atrás festejando, sale corriendo, pega y vuelve
+			// B: espera atras festejando, sale corriendo, pega y vuelve
 			var _bx = _tm.x + (_tm.dir * NPC_STRIKER_DX);
 			var _hx = _tm.x - (_tm.dir * NPC_B_HOME_BACK);
 			var _bpx = _hx;
@@ -327,13 +335,30 @@ function stage_npcs_draw()
 				_bmode = 1;
 				}
 			
-			if (_bmode == 1 || _t < (NPC_HIT1 - 6))
+			if (_bmode == 1)
 				{
-				stage_npc_draw_one(_tm.b_idle, game_frame_idx(), _bpx, _y, _bface * _s, _s, 1, _t, _bmode);
+				// Corriendo: usa su sprite de correr si existe
+				if (sprite_exists(_tm.b_run))
+					{
+					var _ri = (obj_game.game_frame div 3) mod sprite_get_number(_tm.b_run);
+					stage_npc_draw_one(_tm.b_run, _ri, _bpx, _y, _bface * _s, _s, 1, _t, 0);
+					}
+				else
+					{
+					stage_npc_draw_one(_tm.b_idle, npc_idle_idx(_tm.b_idle, _i + 1), _bpx, _y, _bface * _s, _s, 1, _t, 1);
+					}
+				}
+			else if (_t < (NPC_HIT1 - 6))
+				{
+				stage_npc_draw_one(_tm.b_idle, npc_idle_idx(_tm.b_idle, _i + 1), _bpx, _y, _bface * _s, _s, 1, _t, 0);
 				}
 			else
 				{
-				stage_npc_draw_one(_tm.b_punch, floor((_t - (NPC_HIT1 - 6)) / NPC_ANIM_SPEED), _bpx, _y, _bface * _s, _s, 1, _t, 0);
+				// Golpe 1 y 3: punch · golpe 2: punch2
+				var _hk = floor((_t - (NPC_HIT1 - 8)) / 16);
+				var _psp = (sprite_exists(_tm.b_punch2) && (_hk mod 2) == 1) ? _tm.b_punch2 : _tm.b_punch;
+				var _pf = sprite_exists(_psp) ? npc_punch_idx(_psp, _t) : floor((_t - (NPC_HIT1 - 6)) / NPC_ANIM_SPEED);
+				stage_npc_draw_one(_psp, _pf, _bpx, _y, _bface * _s, _s, 1, _t, 0);
 				}
 			}
 		
@@ -354,11 +379,19 @@ function stage_npcs_draw()
 			}
 		}
 	}
-
-/* Imagen de la animación de espera (cambia sola según el frame del juego; solo dibujo) */
-function game_frame_idx()
+	
+/* Imagen de la animacion de espera: recorre todos los frames del sprite (el desfase _off hace que no festejen sincronizados) */
+function npc_idle_idx(_spr, _off = 0)
 	{
+	if (sprite_exists(_spr)) then return ((obj_game.game_frame + (_off * 7)) div 6) mod sprite_get_number(_spr);
 	return (obj_game.game_frame div 8) mod 4;
+	}
+
+/* Frame del puño de B: se repite cada golpe y el impacto cae en el brazo estirado */
+function npc_punch_idx(_spr, _t)
+	{
+	var _f = (_t - (NPC_HIT1 - 8)) mod 16;
+	return floor(_f * sprite_get_number(_spr) / 16);
 	}
 	
 	

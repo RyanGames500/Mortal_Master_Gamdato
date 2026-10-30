@@ -27,7 +27,7 @@ Fases: 0 = carrera, 1 = agarra y se hace bolita, 2 = salto, 3 = impacto, 4 = reb
 #macro SP_JUMP_HSP		6		//cuanto avanza hacia adelante en el aire
 //--- IMPACTO ---
 #macro SP_SLAM_X		200		//donde queda el rival, delante de Brad
-#macro SP_DMG_IMPACT	40		//dano del impacto
+#macro SP_DMG_IMPACT	25		//dano del impacto
 #macro SP_IMPACT_LAG	12		//congelado corto al pegar contra el piso
 #macro SP_PAUSE_T		10		//pausa dramatica antes de soltarlo
 #macro SP_DMG_FINAL		12		//dano de la salida en knockdown

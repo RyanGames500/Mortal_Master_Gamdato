@@ -37,12 +37,12 @@ function blocky_runkick_ex(_override_phase)
 				obj_game.cam_shake = max(obj_game.cam_shake, 4);
 				
 				// primera patada (no tira al piso para poder enlazar la segunda)
-				var _hitbox = hitbox_create(95, 18, 0.8, 1, 12, 15);
+				var _hitbox = hitbox_create(95, 18, 0.8, 1, 5, 15);
 				_hitbox.hitlag = 10;
 				_hitbox.launch_speed = 6;
 				_hitbox.high = true;
 				_hitbox.knockback = 8;
-				_hitbox.hitstun = 28;
+				_hitbox.hitstun = 20;
 				}
 			
 			player_move();
@@ -64,13 +64,13 @@ function blocky_runkick_ex(_override_phase)
 				{
 				attack_connected = false;
 				
-				var _hitbox2 = hitbox_create(100, 18, 1, 1.2, 14, 8);
+				var _hitbox2 = hitbox_create(100, 18, 1, 1.2, 5, 8);
 				_hitbox2.hitlag = 13;
 				_hitbox2.launch_speed = 14;
 				_hitbox2.high = true;
 				_hitbox2.knockback = 20;
 				_hitbox2.knockdown = true;
-				_hitbox2.hitstun = 40;
+				_hitbox2.hitstun = 20;
 				obj_game.cam_shake = max(obj_game.cam_shake, 7);
 				}
 			

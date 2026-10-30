@@ -106,7 +106,7 @@ function blocky_super_cine(_override_phase)
 				anim_sprite = spr_blocky_light_ground;
 				anim_frame = 2;
 				
-				var _op = hitbox_create(110, -54, 2.0, 0.8, 7, 8);
+				var _op = hitbox_create(110, -54, 2.0, 0.8, 2, 8);
 				_op.hitlag = 4;
 				_op.knockback = 3;
 				_op.hitstun = 60;
@@ -198,13 +198,13 @@ function blocky_super_cine(_override_phase)
 				hsp = 20 * facing;
 				
 				// Golpe final de fuego: manda a volar
-				var _fin = hitbox_create(190, -40, 2.8, 1.6, 40, 22);
+				var _fin = hitbox_create(190, -40, 2.8, 1.6, 20, 5);
 				_fin.hitlag = 12;
 				_fin.launch_speed = 24;
 				_fin.high = true;
 				_fin.knockback = 34;
 				_fin.knockdown = true;
-				_fin.hitstun = 70;
+				_fin.hitstun = 50;
 				
 				super_hit_fx = 8;			// destello al soltar el golpe
 				obj_game.cam_shake = max(obj_game.cam_shake, 10);

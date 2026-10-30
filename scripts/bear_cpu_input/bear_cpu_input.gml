@@ -1,212 +1,330 @@
+/*
+Cerebro del jefe Bear v2.
+Mismo estilo que la CPU normal: solo genera inputs, azar determinista (cpu_rand), sin memoria propia.
+Los combos funcionan asi: mientras su normal esta en el aire ya va metiendo la palanca del especial
+(el historial de palanca del motor la recuerda) y cuando el golpe conecta aprieta el boton -> cancel.
+*/
+
+//Palanca (relativa al frente) del frame _n de un comando
+function bear_motion_stick(_kind, _n)
+	{
+	switch (_kind)
+		{
+		case 1:	// QCF: zarpazo + onda
+			if (_n < 2) then return STICK_DIR.down;
+			if (_n < 4) then return STICK_DIR.forward_down;
+			return STICK_DIR.forward;
+		case 2:	// atras, adelante: aliento (medio) / embestida (fuerte)
+			return (_n < 3) ? STICK_DIR.backward : STICK_DIR.forward;
+		case 3:	// abajo, atras: misiles
+			return (_n < 3) ? STICK_DIR.down : STICK_DIR.backward;
+		case 4:	// doble cuarto de circulo: super
+			if (_n >= 12) then return STICK_DIR.neutral;
+			var _s = _n mod 6;
+			if (_s < 2) then return STICK_DIR.down;
+			if (_s < 4) then return STICK_DIR.forward_down;
+			return STICK_DIR.forward;
+		}
+	return STICK_DIR.neutral;
+	}
+
 function bear_cpu_input(_buffer, _cpu, _opponent)
 	{
-	// ---------- Ajustes del jefe (0-100) | todos estimados, ajústalos jugando ----------
-	var _block_chance = 25;		// probabilidad de bloquear cuando el rival ataca cerca
-	var _aggression   = 92;		// probabilidad de atacar estando cerca
-	var _near = 230;			// distancia "cerca" en píxeles
-	var _mid  = 430;			// distancia "media"; más allá es "lejos"
-	var _taunt_rate = 70;		// probabilidad de burlarse cuando el rival está caído
+	// ---------- Ajustes del jefe (0-100) | ajustalos jugando ----------
+	var _block_chance = 55;		// bloquear cuando el rival ataca cerca
+	var _block_acc    = 88;		// acertar la altura (alto/bajo)
+	var _aggression   = 92;
+	var _combo_rate   = 90;		// seguir el combo cuando conecta
+	var _ender_rate   = 65;		// cancelar un normal en especial
+	var _punish_rate  = 70;		// castigar ataques que fallaron
+	var _aa_rate      = 80;		// anti-aereo
+	var _super_rate   = 22;		// probabilidad por tanda de 16 frames con 3 barras
+	var _near = 230;
+	var _mid  = 430;
+	var _taunt_rate = 35;
 	
-	// Fase furiosa: con menos de la mitad de vida ataca todo el tiempo y casi no bloquea
+	// Fase furiosa: menos de la mitad de vida
 	if (_cpu.hp <= _cpu.hp_max * 0.5)
 		{
 		_aggression = 100;
-		_block_chance = 10;
+		_block_chance = 35;
+		_ender_rate = 85;
+		_super_rate = 40;
+		_taunt_rate = 10;
 		}
 	
-	// ---------- Acciones (nuestras) ----------
-	var _A_NONE = 0, _A_FORWARD = 1, _A_LIGHT = 2, _A_MEDIUM = 3, _A_HEAVY = 4, _A_THROW = 5;
-	var _A_CLAW = 6, _A_MISSILES = 7, _A_FIRE = 8, _A_CHARGE = 9, _A_TAUNT = 10;
-	var _A_BLOCK_HIGH = 11, _A_BLOCK_LOW = 12, _A_RETREAT = 13;
-	
-	// ---------- Ventana de decisión (igual que cpu_input_script) ----------
+	// ---------- Lectura ----------
 	var _frame = obj_game.game_frame;
-	var _win = _frame div 8;		// la decisión dura 8 frames
-	var _t = _frame mod 8;			// frame dentro de la ventana
+	var _win = _frame div 8;
+	var _t = _frame mod 8;
 	var _pn = _cpu.player_number;
 	var _r = cpu_rand(_win, _pn, 100);
 	var _pick = cpu_rand(_win, _pn + 3, 100);
 	
 	var _dist = abs(_opponent.x - _cpu.x);
-	var _opp_attacking = (_opponent.state == PLAYER_STATE.attacking);
+	var _opp_atk = (_opponent.state == PLAYER_STATE.attacking);
+	var _opp_blocking = (_opponent.state == PLAYER_STATE.blockstun);
+	var _opp_hit = (_opponent.state == PLAYER_STATE.hitstun_ground || _opponent.state == PLAYER_STATE.hitstun_aerial);
 	var _opp_down = (_opponent.state == PLAYER_STATE.knockdown || _opponent.state == PLAYER_STATE.acostado);
-	var _meter_ok = (_cpu.meter >= METER_COST_SPECIAL);
+	var _opp_air = (_opponent.state == PLAYER_STATE.aerial);
+	var _meter = _cpu.meter;
+	var _meter_ok = (_meter >= METER_COST_SPECIAL);
+	var _super_ok = (_meter >= METER_COST_SUPER_MAX);
 	var _can_throw = cpu_flag(_cpu, "has_grab", true);
+	var _atk = (_cpu.state == PLAYER_STATE.attacking);
 	
-	var _cpu_busy = (_cpu.state == PLAYER_STATE.hitstun_ground || _cpu.state == PLAYER_STATE.hitstun_aerial
+	var _busy = (_cpu.state == PLAYER_STATE.hitstun_ground || _cpu.state == PLAYER_STATE.hitstun_aerial
 		|| _cpu.state == PLAYER_STATE.knockdown || _cpu.state == PLAYER_STATE.acostado
 		|| _cpu.state == PLAYER_STATE.grabbed);
 	
-	// ---------- Decisión ----------
-	var _act = _A_NONE;
+	var _stick = STICK_DIR.neutral, _light = false, _heavy = false, _light2 = false;
+	var _done = false;
 	
-	if (_cpu_busy)
+	// ---------- 1) Golpeado ----------
+	if (_busy) then _done = true;
+	
+	// ---------- 2) Atacando: combos ----------
+	if (!_done && _atk)
 		{
-		// Golpeado: no puede hacer nada útil
-		_act = _A_NONE;
-		}
-	else if (_cpu.state == PLAYER_STATE.attacking)
-		{
-		// Atacando: se queda quieto, salvo cancelar un golpe que conectó en zarpazo+onda
-		if (_cpu.attack_connected && _meter_ok && _dist < _mid && _pick < 70) then _act = _A_CLAW;
-		else _act = _A_NONE;
-		}
-	else if (_opp_attacking && _dist < 220 && _r < _block_chance)
-		{
-		// El rival ataca cerca: bloquea alto o bajo al azar
-		_act = (cpu_rand(_win, _pn + 7, 100) < 50) ? _A_BLOCK_LOW : _A_BLOCK_HIGH;
-		}
-	else if (_opp_down)
-		{
-		// Rival en el suelo: se burla (parado y sin estar pegado a él) o se acerca a presionar
-		if (_cpu.state == PLAYER_STATE.idle && _dist > 120 && _pick < _taunt_rate) then _act = _A_TAUNT;
-		else if (_dist > _near && _pick < 90) then _act = _A_FORWARD;
-		else _act = _A_NONE;
-		}
-	else if (_dist > _mid)
-		{
-		// LEJOS: proyectiles si tiene barra, si no se acerca; a veces se ríe de lejos
-		if (_meter_ok)
+		_done = true;
+		var _astart = _frame - _cpu.state_time;		// frame en que empezo este ataque (estable durante todo el ataque)
+		var _n = _cpu.state_time;
+		var _cancelable = false;
+		with (_cpu) { _cancelable = attack_cancelable_normal(); }
+		
+		// Remate elegido: 0 ninguno, 4 super, 1 zarpazo, 2 aliento/embestida, 3 misiles
+		var _end = 0, _end_btn = 0;	// boton: 2 medio, 3 fuerte
+		if (_super_ok && cpu_rand(_astart, _pn + 13, 100) < (_super_rate * 2))
 			{
-			if (_pick < 30) then _act = _A_MISSILES;
-			else if (_pick < 50) then _act = _A_FIRE;
-			else if (_pick < 62) then _act = _A_CHARGE;
-			else if (_pick < 70) then _act = _A_TAUNT;
-			else _act = _A_FORWARD;
+			_end = 4; _end_btn = 2;
 			}
-		else
+		else if (_cancelable && _meter_ok && cpu_rand(_astart, _pn + 15, 100) < _ender_rate)
 			{
-			if (_pick < 82) then _act = _A_FORWARD;
-			else if (_pick < 92) then _act = _A_TAUNT;
-			else _act = _A_NONE;
+			var _e = cpu_rand(_astart, _pn + 17, 100);
+			if (_e < 40) then { _end = 1; _end_btn = 2; }
+			else if (_e < 60) then { _end = 2; _end_btn = 2; }
+			else if (_e < 85) then { _end = 2; _end_btn = 3; }
+			else { _end = 3; _end_btn = 3; }
 			}
-		}
-	else if (_dist > _near)
-		{
-		// MEDIA: especiales casi siempre, si no se acerca
-		if (_meter_ok)
+		
+		if (_end != 0)
 			{
-			if (_pick < 25) then _act = _A_CLAW;
-			else if (_pick < 40) then _act = _A_MISSILES;
-			else if (_pick < 52) then _act = _A_FIRE;
-			else if (_pick < 68) then _act = _A_CHARGE;
-			else _act = _A_FORWARD;
+			// Palanca desde el inicio del ataque; el boton solo cuando conecta (y ya termino la palanca)
+			_stick = bear_motion_stick(_end, _n);
+			var _ready = (_end == 4) ? (_n >= 12) : (_n >= 6);
+			if (_cpu.attack_connected && _opp_hit && _ready)
+				{
+				if (_end_btn == 2) then _light2 = true;
+				else _heavy = true;
+				}
 			}
-		else
+		else if (_cpu.attack_connected && _opp_hit && cpu_rand(_frame div 4, _pn + 21, 100) < _combo_rate && (_frame mod 3) == 0)
 			{
-			_act = _A_FORWARD;
-			}
-		}
-	else
-		{
-		// CERCA: normales, agarre, especial pegado; casi no retrocede
-		if (_r < _aggression)
-			{
-			if (_pick < 18) then _act = _A_LIGHT;
-			else if (_pick < 34) then _act = _A_MEDIUM;
-			else if (_pick < 48) then _act = _A_HEAVY;
-			else if (_pick < 58) then _act = _can_throw ? _A_THROW : _A_HEAVY;
-			else if (_pick < 80) then _act = _meter_ok ? _A_CLAW : _A_MEDIUM;
-			else if (_pick < 92) then _act = _meter_ok ? _A_CHARGE : _A_LIGHT;
-			else _act = _meter_ok ? _A_FIRE : _A_MEDIUM;
-			}
-		else if (_r < _aggression + 6)
-			{
-			_act = _A_RETREAT;
-			}
-		else
-			{
-			_act = _A_MEDIUM;
+			// Sin remate: encadena el mismo tipo de golpe
+			var _as = _cpu.attack_script;
+			var _list = _cpu.attacks;
+			if (_as == _list[$ "light_ground"] || _as == _list[$ "light_crouch"] || _as == _list[$ "light_aerial"]) then _light = true;
+			else if (_as == _list[$ "medium_ground"] || _as == _list[$ "medium_crouch"] || _as == _list[$ "medium_aerial"]) then _light2 = true;
+			else if (_as == _list[$ "heavy_ground"] || _as == _list[$ "heavy_crouch"] || _as == _list[$ "heavy_aerial"]) then _heavy = true;
 			}
 		}
 	
-	// ---------- Entradas según la acción (dirección en frames 0-5, botón en el 6) ----------
-	var _stick = STICK_DIR.neutral;
-	var _light = false;
-	var _heavy = false;
-	var _light2 = false;
-	
-	switch (_act)
+	// ---------- 3) Super desde neutral: doble cuarto de circulo en 16 frames + medio ----------
+	if (!_done && _super_ok)
 		{
-		case _A_FORWARD:
-			_stick = STICK_DIR.forward;
-		break;
-		
-		case _A_RETREAT:
-			_stick = STICK_DIR.backward;
-		break;
-		
-		case _A_BLOCK_HIGH:
-			_stick = STICK_DIR.backward;
-		break;
-		
-		case _A_BLOCK_LOW:
-			_stick = STICK_DIR.backward_down;
-		break;
-		
-		// Normales: botón en el frame 0 de la ventana
-		case _A_LIGHT:
-			if (_t == 0) then _light = true;
-		break;
-		case _A_MEDIUM:
-			if (_t == 0) then _light2 = true;
-		break;
-		case _A_HEAVY:
+		var _pair = (_frame div 16);
+		var _n16 = _frame mod 16;
+		if (_dist < 380 && !_opp_down && cpu_rand(_pair, _pn + 90, 100) < (_opp_hit ? 70 : _super_rate))
+			{
+			_done = true;
+			_stick = bear_motion_stick(4, _n16);
+			if (_n16 == 13 || _n16 == 14) then _light2 = true;
+			}
+		}
+	
+	// ---------- 4) Reacciones (neutral) ----------
+	if (!_done)
+		{
+		// Anti-aereo
+		if (_opp_air && _dist > 60 && _dist < 340 && _r < _aa_rate)
+			{
+			_done = true;
 			if (_t == 0) then _heavy = true;
-		break;
-		case _A_THROW:
+			}
+		// El rival ataca cerca
+		else if (_opp_atk && _dist < 280)
+			{
+			var _recover = _opponent.attack_connected;							// ya pego o fue bloqueado: esta recuperando
+			var _whiff = (!_opponent.attack_connected && _opponent.state_time > 14);	// ataque largo que no llega
+			if ((_recover || _whiff) && _r < _punish_rate)
+				{
+				_done = true;
+				if (_dist < _near)
+					{
+					if (_t == 0)
+						{
+						if (_pick < 40) then _heavy = true;
+						else if (_pick < 65 && _can_throw) then { _light = true; _heavy = true; }
+						else _light2 = true;
+						}
+					}
+				else if (_meter_ok)
+					{
+					// Castigo de lejos: embestida (atras, adelante + fuerte)
+					_stick = (_t < 3) ? STICK_DIR.backward : STICK_DIR.forward;
+					if (_t == 6) then _heavy = true;
+					}
+				else _stick = STICK_DIR.forward;
+				}
+			else if (!_recover && _dist < 240 && _r < _block_chance)
+				{
+				// Lee la altura del ataque
+				_done = true;
+				var _os = _opponent.attack_script;
+				var _ol = _opponent.attacks;
+				var _low = (_os == _ol[$ "light_crouch"] || _os == _ol[$ "medium_crouch"] || _os == _ol[$ "heavy_crouch"]);
+				var _right = (cpu_rand(_win, _pn + 7, 100) < _block_acc);
+				_stick = (_right ? _low : !_low) ? STICK_DIR.backward_down : STICK_DIR.backward;
+				}
+			}
+		}
+	
+	// ---------- 5) Ofensiva ----------
+	if (!_done)
+		{
+		_done = true;
+		
+		if (_opp_down)
+			{
+			// Rival en el suelo: burla o presion
+			if (_cpu.state == PLAYER_STATE.idle && _dist > 120 && _pick < _taunt_rate)
+				{
+				// Burla: abajo, soltar, abajo + ligero
+				if (_t < 2) then _stick = STICK_DIR.down;
+				else if (_t < 4) then _stick = STICK_DIR.neutral;
+				else if (_t < 6) then _stick = STICK_DIR.down;
+				else if (_t == 6) then _light = true;
+				}
+			else if (_dist > _near) then _stick = STICK_DIR.forward;
+			}
+		else if (_dist > _mid)
+			{
+			// LEJOS: zoneo
+			var _act = 0;
+			if (_meter_ok)
+				{
+				if (_pick < 35) then _act = 1;			// misiles
+				else if (_pick < 55) then _act = 2;		// aliento
+				else if (_pick < 70) then _act = 3;		// embestida
+				}
+			if (_act == 1)
+				{
+				_stick = bear_motion_stick(3, _t);
+				if (_t == 6) then _heavy = true;
+				}
+			else if (_act == 2)
+				{
+				_stick = bear_motion_stick(2, _t);
+				if (_t == 6) then _light2 = true;
+				}
+			else if (_act == 3)
+				{
+				_stick = bear_motion_stick(2, _t);
+				if (_t == 6) then _heavy = true;
+				}
+			else _stick = STICK_DIR.forward;
+			}
+		else if (_dist > _near)
+			{
+			// MEDIA: zarpazo / embestida / misiles / acercarse
+			var _act2 = 0;
+			if (_meter_ok)
+				{
+				if (_pick < 28) then _act2 = 1;
+				else if (_pick < 46) then _act2 = 2;
+				else if (_pick < 60) then _act2 = 3;
+				}
+			if (_act2 == 1)
+				{
+				_stick = bear_motion_stick(1, _t);
+				if (_t == 6) then _light2 = true;
+				}
+			else if (_act2 == 2)
+				{
+				_stick = bear_motion_stick(2, _t);
+				if (_t == 6) then _heavy = true;
+				}
+			else if (_act2 == 3)
+				{
+				_stick = bear_motion_stick(3, _t);
+				if (_t == 6) then _heavy = true;
+				}
+			else if (_pick < 70 && _t == 0) then _heavy = true;		// poke fuerte
+			else _stick = STICK_DIR.forward;
+			}
+		else if (_opp_blocking && _r < _aggression)
+			{
+			// CERCA y el rival se cubre: agarre, golpe bajo o zarpazo para meter presion
+			if (_pick < 40 && _can_throw)
+				{
+				if (_t == 0) then { _light = true; _heavy = true; }
+				}
+			else if (_pick < 70)
+				{
+				_stick = STICK_DIR.down;
+				if (_t == 0) then _light = true;
+				}
+			else if (_meter_ok)
+				{
+				_stick = bear_motion_stick(1, _t);
+				if (_t == 6) then _light2 = true;
+				}
+			else if (_t == 0) then _light2 = true;
+			}
+		else if (_opponent.state == PLAYER_STATE.getup && _r < _aggression)
+			{
+			// Se levanta: ataque justo cuando se para
 			if (_t == 0)
 				{
-				_light = true;
-				_heavy = true;
+				if (_pick < 45 && _can_throw) then { _light = true; _heavy = true; }
+				else _light = true;
 				}
-		break;
-		
-		// Zarpazo + onda: cuarto de círculo (abajo, abajo-adelante, adelante) + medio
-		case _A_CLAW:
-			if (_t < 2) then _stick = STICK_DIR.down;
-			else if (_t < 4) then _stick = STICK_DIR.forward_down;
-			else if (_t < 6) then _stick = STICK_DIR.forward;
-			else if (_t == 6) then _light2 = true;
-		break;
-		
-		// Misiles: abajo, atrás + fuerte
-		case _A_MISSILES:
-			if (_t < 3) then _stick = STICK_DIR.down;
-			else if (_t < 6) then _stick = STICK_DIR.backward;
-			else if (_t == 6) then _heavy = true;
-		break;
-		
-		// Aliento de fuego: media vuelta (adelante, abajo-adelante, abajo, abajo-atrás, atrás) + ligero
-		case _A_FIRE:
-			if (_t == 0) then _stick = STICK_DIR.forward;
-			else if (_t == 1) then _stick = STICK_DIR.forward_down;
-			else if (_t == 2) then _stick = STICK_DIR.down;
-			else if (_t == 3) then _stick = STICK_DIR.backward_down;
-			else if (_t < 6) then _stick = STICK_DIR.backward;
-			else if (_t == 6) then _light = true;
-		break;
-		
-		// Embestida: atrás, adelante + fuerte
-		case _A_CHARGE:
-			if (_t < 3) then _stick = STICK_DIR.backward;
-			else if (_t < 6) then _stick = STICK_DIR.forward;
-			else if (_t == 6) then _heavy = true;
-		break;
-		
-		// Burla: abajo, (soltar), abajo + fuerte
-		case _A_TAUNT:
-			if (_t < 2) then _stick = STICK_DIR.down;
-			else if (_t < 4) then _stick = STICK_DIR.neutral;
-			else if (_t < 6) then _stick = STICK_DIR.down;
-			else if (_t == 6) then _heavy = true;
-		break;
+			}
+		else if (_r < _aggression)
+			{
+			// CERCA: mezcla
+			if (_pick < 20) then { if (_t == 0) then _light = true; }
+			else if (_pick < 36) then { if (_t == 0) then _light2 = true; }
+			else if (_pick < 48) then { if (_t == 0) then _heavy = true; }
+			else if (_pick < 60)
+				{
+				if (_can_throw) then { if (_t == 0) then { _light = true; _heavy = true; } }
+				else { if (_t == 0) then _heavy = true; }
+				}
+			else if (_pick < 72)
+				{
+				// ligero agachado (bajo)
+				_stick = STICK_DIR.down;
+				if (_t == 0) then _light = true;
+				}
+			else if (_pick < 88 && _meter_ok)
+				{
+				_stick = bear_motion_stick(1, _t);
+				if (_t == 6) then _light2 = true;
+				}
+			else if (_meter_ok)
+				{
+				_stick = bear_motion_stick(2, _t);
+				if (_t == 6) then _heavy = true;
+				}
+			else if (_t == 0) then _light2 = true;
+			}
+		else if (_r < _aggression + 6) then _stick = STICK_DIR.backward;
 		}
 	
-	//Flip stick inputs if the CPU is facing left
+	// Voltear si mira a la izquierda
 	_stick = cpu_flip_dir(_stick, _cpu.facing);
 	
-	//Write inputs to the buffer
 	buffer_write(_buffer, buffer_u8, _stick);
 	buffer_write(_buffer, buffer_bool, _light);
 	buffer_write(_buffer, buffer_bool, _heavy);

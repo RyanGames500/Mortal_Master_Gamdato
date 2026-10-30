@@ -70,6 +70,7 @@ function lex_shot2_hitbox_update()
 				//Hit
 				else
 					{
+					var _ch = counter_hit_kind();	// ANTES de attack_stop: mira que estaba haciendo el rival (nuestro)
 					attack_stop();
 					
 					//Grounded vs aerial hits
@@ -89,8 +90,8 @@ function lex_shot2_hitbox_update()
 						vsp = -other.launch_speed;
 						}
 					
-					player_damage(other.damage);
-					state_frame = other.hitstun;
+					player_damage(projectile_hit_damage(other.damage, _ch, other.owner));
+					state_frame = other.hitstun + counter_hit_finish(_ch);
 					hitlag_frame = other.hitlag;
 					hsp = other.knockback * other.owner.facing;
 					

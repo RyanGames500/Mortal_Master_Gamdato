@@ -44,7 +44,7 @@ function mayel_light_ground(_override_phase)
 				attack_frame = 10;
 				
 				// Hitbox adaptada al tamaño de Mayel
-				var _hitbox = hitbox_create(76, 8, 0.5, 0.5, 5, 4);
+				var _hitbox = hitbox_create(76, 8, 0.5, 0.5, 3, 4);
 				_hitbox.knockback = 5;
 				}
 			
@@ -102,7 +102,7 @@ function mayel_light_ground(_override_phase)
 				attack_phase = 3;
 				attack_frame = 10;
 				
-				var _hitbox = hitbox_create(90, 8, 0.5, 0.5, 5, 4);
+				var _hitbox = hitbox_create(90, 8, 0.5, 0.5, 3, 4);
 				_hitbox.knockback = 5;
 				}
 			
@@ -162,7 +162,7 @@ function mayel_light_ground(_override_phase)
 				attack_phase = 5;
 				
 				// HITBOX DE REMATE: lanzador de juggle (el rival queda en el aire)
-				var _hitbox = hitbox_create(139, 18, 0.5, 0.5, 10, 6);
+				var _hitbox = hitbox_create(139, 18, 1, 0.5, 5, 6);
 				_hitbox.knockback = 4;       // Empuje horizontal bajo para poder seguirlo
 				_hitbox.launch_speed = 25;   // Velocidad de despegue
 				_hitbox.hitstun = 40;        // Que no se recupere antes de caer

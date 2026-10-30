@@ -38,7 +38,7 @@ function mayel_medium_ground(_override_phase)
 				attack_phase = 1;
 				attack_frame = 9; // 2 sub-imágenes de endlag (3,4) x 3 frames c/u (más margen)
 				
-				var _hitbox = hitbox_create(40, 28, 0.5, 0.5, 5, 4);
+				var _hitbox = hitbox_create(40, 28, 0.5, 0.5, 4, 4);
 				_hitbox.knockback = 5;
 				}
 			
@@ -92,7 +92,7 @@ function mayel_medium_ground(_override_phase)
 				attack_phase = 3;
 				attack_frame = 12; // 4 sub-imágenes de endlag (8,9,10,11) x 3 frames c/u
 				
-				var _hitbox = hitbox_create(40, 28, 0.5, 0.5, 5, 4);
+				var _hitbox = hitbox_create(40, 28, 0.5, 0.5, 4, 4);
 				_hitbox.knockback = 5;
 				}
 			
@@ -152,7 +152,7 @@ function mayel_medium_ground(_override_phase)
 				anim_frame = 15; // Impacto del barrido
 				attack_phase = 5;
 				
-				var _hitbox = hitbox_create(40, 28, 0.5, 0.5, 10, 6);
+				var _hitbox = hitbox_create(40, 28, 0.5, 0.5, 7, 6);
 				_hitbox.knockback = 12;
 				_hitbox.launch_speed = 10;
 				_hitbox.hit_angle = 35; // Corregido: era "angle", no existía como propiedad

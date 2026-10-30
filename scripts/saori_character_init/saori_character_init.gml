@@ -7,16 +7,16 @@ function saori_character_init()
 	// Properties
 	character_name = "SAORI";
 	
-	walk_speed = 12;             
-	dash_speed = 23;           
+	walk_speed = 9;             
+	dash_speed = 19;           
 	dash_time = 22;            
 	has_backdash = false;        
 	
-	jump_hsp = 12;
+	jump_hsp = 10;
 	jump_vsp = -29;             
 	grav = 1.2;                
 	
-	hp_max = 90;
+	hp_max = 130;
 	hp = hp_max;
 	hp_prev = hp_max;
 	

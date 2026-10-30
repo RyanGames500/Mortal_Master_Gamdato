@@ -15,7 +15,7 @@ function demon_character_init()
 	grav = 1.2;
 	has_backdash = false;
 	has_grab = true;
-	hp_max = 170;
+	hp_max = 250;
 	hp = hp_max;
 	hp_prev = hp_max;
 	

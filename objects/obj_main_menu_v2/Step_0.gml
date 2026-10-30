@@ -119,9 +119,9 @@ if (current_state == MENU_STATE.input_text)
 					{
 					var _b = buffer_create(1, buffer_grow, 1);
 					server_send_packet(obj_ggmr_net.net_socket, _b, "private_lobby_find", input_string);
-show_debug_message("[menu] lobby packet -> " + string(server_ip_address) + ":" + string(server_port));
-notice_text = "SENT TO " + string(server_ip_address) + ":" + string(server_port);
-notice_timer = 240;
+					show_debug_message("[menu] lobby packet -> " + string(server_ip_address) + ":" + string(server_port));
+					notice_text = "SENT TO " + string(server_ip_address) + ":" + string(server_port);
+					notice_timer = 240;
 					buffer_delete(_b);
 					}
 			break;
@@ -132,9 +132,9 @@ notice_timer = 240;
 					lobby_code = input_string;
 					var _b = buffer_create(1, buffer_grow, 1);
 					server_send_packet(obj_ggmr_net.net_socket, _b, "private_lobby_reserve", lobby_code);
-show_debug_message("[menu] lobby packet -> " + string(server_ip_address) + ":" + string(server_port));
-notice_text = "SENT TO " + string(server_ip_address) + ":" + string(server_port);
-notice_timer = 240;					
+					show_debug_message("[menu] lobby packet -> " + string(server_ip_address) + ":" + string(server_port));
+					notice_text = "SENT TO " + string(server_ip_address) + ":" + string(server_port);
+					notice_timer = 240;					
 					buffer_delete(_b);
 					}
 			break;
@@ -163,9 +163,9 @@ notice_timer = 240;
 	}
 
 // Navegación por Teclado
-var _up = keyboard_check_pressed(vk_up);
-var _down = keyboard_check_pressed(vk_down);
-var _confirm = keyboard_check_pressed(vk_enter);
+var _up = keyboard_check_pressed(ord("W"));
+var _down = keyboard_check_pressed(ord("S"));
+var _confirm = keyboard_check_pressed(vk_enter) || keyboard_check_pressed(ord("L"));
 var _back = keyboard_check_pressed(vk_escape);
 
 // Boton BACK tactil / mouse (vale para todas las pantallas)
@@ -234,8 +234,7 @@ if (current_state == MENU_STATE.replays)
 			{
 			if (replay_open(_selected_file))
 				{
-				ggmr_lobby_reset();
-				
+				ggmr_lobby_reset();		
 				global.replay_mode = true;
 				global.online_mode = false;
 				room_goto(rm_gameplay);
@@ -422,7 +421,7 @@ if (current_state == MENU_STATE.private_lobby) _current_list = private_lobby_opt
 if (current_state == MENU_STATE.settings) _current_list = settings_options;
 
 var _max_items = array_length(_current_list);
-
+menu_index = clamp(menu_index, 0, _max_items - 1);	// la demo tiene menos opciones
 // Mouse / touch
 if (!is_undefined(_hover_hit) && _hover_hit.kind == "item")
 	{

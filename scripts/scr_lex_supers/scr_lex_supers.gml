@@ -383,7 +383,7 @@ function lex_super_cine(_override_phase)
 				anim_sprite = spr_lex_light_ground;
 				anim_frame = 2;
 				
-				var _op = hitbox_create(100, -54, 2.0, 0.8, 7, 8);
+				var _op = hitbox_create(100, -54, 2.0, 0.8, 4, 8);
 				_op.hitlag = 4;
 				_op.knockback = 3;
 				_op.hitstun = 60;
@@ -474,7 +474,7 @@ function lex_super_cine(_override_phase)
 				hsp = -14 * facing;		// retroceso fuerte
 				
 				// Bazucazo a quemarropa: manda a volar
-				var _fin = hitbox_create(150, -100, 3.4, 2.4, 40, 22);
+				var _fin = hitbox_create(150, -100, 3.4, 2.4, 20, 22);
 				_fin.hitlag = 12;
 				_fin.launch_speed = 24;
 				_fin.high = true;

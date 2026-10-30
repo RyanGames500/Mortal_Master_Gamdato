@@ -36,7 +36,7 @@ function lex_light_ground(_override_phase)
 				attack_phase = 1;
 				attack_frame = 10; // Reducido de 12 a 10 (mantiene ritmo sin acelerar de golpe)
 				
-				var _hitbox = hitbox_create(85, -54, 1, 0.3, 5, 4);
+				var _hitbox = hitbox_create(85, -54, 1, 0.3, 3, 4);
 				_hitbox.knockback = 5;
 				}
 			
@@ -96,7 +96,7 @@ function lex_light_ground(_override_phase)
 				attack_phase = 3;
 				attack_frame = 10; // Reducido de 12 a 10
 				
-				var _hitbox = hitbox_create(93, -54, 1, 0.3, 5, 4);
+				var _hitbox = hitbox_create(93, -54, 1, 0.3, 3, 4);
 				_hitbox.knockback = 5;
 				}
 			
@@ -153,7 +153,7 @@ function lex_light_ground(_override_phase)
 				anim_frame = 13; 
 				attack_phase = 5;
 				
-				var _hitbox = hitbox_create(64, -40, 1.2, 0.3, 10, 4);
+				var _hitbox = hitbox_create(64, -40, 1.2, 0.3, 6, 4);
 				_hitbox.launch_speed = 30;
 				_hitbox.knockback = 3;
 				_hitbox.hitstun = 38

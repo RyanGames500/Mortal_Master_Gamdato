@@ -18,7 +18,7 @@ function mayel_character_init()
 	has_boomerang = true;
 	
 	// --- SALUD Y ESCALA ---
-	hp_max  = 70;             // Un poco menos de vida (130 en lugar de 150) por tener hurtbox pequeña
+	hp_max  = 130;             // Un poco menos de vida (130 en lugar de 150) por tener hurtbox pequeña
 	hp      = hp_max;
 	hp_prev = hp_max;
 	

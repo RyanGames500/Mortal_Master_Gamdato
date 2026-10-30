@@ -11,7 +11,7 @@ function danny_character_init()
 	dash_time = 24;
 	jump_hsp = 7;
 	jump_vsp = -24;
-	hp_max = 135;
+	hp_max = 140;
 	grav = 1.2;
 	has_backdash = false;
 	has_grab = false;

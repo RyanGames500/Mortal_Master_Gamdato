@@ -75,7 +75,8 @@ global.replay_was_online =		false;
 
 //Camera
 #macro camera_index				view_camera[0] //{int} The index of the camera being used.
-#macro camera_width				1280 //{int} The width of the camera.
+#macro camera_width				global.view_w //{int} The width of the camera (nuestro: ahora se adapta a la pantalla, ver scr_view_fit).
+//#macro camera_width			1280 //{int} The width of the camera.
 #macro camera_height			720 //{int} The height of the camera.
 
 //Online
