@@ -261,7 +261,7 @@ function game_advance_frame(_inputs_array, _relative_frame = undefined)
 			// La pista sale del stage elegido. Se lee ANTES del with, porque
 			// dentro del with "stage_id" sería el de obj_stage_manager, no el de obj_game.
 			// NUEVO: no se arranca durante frames re-simulados de un rollback.
-			if (!_in_rollback)
+			if (!_in_rollback && starting_frame <= INTRO_END)
 				{
 				var _music = stage_music_get(stage_id);
 				var _stage_inst = instance_find(obj_stage_manager, 0);
@@ -273,6 +273,21 @@ function game_advance_frame(_inputs_array, _relative_frame = undefined)
 							{
 							stage_music_play(_music.sound, _music.loop_start, _music.loop_end);
 							}
+						}
+					}
+				}
+
+			// Saltar la cinematica con cualquier boton de ataque (J/K/L del P1, o los del P2).
+			// Va dentro de la simulacion (usa los inputs del frame), asi que es seguro con rollback y online.
+			if (starting_frame > INTRO_END && (INTRO_LEN - (starting_frame - INTRO_END)) > 40)
+				{
+				for (var _si = 0; _si < array_length(_inputs_array); _si++)
+					{
+					var _sb = _inputs_array[@ _si];
+					if (buffer_peek(_sb, 1, buffer_bool) || buffer_peek(_sb, 2, buffer_bool) || buffer_peek(_sb, 4, buffer_bool))
+						{
+						starting_frame = INTRO_END;
+						break;
 						}
 					}
 				}
@@ -328,10 +343,27 @@ function game_advance_frame(_inputs_array, _relative_frame = undefined)
 					}
 				}
 
-			with_synced_object(obj_player, player_update, _inputs_array);
-			with_synced_object(obj_hurtbox, hurtbox_update);
-			with_synced_object(obj_hitbox, hitbox_update);
-			with_synced_object(obj_vfx, vfx_update);
+			var _ko_slow = false;
+			var _ko_age = 150 - round_restart_frame;
+			if (_ko_age >= 0 && _ko_age < 60)
+				{
+				var _acid_now = false;
+				for (var _i = 0; _i < instance_number(obj_player); _i++)
+					{
+					var _pl = instance_find(obj_player, _i);
+					if (_pl.hp <= 0) then _ko_slow = true;
+					if (_pl.acid_ko) then _acid_now = true;
+					}
+				if (_acid_now) then _ko_slow = false;
+				}
+			if (_ko_age == 14 && !_in_rollback) then cam_shake = max(cam_shake, 34);
+			if (!_ko_slow || (_ko_age mod 3) == 0)
+				{
+				with_synced_object(obj_player, player_update, _inputs_array);
+				with_synced_object(obj_hurtbox, hurtbox_update);
+				with_synced_object(obj_hitbox, hitbox_update);
+				with_synced_object(obj_vfx, vfx_update);
+				}
 			camera_update();
 
 			if (round_restart_frame <= 35)
@@ -357,8 +389,10 @@ function game_advance_frame(_inputs_array, _relative_frame = undefined)
 				with_synced_object(obj_player, player_round_reset);
 
 				var _mean_x = (room_width div 2);
-				cam_x = clamp(_mean_x - (camera_width div 2), 0, room_width - camera_width);
-				cam_y = clamp(obj_ground.y - (camera_height div 2), 0, room_height - camera_height);
+				var _vw = camera_get_view_width(camera_index);
+				var _vh = camera_get_view_height(camera_index);
+				cam_x = clamp(_mean_x - (_vw * 0.5), 0, room_width - _vw);
+				cam_y = room_height - _vh;
 				cam_x_display = cam_x;
 				cam_y_display = cam_y;
 				cam_shake = 0.0;
@@ -394,11 +428,28 @@ function game_advance_frame(_inputs_array, _relative_frame = undefined)
 					}
 				}
 
-			with_synced_object(obj_player, player_update, _inputs_array);
-			with_synced_object(obj_hurtbox, hurtbox_update);
-			with_synced_object(obj_hitbox, hitbox_update);
-			with_synced_object(obj_vfx, vfx_update);
-			camera_update();
+				var _ko_slow = false;
+				var _ko_age = 150 - ending_frame;
+				if (_ko_age >= 0 && _ko_age < 60)
+					{
+					var _acid_now = false;
+					for (var _i = 0; _i < instance_number(obj_player); _i++)
+						{
+						var _pl = instance_find(obj_player, _i);
+						if (_pl.hp <= 0) then _ko_slow = true;
+						if (_pl.acid_ko) then _acid_now = true;
+						}
+					if (_acid_now) then _ko_slow = false;
+					}
+				if (_ko_age == 14 && !_in_rollback) then cam_shake = max(cam_shake, 34);
+				if (!_ko_slow || (_ko_age mod 3) == 0)
+					{
+					with_synced_object(obj_player, player_update, _inputs_array);
+					with_synced_object(obj_hurtbox, hurtbox_update);
+					with_synced_object(obj_hitbox, hitbox_update);
+					with_synced_object(obj_vfx, vfx_update);
+					}
+				camera_update();
 
 			if (ending_frame <= 35)
 				{

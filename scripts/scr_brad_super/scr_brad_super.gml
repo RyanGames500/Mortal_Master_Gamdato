@@ -12,8 +12,8 @@ Si conecta, el rival no puede salir ni morir hasta el ultimo golpe (super_lock).
 #macro SR_RUN_T			24		//frames maximos de la rodada antes de dar por fallado
 #macro SR_DIVE_T		10		//frames que tarda la picada en llegar al rival (en el aire)
 #macro SR_DIVE_MAX		36		//velocidad maxima de la picada
-#macro SR_DMG1			10		//daño del golpe inicial
-#macro SR_DMG_TICK		5		//daño de cada golpe mientras gira
+#macro SR_DMG1			5		//daño del golpe inicial
+#macro SR_DMG_TICK		1		//daño de cada golpe mientras gira
 #macro SR_TICKS			6		//cuantos golpes mientras gira (el ultimo es el remate)
 #macro SR_TICK_T		8		//frames entre golpes
 #macro SR_DMG_FINAL		20		//daño del remate

@@ -1,7 +1,7 @@
 /* Modo entrenamiento (nuestro). Solo offline: nunca online ni en replay. */
 global.training = false;			// true = estamos en el modo entrenamiento
 global.training_dummy = 0;			// 0 parado, 1 agachado, 2 saltando, 3 bloquea parado, 4 bloquea agachado, 5 lo controla el jugador 2
-global.training_dummy_names = ["PARADO", "AGACHADO", "SALTANDO", "BLOQUEA PARADO", "BLOQUEA AGACHADO", "JUGADOR 2"];
+global.training_dummy_names = ["STANDING", "CROUCHING", "JUMPING", "BLOCK STANDING", "BLOCK CROUCHING", "PLAYER 2"];
 global.training_inf_hp = true;		// true = la vida se rellena sola cuando vuelves a estar libre
 global.training_inf_meter = true;	// true = la barra siempre esta llena
 global.training_framedata = true;	// true = muestra el frame meter y el dano
@@ -110,7 +110,7 @@ function training_fd_new()
 		// seguimiento del ataque actual
 		on: false, script: -1, name: "", frame: 0, startup: -1, seg: [], on_now: false, gap: 0, proj: false,
 		// seguimiento de la ventaja
-		prev_conn: false, adv_on: false, adv_def: noone, adv_script: -1, adv_count: 0, adv_ta: -1, adv_td: -1, adv_kind: 1,
+				prev_conn: false, adv_on: false, adv_def: noone, adv_script: -1, adv_count: 0, adv_ta: -1, adv_td: -1, adv_kind: 1, adv_label: "",
 		// lo que se midio
 		d_startup: "-", d_active: "-", d_recovery: "-", d_hit: "-", d_block: "-", d_dmg: "-", d_hits: "-", d_combo: "-"
 		};
@@ -172,12 +172,16 @@ function training_fd_update()
 			else if (_o.state == PLAYER_STATE.grabbed)
 				{
 				_fd.d_hit = "AGARRE";
-				_fd.adv_on = false;
+				_fd.adv_on = true;
+				_fd.adv_kind = 3;
+				_fd.adv_label = "AGARRE";
 				}
 			else if (_o.state == PLAYER_STATE.knockdown || _o.state == PLAYER_STATE.hitstun_aerial || _o.state == PLAYER_STATE.acostado)
 				{
 				_fd.d_hit = "KD";
-				_fd.adv_on = false;
+				_fd.adv_on = true;
+				_fd.adv_kind = 3;
+				_fd.adv_label = "KD";
 				}
 			else
 				{
@@ -221,6 +225,7 @@ function training_fd_update()
 					{
 					var _adv = _fd.adv_td - _fd.adv_ta;
 					var _txt = ((_adv > 0) ? "+" : "") + string(_adv);
+					if (_fd.adv_kind == 3) then _txt = _fd.adv_label + " " + _txt;					
 					if (_fd.adv_kind == 2) then _fd.d_block = _txt; else _fd.d_hit = _txt;
 					if (script_exists(_fd.adv_script))
 						{
@@ -233,7 +238,7 @@ function training_fd_update()
 					
 					_fd.adv_on = false;
 					}
-				else if (_fd.adv_count > 180)
+				else if (_fd.adv_count > ((_fd.adv_kind == 3) ? 300 : 180))
 					{
 					_fd.adv_on = false;
 					}
@@ -833,14 +838,21 @@ function training_draw_damage()
 	var _x1 = _x0 + _w;
 	var _y = _gh * 0.21;	// altura del bloque (baja o sube este numero)
 	
-	var _labels = ["DANO:", "DANO DEL COMBO:", "DANO MAXIMO:"];
-	var _vals = [string(global.training_last_dmg), string(global.training_combo_dmg), string(global.training_max_dmg)];
+	// escala de dano del proximo golpe del combo en curso
+	var _scale = 1;
+	with (obj_player)
+		{
+		if (combo_active) then _scale = combo_damage_scale(combo_hits + 1);
+		}
+	
+	var _labels = ["DANO:", "DANO DEL COMBO:", "DANO MAXIMO:", "ESCALA:"];
+	var _vals = [string(global.training_last_dmg), string(global.training_combo_dmg), string(global.training_max_dmg), string(round(_scale * 100)) + "%"];
 	
 	draw_set_font(fnt_menu);
 	draw_set_alpha(1);
 	draw_set_valign(fa_top);
 	
-	for (var _i = 0; _i < 3; _i++)
+	for (var _i = 0; _i < 4; _i++)
 		{
 		draw_set_halign(fa_left);
 		training_draw_txt(_x0, _y + (_i * _lh), _labels[_i], _sc, c_white);
@@ -1043,8 +1055,6 @@ function training_ml_data(_name)
 	}
 
 
-
-/* Dibuja la lista de movimientos con su frame data (solo dibujo). Se llama desde pause_menu_draw. */
 /* Dibuja la lista de movimientos con su frame data (solo dibujo). Se llama desde pause_menu_draw. */
 function training_draw_movelist()
 	{

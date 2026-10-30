@@ -64,7 +64,7 @@ characters = [
 	{ name: "MARIEL",  char_id: 9, color: c_silver,  portrait_index: 8, locked: false },
 	{ name: "DEMON",   char_id: 10, color: c_purple, portrait_index: 9, locked: false },
 	{ name: "BEAR",    char_id: 11, color: c_maroon, portrait_index: 10, locked: false},
-	//{ name: "NINJA",   char_id: 12, color: c_red,    portrait_index: 11, locked: true }
+	{ name: "NINJA",   char_id: 12, color: c_red,    portrait_index: 11, locked: true }
 ];
 char_count = array_length(characters);
 // Cargar desbloqueos guardados
@@ -117,12 +117,12 @@ audio_group_load(audiogroup_sound_effects);
 sound_system_init();
 //Spawn player instances
 //game_players_spawn();
-
+view_fit_apply(view_fit_target_width());
 //Camera - start in the middle of the room
 cam_x = 0;
 cam_y = 0;
-cam_x_display = (room_width div 2) - (camera_width div 2);
-cam_y_display = 0;
+cam_x_display = (room_width div 2) - (camera_get_view_width(camera_index) div 2);
+cam_y_display = room_height - camera_get_view_height(camera_index);
 cam_shake = 0.0;
 cam_zoom_display = 1.0;
 camera_set_view_pos(camera_index, cam_x_display, cam_y_display);
@@ -177,5 +177,6 @@ stage_props_for = -1;
 stage_prop_used = array_create(STAGE_PROP_MAX, 0);
 stage_npcs = [];
 stage_npcs_for = -1;
-stage_npc_used = array_create(STAGE_NPC_MAX, 0);	// hasta qué game_frame no puede agarrar cada equipo (se guarda en el rollback)
+stage_npc_used = array_create(STAGE_NPC_MAX, 0);
+intro_count = 0;	// cuantas peleas se han armado en esta sesion (se guarda en el rollback). Decide que intro sale.
 if (!instance_exists(obj_frost_overlay)) then instance_create_depth(0, 0, -10000, obj_frost_overlay);

@@ -60,6 +60,7 @@ function danny_mine_hitbox_update()
 					//Hit
 					else
 						{
+						var _ch = counter_hit_kind();	// ANTES de attack_stop: mira que estaba haciendo el rival (nuestro)
 						attack_stop();
 						
 						if (bbox_bottom >= obj_ground.y)
@@ -85,10 +86,10 @@ function danny_mine_hitbox_update()
 							anim_speed = anim_speed_default;
 							vsp = -12;
 							hsp = 0;
-							state_frame = other.hitstun;
+							state_frame = other.hitstun + counter_hit_finish(_ch);
 							}
 						
-						player_damage(other.damage);
+						player_damage(projectile_hit_damage(other.damage, _ch, other.owner));
 						combo_register_hit();
 						hitlag_frame = other.hitlag;
 						hit_sfx_play(snd_hit_heavy);

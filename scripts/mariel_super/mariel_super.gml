@@ -13,7 +13,7 @@ Fases: 0 = preparacion, 1 = embestida con agarre, 2 = corre cargandolo, 3 = salt
 #macro MR1_DASH_V		15		//velocidad de la embestida
 #macro MR1_DASH_T		26		//frames maximos de la embestida (el alcance es ~ V x T)
 #macro MR1_GRAB_X		85		//donde esta el agarre delante de ella
-#macro MR1_DMG_GRAB		6		//dano del agarre
+#macro MR1_DMG_GRAB		3		//dano del agarre
 //--- CARGANDOLO ---
 #macro MR1_CARRY_V		7		//velocidad corriendo con el rival
 #macro MR1_CARRY_T		22		//frames corriendo con el rival
@@ -31,7 +31,7 @@ Fases: 0 = preparacion, 1 = embestida con agarre, 2 = corre cargandolo, 3 = salt
 #macro MR1_SLAM_Y		0
 #macro MR1_RIVAL_FACE	1		//hacia donde mira el rival acostado: 1 = igual que ella, -1 = al reves (usa el que deje la cabeza hacia atras)
 //--- ESTRELLON (hitbox real del engine) ---
-#macro MR1_DMG_SLAM		45		//dano del estrellon
+#macro MR1_DMG_SLAM		25		//dano del estrellon
 #macro MR1_SLAM_LAG		12		//pausa al pegar
 #macro MR1_SLAM_LAUNCH	14		//launch_speed del golpe (cuanto sale hacia arriba)
 #macro MR1_SLAM_KNOCK	22		//knockback del golpe (distancia horizontal ~ 9 veces este valor)

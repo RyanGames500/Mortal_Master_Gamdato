@@ -34,3 +34,12 @@ function combo_register_hit()
 	combo_hits++;
 	combo_show = COMBO_SHOW_FRAMES;
 	}
+	
+/*
+Cuanto dano hace el golpe numero _hits de un combo (nuestro): 1 y 2 al 100%, y baja 10% por golpe hasta un minimo de 40%.
+Para cambiar la reduccion: el 0.1 es cuanto baja por golpe y el 0.4 es el minimo.
+*/
+function combo_damage_scale(_hits)
+	{
+	return clamp(1 - (0.1 * (_hits - 2)), 0.4, 1);
+	}	

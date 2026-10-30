@@ -120,6 +120,7 @@ function mayel_boomerang_update()
 						}
 					else
 						{
+						var _ch = counter_hit_kind();	// ANTES de attack_stop: mira que estaba haciendo el rival (nuestro)
 						attack_stop();
 						
 						if (bbox_bottom >= obj_ground.y && other.launch_speed == 0)
@@ -138,8 +139,8 @@ function mayel_boomerang_update()
 							vsp = -other.launch_speed;
 							}
 						
-						player_damage(other.damage);
-						state_frame = other.hitstun;
+						player_damage(projectile_hit_damage(other.damage, _ch, other.owner));
+						state_frame = other.hitstun + counter_hit_finish(_ch);
 						hitlag_frame = other.hitlag;
 						hsp = other.knockback * other.owner.facing;
 						

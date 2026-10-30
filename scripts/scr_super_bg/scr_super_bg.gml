@@ -49,8 +49,8 @@ function game_draw_super_bg()
 	var _col = sbg_col;
 	var _vx = camera_get_view_x(camera_index);
 	var _vy = camera_get_view_y(camera_index);
-	var _w = camera_width;
-	var _h = camera_height;
+	var _w = camera_get_view_width(camera_index);
+	var _h = camera_get_view_height(camera_index);
 	var _cx = _vx + (_w * 0.5);					// centro FIJO de la pantalla
 	var _cy = _vy + (_h * 0.5);
 	var _seed = floor(current_time / 45);		// las lineas parpadean

@@ -27,19 +27,19 @@ function arcade_char_name(_id)
 function arcade_story(_i)
 	{
 	var _opp = global.arcade.fights[clamp(_i, 0, array_length(global.arcade.fights) - 1)].opp;
-	if (_opp == ARCADE_CHAR_DEMON) then return "Las puertas se abren. Un demonio custodia a tus hijos.";
-	if (_opp == ARCADE_CHAR_BEAR) then return "El final del camino. Solo queda el que los secuestro.";
+	if (_opp == ARCADE_CHAR_DEMON) then return "The gates open. A demon guards your children.";
+	if (_opp == ARCADE_CHAR_BEAR) then return "The end of the road. Only the one who took them remains.";
 	
 	var _t = [
-		"Llegas a la playa de la isla. Alguien se llevó a tus hijos y los trajo aquí.",
-		"En la aldea nadie quiere hablar, pero alguien vio pasar a los niños.",
-		"La selva esconde huellas pequeñas. Vas por buen camino.",
-		"La ciudad en ruinas. Aquí los tuvieron una noche.",
-		"El rastro sube por las montañas. Estás cerca.",
-		"Un guardián cuida el camino a la fortaleza.",
-		"Ya se ve la fortaleza. Nadie te detendrá.",
-		"El último guardián se interpone antes de las puertas.",
-		"Un rostro conocido te corta el paso. Tienes que superarte a ti mismo.",
+		"You land on the toxic coast. Someone took your children and brought them here.",
+		"The ruined docks are silent, but the acid pools leave a trail of small footprints.",
+		"The jungle swallows the road. Strange eyes watch you from the leaves.",
+		"Deeper in the jungle, a guardian cuts through the vines to block your way.",
+		"The desert burns under two suns. Somebody crossed it not long ago.",
+		"The abandoned city. They kept the children here for a night.",
+		"Beyond the old hospital, the streets are full of traps and hungry eyes.",
+		"The laboratory entrance. The trail goes straight inside.",
+		"The control room. Every screen shows your children. You are close.",
 		];
 	return _t[clamp(_i, 0, array_length(_t) - 1)];
 	}
@@ -47,14 +47,14 @@ function arcade_story(_i)
 /* Textos del final */
 function arcade_text_end(_won)
 	{
-	if (_won) then return "Rescataste a tus hijos. La isla queda atras.";
-	return "Tu viaje termina aqui...";
+	if (_won) then return "You rescued your children. The island fades behind you.";
+	return "Your journey ends here...";
 	}
 
 /* Posiciones de los puntos del mapa en pantalla (1280x720). Se reparten sobre 8 puntos de referencia */
 function arcade_nodes(_n)
 	{
-	var _w = [[170, 600], [330, 520], [470, 590], [620, 470], [760, 540], [900, 400], [1010, 300], [1120, 170]];
+	var _w = [[170, 530], [330, 460], [470, 520], [620, 420], [760, 480], [900, 370], [1010, 280], [1120, 200]];
 	var _out = [];
 	for (var _i = 0; _i < _n; _i++)
 		{
@@ -82,7 +82,6 @@ function arcade_fight()
 	}
 
 /* Arma el arcade con el personaje elegido: sortea rivales y deja a Demon y Bear al final */
-/* Arma el arcade con el personaje elegido: sortea rivales y deja a Demon y Bear al final */
 function arcade_begin(_p1)
 	{
 	var _pool = [];
@@ -90,7 +89,6 @@ function arcade_begin(_p1)
 		{
 		array_push(_pool, _c);
 		}
-	// Mezclar (esto pasa en el menú, no dentro de la simulación)
 	for (var _i = array_length(_pool) - 1; _i > 0; _i--)
 		{
 		var _j = irandom(_i);
@@ -100,23 +98,13 @@ function arcade_begin(_p1)
 		}
 	
 	var _bosses = [ARCADE_CHAR_DEMON, ARCADE_CHAR_BEAR];
-	
-	var _normals = min(ARCADE_FIGHTS - array_length(_bosses), array_length(_pool));
-	// Escenarios normales mezclados (cada arcade sale en distinto orden)
-	var _stages = [];
-	for (var _s = 0; _s < ARCADE_NORMAL_STAGES; _s++) { array_push(_stages, _s); }
-	for (var _i2 = array_length(_stages) - 1; _i2 > 0; _i2--)
-		{
-		var _j2 = irandom(_i2);
-		var _t2 = _stages[_i2];
-		_stages[_i2] = _stages[_j2];
-		_stages[_j2] = _t2;
-		}
+	var _route = [0, 0, 5, 5, 4, 3, 3, 1, 2];
+	var _normals = min(array_length(_route), array_length(_pool));
 	
 	var _fights = [];
 	for (var _k = 0; _k < _normals; _k++)
 		{
-		array_push(_fights, { opp: _pool[_k], stage: _stages[_k mod array_length(_stages)] });
+		array_push(_fights, { opp: _pool[_k], stage: _route[_k] });
 		}
 	for (var _b = 0; _b < array_length(_bosses); _b++)
 		{
@@ -130,15 +118,15 @@ function arcade_begin(_p1)
 		continues: ARCADE_CONTINUES,
 		lost: false,
 		done: false,
-		bonus: false,		// true = toca un evento especial al volver al mapa
-		hit: false,		// true = el jugador recibió daño en esta pelea
+		bonus: false,
+		hit: false,
 		hp_last: 99999,
-		omen_seen: false,	// true = se vio una silueta en esta pelea
-		side: undefined,	// pelea secreta en curso
-		offer: undefined,	// pelea secreta ofrecida en el mapa
+		omen_seen: false,
+		side: undefined,
+		offer: undefined,
 		seen: [],
 		notice: "",
-		travel: -1,		// -1 = viaja desde la playa de inicio · -2 = sin viaje · n = viaja desde el punto n
+		travel: -1,
 		};
 	global.arcade_mode = 2;
 	}
@@ -195,8 +183,8 @@ function arcade_match_result(_won)
 /* Peleas secretas del arcade. Para agregar otra, añade una entrada aquí */
 global.arcade_secrets = [
 	{ id: "ninja", opp: 12, stage: 3, need_stage: 4, need_omen: true,
-	  notice: "NINJA ROJO DERROTADO",
-	  text: "Peleaste sin recibir un solo golpe. Una sombra roja se mueve entre los arboles y te corta el paso." },
+	  notice: "RED NINJA DEFEATED",
+	  text: "You fought without taking a single hit. A red shadow moves between the trees and cuts you off." },
 ];
 
 /* Mide si el jugador 1 recibió daño (solo lectura; no toca la simulación) */

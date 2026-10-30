@@ -35,7 +35,7 @@ function stage_draw_lamps(_layer, _tx, _y, _s, _cam_x)
 	for (var _k = 0; _k < array_length(_spots); _k++)
 		{
 		var _px = _tx + _spots[_k][0] * _s;
-		if (_px < _cam_x - _margin || _px > _cam_x + camera_width + _margin) then continue;
+		if (_px < _cam_x - view_fit_extra() - _margin || _px > _cam_x + camera_width + view_fit_extra() + _margin) then continue;
 		
 		var _frame = floor(current_time / _l.frame_ms + _k * _l.offset) mod _n;
 		draw_sprite_ext(_spr, _frame, _px, _y + _spots[_k][1] * _s, _s, _s, 0, c_white, 1.0);
@@ -253,7 +253,7 @@ function stage_get(_id)
 			return {
 				name: "Toxi City",
 				has_acid: true,
-				ground_y: 0,
+				ground_y: -30,
 				art_y: 0,
 				layers: [
 					stage_layer(spr_stage1_sky, 0.30),
@@ -312,8 +312,9 @@ function stage_get(_id)
 				ground_y: -20,
 				art_y: -90,
 				layers: [
+					stage_layer(spr_stage5_fondo1, 0.30, -45, true, true, false, false, 5),	// cielo solido extra, sube el color hacia arriba (nuestro)
 					stage_layer(spr_stage5_fondo1, 0.30, 0, true, true, false, false, 5, false, undefined, 0, undefined, undefined, true),
-					stage_layer(spr_stage5_fondo4, 0.20, 0, true, true, false, false, 5),
+					stage_layer(spr_stage5_fondo4, 0.20, -14, true, true, false, false, 5),	// soles subidos (nuestro)
 					stage_layer(spr_stage5_fondo2, 0.14, 0, true, true, false, false, 5),
 					stage_layer(spr_stage5_fondo3, 0.09, 0, true, true, false, false, 5),
 					stage_layer(spr_stage5_fondo5, 0.00, 0, true, true, false, false, 5),
@@ -388,8 +389,8 @@ function stage_draw_layer(_layer, _cam_x, _cam_y, _dx, _art_y)
 		return;
 		}
 	
-	var _first = floor((_cam_x - _x0) / _w);
-	var _last = floor((_cam_x + camera_width - _x0) / _w);
+	var _first = floor((_cam_x - view_fit_extra() - _x0) / _w);
+	var _last = floor((_cam_x + camera_width + view_fit_extra() - _x0) / _w);
 	
 	// Gente con posiciones del mundo detrás de todas las copias de la capa
 	stage_draw_crowd(_layer, 0, _y, _s, _cam_x, true, false, true);
@@ -447,27 +448,95 @@ function game_draw_stage_select()
 	{
 	if (obj_game.game_meta_state != GAME_META_STATE.char_select) then return;
 	if (obj_game.stage_step == 0) then return;
-	
-	var _w = display_get_gui_width();
-	var _h = display_get_gui_height();
+
+	static _names = ["TOXI CITY", "LAB ENTRANCE", "CONTROL ROOM", "CITY LOST", "DESERT", "BLITSEN JUNGLE", "JOE CITY"];
+
+	var _gui_w = display_get_gui_width();
+	var _gui_h = display_get_gui_height();
+	var _s = clamp(_gui_w / 1280, 0.6, 1.4);
+	var _t = current_time;
+	var _cx = _gui_w / 2;
 	var _chosen = (obj_game.stage_step == 2);
-	var _stage = stage_get(_chosen ? obj_game.stage_id : obj_game.stage_cursor);
-	
-	draw_set_alpha(0.75);
-	draw_set_color(c_black);
-	draw_rectangle(0, 0, _w, _h, false);
+	var _cur = _chosen ? obj_game.stage_id : obj_game.stage_cursor;
+	var _label = (_cur < array_length(_names)) ? _names[_cur] : string_upper(stage_get(_cur).name);
+
+	draw_set_font(fnt_menu);
+	menu_b_draw_bg(_gui_w, _gui_h, _s, 0.8);
+
+	draw_set_halign(fa_left);
+	draw_set_valign(fa_middle);
+	menu_b_text_outline(50 * _s, 52 * _s, "MUTAGEN FIGHTERS", 2.1 * _s, make_colour_rgb(236, 236, 236), c_black, max(2, round(3 * _s)));
+	menu_b_draw_header("SELECT STAGE", global.online_mode ? "Player 1 picks the stage." : "Pick where the fight happens.", _s, 1);
+
+	var _pw = 560 * _s;
+	var _ph = 315 * _s;
+	var _px = _cx - (_pw / 2);
+	var _py = 120 * _s;
+	var _pulse = _chosen ? (0.6 + (dsin(_t / 3) * 0.4)) : 1;
+
+	stage_preview_draw(_cur, _px, _py, _pw, _ph, c_white);
+
+	var _bc = _chosen ? merge_colour(MENU_B_ACC, c_white, 1 - _pulse) : MENU_B_ACC;
+	var _bl = 5 * _s;
 	draw_set_alpha(1);
-	
+	draw_set_color(_bc);
+	draw_rectangle(_px - _bl, _py - _bl, _px + _pw + _bl, _py, false);
+	draw_rectangle(_px - _bl, _py + _ph, _px + _pw + _bl, _py + _ph + _bl, false);
+	draw_rectangle(_px - _bl, _py, _px, _py + _ph, false);
+	draw_rectangle(_px + _pw, _py, _px + _pw + _bl, _py + _ph, false);
+
+	if (!_chosen)
+		{
+		var _nudge = dsin(_t / 4) * 6 * _s;
+		var _ah = 34 * _s;
+		var _ay = _py + (_ph / 2);
+		draw_set_color(MENU_B_ACC);
+		draw_triangle(_px - (50 * _s) + _nudge, _ay, _px - (22 * _s) + _nudge, _ay - _ah, _px - (22 * _s) + _nudge, _ay + _ah, false);
+		draw_triangle(_px + _pw + (50 * _s) - _nudge, _ay, _px + _pw + (22 * _s) - _nudge, _ay - _ah, _px + _pw + (22 * _s) - _nudge, _ay + _ah, false);
+		}
+
+	var _nw = 520 * _s;
+	var _nh = 56 * _s;
+	var _nsl = 24 * _s;
+	var _ny = _py + _ph + (24 * _s);
+	menu_b_para(_cx - (_nw / 2) + (_nsl / 2), _ny, _nw, _nh, _nsl, MENU_B_ACC, 1);
+	menu_b_para(_cx + (_nw / 2) + (_nsl / 2) + (6 * _s), _ny, 16 * _s, _nh, _nsl, MENU_B_RED, 1);
 	draw_set_halign(fa_center);
 	draw_set_valign(fa_middle);
-	draw_set_color(c_white);
-	draw_text(_w / 2, _h * 0.25, global.online_mode ? "EL JUGADOR 1 ELIGE EL ESCENARIO" : "ELIGE EL ESCENARIO");
-	draw_text(_w / 2, _h / 2, _chosen ? _stage.name : ("<   " + _stage.name + "   >"));
-	
+	draw_set_alpha(1);
+	draw_set_color(MENU_B_INK);
+	draw_text_transformed(_cx, _ny + (_nh / 2), _label, 1.4 * _s, 1.4 * _s, 0);
+
+	draw_set_color(make_colour_rgb(205, 208, 220));
+	draw_text_transformed(_cx, _ny + _nh + (20 * _s), "STAGE " + string(_cur + 1) + " / " + string(STAGE_COUNT), 0.8 * _s, 0.8 * _s, 0);
+
+	var _tw = 96 * _s;
+	var _th = 54 * _s;
+	var _tg = 12 * _s;
+	var _tx0 = _cx - (((STAGE_COUNT * (_tw + _tg)) - _tg) / 2);
+	var _ty = _ny + _nh + (42 * _s);
+	for (var _i = 0; _i < STAGE_COUNT; _i++)
+		{
+		var _x = _tx0 + (_i * (_tw + _tg));
+		var _on = (_i == _cur);
+		stage_preview_draw(_i, _x, _ty, _tw, _th, _on ? c_white : make_colour_rgb(120, 120, 128));
+		draw_set_alpha(1);
+		draw_set_color(_on ? MENU_B_ACC : make_colour_rgb(70, 74, 92));
+		var _lw = (_on ? 4 : 2) * _s;
+		draw_rectangle(_x, _ty, _x + _tw, _ty + _lw, false);
+		draw_rectangle(_x, _ty + _th - _lw, _x + _tw, _ty + _th, false);
+		draw_rectangle(_x, _ty, _x + _lw, _ty + _th, false);
+		draw_rectangle(_x + _tw - _lw, _ty, _x + _tw, _ty + _th, false);
+		}
+
+	var _foot = _chosen ? "STARTING..." : "MOVE: [LEFT/RIGHT]   |   CONFIRM: [LIGHT ATTACK]";
+	menu_b_draw_footer(_gui_w, _gui_h, _s, _foot);
+
 	draw_set_halign(fa_left);
 	draw_set_valign(fa_top);
+	draw_set_alpha(1);
 	draw_set_color(c_white);
-	}
+	}	
 	
 	/*
 Deja la partida lista para empezar: aplica el stage, crea a los jugadores y pasa al estado starting.
@@ -479,6 +548,8 @@ function game_match_setup()
 	stage_apply();
 	game_players_spawn();
 	game_meta_state = GAME_META_STATE.starting;
+	intro_count++;
+	starting_frame = 150 + (global.training ? 0 : INTRO_LEN);
 	}
 
 
@@ -583,7 +654,7 @@ function stage_draw_crowd(_layer, _tx, _y, _s, _cam_x, _behind, _flip, _world_pa
 					_px = _tx + (_ax * _s);
 					_dir = (_ax < (_aw * 0.5)) ? 1 : -1;
 					}
-				if (_px < _cam_x - 250 || _px > _cam_x + camera_width + 250) then continue;
+				if (_px < _cam_x - view_fit_extra() - 250 || _px > _cam_x + camera_width + view_fit_extra() + 250) then continue;
 				
 				var _style = 3 + ((_h div 100) mod 4);
 				var _calm = (((_h div 400) mod 100) < _c.calm);
@@ -596,3 +667,68 @@ function stage_draw_crowd(_layer, _tx, _y, _s, _cam_x, _behind, _flip, _world_pa
 		}
 	}
 	
+	
+function stage_preview_draw(_id, _x, _y, _w, _h, _tint)
+	{
+	static _layers = undefined;
+	static _arty = undefined;
+	if (_layers == undefined)
+		{
+		_layers = [];
+		_arty = [];
+		for (var _k = 0; _k < STAGE_COUNT; _k++)
+			{
+			var _st = stage_get(_k);
+			array_push(_layers, _st.layers);
+			array_push(_arty, _st.art_y);
+			}
+		}
+
+	draw_set_alpha(1);
+	draw_set_color(make_colour_rgb(8, 8, 14));
+	draw_rectangle(_x, _y, _x + _w, _y + _h, false);
+
+	var _list = _layers[_id];
+	var _k2 = _w / 1280;
+	var _drawn = 0;
+
+	if (_id != 1 && _id != 3)
+		{
+		for (var _i = 0; _i < array_length(_list); _i++)
+			{
+			var _l = _list[_i];
+			var _sp = _l.sprite;
+			if (!sprite_exists(_sp)) then continue;
+			var _sl = _l.scale;
+			var _sw = sprite_get_width(_sp) * _sl;
+			if (_sw < 1280) then continue;
+			var _sh = sprite_get_height(_sp) * _sl;
+			var _ytop = (796 + (_l.y_off * _sl) + _arty[_id]) - _sh;
+			var _srcx = ((_sw / 2) - 640) / _sl;
+			var _srcw = 1280 / _sl;
+			var _srcy = max(0, -_ytop / _sl);
+			var _srcb = min(sprite_get_height(_sp), (720 - _ytop) / _sl);
+			var _srch = _srcb - _srcy;
+			if (_srch <= 0) then continue;
+			draw_sprite_part_ext(_sp, 0, _srcx, _srcy, _srcw, _srch, _x, _y + ((_ytop + (_srcy * _sl)) * _k2), _sl * _k2, _sl * _k2, _tint, 1);
+			_drawn++;
+			}
+		}
+
+	if (_drawn == 0 && array_length(_list) > 0)
+		{
+		var _art = _list[0].sprite;
+		if (sprite_exists(_art))
+			{
+			var _sw2 = sprite_get_width(_art);
+			var _sh2 = sprite_get_height(_art);
+			var _ar = _w / _h;
+			var _cw = _sw2;
+			var _ch = _sh2;
+			if ((_sw2 / _sh2) > _ar) then _cw = _sh2 * _ar;
+			else _ch = _sw2 / _ar;
+			draw_sprite_part_ext(_art, 0, (_sw2 - _cw) / 2, (_sh2 - _ch) / 2, _cw, _ch, _x, _y, _w / _cw, _h / _ch, _tint, 1);
+			}
+		}
+	}
+

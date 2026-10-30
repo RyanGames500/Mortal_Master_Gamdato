@@ -36,7 +36,7 @@ function blitsen_medium_ground(_override_phase)
 				attack_phase = 1;
 				attack_frame = 12;
 				
-				var _hitbox = hitbox_create(75, 3, 1.1, 1, 7, 8);
+				var _hitbox = hitbox_create(75, 3, 1.1, 1, 5, 8);
 				_hitbox.hitlag = 8;
 				}
 			
@@ -93,7 +93,7 @@ function blitsen_medium_ground(_override_phase)
 				attack_phase = 3;
 				attack_frame = 12; 
 				
-				var _hitbox = hitbox_create(75, 23, 1.1, 0.6, 7, 8);
+				var _hitbox = hitbox_create(75, 23, 1.1, 0.6, 5, 8);
 				_hitbox.hitlag = 8;
 				}
 			
@@ -149,7 +149,7 @@ function blitsen_medium_ground(_override_phase)
 				anim_frame = 16; 
 				attack_phase = 5;
 				
-				var _hitbox = hitbox_create(75, 3, 1.1, 1, 7, 8);
+				var _hitbox = hitbox_create(75, 3, 1.1, 1, 5, 8);
 				_hitbox.launch_speed = 12;
 				_hitbox.hitlag = 10;
 				_hitbox.knockback = 12;

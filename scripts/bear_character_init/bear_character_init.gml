@@ -11,11 +11,11 @@ function bear_character_init()
 	dash_speed = 13;
 	dash_time = 30;
 	jump_hsp = 8;
-	jump_vsp = -26;
+	jump_vsp = -27;
 	grav = 1.2;
 	has_backdash = false;
 	has_grab = true;
-	hp_max = 200;
+	hp_max = 300;
 	hp = hp_max;
 	hp_prev = hp_max;
 	

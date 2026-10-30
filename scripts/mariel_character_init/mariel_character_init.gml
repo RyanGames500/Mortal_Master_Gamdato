@@ -10,7 +10,7 @@ function mariel_character_init()
 	grav = 1.25;			
 	has_backdash = false;
 	has_grab = false;
-	hp_max = 105;
+	hp_max = 170;
 	hp = hp_max;
 	hp_prev = hp_max;   
 	

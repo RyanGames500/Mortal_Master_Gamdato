@@ -6,6 +6,6 @@
   "isCompatibility": false,
   "parent": {
     "name": "funciones propias",
-    "path": "folders/[Engine]/Gameplay/funciones propias.yy",
+    "path": "folders/[Engine]/funciones/funciones propias.yy",
   },
 }

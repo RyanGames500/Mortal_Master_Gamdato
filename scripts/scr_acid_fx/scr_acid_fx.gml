@@ -14,8 +14,8 @@ function acid_fx_pose(_v)
 	{
 	var _t = ACID_FX_TOTAL - obj_game.ending_frame;
 	var _wx = acid_fx_land_x(_v);
-	var _cam_y = camera_get_view_y(camera_index);
-	var _wy = _cam_y + ACID_SURFACE_Y;
+	var _cam_y = view_fit_vy();
+	var _wy = view_fit_vy() + ACID_SURFACE_Y;
 	var _top = _cam_y - ACID_TOP_MARGIN;
 	
 	var _fall_start = ACID_UP + ACID_HOLD;
@@ -174,7 +174,7 @@ Punto X donde cae el cuerpo al ácido. Se limita a la zona de pantalla donde el 
 */
 function acid_fx_land_x(_v)
 	{
-	var _cam_x = camera_get_view_x(camera_index);
+	var _cam_x = view_fit_vx();
 	var _wx = _v.acid_x + (_v.acid_dir * ACID_DIST);
 	return clamp(_wx, _cam_x + ACID_LAND_MIN_X, _cam_x + ACID_LAND_MAX_X);
 	}

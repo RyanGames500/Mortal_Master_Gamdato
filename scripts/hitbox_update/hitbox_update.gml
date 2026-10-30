@@ -117,6 +117,7 @@ function hitbox_update()
 					// ==========================================
 					else
 						{
+						var _ch = counter_hit_kind();	// ANTES de attack_stop: mira que estaba haciendo el rival (nuestro)
 						attack_stop();
 						var _was_frozen = frozen;
 						// Sonidos de impacto
@@ -190,8 +191,12 @@ function hitbox_update()
 							}
 						
 						// Daño final de este golpe (se calcula antes para saber si es el golpe mortal)
-						var _final_damage = other.damage * max(0.4, 1 - 0.2 * max(air_hits - 1, 0));
-						
+						var _nth = combo_active ? (combo_hits + 1) : 1;		// numero de este golpe dentro del combo (nuestro)
+						var _scale = max(0.4, 1 - 0.2 * max(air_hits - 1, 0));
+						if (other.owner.super_id == 0) then _scale = min(_scale, combo_damage_scale(_nth));	// los supers no se reducen
+						var _final_damage = other.damage * _scale;
+						if (_ch == 1) then _final_damage *= 1.2;	// counter: +20% de dano
+						if (_ch == 2) then _final_damage *= 1.5;	// punish counter: +50% de dano						
 						if (other.acid_finisher && (obj_game.stage_has_acid || obj_game.stage_has_root) && ceil(hp - _final_damage) <= 0)
 							{
 							var _killer_wins = (other.owner.player_number == 0) ? obj_game.p1_wins : obj_game.p2_wins;
@@ -206,7 +211,12 @@ function hitbox_update()
 						
 						player_damage(_final_damage);
 						combo_register_hit();
-						state_frame = other.hitstun;
+						state_frame = other.hitstun + ((_ch == 1) ? 4 : ((_ch == 2) ? 8 : 0));	// hitstun extra del counter
+						if (_ch > 0)
+							{
+							ch_kind = _ch;
+							ch_show = 60;
+							}
 						hitlag_frame = other.hitlag;
 						hsp = other.knockback * other.owner.facing;
 						if (_was_frozen)

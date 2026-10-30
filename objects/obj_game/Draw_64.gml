@@ -1,416 +1,6 @@
-// ==========================================
-// PANTALLA DE SELECCIÓN DE PERSONAJES (CSS) - Laboratorio
-// ==========================================
 if (game_meta_state == GAME_META_STATE.char_select)
 	{
-	var _gui_w = display_get_gui_width();
-	var _gui_h = display_get_gui_height();
-	var _s = clamp(_gui_w / 1280, 0.6, 1.4);
-	var _t = current_time;
-	
-	var _display_online = global.replay_mode ? global.replay_was_online : (global.online_mode || local_vs_human());
-	
-	// Paleta del laboratorio
-	var _c_wall = make_colour_rgb(62, 78, 80);
-	var _c_wall_dark = make_colour_rgb(44, 56, 58);
-	var _c_ceiling = make_colour_rgb(30, 34, 36);
-	var _c_metal = make_colour_rgb(34, 42, 44);
-	var _c_metal_light = make_colour_rgb(96, 116, 118);
-	var _c_screen = make_colour_rgb(12, 20, 18);
-	var _c_green = make_colour_rgb(110, 230, 150);
-	var _c_amber = make_colour_rgb(240, 190, 70);
-	var _c_glass = make_colour_rgb(170, 205, 205);
-	
-	var _ceil_h = _gui_h * 0.13;
-	var _floor_y = _gui_h * 0.74;
-	
-	// --- PARED ---
-	draw_set_alpha(1.0);
-	draw_set_color(_c_wall);
-	draw_rectangle(0, 0, _gui_w, _gui_h, false);
-	
-	draw_set_color(_c_wall_dark);
-	draw_set_alpha(0.5);
-	for (var wx = 0; wx < _gui_w; wx += 160 * _s)
-		{
-		draw_line(wx, _ceil_h, wx, _floor_y);
-		}
-	draw_set_alpha(1.0);
-	
-	// Tubería horizontal
-	draw_set_color(_c_metal);
-	draw_rectangle(0, _ceil_h + (10 * _s), _gui_w, _ceil_h + (18 * _s), false);
-	draw_set_color(_c_metal_light);
-	draw_rectangle(0, _ceil_h + (10 * _s), _gui_w, _ceil_h + (11 * _s), false);
-	
-	// Zócalo
-	draw_set_color(_c_wall_dark);
-	draw_rectangle(0, _floor_y - (26 * _s), _gui_w, _floor_y, false);
-	
-	// --- TECHO ---
-	draw_set_color(_c_ceiling);
-	draw_rectangle(0, 0, _gui_w, _ceil_h, false);
-	draw_set_color(_c_metal);
-	draw_rectangle(0, _ceil_h - (4 * _s), _gui_w, _ceil_h, false);
-	
-	// Luces del techo con parpadeo ocasional
-	for (var l = 0; l < 6; l++)
-		{
-		var _lx = (l + 0.5) * (_gui_w / 6);
-		var _fl = 0.85 + (dsin((_t / 70) + (l * 83)) * 0.08);
-		if ((((_t div 120) + (l * 7)) mod 41) == 0) then _fl = 0.35;
-		
-		draw_set_color(make_colour_rgb(210, 232, 226));
-		draw_set_alpha(_fl);
-		draw_rectangle(_lx - (46 * _s), _ceil_h - (12 * _s), _lx + (46 * _s), _ceil_h - (6 * _s), false);
-		
-		gpu_set_blendmode(bm_add);
-		draw_primitive_begin(pr_trianglestrip);
-		draw_vertex_color(_lx - (40 * _s), _ceil_h, make_colour_rgb(150, 200, 190), 0.10 * _fl);
-		draw_vertex_color(_lx + (40 * _s), _ceil_h, make_colour_rgb(150, 200, 190), 0.10 * _fl);
-		draw_vertex_color(_lx - (130 * _s), _floor_y, make_colour_rgb(150, 200, 190), 0);
-		draw_vertex_color(_lx + (130 * _s), _floor_y, make_colour_rgb(150, 200, 190), 0);
-		draw_primitive_end();
-		gpu_set_blendmode(bm_normal);
-		}
-	draw_set_alpha(1.0);
-	
-	// --- MESA DE METAL ---
-	draw_set_color(_c_metal);
-	draw_rectangle(0, _floor_y, _gui_w, _gui_h, false);
-	draw_set_color(_c_metal_light);
-	draw_rectangle(0, _floor_y, _gui_w, _floor_y + (3 * _s), false);
-	draw_set_color(_c_wall_dark);
-	draw_set_alpha(0.6);
-	for (var tx = 0; tx < _gui_w; tx += 120 * _s)
-		{
-		draw_line(tx, _floor_y + (3 * _s), tx, _gui_h);
-		}
-	draw_set_alpha(1.0);
-	
-	// --- GEOMETRIA DE LAS CAPSULAS ---
-	var _cap_w = _gui_w * 0.075;
-	var _gap = _cap_w * 0.16;
-	var _total_w = (char_count * _cap_w) + ((char_count - 1) * _gap);
-	var _max_width = _gui_w * 0.94;
-	if (_total_w > _max_width)
-		{
-		var _k = _max_width / _total_w;
-		_cap_w *= _k;
-		_gap *= _k;
-		_total_w = _max_width;
-		}
-	var _cap_h = _cap_w * 2.0;
-	var _base_h = _cap_w * 0.20;
-	var _top_h = _cap_w * 0.14;
-	var _start_x = (_gui_w / 2) - (_total_w / 2) + (_cap_w / 2);
-	var _base_top = _floor_y - _base_h;
-	var _glass_b = _base_top;
-	var _glass_t = _glass_b - _cap_h;
-	
-	// --- CAPSULAS ---
-	for (var i = 0; i < char_count; i++)
-		{
-		var _x = _start_x + (i * (_cap_w + _gap));
-		var _gl = _x - (_cap_w * 0.5);
-		var _gr = _x + (_cap_w * 0.5);
-		
-		var _is_p1 = (i == p1_css_cursor);
-		var _is_p2 = (_display_online && i == p2_css_cursor);
-		var _sel = (_is_p1 || _is_p2);
-		var _picked = ((_is_p1 && p1_css_ready) || (_is_p2 && p2_css_ready));
-		var _is_locked = variable_struct_exists(characters[i], "locked") ? characters[i].locked : false;
-		var _char_color = _is_locked ? c_dkgray : (variable_struct_exists(characters[i], "color") ? characters[i].color : c_gray);
-		var _subimg = variable_struct_exists(characters[i], "portrait_index") ? characters[i].portrait_index : i;
-		var _liq_col = _is_locked ? make_colour_rgb(50, 60, 60) : _char_color;
-		var _liq_dark = merge_colour(_liq_col, c_black, 0.6);
-		
-		// Tubería al techo
-		draw_set_color(_c_metal);
-		draw_rectangle(_x - (4 * _s), _ceil_h, _x + (4 * _s), _glass_t - _top_h, false);
-		draw_set_color(_c_metal_light);
-		draw_rectangle(_x - (4 * _s), _ceil_h, _x - (2 * _s), _glass_t - _top_h, false);
-		
-		// Retrato flotando en el líquido
-		var _bob = _is_locked ? 0 : (dsin((_t / 22) + (i * 40)) * 3 * _s);
-		var _pw = _cap_w * 0.84;
-		var _ph = _pw;
-		var _px = _x - (_pw / 2);
-		var _py = _glass_t + (_cap_h * 0.34) + _bob;
-		if (_is_locked)
-			{
-			draw_sprite_stretched_ext(spr_chars_caras, _subimg, _px, _py, _pw, _ph, c_dkgray, 0.45);
-			}
-		else
-			{
-			draw_sprite_stretched_ext(spr_chars_caras, _subimg, _px, _py, _pw, _ph, merge_colour(c_white, _liq_col, _sel ? 0.12 : 0.40), _sel ? 1.0 : 0.82);
-			}
-		
-		// Líquido (encima del retrato, para que se vea sumergido)
-		var _wave = dsin((_t / 14) + (i * 50)) * 1.5 * _s;
-		var _liq_t = _glass_t + (_cap_h * 0.10) + _wave;
-		draw_set_alpha(_picked ? 0.50 : (_sel ? 0.40 : 0.26));
-		draw_rectangle_color(_gl, _liq_t, _gr, _glass_b, _liq_col, _liq_col, _liq_dark, _liq_dark, false);
-		draw_set_alpha(0.7);
-		draw_set_color(merge_colour(_liq_col, c_white, 0.5));
-		draw_line(_gl, _liq_t, _gr, _liq_t);
-		draw_set_alpha(1.0);
-		
-		// Burbujas
-		if (!_is_locked)
-			{
-			for (var b = 0; b < 5; b++)
-				{
-				var _bseed = (i * 17) + (b * 31);
-				var _bx = _x + (((frac(abs(dsin(_bseed * 53))) * 2) - 1) * (_cap_w * 0.36));
-				var _bprog = frac((_t / (1700 + (b * 330))) + (b * 0.21) + (i * 0.13));
-				var _by = _glass_b - (_bprog * (_glass_b - _liq_t));
-				draw_set_alpha(0.55 * (1 - _bprog));
-				draw_set_color(c_white);
-				draw_circle(_bx, _by, (1 + (b mod 2)) * _s, false);
-				}
-			draw_set_alpha(1.0);
-			}
-		
-		// Cristal: borde y reflejo
-		draw_set_alpha(_sel ? 0.8 : 0.45);
-		draw_set_color(_sel ? c_white : _c_glass);
-		draw_rectangle(_gl, _glass_t, _gr, _glass_b, true);
-		draw_set_alpha(0.22);
-		draw_set_color(c_white);
-		draw_rectangle(_gl + (4 * _s), _glass_t + (6 * _s), _gl + (8 * _s), _glass_b - (6 * _s), false);
-		draw_set_alpha(1.0);
-		
-		// Tapa de metal
-		draw_set_color(_c_metal);
-		draw_rectangle(_x - (_cap_w * 0.58), _glass_t - _top_h, _x + (_cap_w * 0.58), _glass_t, false);
-		draw_set_color(_c_metal_light);
-		draw_rectangle(_x - (_cap_w * 0.58), _glass_t - _top_h, _x + (_cap_w * 0.58), _glass_t - _top_h + (2 * _s), false);
-		
-		// Base de metal con luces de estado
-		draw_set_color(_c_metal);
-		draw_rectangle(_x - (_cap_w * 0.62), _base_top, _x + (_cap_w * 0.62), _floor_y + (2 * _s), false);
-		draw_set_color(_c_metal_light);
-		draw_rectangle(_x - (_cap_w * 0.62), _base_top, _x + (_cap_w * 0.62), _base_top + (2 * _s), false);
-		for (var d = 0; d < 3; d++)
-			{
-			var _dot_col = make_colour_rgb(40, 52, 52);
-			if (_picked)
-				{
-				_dot_col = _c_green;
-				}
-			else if (_sel && !_is_locked)
-				{
-				_dot_col = ((((_t div 160) + d) mod 3) == 0) ? _c_amber : make_colour_rgb(90, 80, 40);
-				}
-			draw_set_color(_dot_col);
-			draw_circle(_x + ((d - 1) * _cap_w * 0.22), _base_top + (_base_h * 0.58), 2.5 * _s, false);
-			}
-		
-		// Bloqueado: velo oscuro y signo de pregunta
-		if (_is_locked)
-			{
-			draw_set_alpha(0.45);
-			draw_set_color(c_black);
-			draw_rectangle(_gl, _glass_t, _gr, _glass_b, false);
-			draw_set_alpha(1.0);
-			draw_set_font(fnt_menu);
-			draw_set_halign(fa_center);
-			draw_set_valign(fa_middle);
-			draw_set_color(c_gray);
-			draw_text_transformed(_x, _glass_t + (_cap_h * 0.45), "?", 2 * _s, 2 * _s, 0);
-			}
-		
-		// Seleccionada: halo, escáner y esquinas
-		if (_sel)
-			{
-			gpu_set_blendmode(bm_add);
-			draw_set_alpha(0.10 + (dsin(_t / 5) * 0.04));
-			draw_set_color(_char_color);
-			draw_rectangle(_gl - (6 * _s), _glass_t - _top_h - (4 * _s), _gr + (6 * _s), _floor_y, false);
-			
-			var _sc = frac(_t / 1600);
-			var _sy2 = _glass_t + (_cap_h * _sc);
-			draw_set_alpha(0.55);
-			draw_set_color(c_white);
-			draw_line_width(_gl, _sy2, _gr, _sy2, 2 * _s);
-			gpu_set_blendmode(bm_normal);
-			draw_set_alpha(1.0);
-			
-			var _brk_a = 0.6 + (dsin(_t / 4) * 0.4);
-			draw_set_alpha(_brk_a);
-			if (_is_p1)
-				{
-				css_draw_brackets(_gl - (8 * _s), _glass_t - _top_h - (8 * _s), _gr + (8 * _s), _floor_y + (2 * _s), 12 * _s, c_lime, 2 * _s);
-				}
-			if (_is_p2)
-				{
-				css_draw_brackets(_gl - (12 * _s), _glass_t - _top_h - (12 * _s), _gr + (12 * _s), _floor_y + (6 * _s), 12 * _s, c_red, 2 * _s);
-				}
-			draw_set_alpha(1.0);
-			}
-		
-		// Placa con el nombre sobre la mesa
-		var _plate_t = _floor_y + (10 * _s);
-		var _plate_b = _plate_t + (28 * _s);
-		draw_set_color(_c_screen);
-		draw_rectangle(_x - (_cap_w * 0.62), _plate_t, _x + (_cap_w * 0.62), _plate_b, false);
-		draw_set_color(_is_locked ? c_dkgray : _char_color);
-		draw_rectangle(_x - (_cap_w * 0.62), _plate_t, _x + (_cap_w * 0.62), _plate_b, true);
-		
-		draw_set_font(fnt_charSelect);
-		draw_set_halign(fa_center);
-		draw_set_valign(fa_middle);
-		draw_set_color(_is_locked ? c_gray : c_white);
-		var _name_text = _is_locked ? "ERROR" : characters[i].name;
-		var _name_scale = clamp(_cap_w / 115, 0.3, 0.8);
-		draw_text_transformed(_x, (_plate_t + _plate_b) / 2, _name_text, _name_scale, _name_scale, 0);
-		
-		// Etiquetas P1 (arriba de la tapa) y P2 (debajo de la placa)
-		var _tag_scale = 0.85 * _name_scale;
-		if (_is_p1)
-			{
-			var _p1_label = p1_css_ready ? "[P1 READY]" : "< P1 >";
-			var _p1_y = _glass_t - _top_h - (24 * _s);
-			var _p1_w = string_width(_p1_label) * _tag_scale;
-			draw_set_alpha(0.75);
-			draw_set_color(c_black);
-			draw_rectangle(_x - (_p1_w / 2) - (4 * _s), _p1_y - (10 * _s), _x + (_p1_w / 2) + (4 * _s), _p1_y + (10 * _s), false);
-			draw_set_alpha(1.0);
-			draw_set_color(c_lime);
-			draw_text_transformed(_x, _p1_y, _p1_label, _tag_scale, _tag_scale, 0);
-			}
-		if (_is_p2)
-			{
-			var _p2_label = p2_css_ready ? "[P2 READY]" : "< P2 >";
-			draw_set_color(c_red);
-			draw_text_transformed(_x, _plate_b + (16 * _s), _p2_label, _tag_scale, _tag_scale, 0);
-			}
-		}
-	
-	// --- MONITORES DE ADORNO (centro) ---
-	var _mon_y = _gui_h * 0.17;
-	var _mon_h = _gui_h * 0.13;
-	var _mon_w = _gui_w * 0.085;
-	for (var m = 0; m < 3; m++)
-		{
-		var _mx = (_gui_w / 2) + ((m - 1) * (_mon_w + (12 * _s))) - (_mon_w / 2);
-		draw_set_color(_c_metal);
-		draw_rectangle(_mx - (4 * _s), _mon_y - (4 * _s), _mx + _mon_w + (4 * _s), _mon_y + _mon_h + (4 * _s), false);
-		draw_set_color(_c_metal_light);
-		draw_rectangle(_mx - (4 * _s), _mon_y - (4 * _s), _mx + _mon_w + (4 * _s), _mon_y + _mon_h + (4 * _s), true);
-		draw_set_color(_c_screen);
-		draw_rectangle(_mx, _mon_y, _mx + _mon_w, _mon_y + _mon_h, false);
-		css_draw_ecg(_mx + (3 * _s), _mon_y + (_mon_h * 0.5), _mon_w - (6 * _s), _mon_h * 0.28, (m == 1) ? _c_amber : _c_green, 0.0006 + (m * 0.0002), m * 0.31, 60 * _s);
-		}
-	
-	// --- PANELES DE EXPEDIENTE (P1 a la izquierda, P2 o CPU a la derecha) ---
-	for (var _side = 0; _side < 2; _side++)
-		{
-		var _pl = (_side == 0) ? (_gui_w * 0.04) : (_gui_w * 0.66);
-		var _pr = _pl + (_gui_w * 0.30);
-		var _pt = _gui_h * 0.17;
-		var _pb = _gui_h * 0.38;
-		
-		var _cur = (_side == 0) ? p1_css_cursor : p2_css_cursor;
-		var _rdy = (_side == 0) ? p1_css_ready : (_display_online ? p2_css_ready : true);
-		var _tag = (_side == 0) ? "P1" : (_display_online ? "P2" : "CPU");
-		var _tag_col = (_side == 0) ? c_lime : c_red;
-		var _locked_p = variable_struct_exists(characters[_cur], "locked") ? characters[_cur].locked : false;
-		var _pcol = _locked_p ? c_gray : (variable_struct_exists(characters[_cur], "color") ? characters[_cur].color : c_white);
-		var _num = string(_cur + 1);
-		if (_cur + 1 < 10) then _num = "0" + _num;
-		
-		draw_set_color(_c_metal);
-		draw_rectangle(_pl - (6 * _s), _pt - (6 * _s), _pr + (6 * _s), _pb + (6 * _s), false);
-		draw_set_color(_c_metal_light);
-		draw_rectangle(_pl - (6 * _s), _pt - (6 * _s), _pr + (6 * _s), _pb + (6 * _s), true);
-		draw_set_color(_c_screen);
-		draw_rectangle(_pl, _pt, _pr, _pb, false);
-		
-		draw_set_alpha(0.10);
-		draw_set_color(c_white);
-		for (var sy = _pt; sy < _pb; sy += 4 * _s)
-			{
-			draw_line(_pl, sy, _pr, sy);
-			}
-		draw_set_alpha(1.0);
-		
-		draw_set_font(fnt_menu);
-		draw_set_halign(fa_left);
-		draw_set_valign(fa_middle);
-		
-		draw_set_color(_tag_col);
-		draw_text_transformed(_pl + (14 * _s), _pt + (18 * _s), _tag + "  SUBJECT " + _num, 0.7 * _s, 0.7 * _s, 0);
-		
-		draw_set_color(_pcol);
-		draw_text_transformed(_pl + (14 * _s), _pt + (52 * _s), _locked_p ? "CLASSIFIED" : characters[_cur].name, 1.5 * _s, 1.5 * _s, 0);
-		
-		draw_set_color(_rdy ? _c_green : _c_amber);
-		draw_text_transformed(_pl + (14 * _s), _pt + (88 * _s), _rdy ? "STATUS: SEALED / READY" : "STATUS: SELECTING...", 0.7 * _s, 0.7 * _s, 0);
-		
-		css_draw_ecg(_pl + (8 * _s), _pb - (22 * _s), (_pr - _pl) - (16 * _s), 12 * _s, _rdy ? _c_green : _c_amber, _rdy ? 0.0014 : 0.0008, _side * 0.4, 70 * _s);
-		}
-	
-	// --- ENCABEZADO ---
-	draw_set_font(fnt_menu);
-	draw_set_valign(fa_middle);
-	draw_set_halign(fa_center);
-	
-	var _pulse = 1.0 + (dsin(_t / 3) * 0.05);
-	var _title_scale = clamp((_gui_w / 1280) * 1.5, 1.0, 1.8) * _pulse;
-	var _title_y = _gui_h * 0.065;
-	
-	draw_set_color(c_black);
-	draw_text_transformed(_gui_w / 2 + 3, _title_y + 3, "SELECT YOUR FIGHTER", _title_scale, _title_scale, 0);
-	draw_set_color(c_aqua);
-	draw_text_transformed(_gui_w / 2, _title_y, "SELECT YOUR FIGHTER", _title_scale, _title_scale, 0);
-	
-	// --- ESTADO DE JUGADORES (arcade / online) ---
-	var _status_y = _gui_h * 0.865;
-	draw_set_font(fnt_menu);
-	draw_set_halign(fa_center);
-	draw_set_valign(fa_middle);
-	
-	if (!_display_online)
-		{
-		draw_set_color(c_black);
-		draw_text(_gui_w / 2 + 2, _status_y + 2, "CPU HAS CHOSEN " + characters[p2_css_cursor].name);
-		draw_set_color(c_yellow);
-		draw_text(_gui_w / 2, _status_y, "CPU HAS CHOSEN " + characters[p2_css_cursor].name);
-		}
-	
-	// --- CUENTA REGRESIVA DE INICIO (cuando ambos están listos) ---
-	if (p1_css_ready && p2_css_ready && css_start_timer > -1)
-		{
-		var _count_text = "STARTING IN " + string(ceil(css_start_timer / 30 * 1)) + "...";
-		var _cy = _gui_h * 0.905;
-		
-		draw_set_color(c_black);
-		draw_text(_gui_w / 2 + 2, _cy + 2, _count_text);
-		draw_set_color(#FFDD00);
-		draw_text(_gui_w / 2, _cy, _count_text);
-		}
-	
-	// --- PANEL INFERIOR DE INSTRUCCIONES ---
-	var _instr_y = _gui_h * 0.955;
-	var _instr = "MOVE: [LEFT/RIGHT]  |  SELECT: [LIGHT ATTACK]  |  CANCEL: [HEAVY ATTACK]";
-	if (instance_exists(obj_mobile_controls) && obj_mobile_controls.active)
-		{
-		_instr = "MOVE: PAD  |  SELECT: A  |  CANCEL: B";
-		}
-	draw_set_color(c_black);
-	draw_text(_gui_w / 2 + 1, _instr_y + 1, _instr);
-	draw_set_color(c_yellow);
-	draw_text(_gui_w / 2, _instr_y, _instr);
-	
-	// Reset de propiedades del renderizado
-	draw_set_alpha(1.0);
-	draw_set_color(c_white);
-	draw_set_halign(fa_left);
-	draw_set_valign(fa_top);
-	
-	// Selección de escenario: va al final para quedar encima de todo el selector
+	css_b_draw();
 	game_draw_stage_select();
 	exit;
 	}
@@ -437,63 +27,76 @@ if (game_meta_state == GAME_META_STATE.starting)
 	var _cx = camera_width div 2;
 	var _cy = camera_height div 2;
 	
-	if (starting_frame > 50)
+var _quad = function(_x1, _y1, _x2, _y2, _sk)
+	{
+	draw_triangle(_x1 + _sk, _y1, _x2 + _sk, _y1, _x1, _y2, false);
+	draw_triangle(_x2 + _sk, _y1, _x2, _y2, _x1, _y2, false);
+	};
+
+if (starting_frame > 50)
+	{
+	var _age = max(0, 150 - starting_frame);
+	var _in = clamp(_age / 14, 0, 1);
+	var _out = clamp((starting_frame - 50) / 12, 0, 1);
+	var _a = min(_in, _out);
+	var _slide = (1 - _in) * -camera_width * 0.25;
+	var _hw = max(260, (string_width(_text) * 0.6) / 2 + 80);
+	var _hh = 50;
+	var _sk = 26;
+	
+	draw_set_alpha(0.85 * _a);
+	draw_set_color(MENU_B_DARK);
+	_quad(_cx - _hw + _slide, _cy - _hh, _cx + _hw + _slide, _cy + _hh, _sk);
+	
+	draw_set_alpha(_a);
+	draw_set_color(MENU_B_RED);
+	_quad(_cx - _hw + _slide, _cy - _hh, _cx - _hw + 14 + _slide, _cy + _hh, _sk);
+	draw_set_color(MENU_B_ACC);
+	_quad(_cx - _hw + _slide, _cy + _hh - 5, _cx + _hw + _slide, _cy + _hh, _sk * 0.1);
+	
+	draw_set_color(c_black);
+	draw_text_transformed(_cx + 3 + _slide, _cy + 3, _text, 0.6, 0.6, 0);
+	draw_set_color(c_white);
+	draw_text_transformed(_cx + _slide, _cy, _text, 0.6, 0.6, 0);
+	}
+else
+	{
+	var _age = 50 - starting_frame;
+	var _pop = 1 + 0.5 * max(0, 1 - _age / 6);
+	var _heat = clamp(_age / 18, 0, 1);
+	var _col = merge_colour(c_white, MENU_B_ACC, _heat);
+	var _fade_out = clamp(starting_frame / 12, 0, 1);
+	var _bw = camera_width * clamp(_age / 8, 0, 1);
+	
+	if (_age < 6)
 		{
-		// "ROUND X": texto discreto que aparece suave; al final se abre una línea dorada
-		var _age = max(0, 150 - starting_frame);          // 0..99
-		var _fade_in = min(1, _age / 15);
-		var _line_t = clamp((_age - 60) / 25, 0, 1);       // la línea crece entre los frames 60 y 85
-		
-		draw_set_alpha(_fade_in);
-		draw_set_color(c_black);
-		draw_text_transformed(_cx + 3, _cy + 3, _text, 0.6, 0.6, 0);
+		draw_set_alpha(0.6 * (1 - _age / 6));
 		draw_set_color(c_white);
-		draw_text_transformed(_cx, _cy, _text, 0.6, 0.6, 0);
-		
-		if (_line_t > 0)
-			{
-			var _lw = camera_width * _line_t;
-			draw_set_alpha(0.85);
-			draw_set_color(#FFDD00);
-			draw_rectangle(_cx - (_lw / 2), _cy + 38, _cx + (_lw / 2), _cy + 40, false);
-			}
+		draw_rectangle(0, 0, camera_width, camera_height, false);
 		}
-	else
-		{
-		// "FIGHT!": destello, entra grande y brillante, se enfría a dorado y se desvanece
-		var _age = 50 - starting_frame;                    // 0..49
-		var _pop = 1 + 0.5 * max(0, 1 - _age / 6);         // entra grande y se asienta
-		var _heat = clamp(_age / 18, 0, 1);                // 0 = blanco incandescente, 1 = dorado
-		var _col = merge_colour(c_white, #FFDD00, _heat);
-		var _fade_out = clamp(starting_frame / 12, 0, 1);  // se desvanece en los últimos 12 frames
-		
-		// Destello de pantalla en los primeros 6 frames
-		if (_age < 6)
-			{
-			draw_set_alpha(0.6 * (1 - _age / 6));
-			draw_set_color(c_white);
-			draw_rectangle(0, 0, camera_width, camera_height, false);
-			}
-		
-		// Línea dorada que se retrae al final
-		var _lw = camera_width * clamp(starting_frame / 20, 0, 1);
-		draw_set_alpha(0.85 * _fade_out);
-		draw_set_color(#FFDD00);
-		draw_rectangle(_cx - (_lw / 2), _cy + 52, _cx + (_lw / 2), _cy + 54, false);
-		
-		draw_set_alpha(_fade_out);
-		draw_set_color(c_black);
-		draw_text_transformed(_cx + 5, _cy + 5, "FIGHT!", 1.3 * _pop, 1.3 * _pop, 0);
-		draw_set_color(_col);
-		draw_text_transformed(_cx, _cy, "FIGHT!", 1.3 * _pop, 1.3 * _pop, 0);
-		}
+	
+	draw_set_alpha(0.85 * _fade_out);
+	draw_set_color(MENU_B_DARK);
+	_quad(_cx - _bw / 2, _cy - 70, _cx + _bw / 2, _cy + 70, 40);
+	
+	draw_set_alpha(_fade_out);
+	draw_set_color(MENU_B_RED);
+	_quad(_cx - _bw / 2, _cy - 70, _cx + _bw / 2, _cy - 62, 3);
+	draw_set_color(MENU_B_ACC);
+	_quad(_cx - _bw / 2, _cy + 62, _cx + _bw / 2, _cy + 70, 3);
+	
+	draw_set_color(c_black);
+	draw_text_transformed(_cx + 5, _cy + 5, "FIGHT!", 1.3 * _pop, 1.3 * _pop, 0);
+	draw_set_color(_col);
+	draw_text_transformed(_cx, _cy, "FIGHT!", 1.3 * _pop, 1.3 * _pop, 0);
+	}
 	
 	draw_set_alpha(1.0);
 	draw_set_color(c_white);
 	
 	// Voces de ronda y fight (solo sonido, una vez por ronda)
 	var _round_voices = [snd_round_1, snd_round_2, snd_round_3, snd_round_4, snd_round_5];
-	if (starting_frame > 50 && !round_voice_played)
+	if (starting_frame > 50 && starting_frame <= 150 && !round_voice_played)
 		{
 		round_voice_played = true;
 		if (_is_final_round)
@@ -517,6 +120,12 @@ if (game_meta_state != GAME_META_STATE.starting)
 	{
 	round_voice_played = false;
 	fight_voice_played = false;
+	}
+
+if (intro_active())
+	{
+	intro_draw_overlay();
+	exit;
 	}
 
 //Player HP bars & Meter bars
@@ -637,7 +246,6 @@ with (obj_player)
 	}
 draw_ecg_monitor(camera_width div 2, 96, 88, 24, _min_ratio, _any_ko);
 
-// Mensaje de Ganador por Personaje (LEX WINS / JOE WINS) - CÓDIGO CORREGIDO
 if (game_meta_state == GAME_META_STATE.round_restart || game_meta_state == GAME_META_STATE.ending)
 	{
 	draw_set_font(fnt_countdown);
@@ -646,18 +254,19 @@ if (game_meta_state == GAME_META_STATE.round_restart || game_meta_state == GAME_
 	
 	var _winner_name = "";
 	var _is_draw = false;
-	
-	// 1. Obtener referencias directas de P1 y P2
 	var _p1 = noone;
 	var _p2 = noone;
+	var _any_ko = false;
+	var _any_acid = false;
 	
 	with (obj_player)
 		{
 		if (player_number == 0) _p1 = id;
 		if (player_number == 1) _p2 = id;
+		if (hp <= 0) _any_ko = true;
+		if (acid_ko) _any_acid = true;
 		}
 	
-	// 2. Determinar el ganador de la ronda comparando HP
 	if (_p1 != noone && _p2 != noone)
 		{
 		if (_p1.hp > _p2.hp)
@@ -673,29 +282,117 @@ if (game_meta_state == GAME_META_STATE.round_restart || game_meta_state == GAME_
 			_is_draw = true;
 			}
 		}
-
-	// 3. Formatear el texto a mostrar
+	
 	var _text = "";
-	if (_is_draw)
+	if (_is_draw) _text = "DRAW GAME!";
+	else if (_winner_name != "") _text = _winner_name + " WINS";
+	
+	var _quad = function(_x1, _y1, _x2, _y2, _sk)
 		{
-		_text = "DRAW GAME!";
+		draw_triangle(_x1 + _sk, _y1, _x2 + _sk, _y1, _x1, _y2, false);
+		draw_triangle(_x2 + _sk, _y1, _x2, _y2, _x1, _y2, false);
+		};
+	var _cx = camera_width div 2;
+	var _cy = camera_height * 0.42;
+	var _ko_age = (game_meta_state == GAME_META_STATE.ending) ? (150 - ending_frame) : (150 - round_restart_frame);
+	
+if (_any_ko && !_any_acid && _ko_age >= 0)
+	{
+	var _ks = 1.3;
+	var _cyk = camera_height * 0.40;
+	var _p = clamp(_ko_age / 10, 0, 1);
+	var _sc;
+	var _al;
+	if (_ko_age < 10)
+		{
+		_sc = lerp(5.5, 1, _p * _p * _p);
+		_al = min(1, _ko_age / 4);
 		}
-	else if (_winner_name != "")
+	else
 		{
-		_text = _winner_name + " WINS!";
+		_sc = 1 + max(0, 1 - (_ko_age - 10) / 7) * 0.28;
+		_al = 1;
 		}
-
-	// Dibujar si hay texto válido
-	if (_text != "")
+	_sc *= _ks;
+	
+	var _shake_t = max(0, 1 - (_ko_age - 10) / 46);
+	var _sm = (_ko_age >= 10 && _ko_age < 56) ? 20 * _shake_t * _shake_t : 0;
+	var _shx = dsin(_ko_age * 137.5) * _sm;
+	var _shy = dcos(_ko_age * 91.3) * _sm;
+	
+	if (_ko_age >= 6 && _ko_age < 90)
 		{
-		// Sombra del texto
+		draw_set_alpha(0.22);
 		draw_set_color(c_black);
-		draw_text((camera_width div 2) + 4, (camera_height div 2) + 4, _text);
-		
-		// Texto principal en dorado
-		draw_set_color(#FFDD00);
-		draw_text(camera_width div 2, camera_height div 2, _text);
+		draw_rectangle(0, 0, camera_width, camera_height, false);
 		}
+	
+	if (_ko_age >= 10)
+		{
+		var _fa = max(0, 1 - (_ko_age - 10) / 20);
+		draw_set_alpha(0.55 * _fa);
+		draw_set_color(c_white);
+		draw_rectangle(0, 0, camera_width, camera_height, false);
+		var _r = (_ko_age - 10) * 26;
+		var _ra = max(0, 1 - (_ko_age - 10) / 22);
+		draw_set_alpha(_ra);
+		draw_ellipse(_cx - _r * 1.2, _cyk + 90 - _r * 0.4, _cx + _r * 1.2, _cyk + 90 + _r * 0.4, true);
+		}
+	
+	var _tx = _cx + _shx;
+	var _ty = _cyk + _shy;
+	var _ol = 6 * _sc;
+	draw_set_alpha(_al);
+	draw_set_color(MENU_B_INK);
+	for (var _a = 0; _a < 8; _a++)
+		{
+		draw_text_transformed(_tx + lengthdir_x(_ol, _a * 45), _ty + lengthdir_y(_ol, _a * 45), "KO", _sc, _sc, 4);
+		}
+	draw_text_transformed_color(_tx, _ty, "KO", _sc, _sc, 4, #F4F6FC, #F4F6FC, #6C7184, #B4B8C8, _al);
+	
+	if (_ko_age >= 62 && _text != "" && !_is_draw)
+		{
+		var _wa = clamp((_ko_age - 62) / 14, 0, 1);
+		var _sl = (1 - _wa) * 50;
+		var _hw = string_width(_text) * 0.3 / 2 + 70;
+		var _wy = _cyk + 140;
+		draw_set_alpha(0.9 * _wa);
+		draw_set_color(MENU_B_DARK);
+		_quad(_cx - _hw + _sl, _wy - 20, _cx + _hw + _sl, _wy + 20, 20);
+		draw_set_alpha(_wa);
+		draw_set_color(MENU_B_RED);
+		_quad(_cx - _hw + _sl, _wy - 20, _cx - _hw + 10 + _sl, _wy + 20, 20);
+		draw_set_color(MENU_B_ACC);
+		_quad(_cx - _hw + _sl, _wy + 16, _cx + _hw + _sl, _wy + 20, 3);
+		draw_set_color(c_black);
+		draw_text_transformed(_cx + _sl + 8 + 2, _wy + 2, _text, 0.3, 0.3, 0);
+		draw_set_color(MENU_B_ACC);
+		draw_text_transformed(_cx + _sl + 8, _wy, _text, 0.3, 0.3, 0);
+		}
+	
+	draw_set_alpha(1);
+	}
+	else if (_text != "")
+		{
+		var _hw = max(240, string_width(_text) / 2 + 80);
+		var _hh = string_height(_text) / 2 + 22;
+		var _my = camera_height div 2;
+		draw_set_alpha(0.85);
+		draw_set_color(MENU_B_DARK);
+		_quad(_cx - _hw, _my - _hh, _cx + _hw, _my + _hh, 30);
+		draw_set_alpha(1);
+		draw_set_color(MENU_B_RED);
+		_quad(_cx - _hw, _my - _hh, _cx - _hw + 14, _my + _hh, 30);
+		draw_set_color(MENU_B_ACC);
+		_quad(_cx - _hw, _my + _hh - 5, _cx + _hw, _my + _hh, 3);
+		draw_set_color(c_black);
+		draw_text(_cx + 4, _my + 4, _text);
+		draw_set_color(MENU_B_ACC);
+		draw_text(_cx, _my, _text);
+		}
+	
+	draw_set_alpha(1);
+	draw_set_color(c_white);
 	}
 
 // === CONTADOR DE COMBOS ===
@@ -724,35 +421,97 @@ if (game_meta_state != GAME_META_STATE.starting)
 			var _pop = _live ? (1 + 0.35 * max(0, 1 - _age / 6)) : 1;   // "rebote" al sumar un golpe
 			var _fade = min(1, combo_final_show / 20);                    // se desvanece al final
 			
-			var _cx = (player_number == 1) ? camera_width * 0.14 : camera_width * 0.86;
+			var _cx = (player_number == 1) ? camera_width * 0.09 : camera_width * 0.91;
 			var _cy = camera_height * 0.32;
 			
 			draw_set_halign(fa_center);
 			draw_set_valign(fa_center);
 			
-			// "N HITS": el del combo en curso, o el del que acaba de terminar
-			if (_live || _ended)
-				{
-				var _n = _live ? combo_hits : combo_final_hits;
-				draw_set_alpha(_live ? 1 : _fade);
-				draw_set_font(fnt_menu);
-				var _txt = string(_n) + ((_n == 1) ? " HIT" : " HITS");
-				draw_set_color(c_black);
-				draw_text_transformed(_cx + 3, _cy + 3, _txt, 1.6 * _pop, 1.6 * _pop, 0);
-				draw_set_color(c_white);
-				draw_text_transformed(_cx, _cy, _txt, 1.6 * _pop, 1.6 * _pop, 0);
-				}
+var _u = 0.55;
+
+if (_live || _ended)
+	{
+	var _n = _live ? combo_hits : combo_final_hits;
+	var _al = _live ? 1 : _fade;
+	var _tint = merge_colour(MENU_B_ACC, MENU_B_RED, clamp((_n - 5) / 15, 0, 1));
+	var _w = 130 * _u;
+	var _sk = 24 * _u;
+	var _t = 62 * _u;
+	var _b = 40 * _u;
+	
+	draw_set_alpha(0.85 * _al);
+	draw_set_color(MENU_B_DARK);
+	draw_triangle(_cx - _w + _sk, _cy - _t, _cx + _w + _sk, _cy - _t, _cx - _w, _cy + _b, false);
+	draw_triangle(_cx + _w + _sk, _cy - _t, _cx + _w, _cy + _b, _cx - _w, _cy + _b, false);
+	draw_set_alpha(_al);
+	draw_set_color(_tint);
+	draw_triangle(_cx - _w + _sk, _cy + _b - 3, _cx + _w + _sk, _cy + _b - 3, _cx - _w, _cy + _b, false);
+	draw_triangle(_cx + _w + _sk, _cy + _b - 3, _cx + _w, _cy + _b, _cx - _w, _cy + _b, false);
+	
+	draw_set_font(fnt_menu);
+	var _ns = 3.2 * _u * _pop;
+	var _hs = 1.3 * _u;
+	draw_set_color(c_black);
+	draw_text_transformed(_cx - (30 * _u) + 2, _cy - (12 * _u) + 2, string(_n), _ns, _ns, 0);
+	draw_set_color(c_white);
+	draw_text_transformed(_cx - (30 * _u), _cy - (12 * _u), string(_n), _ns, _ns, 0);
+	draw_set_color(c_black);
+	draw_text_transformed(_cx + (70 * _u) + 2, _cy + (6 * _u) + 2, (_n == 1) ? "HIT" : "HITS", _hs, _hs, 0);
+	draw_set_color(_tint);
+	draw_text_transformed(_cx + (70 * _u), _cy + (6 * _u), (_n == 1) ? "HIT" : "HITS", _hs, _hs, 0);
+	}
+
+if (!is_undefined(_call))
+	{
+	draw_set_font(fnt_countdown);
+	var _cs = 0.3 * _u;
+	var _cw = string_width(_call.text) * _cs / 2 + (30 * _u);
+	var _ch = 22 * _u;
+	var _csk = 18 * _u;
+	var _cyy = _cy + (80 * _u);
+	draw_set_alpha(0.85 * _fade);
+	draw_set_color(MENU_B_DARK);
+	draw_triangle(_cx - _cw + _csk, _cyy - _ch, _cx + _cw + _csk, _cyy - _ch, _cx - _cw, _cyy + _ch, false);
+	draw_triangle(_cx + _cw + _csk, _cyy - _ch, _cx + _cw, _cyy + _ch, _cx - _cw, _cyy + _ch, false);
+	draw_set_alpha(_fade);
+	draw_set_color(_call.col);
+	draw_triangle(_cx - _cw + _csk, _cyy + _ch - 3, _cx + _cw + _csk, _cyy + _ch - 3, _cx - _cw, _cyy + _ch, false);
+	draw_triangle(_cx + _cw + _csk, _cyy + _ch - 3, _cx + _cw, _cyy + _ch, _cx - _cw, _cyy + _ch, false);
+	draw_set_color(c_black);
+	draw_text_transformed(_cx + (8 * _u) + 2, _cyy + 2, _call.text, _cs, _cs, 0);
+	draw_set_color(_call.col);
+	draw_text_transformed(_cx + (8 * _u), _cyy, _call.text, _cs, _cs, 0);
+	}
 			
-			// Frase del combo terminado
-			if (!is_undefined(_call))
-				{
-				draw_set_alpha(_fade);
-				draw_set_font(fnt_countdown);
-				draw_set_color(c_black);
-				draw_text_transformed(_cx + 15, _cy + 59, _call.text, 0.3, 0.3, 0);
-				draw_set_color(_call.col);
-				draw_text_transformed(_cx + 13, _cy + 56, _call.text, 0.3, 0.3, 0);
-				}
+			draw_set_alpha(1.0);
+			draw_set_color(c_white);
+			draw_set_halign(fa_left);
+			draw_set_valign(fa_top);
+			}
+		}
+	}
+
+// === COUNTER HIT === (solo dibujo)
+if (game_meta_state != GAME_META_STATE.starting)
+	{
+	with (obj_player)
+		{
+		if (ch_show > 0 && ch_kind > 0)
+			{
+			var _cx = (player_number == 1) ? camera_width * 0.14 : camera_width * 0.86;
+			var _cy = (camera_height * 0.32) - 80;
+			var _pop = 1 + (0.4 * max(0, (ch_show - 50) / 10));		// rebote al aparecer
+			var _txt = (ch_kind == 2) ? "PUNISH COUNTER" : "COUNTER";
+			var _col = (ch_kind == 2) ? make_colour_rgb(255, 70, 60) : make_colour_rgb(255, 190, 40);
+			
+			draw_set_font(fnt_menu);
+			draw_set_halign(fa_center);
+			draw_set_valign(fa_center);
+			draw_set_alpha(min(1, ch_show / 15));
+			draw_set_color(c_black);
+			draw_text_transformed(_cx + 3, _cy + 3, _txt, 0.9 * _pop, 0.9 * _pop, 0);
+			draw_set_color(_col);
+			draw_text_transformed(_cx, _cy, _txt, 0.9 * _pop, 0.9 * _pop, 0);
 			
 			draw_set_alpha(1.0);
 			draw_set_color(c_white);
@@ -825,14 +584,28 @@ if (game_paused)
 	draw_rectangle(0, 0, camera_width, camera_height, false);
 	draw_set_alpha(1.0);
 	
-	if (global.online_mode)
-		{
-		draw_set_font(fnt_timer);
-		draw_set_halign(fa_center);
-		draw_set_valign(fa_center);
-		draw_set_color(c_white);
-		draw_text(camera_width div 2, camera_height div 2, "PAUSED");
-		}
+if (global.online_mode)
+	{
+	var _cx = camera_width div 2;
+	var _cy = camera_height div 2;
+	draw_set_font(fnt_timer);
+	draw_set_halign(fa_center);
+	draw_set_valign(fa_center);
+	var _hw = string_width("PAUSED") / 2 + 80;
+	var _hh = string_height("PAUSED") / 2 + 20;
+	
+	draw_set_color(MENU_B_DARK);
+	draw_triangle(_cx - _hw + 28, _cy - _hh, _cx + _hw + 28, _cy - _hh, _cx - _hw, _cy + _hh, false);
+	draw_triangle(_cx + _hw + 28, _cy - _hh, _cx + _hw, _cy + _hh, _cx - _hw, _cy + _hh, false);
+	draw_set_color(MENU_B_ACC);
+	draw_triangle(_cx - _hw + 28, _cy + _hh - 5, _cx + _hw + 28, _cy + _hh - 5, _cx - _hw, _cy + _hh, false);
+	draw_triangle(_cx + _hw + 28, _cy + _hh - 5, _cx + _hw, _cy + _hh, _cx - _hw, _cy + _hh, false);
+	
+	draw_set_color(c_black);
+	draw_text(_cx + 3, _cy + 3, "PAUSED");
+	draw_set_color(c_white);
+	draw_text(_cx, _cy, "PAUSED");
+	}
 	else
 		{
 		pause_menu_draw();

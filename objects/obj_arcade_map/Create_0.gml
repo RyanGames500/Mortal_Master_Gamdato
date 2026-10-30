@@ -1,5 +1,5 @@
 phase_t = 0;
-art = asset_get_index("spr_arcade_map");	// tu arte del mapa (opcional): si no existe, se dibuja uno provisional
+art = spr_arcade_map;
 mode = 0;							// 0 siguiente pelea · 1 game over · 2 victoria · 3 continuar
 travel_from = -2;
 travel_frames = 0;

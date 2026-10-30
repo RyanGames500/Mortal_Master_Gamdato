@@ -3,6 +3,11 @@ The script player instances call to draw themselves.
 */
 function player_draw()
 	{
+	if (obj_game.game_meta_state == GAME_META_STATE.starting && obj_game.starting_frame > INTRO_END)
+		{
+		if (intro_player_draw(id)) then return;
+		}		
+		
 	//Remate de stage: el rival vuela (el hundimiento lo dibuja el fondo)
 	if (acid_ko && obj_game.game_meta_state == GAME_META_STATE.ending)
 		{

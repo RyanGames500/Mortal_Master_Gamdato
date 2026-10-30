@@ -9,8 +9,8 @@ function brad_character_init()
 	walk_speed = 2.5;
 	dash_speed = 9;
 	dash_time = 18;
-	jump_hsp = 4;
-	jump_vsp = -21;
+	jump_hsp = 7;
+	jump_vsp = -23;
 	grav = 1.2;
 	has_backdash = false; // Sin backdash: cada acercamiento es un compromiso real, sin escape fácil
 	has_grab = true;

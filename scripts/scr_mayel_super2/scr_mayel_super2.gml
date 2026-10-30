@@ -14,7 +14,7 @@ Fases: 0 = carga, 1 = bateo, 7 = espera mientras el rival vuela, 2 = salto y lo 
 //--- CARGA Y BATEO ---
 #macro MS2_CHARGE_T		26		//frames de carga con el aura
 #macro MS2_SWING_T		12		//frames del bateo (ventana para pegar)
-#macro MS2_DMG_BAT		18		//dano del bateo
+#macro MS2_DMG_BAT		3		//dano del bateo
 #macro MS2_BAT_LAG		3		//congelado del bateo
 #macro MS2_LAUNCH		32		//launch_speed del bateo: que tan alto vuela el rival (mas grande = mas alto)
 #macro MS2_MISS_LAG		36		//si falla, lo bloquean o no lo alcanza
@@ -34,7 +34,7 @@ Fases: 0 = carga, 1 = bateo, 7 = espera mientras el rival vuela, 2 = salto y lo 
 #macro MS2_COMBOS		2		//cuantas veces repite el combo
 #macro MS2_RECOIL		14		//cuanto retrocede el rival con cada golpe
 #macro MS2_FINAL_WIND	22		//pausa con el martillo en alto antes del golpe final
-#macro MS2_DMG_SPIKE	40		//dano del golpe final
+#macro MS2_DMG_SPIKE	15		//dano del golpe final
 #macro MS2_SPIKE_V		34		//launch_speed hacia abajo del golpe final (mas grande = mas rapido cae)
 #macro MS2_SPIKE_HSP	5		//empuje hacia adelante al caer
 #macro MS2_SPIKE_LAG	5		//congelado del golpe final
@@ -72,11 +72,11 @@ function mayel_s2_move(_i)
 	{
 	switch (_i)
 		{
-		case 0: return { spr: spr_mayel_light_ground,  frames: [0, 1, 2, 3, 4],    hit: 2, dmg: 5, sy: -40 };
-		case 1: return { spr: spr_mayel_light_ground,  frames: [5, 6, 7, 8],       hit: 2, dmg: 5, sy: -10 };
-		case 2: return { spr: spr_mayel_medium_ground, frames: [0, 1, 2, 3, 4],    hit: 2, dmg: 6, sy: 10 };
-		case 3: return { spr: spr_mayel_medium_ground, frames: [5, 6, 8, 9, 10],   hit: 2, dmg: 6, sy: 10 };
-		default: return { spr: spr_mayel_light_ground, frames: [9, 10, 11, 12, 13], hit: 4, dmg: 8, sy: -30 };
+		case 0: return { spr: spr_mayel_light_ground,  frames: [0, 1, 2, 3, 4],    hit: 2, dmg: 2, sy: -40 };
+		case 1: return { spr: spr_mayel_light_ground,  frames: [5, 6, 7, 8],       hit: 2, dmg: 1, sy: -10 };
+		case 2: return { spr: spr_mayel_medium_ground, frames: [0, 1, 2, 3, 4],    hit: 2, dmg: 2, sy: 10 };
+		case 3: return { spr: spr_mayel_medium_ground, frames: [5, 6, 8, 9, 10],   hit: 2, dmg: 1, sy: 10 };
+		default: return { spr: spr_mayel_light_ground, frames: [9, 10, 11, 12, 13], hit: 4, dmg: 2, sy: -30 };
 		}
 	}
 

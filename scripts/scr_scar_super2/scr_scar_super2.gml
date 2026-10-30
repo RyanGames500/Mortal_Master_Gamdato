@@ -21,7 +21,7 @@ Si agarra, el rival no puede romper el agarre ni morir hasta el batazo (super_lo
 #macro SC_GRAB_X		130		//donde esta el centro del agarre delante de Scar (alcance total ~230 px)
 #macro SC_GRAB_T		30		//frames maximos del agarre antes de dar por fallado
 #macro SC_LUNGE			6		//cuanto avanza Scar al agarrar
-#macro SC_DMG_GRAB		8		//dano del agarre
+#macro SC_DMG_GRAB		5		//dano del agarre
 #macro SC_HOLD_T		35		//frames que lo sostiene en frente (frame 6)
 //--- LO LEVANTA Y LO LANZA AL AIRE (hitbox del engine) ---
 #macro SC_LIFT			50		//cuanto sube el rival cuando Scar lo levanta (pixeles, solo mientras esta agarrado)
@@ -36,7 +36,7 @@ Si agarra, el rival no puede romper el agarre ni morir hasta el batazo (super_lo
 #macro SC_SWING_STEP	2		//frames del juego por cada frame del swing mientras la hitbox esta activa (mas chico = swing mas rapido)
 #macro SC_SWING_LAST	9		//ultimo frame del swing antes de conectar (del 5 al 9)
 #macro SC_FOLLOW_STEP	1		//frames del juego por cada frame de lo que queda del swing despues de conectar (1 = muy rapido)
-#macro SC_DMG_BAT		50		//dano del batazo
+#macro SC_DMG_BAT		20		//dano del batazo
 #macro SC_BAT_X			110		//donde esta la hitbox del batazo (adelante de Scar)
 #macro SC_BAT_Y			90		//altura de la hitbox y del punto donde lo golpea (sobre el centro de Scar)
 #macro SC_BAT_T			10		//frames que dura la hitbox del batazo

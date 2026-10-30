@@ -19,12 +19,12 @@ Depende de scr_mariel_super (Super 1): mariel_s1_rival, mariel_s1_lock, mariel_s
 #macro MR2_DASH_V			15		//velocidad de la carrera
 #macro MR2_DASH_T			26		//frames maximos de la carrera (el alcance es ~ V x T)
 #macro MR2_GRAB_X			85		//donde esta el agarre delante de ella
-#macro MR2_DMG_GRAB			6
+#macro MR2_DMG_GRAB			3
 //--- COMBO (3 golpes de la medium) ---
 #macro MR2_COMBO_T			0.5		//velocidad de la animacion del combo (1 = como la normal; menos = mas rapido)
 #macro MR2_DMG_KICK			5		//dano de la patada frontal
-#macro MR2_DMG_SPIN			6		//dano de la patada giratoria
-#macro MR2_DMG_LAUNCH		10		//dano del nalgaso que lo lanza
+#macro MR2_DMG_SPIN			2		//dano de la patada giratoria
+#macro MR2_DMG_LAUNCH		5		//dano del nalgaso que lo lanza
 #macro MR2_HIT_KNOCK		2		//empuje hacia atras de los golpes (chico para que no se aleje)
 #macro MR2_LAUNCH_MULT		1.5		//cuanto lo lanza arriba: multiplica el salto de ella (launch_speed del engine)
 //--- SALTO Y CAIDA (fisicas del engine: jump_vsp y grav) ---
@@ -36,7 +36,7 @@ Depende de scr_mariel_super (Super 1): mariel_s1_rival, mariel_s1_lock, mariel_s
 #macro MR2_IMP_Y			0
 //--- IMPACTO (hitbox real del engine) ---
 #macro MR2_LAND_LAG			20		//frames congelados al caer sentada sobre el rival
-#macro MR2_DMG_SLAM			60
+#macro MR2_DMG_SLAM			25
 #macro MR2_SLAM_LAG			25		//pausa del golpe final
 #macro MR2_SLAM_LAUNCH		2		//rebote del rival al caer (minimo 1; el engine lo necesita para dejarlo en knockdown)
 #macro MR2_SLAM_KNOCK		0		//empuje hacia atras del rival (0 = se queda donde cayo)
@@ -481,12 +481,8 @@ function mariel_super_terremoto(_override_phase)
 				attack_frame = 0;
 				mariel_s1_pose(MR2_IMP_X, MR2_IMP_Y, 1);
 				
-				// pausa del aterrizaje: los dos quedan congelados y se ve que cayo sentada sobre el
-				hitlag_frame = MR2_LAND_LAG;
-				with (mariel_s1_rival())
-					{
-					hitlag_frame = max(hitlag_frame, MR2_LAND_LAG);
-					}
+				// el golpe sale EN el aterrizaje 
+				mariel_s2_slam_hit();
 				
 				// efectos del aterrizaje justo al empezar la pausa
 				mariel_s1_hit_fx();

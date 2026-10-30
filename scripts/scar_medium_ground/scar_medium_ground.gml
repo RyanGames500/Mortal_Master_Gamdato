@@ -41,7 +41,7 @@ function scar_medium_ground(_override_phase)
 				attack_phase = 1;
 				attack_frame = 12;
 				
-				var _hitbox = hitbox_create(127, -26, 1.3, 1.2, 10, 5);
+				var _hitbox = hitbox_create(127, -26, 1.3, 1.2, 8, 5);
 				_hitbox.hitlag = 8;
 				_hitbox.knockback = 8;
 				_hitbox.high = true;
@@ -101,7 +101,7 @@ function scar_medium_ground(_override_phase)
 				attack_phase = 3;
 				attack_frame = 12;
 				
-				var _hitbox = hitbox_create(156, 61, 1.1, 0.3, 7, 8);
+				var _hitbox = hitbox_create(156, 61, 1.1, 0.3, 5, 8);
 				_hitbox.hitlag = 8;
 				_hitbox.knockback = 8;
 				}
@@ -157,7 +157,7 @@ function scar_medium_ground(_override_phase)
 				anim_frame = 19; 
 				attack_phase = 5;
 				
-				var _hitbox = hitbox_create(127, -26, 1.3, 1.2, 10, 5);
+				var _hitbox = hitbox_create(127, -26, 1.3, 1.2, 7, 5);
 				_hitbox.launch_speed = 12;
 				_hitbox.hitlag = 10;
 				_hitbox.knockback = 12;

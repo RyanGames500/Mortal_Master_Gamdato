@@ -21,8 +21,8 @@ Si conecta, el rival no puede morir hasta el ultimo estrellon (super_lock).
 #macro GRAB_T_TURN			9		//frames que tarda en voltearse
 #macro GRAB_ARC_H			320		//que tan alto pasa el rival por encima de Blitsen
 #macro GRAB_FLOOR_OFFSET	75		//a que altura del piso queda el centro del rival acostado
-#macro GRAB_SLAM_DMG		5		//daño de cada estrellon
-#macro GRAB_FINAL_DMG		22		//daño del ultimo estrellon
+#macro GRAB_SLAM_DMG		2		//daño de cada estrellon
+#macro GRAB_FINAL_DMG		10		//daño del ultimo estrellon
 #macro GRAB_FINAL_LAUNCH	14
 #macro GRAB_FINAL_KNOCK		26
 #macro GRAB_END_LAG			30		//recuperacion despues del ultimo estrellon

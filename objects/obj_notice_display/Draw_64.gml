@@ -3,7 +3,11 @@
 var _gui_w = display_get_gui_width();
 var _gui_h = display_get_gui_height();
 var _scale = clamp(_gui_w / 1280, 0.6, 1.4);
-
+var _quad = function(_x1, _y1, _x2, _y2, _sk)
+	{
+	draw_triangle(_x1 + _sk, _y1, _x2 + _sk, _y1, _x1, _y2, false);
+	draw_triangle(_x2 + _sk, _y1, _x2, _y2, _x1, _y2, false);
+	};
 // ==========================================
 // OVERLAY CRÍTICO (desconexión / desync)
 // ==========================================
@@ -24,7 +28,13 @@ if (global.critical_overlay_active)
 	var _cy = _gui_h / 2;
 	
 	var _pulse = 1.0 + (dsin(current_time / 4) * 0.05);
-	
+	var _sh = 70 * _scale;
+	draw_set_alpha(0.92 * _fade);
+	draw_set_color(MENU_B_DARK);
+	_quad(0, _cy - _sh, _gui_w, _cy + _sh, 40 * _scale);
+	draw_set_color(MENU_B_RED);
+	_quad(0, _cy - _sh, _gui_w, _cy - _sh + (6 * _scale), 2 * _scale);
+	_quad(0, _cy + _sh - (6 * _scale), _gui_w, _cy + _sh, 2 * _scale);	
 	draw_set_font(fnt_menu6);
 	draw_set_halign(fa_center);
 	draw_set_valign(fa_middle);
@@ -100,20 +110,16 @@ if (_count > 0)
 		var _top    = _card_y - (_card_h / 2);
 		var _bottom = _card_y + (_card_h / 2);
 		
+		var _sk = 14 * _scale;
 		draw_set_alpha(0.92 * _alpha);
-		draw_set_color(c_black);
-		draw_roundrect_ext(_left, _top, _right, _bottom, 14, 14, false);
-		
-		var _pulse2 = 0.7 + (dsin(current_time / 5) * 0.3);
+		draw_set_color(MENU_B_DARK);
+		_quad(_left, _top, _right, _bottom, _sk);
+
 		draw_set_alpha(_alpha);
-		draw_set_color(c_red);
-		draw_roundrect_ext(_left - 2, _top - 2, _right + 2, _bottom + 2, 14, 14, true);
-		draw_set_alpha(_pulse2 * _alpha * 0.6);
-		draw_roundrect_ext(_left - 4, _top - 4, _right + 4, _bottom + 4, 14, 14, true);
-		
-		draw_set_alpha(_alpha);
-		draw_set_color(c_red);
-		draw_rectangle(_left, _top, _left + _bar_w, _bottom, false);
+		draw_set_color(MENU_B_RED);
+		_quad(_left, _top, _left + _bar_w, _bottom, _sk);
+		draw_set_color(MENU_B_ACC);
+		_quad(_left, _bottom - (3 * _scale), _right, _bottom, _sk * 0.05);
 		
 		draw_set_halign(fa_left);
 		draw_set_valign(fa_middle);

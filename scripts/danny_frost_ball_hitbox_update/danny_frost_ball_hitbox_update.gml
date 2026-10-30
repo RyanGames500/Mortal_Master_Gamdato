@@ -82,6 +82,7 @@ function danny_frost_ball_hitbox_update()
 				//Hit
 				else
 					{
+					var _ch = counter_hit_kind();	// ANTES de attack_stop: mira que estaba haciendo el rival (nuestro)
 					attack_stop();
 					
 					if (bbox_bottom >= obj_ground.y && other.launch_speed == 0)
@@ -106,11 +107,11 @@ function danny_frost_ball_hitbox_update()
 						anim_sprite = sprites[$ "hitstun_aerial"];
 						anim_speed = anim_speed_default;
 						vsp = -other.launch_speed;
-						state_frame = other.hitstun;
+						state_frame = other.hitstun + counter_hit_finish(_ch);
 						hsp = other.knockback * other.owner.facing;
 						}
 					
-					player_damage(other.damage);
+					player_damage(projectile_hit_damage(other.damage, _ch, other.owner));
 					combo_register_hit();
 					hitlag_frame = other.hitlag;
 					hit_sfx_play(snd_hit_heavy);
