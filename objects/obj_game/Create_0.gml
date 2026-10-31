@@ -46,6 +46,21 @@ game_state_is_loading = false;
 
 //Variables
 game_meta_state = GAME_META_STATE.char_select;
+bail_active = false;
+bail_f = 0;
+bail_rival = noone;
+bail_winner = noone;
+bail_rx = 0;
+bail_ry = 0;
+bail_spr = -1;
+bail_img = 0;
+bail_scl = 6;
+bail_face = 1;
+bail_pal = -1;
+bail_cpal = 0;
+bail_feet = 0;
+bail_side = 1;
+bail_bx = 0;
 game_paused = false;
 game_frame = 0;
 starting_frame = 50 * 3;

@@ -100,6 +100,7 @@
     {"id":{"name":"spr_bear_acostado","path":"sprites/spr_bear_acostado/spr_bear_acostado.yy",},"order":13,},
     {"id":{"name":"lex_shot2_hitbox_draw","path":"scripts/lex_shot2_hitbox_draw/lex_shot2_hitbox_draw.yy",},"order":2,},
     {"id":{"name":"blocky_medium_crouch","path":"scripts/blocky_medium_crouch/blocky_medium_crouch.yy",},"order":13,},
+    {"id":{"name":"scr_css","path":"scripts/scr_css/scr_css.yy",},"order":13,},
     {"id":{"name":"spr_stage5_fondo1","path":"sprites/spr_stage5_fondo1/spr_stage5_fondo1.yy",},"order":0,},
     {"id":{"name":"scr_mayel_super","path":"scripts/scr_mayel_super/scr_mayel_super.yy",},"order":12,},
     {"id":{"name":"spr_danny_knockdown","path":"sprites/spr_danny_knockdown/spr_danny_knockdown.yy",},"order":12,},
@@ -989,8 +990,8 @@
   "Folders": [
     {"resourceType":"GMFolder","resourceVersion":"1.0","name":"[Engine]","folderPath":"folders/[Engine].yy","order":0,},
     {"resourceType":"GMFolder","resourceVersion":"1.0","name":"funciones","folderPath":"folders/[Engine]/funciones.yy","order":8,},
-    {"resourceType":"GMFolder","resourceVersion":"1.0","name":"Gameplay","folderPath":"folders/[Engine]/Gameplay.yy","order":2,},
     {"resourceType":"GMFolder","resourceVersion":"1.0","name":"funciones propias","folderPath":"folders/[Engine]/funciones/funciones propias.yy","order":9,},
+    {"resourceType":"GMFolder","resourceVersion":"1.0","name":"Gameplay","folderPath":"folders/[Engine]/Gameplay.yy","order":2,},
     {"resourceType":"GMFolder","resourceVersion":"1.0","name":"Hitboxes and Hurtboxes","folderPath":"folders/[Engine]/Hitboxes and Hurtboxes.yy","order":3,},
     {"resourceType":"GMFolder","resourceVersion":"1.0","name":"Inputs","folderPath":"folders/[Engine]/Inputs.yy","order":4,},
     {"resourceType":"GMFolder","resourceVersion":"1.0","name":"Palettes","folderPath":"folders/[Engine]/Palettes.yy","order":5,},
@@ -1081,6 +1082,7 @@
     {"resourceType":"GMFolder","resourceVersion":"1.0","name":"hammer","folderPath":"folders/Characters/Mayel/attacks/scripts/proyectiles/hammer.yy","order":6,},
     {"resourceType":"GMFolder","resourceVersion":"1.0","name":"sprites","folderPath":"folders/Characters/Mayel/attacks/sprites.yy","order":2,},
     {"resourceType":"GMFolder","resourceVersion":"1.0","name":"sprites","folderPath":"folders/Characters/Mayel/sprites.yy","order":1,},
+    {"resourceType":"GMFolder","resourceVersion":"1.0","name":"npc","folderPath":"folders/Characters/npc.yy","order":14,},
     {"resourceType":"GMFolder","resourceVersion":"1.0","name":"Saori","folderPath":"folders/Characters/Saori.yy","order":3,},
     {"resourceType":"GMFolder","resourceVersion":"1.0","name":"Attacks","folderPath":"folders/Characters/Saori/Attacks.yy","order":3,},
     {"resourceType":"GMFolder","resourceVersion":"1.0","name":"scripts","folderPath":"folders/Characters/Saori/Attacks/scripts.yy","order":1,},
@@ -1105,7 +1107,6 @@
     {"resourceType":"GMFolder","resourceVersion":"1.0","name":"risas","folderPath":"folders/sound/risas.yy","order":5,},
     {"resourceType":"GMFolder","resourceVersion":"1.0","name":"rounds","folderPath":"folders/sound/rounds.yy","order":6,},
     {"resourceType":"GMFolder","resourceVersion":"1.0","name":"SFX","folderPath":"folders/sound/SFX.yy","order":3,},
-    {"resourceType":"GMFolder","resourceVersion":"1.0","name":"npc","folderPath":"folders/Characters/npc.yy","order":14,},
   ],
   "AudioGroups": [
     {"resourceType":"GMAudioGroup","resourceVersion":"1.3","name":"audiogroup_default","targets":-1,},

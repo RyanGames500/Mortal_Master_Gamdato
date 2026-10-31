@@ -7,7 +7,7 @@ function hud_quad(_bx0, _bx1, _y, _h, _sl, _col, _alpha)
 	draw_triangle(_bx0 + _sl, _y, _bx1, _y + _h, _bx0, _y + _h, false);
 	draw_set_alpha(1);
 	}
-
+// 25 de esteban 50 cali y 60 comia
 function draw_hp_bar(_x, _y, _width, _height, _pad, _hp, _hp_prev, _hp_max, _direction)
 	{
 	if (_hp_max <= 0) _hp_max = 1;

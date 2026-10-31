@@ -1,5 +1,14 @@
+if (bail_active)
+	{
+	bail_draw_gui();
+	}
 if (game_meta_state == GAME_META_STATE.char_select)
 	{
+	if (stage_step == 2 && !global.training && !arcade_active())
+		{
+		css_vs_draw();
+		exit;
+		}
 	css_b_draw();
 	game_draw_stage_select();
 	exit;
@@ -294,7 +303,7 @@ if (game_meta_state == GAME_META_STATE.round_restart || game_meta_state == GAME_
 		};
 	var _cx = camera_width div 2;
 	var _cy = camera_height * 0.42;
-	var _ko_age = (game_meta_state == GAME_META_STATE.ending) ? (150 - ending_frame) : (150 - round_restart_frame);
+	var _ko_age = (game_meta_state == GAME_META_STATE.ending) ? (KO_HOLD_FRAMES - ending_frame) : (KO_HOLD_FRAMES - round_restart_frame);
 	
 if (_any_ko && !_any_acid && _ko_age >= 0)
 	{
@@ -372,24 +381,25 @@ if (_any_ko && !_any_acid && _ko_age >= 0)
 	
 	draw_set_alpha(1);
 	}
-	else if (_text != "")
-		{
-		var _hw = max(240, string_width(_text) / 2 + 80);
-		var _hh = string_height(_text) / 2 + 22;
-		var _my = camera_height div 2;
-		draw_set_alpha(0.85);
-		draw_set_color(MENU_B_DARK);
-		_quad(_cx - _hw, _my - _hh, _cx + _hw, _my + _hh, 30);
-		draw_set_alpha(1);
-		draw_set_color(MENU_B_RED);
-		_quad(_cx - _hw, _my - _hh, _cx - _hw + 14, _my + _hh, 30);
-		draw_set_color(MENU_B_ACC);
-		_quad(_cx - _hw, _my + _hh - 5, _cx + _hw, _my + _hh, 3);
-		draw_set_color(c_black);
-		draw_text(_cx + 4, _my + 4, _text);
-		draw_set_color(MENU_B_ACC);
-		draw_text(_cx, _my, _text);
-		}
+else if (_text != "")
+	{
+	var _ws = 0.45;
+	var _hw = string_width(_text) * _ws / 2 + 70;
+	var _hh = string_height(_text) * _ws / 2 + 14;
+	var _my = camera_height * 0.30;
+	draw_set_alpha(0.85);
+	draw_set_color(MENU_B_DARK);
+	_quad(_cx - _hw, _my - _hh, _cx + _hw, _my + _hh, 22);
+	draw_set_alpha(1);
+	draw_set_color(MENU_B_RED);
+	_quad(_cx - _hw, _my - _hh, _cx - _hw + 12, _my + _hh, 22);
+	draw_set_color(MENU_B_ACC);
+	_quad(_cx - _hw, _my + _hh - 4, _cx + _hw, _my + _hh, 3);
+	draw_set_color(c_black);
+	draw_text_transformed(_cx + 10 + 3, _my + 3, _text, _ws, _ws, 0);
+	draw_set_color(MENU_B_ACC);
+	draw_text_transformed(_cx + 10, _my, _text, _ws, _ws, 0);
+	}
 	
 	draw_set_alpha(1);
 	draw_set_color(c_white);

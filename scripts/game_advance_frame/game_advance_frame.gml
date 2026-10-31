@@ -215,30 +215,38 @@ function game_advance_frame(_inputs_array, _relative_frame = undefined)
 						{
 						stage_id = stage_cursor;
 						stage_step = 2;
-						css_start_timer = 30;
+						css_start_timer = (global.training || arcade_active()) ? 30 : VS_FRAMES;
 						}
 					stage_atk_prev = _atk0;
 					}
-				else if (--css_start_timer <= 0)
+				else
 					{
-					if (!_in_rollback)
+					if (css_start_timer > 20 && css_start_timer < VS_FRAMES - 40 && _atk0 && !stage_atk_prev)
 						{
-						var _stage_inst = instance_find(obj_stage_manager, 0);
-						if (_stage_inst != noone)
+						css_start_timer = 20;
+						}
+					stage_atk_prev = _atk0;
+
+					if (--css_start_timer <= 0)
+						{
+						if (!_in_rollback)
 							{
-							with (_stage_inst)
+							var _stage_inst = instance_find(obj_stage_manager, 0);
+							if (_stage_inst != noone)
 								{
-								if (audio_is_playing(music))
+								with (_stage_inst)
 									{
-									audio_stop_sound(music);
-									music = -1;
+									if (audio_is_playing(music))
+										{
+										audio_stop_sound(music);
+										music = -1;
+										}
 									}
 								}
 							}
-						}
 
-					// La misma preparación que usa un replay al arrancar
-					game_match_setup();
+						game_match_setup();
+						}
 					}
 				}
 			else
@@ -344,7 +352,7 @@ function game_advance_frame(_inputs_array, _relative_frame = undefined)
 				}
 
 			var _ko_slow = false;
-			var _ko_age = 150 - round_restart_frame;
+			var _ko_age = KO_HOLD_FRAMES  - round_restart_frame;
 			if (_ko_age >= 0 && _ko_age < 60)
 				{
 				var _acid_now = false;
@@ -429,7 +437,7 @@ function game_advance_frame(_inputs_array, _relative_frame = undefined)
 				}
 
 				var _ko_slow = false;
-				var _ko_age = 150 - ending_frame;
+				var _ko_age = KO_HOLD_FRAMES  - ending_frame;
 				if (_ko_age >= 0 && _ko_age < 60)
 					{
 					var _acid_now = false;

@@ -1,3 +1,4 @@
+#macro KO_HOLD_FRAMES	210
 ///@param {array} _result_array
 /*
 Callback used with with_synced_object to check each player for KO by health.
@@ -95,13 +96,12 @@ function game_end_conditions()
 				{
 				if (instance_find(obj_player, _i).acid_ko) then _acid = true;
 				}
-				ending_frame = _acid ? (obj_game.stage_has_root ? ROOT_FX_TOTAL : ACID_FX_TOTAL) : 150;
+				ending_frame = _acid ? (obj_game.stage_has_root ? ROOT_FX_TOTAL : ACID_FX_TOTAL) : KO_HOLD_FRAMES;
 			}
 		else
 			{
 			// Si aún no han ganado el match, pasa al reinicio síncrono de ronda
 			game_meta_state = GAME_META_STATE.round_restart;
-			round_restart_frame = 150; 
-			}
+			round_restart_frame = 150;round_restart_frame = KO_HOLD_FRAMES;			}
 		}
 	}

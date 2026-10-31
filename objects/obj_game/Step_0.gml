@@ -1,3 +1,9 @@
+if (keyboard_check_pressed(vk_alt)) then bail_start();
+if (bail_active)
+	{
+	bail_step();
+	exit;
+	}
 // Menu de pausa y salida al menu principal (nuestro): solo offline
 if (!global.online_mode)
 	{
