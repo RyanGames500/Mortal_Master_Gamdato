@@ -5,6 +5,7 @@ Deals damage to a player.
 */
 function player_damage(_damage, _player = id)
 	{
+	if (survival_active()) then _damage = survival_damage_mod(_damage, _player);
 	with (_player)
 		{
 		hp_prev = hp;

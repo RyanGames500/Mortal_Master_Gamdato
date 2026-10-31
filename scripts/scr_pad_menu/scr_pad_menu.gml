@@ -71,7 +71,6 @@ function pad_menu_pump(_mode)
 	{
 	static _stamp = -1;
 	
-	//Si dos objetos lo llaman en el mismo frame, solo cuenta el primero
 	if (current_time == _stamp) then return;
 	_stamp = current_time;
 	
@@ -80,7 +79,6 @@ function pad_menu_pump(_mode)
 	var _pad = input_pad_find();
 	if (_pad < 0) then return;
 	
-	//Teclas segun la pantalla (-1 = esa accion no existe ahi)
 	var _k_up = vk_up;
 	var _k_down = vk_down;
 	var _k_left = vk_left;
@@ -108,6 +106,28 @@ function pad_menu_pump(_mode)
 		_k_left = -1;
 		_k_right = -1;
 		_k_ok = ord("J");
+		_k_b = vk_escape;
+		_k_x = -1;
+		_k_sel = vk_escape;
+		}
+	else if (_mode == 3)
+		{
+		_k_up = -1;
+		_k_down = -1;
+		_k_left = -1;
+		_k_right = -1;
+		_k_ok = -1;
+		_k_b = -1;
+		_k_x = -1;
+		_k_sel = vk_escape;
+		}
+	else if (_mode == 4)
+		{
+		_k_up = -1;
+		_k_down = -1;
+		_k_left = -1;
+		_k_right = -1;
+		_k_ok = vk_enter;
 		_k_b = vk_escape;
 		_k_x = -1;
 		_k_sel = vk_escape;

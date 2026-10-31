@@ -1,6 +1,8 @@
-if (keyboard_check_pressed(vk_alt)) then bail_start();
+pad_menu_pump(bail_active ? 4 : 3);
 if (bail_active)
 	{
+	olm_open = false;
+	global.training_ml_open = false;
 	bail_step();
 	exit;
 	}

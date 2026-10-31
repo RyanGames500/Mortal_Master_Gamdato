@@ -4,6 +4,12 @@ The replay is already saved by save_current_replay (with its header), so this on
 */
 function game_finish()
 	{
+	if (survival_active())
+		{
+		survival_match_result(obj_game.p1_wins > obj_game.p2_wins);
+		room_goto(rm_gameplay);
+		return;
+		}
 	if (arcade_active())
 		{
 		arcade_match_result(obj_game.p1_wins > obj_game.p2_wins);

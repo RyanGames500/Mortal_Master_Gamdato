@@ -547,6 +547,7 @@ function game_match_setup()
 	{
 	stage_apply();
 	game_players_spawn();
+	if (survival_active()) then survival_apply();
 	game_meta_state = GAME_META_STATE.starting;
 	intro_count++;
 	starting_frame = 150 + (global.training ? 0 : INTRO_LEN);

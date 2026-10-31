@@ -6,7 +6,7 @@
 #macro ARCADE_NORMAL_STAGES	6		// escenarios 0..5 rotan; el 6 queda para los jefes
 #macro ARCADE_BONUS_EVERY	3		// sale un evento cada 3 peleas ganadas
 
-global.arcade_mode = 0;			// 0 = no hay arcade · 1 = eligiendo personaje · 2 = arcade en curso
+global.arcade_mode = 0;			// 0 = no hay arcade · 1 = eligiendo personaje · 2 = arcade en curso · 3 = survival
 global.arcade = undefined;
 
 /* Escenario de cada pelea normal, en orden (ids de stage_get) */
@@ -132,7 +132,6 @@ function arcade_begin(_p1)
 	}
 
 /* Se llama al terminar una pelea: _won = true si ganó el jugador */
-/* Se llama al terminar una pelea: _won = true si ganó el jugador */
 function arcade_match_result(_won)
 	{
 	var _a = global.arcade;
@@ -187,7 +186,6 @@ global.arcade_secrets = [
 	  text: "You fought without taking a single hit. A red shadow moves between the trees and cuts you off." },
 ];
 
-/* Mide si el jugador 1 recibió daño (solo lectura; no toca la simulación) */
 /* Mide si el jugador 1 recibió daño y si hubo silueta (solo lectura; no toca la simulación) */
 function arcade_track_damage()
 	{
@@ -230,6 +228,7 @@ function arcade_secret_pick(_a, _stage, _omen)
 /* Nivel de la CPU (0 a 100) según la pelea del arcade. Fuera del arcade siempre es 100 */
 function arcade_cpu_level()
 	{
+	if (survival_active()) then return survival_cpu_level();
 	if (!arcade_active()) then return 100;
 	var _a = global.arcade;
 	
@@ -247,4 +246,631 @@ function arcade_cpu_level()
 	// Peleas normales: suben de 25 a 85
 	var _normals = max(_n - 2, 2);
 	return round(lerp(25, 85, _i / (_normals - 1)));
-	}	
+	}
+
+#macro SURVIVAL_DRAFT_EVERY	3
+#macro SURVIVAL_REGEN		0.25
+#macro SURVIVAL_BOSS_EVERY	10
+
+global.survival = undefined;
+
+global.survival_muts = [
+	{ id: 1, name: "TOXIC BLOOD", tag: "TB", rare: 0, col: make_colour_rgb(70, 220, 110), desc: "Heal 6% of the damage you deal", cost: "Max HP -10%", dealt: 1, taken: 1, hp: 0.90, life: 0.06, regen: 0, low: 1 },
+	{ id: 2, name: "OVERCLOCK", tag: "OC", rare: 1, col: make_colour_rgb(255, 176, 32), desc: "Deal 15% more damage", cost: "Take 10% more damage", dealt: 1.15, taken: 1.10, hp: 1, life: 0, regen: 0, low: 1 },
+	{ id: 3, name: "IRON MARROW", tag: "IM", rare: 0, col: make_colour_rgb(70, 130, 240), desc: "Take 12% less damage", cost: "Deal 8% less damage", dealt: 0.92, taken: 0.88, hp: 1, life: 0, regen: 0, low: 1 },
+	{ id: 4, name: "GLASS FANGS", tag: "GF", rare: 1, col: make_colour_rgb(222, 48, 56), desc: "Deal 25% more damage", cost: "Max HP -15%", dealt: 1.25, taken: 1, hp: 0.85, life: 0, regen: 0, low: 1 },
+	{ id: 5, name: "REGENERATOR", tag: "RG", rare: 0, col: make_colour_rgb(60, 200, 190), desc: "Recover 15% more HP after each win", cost: "Deal 5% less damage", dealt: 0.95, taken: 1, hp: 1, life: 0, regen: 0.15, low: 1 },
+	{ id: 6, name: "ADRENAL SURGE", tag: "AS", rare: 1, col: make_colour_rgb(170, 90, 230), desc: "Deal 35% more damage below 30% HP", cost: "Take 5% more damage", dealt: 1, taken: 1.05, hp: 1, life: 0, regen: 0, low: 1.35 },
+	{ id: 7, name: "PARASITE", tag: "PA", rare: 0, col: make_colour_rgb(170, 220, 60), desc: "Heal 10% of the damage you deal", cost: "Take 12% more damage", dealt: 1, taken: 1.12, hp: 1, life: 0.10, regen: 0, low: 1 },
+];
+
+function survival_active()
+	{
+	return (global.arcade_mode == 3 && !is_undefined(global.survival) && !global.online_mode && !global.replay_mode);
+	}
+
+function survival_mut(_id)
+	{
+	for (var _i = 0; _i < array_length(global.survival_muts); _i++)
+		{
+		if (global.survival_muts[_i].id == _id) then return global.survival_muts[_i];
+		}
+	return global.survival_muts[0];
+	}
+
+function survival_mod_name(_m)
+	{
+	switch (_m)
+		{
+		case 1: return "ENRAGED";
+		case 2: return "TOUGH";
+		case 3: return "ARMORED";
+		}
+	return "";
+	}
+
+function survival_mod_desc(_m)
+	{
+	switch (_m)
+		{
+		case 1: return "Hits 15% harder";
+		case 2: return "30% more HP";
+		case 3: return "Takes 10% less damage";
+		}
+	return "";
+	}
+
+function survival_rank(_wins)
+	{
+	if (_wins >= 20) then return "S";
+	if (_wins >= 12) then return "A";
+	if (_wins >= 7) then return "B";
+	if (_wins >= 3) then return "C";
+	return "D";
+	}
+
+function survival_recalc(_sv)
+	{
+	_sv.m_dealt = 1;
+	_sv.m_taken = 1;
+	_sv.m_hp = 1;
+	_sv.m_life = 0;
+	_sv.m_regen = 0;
+	_sv.m_low = 1;
+	for (var _i = 0; _i < array_length(_sv.muts); _i++)
+		{
+		var _m = survival_mut(_sv.muts[_i]);
+		_sv.m_dealt *= _m.dealt;
+		_sv.m_taken *= _m.taken;
+		_sv.m_hp *= _m.hp;
+		_sv.m_life += _m.life;
+		_sv.m_regen += _m.regen;
+		_sv.m_low *= _m.low;
+		}
+	}
+
+function survival_pick_next(_sv)
+	{
+	var _n = _sv.index + 1;
+	if ((_n mod SURVIVAL_BOSS_EVERY) == 0)
+		{
+		_sv.opp = (((_n div SURVIVAL_BOSS_EVERY) mod 2) == 1) ? ARCADE_CHAR_DEMON : ARCADE_CHAR_BEAR;
+		_sv.stage = ARCADE_BOSS_STAGE;
+		_sv.emod = 0;
+		return;
+		}
+	var _o = 1 + irandom(8);
+	if (_o == _sv.last) then _o = 1 + (_o mod 9);
+	_sv.opp = _o;
+	_sv.last = _o;
+	_sv.stage = arcade_stage_for(_sv.index);
+	_sv.emod = (_sv.index >= 3 && irandom(99) < 55) ? (1 + irandom(2)) : 0;
+	}
+
+function survival_begin(_p1)
+	{
+	var _sv = {
+		p1: _p1, index: 0, wins: 0, score: 0, hp: 1, muts: [], phase: 0, choices: [], pick: 0, sel: 0,
+		opp: 0, stage: 0, emod: 0, last: 0, hit: false, hp_last: 99999, dealt: 0, maxcombo: 0,
+		killer: 0, killer_fight: 0, best_streak: 0, best_score: 0, new_best: false,
+		t: 0, atk_prev: true, dir_prev: -1,
+		m_dealt: 1, m_taken: 1, m_hp: 1, m_life: 0, m_regen: 0, m_low: 1
+		};
+	survival_recalc(_sv);
+	survival_pick_next(_sv);
+	global.survival = _sv;
+	global.arcade_mode = 3;
+	}
+
+function survival_cpu_level()
+	{
+	var _sv = global.survival;
+	if (_sv.opp == ARCADE_CHAR_BEAR) then return 100;
+	if (_sv.opp == ARCADE_CHAR_DEMON) then return 92;
+	return round(lerp(30, 95, min(_sv.index / 18, 1)));
+	}
+
+function survival_apply()
+	{
+	var _sv = global.survival;
+	rounds_to_win = 1;
+	with (obj_player)
+		{
+		if (player_number == 0)
+			{
+			hp_max = max(1, round(hp_max * _sv.m_hp));
+			hp = max(1, round(hp_max * _sv.hp));
+			hp_prev = hp;
+			}
+		else
+			{
+			if (_sv.emod == 2) then hp_max = round(hp_max * 1.3);
+			hp = hp_max;
+			hp_prev = hp_max;
+			}
+		}
+	_sv.hit = false;
+	_sv.hp_last = 99999;
+	}
+
+function survival_damage_mod(_dmg, _target)
+	{
+	var _sv = global.survival;
+	var _out = _dmg;
+	if (_target.player_number == 1)
+		{
+		var _p1 = noone;
+		with (obj_player)
+			{
+			if (player_number == 0) then _p1 = id;
+			}
+		var _mult = _sv.m_dealt;
+		if (_p1 != noone && _p1.hp_max > 0 && (_p1.hp / _p1.hp_max) < 0.3) then _mult *= _sv.m_low;
+		if (_sv.emod == 3) then _mult *= 0.9;
+		_out = _dmg * _mult;
+		_sv.dealt += floor(_out);
+		if (_sv.m_life > 0 && _p1 != noone)
+			{
+			var _h = round(_out * _sv.m_life);
+			if (_h > 0)
+				{
+				with (_p1)
+					{
+					hp_heal(_h);
+					}
+				}
+			}
+		}
+	else
+		{
+		_out = _dmg * _sv.m_taken * ((_sv.emod == 1) ? 1.15 : 1);
+		}
+	return _out;
+	}
+
+function survival_track()
+	{
+	var _sv = global.survival;
+	with (obj_player)
+		{
+		if (player_number == 0)
+			{
+			if (_sv.hp_last != 99999 && hp < _sv.hp_last) then _sv.hit = true;
+			_sv.hp_last = hp;
+			}
+		else if (combo_active)
+			{
+			_sv.maxcombo = max(_sv.maxcombo, combo_hits);
+			}
+		}
+	}
+
+function survival_draft_choices(_sv)
+	{
+	var _pool = [];
+	for (var _i = 0; _i < array_length(global.survival_muts); _i++)
+		{
+		var _id = global.survival_muts[_i].id;
+		var _own = false;
+		for (var _j = 0; _j < array_length(_sv.muts); _j++)
+			{
+			if (_sv.muts[_j] == _id) then _own = true;
+			}
+		if (!_own) then array_push(_pool, _id);
+		}
+	for (var _a = array_length(_pool) - 1; _a > 0; _a--)
+		{
+		var _b = irandom(_a);
+		var _tmp = _pool[_a];
+		_pool[_a] = _pool[_b];
+		_pool[_b] = _tmp;
+		}
+	var _out = [];
+	for (var _k = 0; _k < min(3, array_length(_pool)); _k++)
+		{
+		array_push(_out, _pool[_k]);
+		}
+	return _out;
+	}
+
+function survival_save(_sv)
+	{
+	ini_open("save_data.ini");
+	var _bs = ini_read_real("survival", "best_streak", 0);
+	var _bp = ini_read_real("survival", "best_score", 0);
+	_sv.new_best = (_sv.score > _bp);
+	if (_sv.wins > _bs) then ini_write_real("survival", "best_streak", _sv.wins);
+	if (_sv.score > _bp) then ini_write_real("survival", "best_score", _sv.score);
+	ini_close();
+	_sv.best_streak = max(_bs, _sv.wins);
+	_sv.best_score = max(_bp, _sv.score);
+	}
+
+function survival_match_result(_won)
+	{
+	var _sv = global.survival;
+	var _hp = 0;
+	var _hpmax = 1;
+	with (obj_player)
+		{
+		if (player_number == 0)
+			{
+			_hp = hp;
+			_hpmax = max(1, hp_max);
+			}
+		}
+	var _tl = 0;
+	if (instance_exists(obj_game)) then _tl = max(0, match_time - (obj_game.game_frame div 60));
+	_sv.t = 0;
+	_sv.atk_prev = true;
+	_sv.dir_prev = -1;
+	_sv.sel = 0;
+	if (_won)
+		{
+		var _ratio = clamp(_hp / _hpmax, 0, 1);
+		var _flawless = (_sv.hit ? 0 : 500);
+		_sv.score += 500 + (_sv.index * 50) + round(_ratio * 500) + (_tl * 10) + _flawless;
+		_sv.wins++;
+		_sv.hp = clamp(_ratio + SURVIVAL_REGEN + _sv.m_regen, 0.05, 1);
+		_sv.index++;
+		_sv.hit = false;
+		survival_pick_next(_sv);
+		if ((_sv.wins mod SURVIVAL_DRAFT_EVERY) == 0 && array_length(_sv.muts) < array_length(global.survival_muts))
+			{
+			_sv.choices = survival_draft_choices(_sv);
+			_sv.pick = 0;
+			_sv.phase = 1;
+			}
+		else
+			{
+			_sv.phase = 0;
+			}
+		}
+	else
+		{
+		_sv.killer = _sv.opp;
+		_sv.killer_fight = _sv.index + 1;
+		_sv.phase = 2;
+		survival_save(_sv);
+		}
+	}
+
+function survival_card_x(_i, _n)
+	{
+	var _k = display_get_gui_height() / 720;
+	var _tot = ((_n * 360) + ((_n - 1) * 40)) * _k;
+	return ((display_get_gui_width() - _tot) * 0.5) + (_i * 400 * _k);
+	}
+
+function survival_phase_update(_dir, _atk)
+	{
+	var _sv = global.survival;
+	var _k = display_get_gui_height() / 720;
+	var _cx = display_get_gui_width() * 0.5;
+	_sv.t++;
+	
+	var _go = (_atk && !_sv.atk_prev);
+	_sv.atk_prev = _atk;
+	var _l = false;
+	var _r = false;
+	if (_dir != _sv.dir_prev)
+		{
+		if (_dir == STICK_DIR.backward || _dir == STICK_DIR.backward_up || _dir == STICK_DIR.backward_down) then _l = true;
+		else if (_dir == STICK_DIR.forward || _dir == STICK_DIR.forward_up || _dir == STICK_DIR.forward_down) then _r = true;
+		}
+	_sv.dir_prev = _dir;
+	
+	var _tx = -1;
+	var _ty = -1;
+	for (var _t = 0; _t < 5; _t++)
+		{
+		if (device_mouse_check_button_pressed(_t, mb_left))
+			{
+			_tx = device_mouse_x_to_gui(_t);
+			_ty = device_mouse_y_to_gui(_t);
+			break;
+			}
+		}
+	
+	if (_sv.phase == 1)
+		{
+		var _n = array_length(_sv.choices);
+		if (_l) then _sv.pick = (_sv.pick + _n - 1) mod _n;
+		if (_r) then _sv.pick = (_sv.pick + 1) mod _n;
+		if (_tx >= 0)
+			{
+			for (var _i = 0; _i < _n; _i++)
+				{
+				var _x1 = survival_card_x(_i, _n);
+				if (_tx >= _x1 && _tx <= _x1 + (386 * _k) && _ty >= 190 * _k && _ty <= 570 * _k)
+					{
+					if (_sv.pick == _i) then _go = true;
+					_sv.pick = _i;
+					}
+				}
+			}
+		if (_go && _sv.t > 20)
+			{
+			array_push(_sv.muts, _sv.choices[_sv.pick]);
+			survival_recalc(_sv);
+			_sv.phase = 0;
+			}
+		}
+	else if (_sv.phase == 2)
+		{
+		if (_sv.t < 180) then return;
+		if (_l) then _sv.sel = 0;
+		if (_r) then _sv.sel = 1;
+		if (_tx >= 0 && _ty >= 580 * _k && _ty <= 628 * _k)
+			{
+			if (_tx >= _cx - (340 * _k) && _tx <= _cx - (10 * _k))
+				{
+				_sv.sel = 0;
+				_go = true;
+				}
+			else if (_tx >= _cx + (10 * _k) && _tx <= _cx + (340 * _k))
+				{
+				_sv.sel = 1;
+				_go = true;
+				}
+			}
+		if (_go)
+			{
+			if (_sv.sel == 0)
+				{
+				survival_begin(_sv.p1);
+				}
+			else
+				{
+				game_exit_to_menu();
+				}
+			}
+		}
+	}
+
+function survival_draw_draft()
+	{
+	var _sv = global.survival;
+	var _gw = display_get_gui_width();
+	var _gh = display_get_gui_height();
+	var _k = _gh / 720;
+	var _cx = _gw * 0.5;
+	var _n = array_length(_sv.choices);
+	
+	menu_b_draw_bg(_gw, _gh, clamp(_gw / 1280, 0.6, 1.4), 0.82);
+	
+	draw_set_font(fnt_menu);
+	draw_set_halign(fa_center);
+	draw_set_valign(fa_middle);
+	training_draw_txt(_cx, 86 * _k, "CHOOSE A MUTATION", 1.3 * _k, c_white);
+	var _sub = "FIGHT " + string(_sv.index + 1) + "  -  NEXT: " + ((_sv.emod != 0) ? (survival_mod_name(_sv.emod) + " ") : "") + arcade_char_name(_sv.opp);
+	training_draw_txt(_cx, 128 * _k, _sub, 0.45 * _k, MENU_B_ACC);
+	
+	for (var _i = 0; _i < _n; _i++)
+		{
+		var _m = survival_mut(_sv.choices[_i]);
+		var _on = (_i == _sv.pick);
+		var _x1 = survival_card_x(_i, _n);
+		var _y1 = (_on ? 190 : 210) * _k;
+		var _w = 360 * _k;
+		var _h = (_on ? 380 : 350) * _k;
+		var _sl = 26 * _k;
+		
+		menu_b_para(_x1 + _sl, _y1, _w, _h, _sl, MENU_B_DARK, _on ? 0.98 : 0.85);
+		menu_b_para(_x1 + _sl, _y1, _w, 8 * _k, _sl, _m.col, 1);
+		if (_on) then menu_b_para_line(_x1 + _sl, _y1, _w, _h, _sl, _m.col, 1, 3);
+		draw_set_alpha(1);
+		
+		menu_b_para(_x1 + _sl + (30 * _k), _y1 + (28 * _k), 100 * _k, 22 * _k, 10 * _k, _m.col, 1);
+		draw_set_alpha(1);
+		draw_set_halign(fa_center);
+		draw_set_valign(fa_middle);
+		draw_set_color(MENU_B_INK);
+		draw_text_transformed(_x1 + _sl + (80 * _k), _y1 + (39 * _k), _m.rare ? "RARE" : "COMMON", 0.32 * _k, 0.32 * _k, 0);
+		
+		draw_set_halign(fa_left);
+		training_draw_txt(_x1 + (36 * _k), _y1 + (92 * _k), _m.name, 0.7 * _k, c_white);
+		
+		draw_set_color(_m.col);
+		draw_circle(_x1 + (190 * _k), _y1 + (190 * _k), 44 * _k, false);
+		draw_set_halign(fa_center);
+		draw_set_valign(fa_middle);
+		draw_set_color(MENU_B_INK);
+		draw_text_transformed(_x1 + (190 * _k), _y1 + (192 * _k), _m.tag, 0.8 * _k, 0.8 * _k, 0);
+		
+		draw_set_halign(fa_left);
+		draw_set_valign(fa_middle);
+		training_draw_txt(_x1 + (36 * _k), _y1 + _h - (100 * _k), _m.desc, 0.4 * _k, c_white);
+		training_draw_txt(_x1 + (36 * _k), _y1 + _h - (62 * _k), "Drawback: " + _m.cost, 0.36 * _k, make_colour_rgb(255, 143, 143));
+		}
+	
+	draw_set_halign(fa_center);
+	draw_set_valign(fa_middle);
+	draw_set_alpha(1);
+	draw_set_color(MENU_B_ACC);
+	draw_text_transformed(_cx, 694 * _k, "LEFT / RIGHT: CHOOSE   |   LIGHT: CONFIRM", 0.4 * _k, 0.4 * _k, 0);
+	draw_set_color(c_white);
+	draw_set_halign(fa_left);
+	draw_set_valign(fa_top);
+	}
+
+function survival_draw_over()
+	{
+	var _sv = global.survival;
+	var _gw = display_get_gui_width();
+	var _gh = display_get_gui_height();
+	var _k = _gh / 720;
+	var _cx = _gw * 0.5;
+	var _t = _sv.t;
+	var _gray = make_colour_rgb(138, 142, 164);
+	
+	menu_b_draw_bg(_gw, _gh, clamp(_gw / 1280, 0.6, 1.4), 0.9);
+	draw_set_alpha(0.10 + (0.05 * sin(_t / 20)));
+	draw_set_color(MENU_B_RED);
+	draw_rectangle(0, 0, _gw, _gh, false);
+	draw_set_alpha(1);
+	
+	var _tp = clamp(_t / 22, 0, 1);
+	var _ease = 1 - power(1 - _tp, 3);
+	var _sc = lerp(3, 1, _ease);
+	var _shake = (_t > 20 && _t < 34) ? ((34 - _t) * 0.6 * _k) : 0;
+	var _slide = lerp(-1000, 0, _ease) * _k;
+	
+	menu_b_para(_cx - (340 * _k) + (28 * _k) + _slide, 100 * _k, 680 * _k, 70 * _k, 28 * _k, MENU_B_DARK, 0.97);
+	menu_b_para(_cx - (340 * _k) + (28 * _k) + _slide, 100 * _k, 16 * _k, 70 * _k, 28 * _k, MENU_B_RED, 1);
+	draw_set_alpha(1);
+	draw_set_font(fnt_menu);
+	draw_set_halign(fa_center);
+	draw_set_valign(fa_middle);
+	training_draw_txt(_cx + (sin(_t * 3) * _shake), 136 * _k, "RUN OVER", 1.5 * _sc * _k, c_white);
+	
+	if (_t >= 135)
+		{
+		var _rp = clamp((_t - 135) / 10, 0, 1);
+		var _rs = lerp(4, 1.5, 1 - power(1 - _rp, 3));
+		var _rank = survival_rank(_sv.wins);
+		var _rc = (_rank == "S") ? make_colour_rgb(255, 200, 60) : ((_rank == "A") ? MENU_B_ACC : ((_rank == "B") ? make_colour_rgb(70, 130, 240) : MENU_B_TEXT));
+		draw_set_alpha(_rp);
+		training_draw_txt(_cx + (290 * _k), 138 * _k, _rank, _rs * _k, _rc);
+		draw_set_alpha(1);
+		}
+	
+	if (_t >= 40)
+		{
+		var _pa = clamp((_t - 40) / 10, 0, 1);
+		menu_b_para(_cx - (340 * _k) + (28 * _k), 190 * _k, 680 * _k, 370 * _k, 28 * _k, MENU_B_DARK, 0.92 * _pa);
+		menu_b_para(_cx - (340 * _k) + (28 * _k), 190 * _k, 10 * _k, 370 * _k, 28 * _k, MENU_B_ACC, _pa);
+		draw_set_alpha(1);
+		}
+	
+	var _names = "";
+	for (var _i = 0; _i < array_length(_sv.muts); _i++)
+		{
+		_names += ((_i > 0) ? "  -  " : "") + survival_mut(_sv.muts[_i]).name;
+		}
+	if (_names == "") then _names = "NONE";
+	
+	var _labels = ["WIN STREAK", "SCORE", "MAX COMBO", "DAMAGE DEALT", "MUTATIONS", "KILLED BY"];
+	var _nums = [_sv.wins, _sv.score, _sv.maxcombo, _sv.dealt];
+	for (var _r = 0; _r < 6; _r++)
+		{
+		var _start = 50 + (_r * 14);
+		if (_t < _start) then continue;
+		var _p = clamp((_t - _start) / 24, 0, 1);
+		var _y = (232 + (_r * 52)) * _k;
+		var _val = "";
+		if (_r < 4) then _val = string(round(_nums[_r] * _p)) + ((_r == 2) ? " HITS" : "");
+		else if (_r == 4) then _val = _names;
+		else _val = arcade_char_name(_sv.killer) + "  (FIGHT " + string(_sv.killer_fight) + ")";
+		
+		draw_set_alpha(_p);
+		draw_set_halign(fa_left);
+		draw_set_valign(fa_middle);
+		training_draw_txt(_cx - (280 * _k), _y, _labels[_r], 0.42 * _k, _gray);
+		draw_set_halign(fa_right);
+		training_draw_txt(_cx + (300 * _k), _y, _val, ((_r == 4) ? 0.36 : ((_r < 2) ? 0.65 : 0.55)) * _k, (_r < 2) ? make_colour_rgb(255, 200, 60) : c_white);
+		}
+	draw_set_alpha(1);
+	
+	if (_t >= 150 && _sv.new_best)
+		{
+		draw_set_alpha(abs(sin(_t / 20)));
+		draw_set_halign(fa_center);
+		draw_set_valign(fa_middle);
+		training_draw_txt(_cx, 540 * _k, "NEW PERSONAL BEST", 0.45 * _k, make_colour_rgb(140, 240, 176));
+		draw_set_alpha(1);
+		}
+	
+	if (_t >= 180)
+		{
+		for (var _b = 0; _b < 2; _b++)
+			{
+			var _bx = (_b == 0) ? (_cx - (340 * _k)) : (_cx + (10 * _k));
+			var _bon = (_sv.sel == _b);
+			menu_b_para(_bx + (18 * _k), 580 * _k, 330 * _k, 48 * _k, 18 * _k, _bon ? ((_b == 0) ? MENU_B_ACC : MENU_B_TEXT) : make_colour_rgb(34, 36, 47), 1);
+			draw_set_alpha(1);
+			draw_set_halign(fa_center);
+			draw_set_valign(fa_middle);
+			draw_set_color(_bon ? MENU_B_INK : _gray);
+			draw_text_transformed(_bx + (183 * _k), 604 * _k, (_b == 0) ? "RETRY" : "MAIN MENU", 0.75 * _k, 0.75 * _k, 0);
+			}
+		}
+	
+	if (_t < 14)
+		{
+		draw_set_alpha((1 - (_t / 14)) * 0.9);
+		draw_set_color(c_white);
+		draw_rectangle(0, 0, _gw, _gh, false);
+		}
+	
+	draw_set_alpha(1);
+	draw_set_color(c_white);
+	draw_set_halign(fa_left);
+	draw_set_valign(fa_top);
+	}
+
+function survival_draw()
+	{
+	if (global.survival.phase == 1) then survival_draw_draft();
+	else if (global.survival.phase == 2) then survival_draw_over();
+	}
+
+function survival_draw_hud()
+	{
+	if (!survival_active() || global.survival.phase != 0) then return;
+	if (obj_game.game_meta_state == GAME_META_STATE.char_select) then return;
+	
+	var _sv = global.survival;
+	var _gw = display_get_gui_width();
+	var _gh = display_get_gui_height();
+	var _k = _gh / 720;
+	var _cx = _gw * 0.5;
+	var _y = _gh * 0.19;
+	var _w = 360 * _k;
+	var _h = 52 * _k;
+	var _sl = 20 * _k;
+	var _gray = make_colour_rgb(138, 142, 164);
+	
+	menu_b_para(_cx - (_w * 0.5) + _sl, _y, _w, _h, _sl, MENU_B_DARK, 0.85);
+	menu_b_para(_cx - (_w * 0.5) + _sl, _y, 10 * _k, _h, _sl, MENU_B_ACC, 1);
+	draw_set_alpha(1);
+	draw_set_font(fnt_menu);
+	draw_set_valign(fa_middle);
+	draw_set_halign(fa_left);
+	training_draw_txt(_cx - (_w * 0.5) + (34 * _k), _y + (14 * _k), "WIN STREAK", 0.3 * _k, _gray);
+	training_draw_txt(_cx - (_w * 0.5) + (34 * _k), _y + (36 * _k), string(_sv.wins), 0.6 * _k, c_white);
+	draw_set_halign(fa_right);
+	training_draw_txt(_cx + (_w * 0.5) - (6 * _k), _y + (14 * _k), "SCORE", 0.3 * _k, _gray);
+	training_draw_txt(_cx + (_w * 0.5) - (6 * _k), _y + (36 * _k), string(_sv.score), 0.55 * _k, MENU_B_ACC);
+	draw_set_halign(fa_center);
+	training_draw_txt(_cx, _y + _h + (14 * _k), "FIGHT " + string(_sv.index + 1), 0.34 * _k, MENU_B_TEXT);
+	
+	var _boss = (_sv.opp == ARCADE_CHAR_DEMON || _sv.opp == ARCADE_CHAR_BEAR);
+	if (_sv.emod != 0 || _boss)
+		{
+		var _mw = 260 * _k;
+		var _mx = _gw - _mw - (40 * _k);
+		menu_b_para(_mx + _sl, _y, _mw, _h, _sl, MENU_B_DARK, 0.85);
+		menu_b_para(_mx + _sl, _y, 10 * _k, _h, _sl, MENU_B_RED, 1);
+		draw_set_alpha(1);
+		draw_set_halign(fa_left);
+		training_draw_txt(_mx + (34 * _k), _y + (16 * _k), _boss ? "BOSS FIGHT" : survival_mod_name(_sv.emod), 0.42 * _k, c_white);
+		training_draw_txt(_mx + (34 * _k), _y + (38 * _k), _boss ? "No mercy" : survival_mod_desc(_sv.emod), 0.3 * _k, _gray);
+		}
+	
+	for (var _i = 0; _i < array_length(_sv.muts); _i++)
+		{
+		var _m = survival_mut(_sv.muts[_i]);
+		var _bx = (46 * _k) + (_i * 44 * _k);
+		draw_set_color(_m.col);
+		draw_circle(_bx, _gh - (110 * _k), 16 * _k, false);
+		draw_set_halign(fa_center);
+		draw_set_color(MENU_B_INK);
+		draw_text_transformed(_bx, _gh - (109 * _k), _m.tag, 0.3 * _k, 0.3 * _k, 0);
+		}
+	
+	draw_set_alpha(1);
+	draw_set_color(c_white);
+	draw_set_halign(fa_left);
+	draw_set_valign(fa_top);
+	}
