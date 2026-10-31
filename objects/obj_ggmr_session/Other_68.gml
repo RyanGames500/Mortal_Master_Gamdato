@@ -212,7 +212,27 @@ if (_network_type == network_type_data)
 						}
 					}
 			break;
-			
+
+			case GGMR_PACKET_TYPE.leave:
+				var _lip = async_load[? "ip"];
+				var _lport = async_load[? "port"];
+				var _lcon = ggmr_net_connection_find(_lip, _lport);
+				if (_lcon != -1 && session_state != GGMR_SESSION_STATE.disconnected)
+					{
+					var _known = false;
+					for (var _li = 0; _li < array_length(session_players_remote); _li++)
+						{
+						var _lnum = session_players_remote[@ _li];
+						if (session_client_list[| _lnum][@ GGMR_CLIENT.connection] == _lcon) then _known = true;
+						}
+					if (_known)
+						{
+						session_state = GGMR_SESSION_STATE.disconnected;
+						session_callbacks.on_event(GGMR_EVENT.disconnect);
+						}
+					}
+			break;
+
 			case GGMR_PACKET_TYPE.ping:
 			case GGMR_PACKET_TYPE.pong:
 			break;

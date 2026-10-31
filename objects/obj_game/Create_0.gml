@@ -194,4 +194,9 @@ stage_npcs = [];
 stage_npcs_for = -1;
 stage_npc_used = array_create(STAGE_NPC_MAX, 0);
 intro_count = 0;	// cuantas peleas se han armado en esta sesion (se guarda en el rollback). Decide que intro sale.
+olm_open = false;
+olm_index = 0;
+olm_confirm = false;
+olm_cs = 0;
+olm_touch_prev = false;
 if (!instance_exists(obj_frost_overlay)) then instance_create_depth(0, 0, -10000, obj_frost_overlay);

@@ -622,6 +622,10 @@ if (global.online_mode)
 		}
 	}
 
+if (global.online_mode && olm_open && game_meta_state == GAME_META_STATE.running)
+	{
+	online_menu_draw();
+	}
 
 // Efecto de Transición (Fade to Black)
 if (fade_alpha > 0)
@@ -633,5 +637,6 @@ if (fade_alpha > 0)
 	}
 
 training_draw_hud();
+if (global.online_mode && !bail_active) then online_draw_status();
 game_draw_super_fx();
 //game_draw_super_green();

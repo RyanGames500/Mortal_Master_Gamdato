@@ -51,7 +51,7 @@ function player_update(_inputs_array)
 
 	if (inputs[@ INPUT.pause] == 0)
 		{
-		if (!global.replay_mode)
+		if (!global.replay_mode && !global.online_mode)
 			{
 			obj_game.game_paused = true;
 			}
