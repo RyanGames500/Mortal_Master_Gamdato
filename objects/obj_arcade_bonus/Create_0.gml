@@ -14,11 +14,11 @@ booth_w = (n_booths == 1) ? 600 : 500;
 
 // Obstaculos de blando a duro. need = fuerza minima (0 a 1), secs = tiempo, decay = cuanto cae la barra por frame
 mats = [
-	{ name: "BARRO SECO",      need: 0.30, secs: 9,  decay: 0.0020, col: make_colour_rgb(150, 104, 66),  col2: make_colour_rgb(190, 140, 96) },
-	{ name: "HUESO",           need: 0.45, secs: 9,  decay: 0.0026, col: make_colour_rgb(214, 204, 176), col2: make_colour_rgb(242, 234, 210) },
-	{ name: "CHATARRA",        need: 0.60, secs: 9,  decay: 0.0032, col: make_colour_rgb(150, 82, 52),   col2: make_colour_rgb(200, 120, 72) },
-	{ name: "CRISTAL MUTANTE", need: 0.78, secs: 9,  decay: 0.0038, col: make_colour_rgb(110, 90, 210),  col2: make_colour_rgb(150, 230, 240) },
-	{ name: "NUCLEO",          need: 0.92, secs: 10, decay: 0.0044, col: make_colour_rgb(60, 220, 110),  col2: make_colour_rgb(210, 255, 220) }
+	{ name: "DRIED MUD",       need: 0.30, secs: 9,  decay: 0.0020, col: make_colour_rgb(150, 104, 66),  col2: make_colour_rgb(190, 140, 96) },
+	{ name: "BONE",            need: 0.45, secs: 9,  decay: 0.0026, col: make_colour_rgb(214, 204, 176), col2: make_colour_rgb(242, 234, 210) },
+	{ name: "SCRAP METAL",     need: 0.60, secs: 9,  decay: 0.0032, col: make_colour_rgb(150, 82, 52),   col2: make_colour_rgb(200, 120, 72) },
+	{ name: "MUTANT CRYSTAL",  need: 0.78, secs: 9,  decay: 0.0038, col: make_colour_rgb(110, 90, 210),  col2: make_colour_rgb(150, 230, 240) },
+	{ name: "CORE",            need: 0.92, secs: 10, decay: 0.0044, col: make_colour_rgb(60, 220, 110),  col2: make_colour_rgb(210, 255, 220) }
 ];
 
 // Pedazos que saltan al romper (solo visual, offline)

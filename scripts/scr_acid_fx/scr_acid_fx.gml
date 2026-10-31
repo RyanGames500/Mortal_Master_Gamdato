@@ -1,6 +1,6 @@
 #macro ACID_LAND_MIN_X	520		// límite izquierdo del punto de caída (coordenadas de pantalla, 0-1280)
 #macro ACID_LAND_MAX_X	1100	// límite derecho
-#macro ACID_FX_TOTAL	230		// duración del final cuando hay remate al ácido (normal = 150)
+#macro ACID_FX_TOTAL	290		// duración del final cuando hay remate al ácido (normal = 150)
 #macro ACID_UP			26		// frames subiendo
 #macro ACID_HOLD		14		// frames fuera de pantalla, arriba
 #macro ACID_FALL		30		// frames cayendo hasta el charco
@@ -101,7 +101,7 @@ function acid_fx_draw_particles()
 	if (_age0 < 0) then return;
 	
 	var _wx = acid_fx_land_x(_victim);
-	var _wy = camera_get_view_y(camera_index) + ACID_SURFACE_Y;
+	var _wy = view_fit_vy() + ACID_SURFACE_Y;
 	var _px = 6;
 	var _cols = [make_colour_rgb(201, 255, 138), make_colour_rgb(140, 255, 74), make_colour_rgb(79, 175, 42)];
 	

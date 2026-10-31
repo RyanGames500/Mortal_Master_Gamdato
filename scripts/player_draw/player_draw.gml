@@ -3,6 +3,11 @@ The script player instances call to draw themselves.
 */
 function player_draw()
 	{
+if (obj_game.bail_active && id == obj_game.bail_rival)
+	{
+	bail_draw_world();
+	return;
+	}		
 	if (obj_game.game_meta_state == GAME_META_STATE.starting && obj_game.starting_frame > INTRO_END)
 		{
 		if (intro_player_draw(id)) then return;

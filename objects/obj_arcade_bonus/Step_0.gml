@@ -68,7 +68,7 @@ else if (phase == 1)
 			else if (_b.t_left <= 0)
 				{
 				_b.state = 3;
-				_b.grade = "SIN TIEMPO";
+				_b.grade = "TIME UP";
 				_b.grade_col = make_colour_rgb(230, 90, 80);
 				}
 			}
@@ -85,19 +85,19 @@ else if (phase == 1)
 					var _over = _b.power - _m.need;
 					if (_over >= 0.2)
 						{
-						_b.grade = "DEVASTADOR";
+						_b.grade = "DEVASTATING";
 						_b.grade_col = make_colour_rgb(255, 120, 70);
 						shake = 22;
 						}
 					else if (_over >= 0.08)
 						{
-						_b.grade = "FUERTE";
+						_b.grade = "STRONG";
 						_b.grade_col = make_colour_rgb(250, 220, 90);
 						shake = 15;
 						}
 					else
 						{
-						_b.grade = "SOLIDO";
+						_b.grade = "SOLID";
 						_b.grade_col = make_colour_rgb(110, 240, 130);
 						shake = 10;
 						}
@@ -113,7 +113,7 @@ else if (phase == 1)
 					}
 				else
 					{
-					_b.grade = "SIN FUERZA";
+					_b.grade = "TOO WEAK";
 					_b.grade_col = make_colour_rgb(230, 90, 80);
 					shake = 5;
 					_b.cracks = min(_b.cracks + 1, 3);

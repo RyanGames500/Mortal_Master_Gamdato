@@ -11,7 +11,7 @@
 #macro ROOT_PULL_START		(ROOT_CATCH + ROOT_HOLD)
 #macro ROOT_PULL			14		// frames que tarda en bajar (antes 28: ahora es el doble de rápido)
 #macro ROOT_PULL_END		(ROOT_PULL_START + ROOT_PULL)
-#macro ROOT_FX_TOTAL		200		// duración total del final con remate de raíz
+#macro ROOT_FX_TOTAL		230		// duración total del final con remate de raíz
 #macro ROOT_HOVER_H			560		// qué tan alto sube sobre el piso (antes 380)
 #macro ROOT_DIST			90		// cuánto se desplaza de lado mientras sube
 #macro ROOT_LAND_MIN_X		260
