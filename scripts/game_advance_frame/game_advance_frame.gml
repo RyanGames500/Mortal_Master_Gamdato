@@ -172,6 +172,26 @@ function game_advance_frame(_inputs_array, _relative_frame = undefined)
 					room_goto(rm_arcade_map);
 					return;
 					}
+				if (global.arcade_mode == 3 && is_undefined(global.survival) && p1_css_ready)
+					{
+					survival_begin(p1_select);
+					}
+				if (survival_active())
+					{
+					var _sv = global.survival;
+					if (_sv.phase != 0)
+						{
+						survival_phase_update(_dir0, _atk0);
+						return;
+						}
+					p1_select = _sv.p1;
+					p2_select = _sv.opp;
+					stage_id = _sv.stage;
+					p1_css_ready = true;
+					p2_css_ready = true;
+					stage_step = 2;
+					if (css_start_timer < 0) then css_start_timer = 2;
+					}					
 				if (arcade_active())
 					{
 					var _f = arcade_fight();
@@ -263,12 +283,6 @@ function game_advance_frame(_inputs_array, _relative_frame = undefined)
 			{
 			fade_alpha = clamp(fade_alpha - 0.05, 0.0, 1.0);
 			
-			// --- GESTIÓN DE MÚSICA DEL ESCENARIO ---
-			// Como la música se detiene al terminar el round anterior, esta condición
-			// la vuelve a activar DESDE EL PRINCIPIO para el nuevo round.
-			// La pista sale del stage elegido. Se lee ANTES del with, porque
-			// dentro del with "stage_id" sería el de obj_stage_manager, no el de obj_game.
-			// NUEVO: no se arranca durante frames re-simulados de un rollback.
 			if (!_in_rollback && starting_frame <= INTRO_END)
 				{
 				var _music = stage_music_get(stage_id);
@@ -326,6 +340,7 @@ function game_advance_frame(_inputs_array, _relative_frame = undefined)
 			if (global.training) then training_update();			
 			game_end_conditions();
 			if (!_in_rollback && arcade_active()) then arcade_track_damage();
+			if (!_in_rollback && survival_active()) then survival_track();
 			}
 		#endregion
 
@@ -416,7 +431,7 @@ function game_advance_frame(_inputs_array, _relative_frame = undefined)
 		#endregion
 
 		/* ---------------------------------------------------------------- */
-		#region STATE: Ending (Victoria Final del Set)
+		#region STATE: Ending 
 		else if (game_meta_state == GAME_META_STATE.ending)
 			{
 			// Garantizar que la música se apague en el fin de la partida completa

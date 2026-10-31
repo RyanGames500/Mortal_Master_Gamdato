@@ -472,8 +472,14 @@ if (_confirm)
 			break;
 
 			case "SURVIVAL":
-				notice_text = "COMING SOON!";
-				notice_timer = 90;
+				global.replay_mode = false;
+				global.online_mode = false;
+				global.local_vs_human = false;
+				global.arcade_mode = 3;
+				global.arcade = undefined;
+				global.survival = undefined;
+				ggmr_lobby_reset();
+				room_goto(rm_gameplay);
 			break;
 			
 			case "ONLINE MATCHMAKING":

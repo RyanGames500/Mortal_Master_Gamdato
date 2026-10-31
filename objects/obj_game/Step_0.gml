@@ -1,13 +1,14 @@
-if (keyboard_check_pressed(vk_alt)) then bail_start();
+pad_menu_pump(bail_active ? 4 : 3);
 if (bail_active)
 	{
+	olm_open = false;
+	global.training_ml_open = false;
 	bail_step();
 	exit;
 	}
 // Menu de pausa y salida al menu principal (nuestro): solo offline
 if (!global.online_mode)
 	{
-	// Selector de personaje y replays: ESC sale directo al menu principal
 	if (keyboard_check_pressed(vk_escape) && (game_meta_state == GAME_META_STATE.char_select || global.replay_mode))
 		{
 		game_exit_to_menu();
@@ -23,8 +24,33 @@ if (!global.online_mode)
 		game_paused = true;
 		pause_index = 0;
 		}
-		// La lista de movimientos se cierra sola si el juego se reanuda (por ejemplo con el boton de pausa tactil)
 	if (!game_paused) then global.training_ml_open = false;	
+	}
+else
+	{
+	var _ol_open = keyboard_check_pressed(vk_escape) || keyboard_check_pressed(vk_backspace);
+	var _ol_pad = input_pad_find();
+	if (_ol_pad >= 0 && gamepad_button_check_pressed(_ol_pad, gp_start)) then _ol_open = true;
+	var _ol_touch = instance_exists(obj_mobile_controls) && obj_mobile_controls.active && obj_mobile_controls.pause_down;
+	if (_ol_touch && !olm_touch_prev) then _ol_open = true;
+	olm_touch_prev = _ol_touch;
+	
+	if (olm_open)
+		{
+		if (game_meta_state != GAME_META_STATE.running)
+			{
+			olm_open = false;
+			global.training_ml_open = false;
+			}
+		else
+			{
+			online_menu_update();
+			}
+		}
+	else if (_ol_open && game_meta_state == GAME_META_STATE.running && !global.replay_mode)
+		{
+		online_menu_open();
+		}
 	}
 //Replays
 if (global.replay_mode)

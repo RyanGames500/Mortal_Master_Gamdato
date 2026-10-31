@@ -4,7 +4,12 @@ if (bail_active)
 	}
 if (game_meta_state == GAME_META_STATE.char_select)
 	{
-	if (stage_step == 2 && !global.training && !arcade_active())
+	if (survival_active() && global.survival.phase != 0)
+		{
+		survival_draw();
+		exit;
+		}
+	if (stage_step == 2 && !global.training && !arcade_active() && !survival_active())
 		{
 		css_vs_draw();
 		exit;
@@ -622,6 +627,10 @@ if (global.online_mode)
 		}
 	}
 
+if (global.online_mode && olm_open && !bail_active && game_meta_state == GAME_META_STATE.running)
+	{
+	online_menu_draw();
+	}
 
 // Efecto de Transición (Fade to Black)
 if (fade_alpha > 0)
@@ -633,5 +642,7 @@ if (fade_alpha > 0)
 	}
 
 training_draw_hud();
+survival_draw_hud();
+if (global.online_mode && !bail_active) then online_draw_status();
 game_draw_super_fx();
 //game_draw_super_green();

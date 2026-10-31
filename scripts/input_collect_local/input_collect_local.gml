@@ -188,7 +188,16 @@ function input_collect_local(_buffer, _player_number)
 			_attack_light2 = _attack_light2 || obj_mobile_controls.light_pressed2;
 			}
 		}
-	
+
+if (global.online_mode && instance_exists(obj_game) && obj_game.olm_open)
+	{
+	_stick_dir = STICK_DIR.neutral;
+	_attack_light = false;
+	_attack_heavy = false;
+	_attack_light2 = false;
+	_pause = false;
+	}
+
 	//Accumulate inputs in the buffer
 	//Inputs will only be reset to the default values when the system decides to reset
 	if (_stick_dir != STICK_DIR.neutral) then buffer_poke(_buffer, 0, buffer_u8, _stick_dir);
