@@ -141,5 +141,5 @@ function pad_menu_pump(_mode)
 	if (gamepad_button_check_pressed(_pad, gp_face1) || gamepad_button_check_pressed(_pad, gp_start)) then pad_key_tap(_k_ok);
 	if (gamepad_button_check_pressed(_pad, gp_face2)) then pad_key_tap(_k_b);
 	if (gamepad_button_check_pressed(_pad, gp_face3)) then pad_key_tap(_k_x);
-	if (gamepad_button_check_pressed(_pad, gp_select)) then pad_key_tap(_k_sel);
+	if (gamepad_button_check_pressed(_pad, gp_select) || gamepad_button_check_pressed(_pad, gp_face4)) then pad_key_tap(_k_sel);
 	}

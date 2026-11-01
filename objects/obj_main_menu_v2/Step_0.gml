@@ -163,8 +163,8 @@ if (current_state == MENU_STATE.input_text)
 	}
 
 // Navegación por Teclado
-var _up = keyboard_check_pressed(ord("W"));
-var _down = keyboard_check_pressed(ord("S"));
+var _up = keyboard_check_pressed(ord("W")) || keyboard_check_pressed(vk_up);
+var _down = keyboard_check_pressed(ord("S")) || keyboard_check_pressed(vk_down);
 var _confirm = keyboard_check_pressed(vk_enter) || keyboard_check_pressed(ord("L"));
 var _back = keyboard_check_pressed(vk_escape);
 
@@ -172,6 +172,45 @@ var _back = keyboard_check_pressed(vk_escape);
 if (!is_undefined(_tap_hit) && _tap_hit.kind == "back")
 	{
 	_back = true;
+	}
+
+// --- RANKING DE SURVIVAL ---
+if (current_state == MENU_STATE.ranking)
+	{
+	lb_tick();
+	var _lbd = global.lb;
+	
+	if (!is_undefined(_tap_hit))
+		{
+		if (_tap_hit.kind == "lbtab")
+			{
+			lb_select(_tap_hit.i);
+			}
+		else if (_tap_hit.kind == "lbretry")
+			{
+			lb_request(_lbd.tab);
+			}
+		}
+	
+	if (keyboard_check_pressed(vk_left) || keyboard_check_pressed(ord("A")))
+		{
+		lb_select((_lbd.tab + 2) mod 3);
+		}
+	if (keyboard_check_pressed(vk_right) || keyboard_check_pressed(ord("D")))
+		{
+		lb_select((_lbd.tab + 1) mod 3);
+		}
+	if (_confirm && _lbd.tabs[_lbd.tab].st == 3)
+		{
+		lb_request(_lbd.tab);
+		}
+	
+	if (_back)
+		{
+		current_state = MENU_STATE.survival;
+		menu_index = 1;
+		}
+	exit;
 	}
 
 // --- 1. LOGICA DE NAVEGACION EN REPLAYS ---
@@ -228,7 +267,7 @@ if (current_state == MENU_STATE.replays)
 		if (_selected_file == "BACK")
 			{
 			current_state = MENU_STATE.main;
-			menu_index = 3;
+			menu_index = 4;
 			}
 		else if (file_exists(_selected_file))
 			{
@@ -265,7 +304,7 @@ if (current_state == MENU_STATE.replays)
 	if (_back)
 		{
 		current_state = MENU_STATE.main;
-		menu_index = 3;
+		menu_index = 4;
 		}
 	exit; 
 	}
@@ -386,7 +425,7 @@ if (current_state == MENU_STATE.settings)
 			break;
 			case "BACK":
 				current_state = MENU_STATE.main;
-				menu_index = 4;
+				menu_index = 5;
 			break;
 			}
 		}
@@ -394,7 +433,7 @@ if (current_state == MENU_STATE.settings)
 	if (_back)
 		{
 		current_state = MENU_STATE.main;
-		menu_index = 4;
+		menu_index = 5;
 		}
 	exit;
 	}
@@ -417,6 +456,7 @@ if (current_state == MENU_STATE.private_lobby)
 // --- 2. LÓGICA DE NAVEGACIÓN EN MENÚS ESTÁNDAR ---
 var _current_list = menu_options;
 if (current_state == MENU_STATE.online) _current_list = online_options;
+if (current_state == MENU_STATE.survival) _current_list = survival_options;
 if (current_state == MENU_STATE.private_lobby) _current_list = private_lobby_options;
 if (current_state == MENU_STATE.settings) _current_list = settings_options;
 
@@ -472,14 +512,8 @@ if (_confirm)
 			break;
 
 			case "SURVIVAL":
-				global.replay_mode = false;
-				global.online_mode = false;
-				global.local_vs_human = false;
-				global.arcade_mode = 3;
-				global.arcade = undefined;
-				global.survival = undefined;
-				ggmr_lobby_reset();
-				room_goto(rm_gameplay);
+				current_state = MENU_STATE.survival;
+				menu_index = 0;
 			break;
 			
 			case "ONLINE MATCHMAKING":
@@ -520,6 +554,34 @@ if (_confirm)
 
 			case "EXIT":
 				game_end();
+			break;
+			}
+		}
+	else if (current_state == MENU_STATE.survival)
+		{
+		switch (_selected_text)
+			{
+			case "START RUN":
+				global.replay_mode = false;
+				global.online_mode = false;
+				global.local_vs_human = false;
+				global.arcade_mode = 3;
+				global.arcade = undefined;
+				global.survival = undefined;
+				ggmr_lobby_reset();
+				room_goto(rm_gameplay);
+			break;
+			
+			case "LEADERBOARD":
+				lb_init();
+				global.lb.tab = 0;
+				lb_request(0);
+				current_state = MENU_STATE.ranking;
+			break;
+			
+			case "BACK":
+				current_state = MENU_STATE.main;
+				menu_index = 3;
 			break;
 			}
 		}
@@ -608,6 +670,11 @@ if (_confirm)
 if (_back)
 	{
 	if (current_state == MENU_STATE.online)
+		{
+		current_state = MENU_STATE.main;
+		menu_index = 3;
+		}
+	else if (current_state == MENU_STATE.survival)
 		{
 		current_state = MENU_STATE.main;
 		menu_index = 2;

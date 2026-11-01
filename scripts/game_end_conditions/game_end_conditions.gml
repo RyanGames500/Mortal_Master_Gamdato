@@ -96,7 +96,7 @@ function game_end_conditions()
 				{
 				if (instance_find(obj_player, _i).acid_ko) then _acid = true;
 				}
-				ending_frame = _acid ? (obj_game.stage_has_root ? ROOT_FX_TOTAL : ACID_FX_TOTAL) : KO_HOLD_FRAMES;
+				ending_frame = _acid ? (obj_game.stage_has_ceiling ? CEIL_FX_TOTAL : (obj_game.stage_has_root ? ROOT_FX_TOTAL : ACID_FX_TOTAL)) : KO_HOLD_FRAMES;
 			}
 		else
 			{

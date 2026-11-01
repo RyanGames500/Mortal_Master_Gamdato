@@ -186,6 +186,7 @@ stage_step = 0;			// 0 = sin elegir, 1 = eligiendo, 2 = elegido (cuenta atrás)
 stage_cursor = 0;
 stage_atk_prev = false;
 stage_has_acid = stage_get(stage_id).has_acid;	// true solo en el escenario del ácido
+stage_has_ceiling = stage_get_has_ceiling(stage_id);
 stage_has_root = stage_get_has_root(stage_id);	// true solo en el escenario con remate de raíz (nuestro)
 stage_props = [];
 stage_props_for = -1;

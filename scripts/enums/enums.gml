@@ -87,5 +87,7 @@ enum MENU_STATE
 	private_lobby,
 	replays,
 	settings,
-	input_text
+	input_text,
+	survival,
+	ranking
 	}

@@ -251,6 +251,9 @@ function arcade_cpu_level()
 #macro SURVIVAL_DRAFT_EVERY	3
 #macro SURVIVAL_REGEN		0.25
 #macro SURVIVAL_BOSS_EVERY	10
+#macro SURVIVAL_ELITE_CHANCE	60
+#macro SURVIVAL_LB_KEY		"survival"
+#macro SURVIVAL_LB_TABLE	1
 
 global.survival = undefined;
 
@@ -262,6 +265,12 @@ global.survival_muts = [
 	{ id: 5, name: "REGENERATOR", tag: "RG", rare: 0, col: make_colour_rgb(60, 200, 190), desc: "Recover 15% more HP after each win", cost: "Deal 5% less damage", dealt: 0.95, taken: 1, hp: 1, life: 0, regen: 0.15, low: 1 },
 	{ id: 6, name: "ADRENAL SURGE", tag: "AS", rare: 1, col: make_colour_rgb(170, 90, 230), desc: "Deal 35% more damage below 30% HP", cost: "Take 5% more damage", dealt: 1, taken: 1.05, hp: 1, life: 0, regen: 0, low: 1.35 },
 	{ id: 7, name: "PARASITE", tag: "PA", rare: 0, col: make_colour_rgb(170, 220, 60), desc: "Heal 10% of the damage you deal", cost: "Take 12% more damage", dealt: 1, taken: 1.12, hp: 1, life: 0.10, regen: 0, low: 1 },
+	{ id: 8, name: "SHARP GENES", tag: "SG", rare: 0, col: make_colour_rgb(255, 120, 70), desc: "Deal 8% more damage", cost: "", dealt: 1.08, taken: 1, hp: 1, life: 0, regen: 0, low: 1 },
+	{ id: 9, name: "THICK HIDE", tag: "TH", rare: 0, col: make_colour_rgb(120, 170, 220), desc: "Take 8% less damage", cost: "", dealt: 1, taken: 0.92, hp: 1, life: 0, regen: 0, low: 1 },
+	{ id: 10, name: "DENSE BONE", tag: "DB", rare: 0, col: make_colour_rgb(230, 220, 180), desc: "Max HP +10%", cost: "", dealt: 1, taken: 1, hp: 1.10, life: 0, regen: 0, low: 1 },
+	{ id: 11, name: "RAPID HEAL", tag: "RH", rare: 0, col: make_colour_rgb(110, 230, 160), desc: "Recover 10% more HP after each win", cost: "", dealt: 1, taken: 1, hp: 1, life: 0, regen: 0.10, low: 1 },
+	{ id: 12, name: "LEECH", tag: "LC", rare: 0, col: make_colour_rgb(190, 240, 90), desc: "Heal 3% of the damage you deal", cost: "", dealt: 1, taken: 1, hp: 1, life: 0.03, regen: 0, low: 1 },
+	{ id: 13, name: "FURY", tag: "FU", rare: 0, col: make_colour_rgb(240, 90, 170), desc: "Deal 20% more damage below 30% HP", cost: "", dealt: 1, taken: 1, hp: 1, life: 0, regen: 0, low: 1.20 },
 ];
 
 function survival_active()
@@ -309,6 +318,12 @@ function survival_rank(_wins)
 	return "D";
 	}
 
+function survival_var_bonus(_sv)
+	{
+	if (!_sv.ve) then return 0;
+	return 0.1 * min(_sv.vt, 2);
+	}
+
 function survival_recalc(_sv)
 	{
 	_sv.m_dealt = 1;
@@ -332,6 +347,8 @@ function survival_recalc(_sv)
 function survival_pick_next(_sv)
 	{
 	var _n = _sv.index + 1;
+	_sv.vt = 0;
+	_sv.ve = false;
 	if ((_n mod SURVIVAL_BOSS_EVERY) == 0)
 		{
 		_sv.opp = (((_n div SURVIVAL_BOSS_EVERY) mod 2) == 1) ? ARCADE_CHAR_DEMON : ARCADE_CHAR_BEAR;
@@ -339,12 +356,35 @@ function survival_pick_next(_sv)
 		_sv.emod = 0;
 		return;
 		}
-	var _o = 1 + irandom(8);
-	if (_o == _sv.last) then _o = 1 + (_o mod 9);
+	if (array_length(_sv.bag) == 0)
+		{
+		for (var _c = 1; _c <= 9; _c++)
+			{
+			array_push(_sv.bag, _c);
+			}
+		for (var _i = array_length(_sv.bag) - 1; _i > 0; _i--)
+			{
+			var _j = irandom(_i);
+			var _tmp = _sv.bag[_i];
+			_sv.bag[_i] = _sv.bag[_j];
+			_sv.bag[_j] = _tmp;
+			}
+		var _top = array_length(_sv.bag) - 1;
+		if (_sv.bag[_top] == _sv.last)
+			{
+			var _sw = _sv.bag[0];
+			_sv.bag[0] = _sv.bag[_top];
+			_sv.bag[_top] = _sw;
+			}
+		}
+	var _o = array_pop(_sv.bag);
 	_sv.opp = _o;
 	_sv.last = _o;
+	_sv.vt = _sv.seen[_o];
+	_sv.seen[_o]++;
+	_sv.ve = (_sv.vt > 0 && irandom(99) < SURVIVAL_ELITE_CHANCE);
 	_sv.stage = arcade_stage_for(_sv.index);
-	_sv.emod = (_sv.index >= 3 && irandom(99) < 55) ? (1 + irandom(2)) : 0;
+	_sv.emod = (!_sv.ve && _sv.index >= 3 && irandom(99) < 55) ? (1 + irandom(2)) : 0;
 	}
 
 function survival_begin(_p1)
@@ -354,6 +394,8 @@ function survival_begin(_p1)
 		opp: 0, stage: 0, emod: 0, last: 0, hit: false, hp_last: 99999, dealt: 0, maxcombo: 0,
 		killer: 0, killer_fight: 0, best_streak: 0, best_score: 0, new_best: false,
 		t: 0, atk_prev: true, dir_prev: -1,
+		bag: [], seen: array_create(13, 0), vt: 0, ve: false, clean: false, queue: false,
+		sub: "", sub_t: 0,
 		m_dealt: 1, m_taken: 1, m_hp: 1, m_life: 0, m_regen: 0, m_low: 1
 		};
 	survival_recalc(_sv);
@@ -367,12 +409,15 @@ function survival_cpu_level()
 	var _sv = global.survival;
 	if (_sv.opp == ARCADE_CHAR_BEAR) then return 100;
 	if (_sv.opp == ARCADE_CHAR_DEMON) then return 92;
-	return round(lerp(30, 95, min(_sv.index / 18, 1)));
+	var _lv = round(lerp(30, 95, min(_sv.index / 18, 1)));
+	if (_sv.ve && _sv.vt >= 2) then _lv = min(100, _lv + 8);
+	return _lv;
 	}
 
 function survival_apply()
 	{
 	var _sv = global.survival;
+	var _vb = survival_var_bonus(_sv);
 	rounds_to_win = 1;
 	with (obj_player)
 		{
@@ -384,7 +429,13 @@ function survival_apply()
 			}
 		else
 			{
+			if (_sv.vt > 0)
+				{
+				var _pn = sprite_exists(palette_sprite) ? sprite_get_width(palette_sprite) : 1;
+				current_pal = (_pn > 1) ? (((_sv.vt - 1) mod (_pn - 1)) + 1) : 0;
+				}
 			if (_sv.emod == 2) then hp_max = round(hp_max * 1.3);
+			if (_vb > 0) then hp_max = round(hp_max * (1 + _vb));
 			hp = hp_max;
 			hp_prev = hp_max;
 			}
@@ -423,7 +474,7 @@ function survival_damage_mod(_dmg, _target)
 		}
 	else
 		{
-		_out = _dmg * _sv.m_taken * ((_sv.emod == 1) ? 1.15 : 1);
+		_out = _dmg * _sv.m_taken * ((_sv.emod == 1) ? 1.15 : 1) * (1 + survival_var_bonus(_sv));
 		}
 	return _out;
 	}
@@ -445,12 +496,13 @@ function survival_track()
 		}
 	}
 
-function survival_draft_choices(_sv)
+function survival_draft_choices(_sv, _clean)
 	{
 	var _pool = [];
 	for (var _i = 0; _i < array_length(global.survival_muts); _i++)
 		{
 		var _id = global.survival_muts[_i].id;
+		if ((_id >= 8) != _clean) then continue;
 		var _own = false;
 		for (var _j = 0; _j < array_length(_sv.muts); _j++)
 			{
@@ -484,6 +536,21 @@ function survival_save(_sv)
 	ini_close();
 	_sv.best_streak = max(_bs, _sv.wins);
 	_sv.best_score = max(_bp, _sv.score);
+	
+	_sv.sub = "skipped";
+	_sv.sub_t = 0;
+	if (_sv.wins > 0)
+		{
+		var _cap = (_sv.wins * 4000) + (50 * _sv.wins * _sv.wins);
+		var _score = min(_sv.score, _cap);
+		var _ms = "";
+		for (var _i = 0; _i < array_length(_sv.muts); _i++)
+			{
+			_ms += ((_i > 0) ? "," : "") + survival_mut(_sv.muts[_i]).tag;
+			}
+		var _info = { wins: _sv.wins, rank: survival_rank(_sv.wins), char: arcade_char_name(_sv.p1), combo: _sv.maxcombo, killer: arcade_char_name(_sv.killer), fight: _sv.killer_fight, muts: _ms };
+		if (gmda_submitWithRetry(SURVIVAL_LB_TABLE, _score, _info) != 0) then _sv.sub = "";
+		}
 	}
 
 function survival_match_result(_won)
@@ -507,6 +574,7 @@ function survival_match_result(_won)
 	_sv.sel = 0;
 	if (_won)
 		{
+		var _was_elite = _sv.ve;
 		var _ratio = clamp(_hp / _hpmax, 0, 1);
 		var _flawless = (_sv.hit ? 0 : 500);
 		_sv.score += 500 + (_sv.index * 50) + round(_ratio * 500) + (_tl * 10) + _flawless;
@@ -515,9 +583,21 @@ function survival_match_result(_won)
 		_sv.index++;
 		_sv.hit = false;
 		survival_pick_next(_sv);
-		if ((_sv.wins mod SURVIVAL_DRAFT_EVERY) == 0 && array_length(_sv.muts) < array_length(global.survival_muts))
+		_sv.queue = false;
+		_sv.clean = false;
+		var _reg = (((_sv.wins mod SURVIVAL_DRAFT_EVERY) == 0) ? survival_draft_choices(_sv, false) : []);
+		var _rew = (_was_elite ? survival_draft_choices(_sv, true) : []);
+		if (array_length(_rew) > 0)
 			{
-			_sv.choices = survival_draft_choices(_sv);
+			_sv.choices = _rew;
+			_sv.clean = true;
+			_sv.queue = (array_length(_reg) > 0);
+			_sv.pick = 0;
+			_sv.phase = 1;
+			}
+		else if (array_length(_reg) > 0)
+			{
+			_sv.choices = _reg;
 			_sv.pick = 0;
 			_sv.phase = 1;
 			}
@@ -582,7 +662,7 @@ function survival_phase_update(_dir, _atk)
 			for (var _i = 0; _i < _n; _i++)
 				{
 				var _x1 = survival_card_x(_i, _n);
-				if (_tx >= _x1 && _tx <= _x1 + (386 * _k) && _ty >= 190 * _k && _ty <= 570 * _k)
+				if (_tx >= _x1 && _tx <= _x1 + (386 * _k) && _ty >= 180 * _k && _ty <= 600 * _k)
 					{
 					if (_sv.pick == _i) then _go = true;
 					_sv.pick = _i;
@@ -593,25 +673,36 @@ function survival_phase_update(_dir, _atk)
 			{
 			array_push(_sv.muts, _sv.choices[_sv.pick]);
 			survival_recalc(_sv);
-			_sv.phase = 0;
+			if (_sv.queue)
+				{
+				_sv.queue = false;
+				_sv.clean = false;
+				_sv.choices = survival_draft_choices(_sv, false);
+				_sv.pick = 0;
+				_sv.t = 0;
+				_sv.atk_prev = true;
+				}
+			else
+				{
+				_sv.phase = 0;
+				}
 			}
 		}
 	else if (_sv.phase == 2)
 		{
 		if (_sv.t < 180) then return;
-		if (_l) then _sv.sel = 0;
-		if (_r) then _sv.sel = 1;
-		if (_tx >= 0 && _ty >= 580 * _k && _ty <= 628 * _k)
+		if (_l) then _sv.sel = max(0, _sv.sel - 1);
+		if (_r) then _sv.sel = min(2, _sv.sel + 1);
+		if (_tx >= 0 && _ty >= 630 * _k && _ty <= 686 * _k)
 			{
-			if (_tx >= _cx - (340 * _k) && _tx <= _cx - (10 * _k))
+			for (var _b = 0; _b < 3; _b++)
 				{
-				_sv.sel = 0;
-				_go = true;
-				}
-			else if (_tx >= _cx + (10 * _k) && _tx <= _cx + (340 * _k))
-				{
-				_sv.sel = 1;
-				_go = true;
+				var _bx = survival_over_btn_x(_b, _cx, _k);
+				if (_tx >= _bx && _tx <= _bx + (254 * _k))
+					{
+					_sv.sel = _b;
+					_go = true;
+					}
 				}
 			}
 		if (_go)
@@ -620,12 +711,58 @@ function survival_phase_update(_dir, _atk)
 				{
 				survival_begin(_sv.p1);
 				}
+			else if (_sv.sel == 1)
+				{
+				lb_init();
+				global.lb.tab = 0;
+				lb_request(0);
+				_sv.phase = 3;
+				}
 			else
 				{
 				game_exit_to_menu();
 				}
 			}
 		}
+	else if (_sv.phase == 3)
+		{
+		lb_tick();
+		var _d = global.lb;
+		var _ox = (display_get_gui_width() - (1280 * _k)) * 0.5;
+		var _used = false;
+		if (_l) then lb_select((_d.tab + 2) mod 3);
+		if (_r) then lb_select((_d.tab + 1) mod 3);
+		if (_tx >= 0)
+			{
+			for (var _i = 0; _i < 3; _i++)
+				{
+				var _tr = lb_tab_rect(_i, _k, _ox, 0);
+				if (_tx >= _tr.l && _tx <= _tr.r && _ty >= _tr.t && _ty <= _tr.b)
+					{
+					lb_select(_i);
+					_used = true;
+					}
+				}
+			if (_d.tabs[_d.tab].st == 3)
+				{
+				var _rr = lb_retry_rect(_k, _ox, 0);
+				if (_tx >= _rr.l && _tx <= _rr.r && _ty >= _rr.t && _ty <= _rr.b)
+					{
+					lb_request(_d.tab);
+					_used = true;
+					}
+				}
+			}
+		if (_go && !_used)
+			{
+			_sv.phase = 2;
+			}
+		}
+	}
+
+function survival_over_btn_x(_b, _cx, _k)
+	{
+	return _cx + ((-396 + (_b * 268)) * _k);
 	}
 
 function survival_draw_draft()
@@ -642,53 +779,61 @@ function survival_draw_draft()
 	draw_set_font(fnt_menu);
 	draw_set_halign(fa_center);
 	draw_set_valign(fa_middle);
-	training_draw_txt(_cx, 86 * _k, "CHOOSE A MUTATION", 1.3 * _k, c_white);
-	var _sub = "FIGHT " + string(_sv.index + 1) + "  -  NEXT: " + ((_sv.emod != 0) ? (survival_mod_name(_sv.emod) + " ") : "") + arcade_char_name(_sv.opp);
-	training_draw_txt(_cx, 128 * _k, _sub, 0.45 * _k, MENU_B_ACC);
+	training_draw_txt(_cx, 80 * _k, _sv.clean ? "VARIANT REWARD" : "CHOOSE A MUTATION", 1.5 * _k, c_white);
+	var _tag = _sv.ve ? "VARIANT " : ((_sv.emod != 0) ? (survival_mod_name(_sv.emod) + " ") : "");
+	var _sub = "FIGHT " + string(_sv.index + 1) + "  -  NEXT: " + _tag + arcade_char_name(_sv.opp);
+	training_draw_txt(_cx, 128 * _k, _sub, 0.58 * _k, MENU_B_ACC);
 	
 	for (var _i = 0; _i < _n; _i++)
 		{
 		var _m = survival_mut(_sv.choices[_i]);
 		var _on = (_i == _sv.pick);
 		var _x1 = survival_card_x(_i, _n);
-		var _y1 = (_on ? 190 : 210) * _k;
+		var _y1 = (_on ? 180 : 200) * _k;
 		var _w = 360 * _k;
-		var _h = (_on ? 380 : 350) * _k;
+		var _h = (_on ? 410 : 380) * _k;
 		var _sl = 26 * _k;
+		var _fit = _w - (60 * _k);
+		var _clean = (_m.id >= 8);
 		
 		menu_b_para(_x1 + _sl, _y1, _w, _h, _sl, MENU_B_DARK, _on ? 0.98 : 0.85);
 		menu_b_para(_x1 + _sl, _y1, _w, 8 * _k, _sl, _m.col, 1);
 		if (_on) then menu_b_para_line(_x1 + _sl, _y1, _w, _h, _sl, _m.col, 1, 3);
 		draw_set_alpha(1);
 		
-		menu_b_para(_x1 + _sl + (30 * _k), _y1 + (28 * _k), 100 * _k, 22 * _k, 10 * _k, _m.col, 1);
+		menu_b_para(_x1 + _sl + (30 * _k), _y1 + (26 * _k), 124 * _k, 30 * _k, 12 * _k, _m.col, 1);
 		draw_set_alpha(1);
 		draw_set_halign(fa_center);
 		draw_set_valign(fa_middle);
 		draw_set_color(MENU_B_INK);
-		draw_text_transformed(_x1 + _sl + (80 * _k), _y1 + (39 * _k), _m.rare ? "RARE" : "COMMON", 0.32 * _k, 0.32 * _k, 0);
+		draw_text_transformed(_x1 + _sl + (92 * _k), _y1 + (41 * _k), _clean ? "REWARD" : (_m.rare ? "RARE" : "COMMON"), 0.4 * _k, 0.4 * _k, 0);
 		
 		draw_set_halign(fa_left);
-		training_draw_txt(_x1 + (36 * _k), _y1 + (92 * _k), _m.name, 0.7 * _k, c_white);
+		var _ns = min(0.85 * _k, _fit / max(1, string_width(_m.name)));
+		training_draw_txt(_x1 + (36 * _k), _y1 + (98 * _k), _m.name, _ns, c_white);
 		
 		draw_set_color(_m.col);
-		draw_circle(_x1 + (190 * _k), _y1 + (190 * _k), 44 * _k, false);
+		draw_circle(_x1 + (190 * _k), _y1 + (200 * _k), 50 * _k, false);
 		draw_set_halign(fa_center);
 		draw_set_valign(fa_middle);
 		draw_set_color(MENU_B_INK);
-		draw_text_transformed(_x1 + (190 * _k), _y1 + (192 * _k), _m.tag, 0.8 * _k, 0.8 * _k, 0);
+		draw_text_transformed(_x1 + (190 * _k), _y1 + (202 * _k), _m.tag, 0.95 * _k, 0.95 * _k, 0);
 		
 		draw_set_halign(fa_left);
 		draw_set_valign(fa_middle);
-		training_draw_txt(_x1 + (36 * _k), _y1 + _h - (100 * _k), _m.desc, 0.4 * _k, c_white);
-		training_draw_txt(_x1 + (36 * _k), _y1 + _h - (62 * _k), "Drawback: " + _m.cost, 0.36 * _k, make_colour_rgb(255, 143, 143));
+		var _ctext = _clean ? "No drawback" : ("Drawback: " + _m.cost);
+		var _ccol = _clean ? make_colour_rgb(140, 240, 176) : make_colour_rgb(255, 143, 143);
+		var _ds = min(0.5 * _k, _fit / max(1, string_width(_m.desc)));
+		var _cs = min(0.44 * _k, _fit / max(1, string_width(_ctext)));
+		training_draw_txt(_x1 + (36 * _k), _y1 + _h - (112 * _k), _m.desc, _ds, c_white);
+		training_draw_txt(_x1 + (36 * _k), _y1 + _h - (66 * _k), _ctext, _cs, _ccol);
 		}
 	
 	draw_set_halign(fa_center);
 	draw_set_valign(fa_middle);
 	draw_set_alpha(1);
 	draw_set_color(MENU_B_ACC);
-	draw_text_transformed(_cx, 694 * _k, "LEFT / RIGHT: CHOOSE   |   LIGHT: CONFIRM", 0.4 * _k, 0.4 * _k, 0);
+	draw_text_transformed(_cx, 692 * _k, "LEFT / RIGHT: CHOOSE   |   LIGHT: CONFIRM", 0.5 * _k, 0.5 * _k, 0);
 	draw_set_color(c_white);
 	draw_set_halign(fa_left);
 	draw_set_valign(fa_top);
@@ -703,6 +848,9 @@ function survival_draw_over()
 	var _cx = _gw * 0.5;
 	var _t = _sv.t;
 	var _gray = make_colour_rgb(138, 142, 164);
+	var _pw = 780 * _k;
+	var _sl = 28 * _k;
+	var _px = _cx - (_pw * 0.5) + _sl;
 	
 	menu_b_draw_bg(_gw, _gh, clamp(_gw / 1280, 0.6, 1.4), 0.9);
 	draw_set_alpha(0.10 + (0.05 * sin(_t / 20)));
@@ -716,30 +864,30 @@ function survival_draw_over()
 	var _shake = (_t > 20 && _t < 34) ? ((34 - _t) * 0.6 * _k) : 0;
 	var _slide = lerp(-1000, 0, _ease) * _k;
 	
-	menu_b_para(_cx - (340 * _k) + (28 * _k) + _slide, 100 * _k, 680 * _k, 70 * _k, 28 * _k, MENU_B_DARK, 0.97);
-	menu_b_para(_cx - (340 * _k) + (28 * _k) + _slide, 100 * _k, 16 * _k, 70 * _k, 28 * _k, MENU_B_RED, 1);
+	menu_b_para(_px + _slide, 70 * _k, _pw, 90 * _k, _sl, MENU_B_DARK, 0.97);
+	menu_b_para(_px + _slide, 70 * _k, 16 * _k, 90 * _k, _sl, MENU_B_RED, 1);
 	draw_set_alpha(1);
 	draw_set_font(fnt_menu);
 	draw_set_halign(fa_center);
 	draw_set_valign(fa_middle);
-	training_draw_txt(_cx + (sin(_t * 3) * _shake), 136 * _k, "RUN OVER", 1.5 * _sc * _k, c_white);
+	training_draw_txt(_cx + (sin(_t * 3) * _shake), 116 * _k, "RUN OVER", 1.8 * _sc * _k, c_white);
 	
 	if (_t >= 135)
 		{
 		var _rp = clamp((_t - 135) / 10, 0, 1);
-		var _rs = lerp(4, 1.5, 1 - power(1 - _rp, 3));
+		var _rs = lerp(4, 1.9, 1 - power(1 - _rp, 3));
 		var _rank = survival_rank(_sv.wins);
 		var _rc = (_rank == "S") ? make_colour_rgb(255, 200, 60) : ((_rank == "A") ? MENU_B_ACC : ((_rank == "B") ? make_colour_rgb(70, 130, 240) : MENU_B_TEXT));
 		draw_set_alpha(_rp);
-		training_draw_txt(_cx + (290 * _k), 138 * _k, _rank, _rs * _k, _rc);
+		training_draw_txt(_cx + (320 * _k), 118 * _k, _rank, _rs * _k, _rc);
 		draw_set_alpha(1);
 		}
 	
 	if (_t >= 40)
 		{
 		var _pa = clamp((_t - 40) / 10, 0, 1);
-		menu_b_para(_cx - (340 * _k) + (28 * _k), 190 * _k, 680 * _k, 370 * _k, 28 * _k, MENU_B_DARK, 0.92 * _pa);
-		menu_b_para(_cx - (340 * _k) + (28 * _k), 190 * _k, 10 * _k, 370 * _k, 28 * _k, MENU_B_ACC, _pa);
+		menu_b_para(_px, 176 * _k, _pw, 390 * _k, _sl, MENU_B_DARK, 0.92 * _pa);
+		menu_b_para(_px, 176 * _k, 10 * _k, 390 * _k, _sl, MENU_B_ACC, _pa);
 		draw_set_alpha(1);
 		}
 	
@@ -750,25 +898,62 @@ function survival_draw_over()
 		}
 	if (_names == "") then _names = "NONE";
 	
-	var _labels = ["WIN STREAK", "SCORE", "MAX COMBO", "DAMAGE DEALT", "MUTATIONS", "KILLED BY"];
-	var _nums = [_sv.wins, _sv.score, _sv.maxcombo, _sv.dealt];
-	for (var _r = 0; _r < 6; _r++)
+	var _wr = "";
+	var _wc = _gray;
+	if (!gmda_isSessionActive())
 		{
-		var _start = 50 + (_r * 14);
+		_wr = "OFFLINE";
+		}
+	else if (_sv.sub == "")
+		{
+		_wr = (_t > 600) ? "---" : "...";
+		}
+	else if (_sv.sub == "skipped" && _sv.wins == 0)
+		{
+		_wr = "---";
+		}
+	else if ((_t - _sv.sub_t) < 45)
+		{
+		_wr = "...";
+		}
+	else
+		{
+		var _gp = gmda_getPlayerpos(SURVIVAL_LB_TABLE);
+		if (_gp > 0)
+			{
+			_wr = "#" + string(_gp);
+			_wc = make_colour_rgb(140, 240, 176);
+			}
+		else
+			{
+			_wr = "UNRANKED";
+			}
+		}
+	
+	var _labels = ["WIN STREAK", "SCORE", "MAX COMBO", "DAMAGE DEALT", "MUTATIONS", "KILLED BY", "WORLD RANK"];
+	var _nums = [_sv.wins, _sv.score, _sv.maxcombo, _sv.dealt];
+	for (var _r = 0; _r < 7; _r++)
+		{
+		var _start = 50 + (_r * 12);
 		if (_t < _start) then continue;
 		var _p = clamp((_t - _start) / 24, 0, 1);
-		var _y = (232 + (_r * 52)) * _k;
+		var _y = (214 + (_r * 52)) * _k;
 		var _val = "";
 		if (_r < 4) then _val = string(round(_nums[_r] * _p)) + ((_r == 2) ? " HITS" : "");
 		else if (_r == 4) then _val = _names;
-		else _val = arcade_char_name(_sv.killer) + "  (FIGHT " + string(_sv.killer_fight) + ")";
+		else if (_r == 5) then _val = arcade_char_name(_sv.killer) + "  (FIGHT " + string(_sv.killer_fight) + ")";
+		else _val = _wr;
+		
+		var _base = (_r < 2) ? 0.85 : ((_r < 4 || _r == 6) ? 0.72 : 0.5);
+		var _vs = min(_base * _k, (430 * _k) / max(1, string_width(_val)));
+		var _vc = (_r < 2) ? make_colour_rgb(255, 200, 60) : ((_r == 6) ? _wc : c_white);
 		
 		draw_set_alpha(_p);
 		draw_set_halign(fa_left);
 		draw_set_valign(fa_middle);
-		training_draw_txt(_cx - (280 * _k), _y, _labels[_r], 0.42 * _k, _gray);
+		training_draw_txt(_cx - (_pw * 0.5) + (_sl * 2), _y, _labels[_r], 0.56 * _k, _gray);
 		draw_set_halign(fa_right);
-		training_draw_txt(_cx + (300 * _k), _y, _val, ((_r == 4) ? 0.36 : ((_r < 2) ? 0.65 : 0.55)) * _k, (_r < 2) ? make_colour_rgb(255, 200, 60) : c_white);
+		training_draw_txt(_cx + (_pw * 0.5) + (_sl * 0.2), _y, _val, _vs, _vc);
 		}
 	draw_set_alpha(1);
 	
@@ -777,22 +962,27 @@ function survival_draw_over()
 		draw_set_alpha(abs(sin(_t / 20)));
 		draw_set_halign(fa_center);
 		draw_set_valign(fa_middle);
-		training_draw_txt(_cx, 540 * _k, "NEW PERSONAL BEST", 0.45 * _k, make_colour_rgb(140, 240, 176));
+		training_draw_txt(_cx, 598 * _k, "NEW PERSONAL BEST", 0.6 * _k, make_colour_rgb(140, 240, 176));
 		draw_set_alpha(1);
 		}
 	
 	if (_t >= 180)
 		{
-		for (var _b = 0; _b < 2; _b++)
+		var _bn = ["RETRY", "LEADERBOARD", "MAIN MENU"];
+		for (var _b = 0; _b < 3; _b++)
 			{
-			var _bx = (_b == 0) ? (_cx - (340 * _k)) : (_cx + (10 * _k));
+			var _bx = survival_over_btn_x(_b, _cx, _k);
 			var _bon = (_sv.sel == _b);
-			menu_b_para(_bx + (18 * _k), 580 * _k, 330 * _k, 48 * _k, 18 * _k, _bon ? ((_b == 0) ? MENU_B_ACC : MENU_B_TEXT) : make_colour_rgb(34, 36, 47), 1);
+			var _bc = make_colour_rgb(34, 36, 47);
+			if (_bon) then _bc = (_b == 0) ? MENU_B_ACC : ((_b == 1) ? make_colour_rgb(255, 200, 60) : MENU_B_TEXT);
+			menu_b_para(_bx + (18 * _k), 630 * _k, 236 * _k, 56 * _k, 18 * _k, _bc, 1);
 			draw_set_alpha(1);
+			draw_set_font(fnt_menu);
 			draw_set_halign(fa_center);
 			draw_set_valign(fa_middle);
 			draw_set_color(_bon ? MENU_B_INK : _gray);
-			draw_text_transformed(_bx + (183 * _k), 604 * _k, (_b == 0) ? "RETRY" : "MAIN MENU", 0.75 * _k, 0.75 * _k, 0);
+			var _bs = min(0.8 * _k, (190 * _k) / max(1, string_width(_bn[_b])));
+			draw_text_transformed(_bx + (127 * _k), 658 * _k, _bn[_b], _bs, _bs, 0);
 			}
 		}
 	
@@ -809,16 +999,27 @@ function survival_draw_over()
 	draw_set_valign(fa_top);
 	}
 
+function survival_draw_rank()
+	{
+	var _gw = display_get_gui_width();
+	var _gh = display_get_gui_height();
+	var _k = _gh / 720;
+	menu_b_draw_bg(_gw, _gh, clamp(_gw / 1280, 0.6, 1.4), 0.9);
+	menu_b_draw_ranking(_k, (_gw - (1280 * _k)) * 0.5, 0, 1, true);
+	}
+
 function survival_draw()
 	{
 	if (global.survival.phase == 1) then survival_draw_draft();
 	else if (global.survival.phase == 2) then survival_draw_over();
+	else if (global.survival.phase == 3) then survival_draw_rank();
 	}
 
 function survival_draw_hud()
 	{
 	if (!survival_active() || global.survival.phase != 0) then return;
 	if (obj_game.game_meta_state == GAME_META_STATE.char_select) then return;
+	if (obj_game.game_paused) then return;
 	
 	var _sv = global.survival;
 	var _gw = display_get_gui_width();
@@ -826,47 +1027,63 @@ function survival_draw_hud()
 	var _k = _gh / 720;
 	var _cx = _gw * 0.5;
 	var _y = _gh * 0.19;
-	var _w = 360 * _k;
-	var _h = 52 * _k;
-	var _sl = 20 * _k;
+	var _w = 580 * _k;
+	var _h = 84 * _k;
+	var _sl = 22 * _k;
+	var _px = _cx - (_w * 0.5);
 	var _gray = make_colour_rgb(138, 142, 164);
 	
-	menu_b_para(_cx - (_w * 0.5) + _sl, _y, _w, _h, _sl, MENU_B_DARK, 0.85);
-	menu_b_para(_cx - (_w * 0.5) + _sl, _y, 10 * _k, _h, _sl, MENU_B_ACC, 1);
+	menu_b_para(_px + _sl, _y, _w, _h, _sl, MENU_B_DARK, 0.88);
+	menu_b_para(_px + _sl, _y, 10 * _k, _h, _sl, MENU_B_ACC, 1);
 	draw_set_alpha(1);
 	draw_set_font(fnt_menu);
 	draw_set_valign(fa_middle);
+	
 	draw_set_halign(fa_left);
-	training_draw_txt(_cx - (_w * 0.5) + (34 * _k), _y + (14 * _k), "WIN STREAK", 0.3 * _k, _gray);
-	training_draw_txt(_cx - (_w * 0.5) + (34 * _k), _y + (36 * _k), string(_sv.wins), 0.6 * _k, c_white);
+	training_draw_txt(_px + (46 * _k), _y + (22 * _k), "WIN STREAK", 0.5 * _k, _gray);
+	training_draw_txt(_px + (46 * _k), _y + (58 * _k), string(_sv.wins), 1 * _k, c_white);
+	
 	draw_set_halign(fa_right);
-	training_draw_txt(_cx + (_w * 0.5) - (6 * _k), _y + (14 * _k), "SCORE", 0.3 * _k, _gray);
-	training_draw_txt(_cx + (_w * 0.5) - (6 * _k), _y + (36 * _k), string(_sv.score), 0.55 * _k, MENU_B_ACC);
+	training_draw_txt(_px + _w - (18 * _k), _y + (22 * _k), "SCORE", 0.5 * _k, _gray);
+	training_draw_txt(_px + _w - (18 * _k), _y + (58 * _k), string(_sv.score), 0.9 * _k, MENU_B_ACC);
+	
 	draw_set_halign(fa_center);
-	training_draw_txt(_cx, _y + _h + (14 * _k), "FIGHT " + string(_sv.index + 1), 0.34 * _k, MENU_B_TEXT);
+	training_draw_txt(_cx + (_sl * 0.5), _y + (22 * _k), "FIGHT", 0.5 * _k, MENU_B_TEXT);
+	training_draw_txt(_cx + (_sl * 0.5), _y + (58 * _k), string(_sv.index + 1), 1.15 * _k, MENU_B_TEXT);
 	
 	var _boss = (_sv.opp == ARCADE_CHAR_DEMON || _sv.opp == ARCADE_CHAR_BEAR);
-	if (_sv.emod != 0 || _boss)
+	var _elite = _sv.ve;
+	if (_sv.emod != 0 || _boss || _elite)
 		{
-		var _mw = 260 * _k;
-		var _mx = _gw - _mw - (40 * _k);
-		menu_b_para(_mx + _sl, _y, _mw, _h, _sl, MENU_B_DARK, 0.85);
-		menu_b_para(_mx + _sl, _y, 10 * _k, _h, _sl, MENU_B_RED, 1);
+		var _mt = _boss ? "BOSS FIGHT" : (_elite ? "VARIANT" : survival_mod_name(_sv.emod));
+		var _md = _boss ? "No mercy" : (_elite ? ("+" + string(round(survival_var_bonus(_sv) * 100)) + "% DAMAGE / HP") : survival_mod_desc(_sv.emod));
+		var _mc = _elite ? make_colour_rgb(170, 90, 230) : MENU_B_RED;
+		var _tw = max(string_width(_mt) * 0.62 * _k, string_width(_md) * 0.44 * _k);
+		var _mw = max(300 * _k, _tw + (96 * _k));
+		var _mh = 68 * _k;
+		var _my = _y + _h + (10 * _k);
+		
+		menu_b_para(_cx - (_mw * 0.5) + _sl, _my, _mw, _mh, _sl, MENU_B_DARK, 0.88);
+		menu_b_para(_cx - (_mw * 0.5) + _sl, _my, 10 * _k, _mh, _sl, _mc, 1);
 		draw_set_alpha(1);
-		draw_set_halign(fa_left);
-		training_draw_txt(_mx + (34 * _k), _y + (16 * _k), _boss ? "BOSS FIGHT" : survival_mod_name(_sv.emod), 0.42 * _k, c_white);
-		training_draw_txt(_mx + (34 * _k), _y + (38 * _k), _boss ? "No mercy" : survival_mod_desc(_sv.emod), 0.3 * _k, _gray);
+		draw_set_halign(fa_center);
+		training_draw_txt(_cx + (_sl * 0.5), _my + (23 * _k), _mt, 0.62 * _k, c_white);
+		training_draw_txt(_cx + (_sl * 0.5), _my + (50 * _k), _md, 0.44 * _k, _gray);
 		}
 	
+	var _per = 8;
+	var _st = 36 * _k;
 	for (var _i = 0; _i < array_length(_sv.muts); _i++)
 		{
 		var _m = survival_mut(_sv.muts[_i]);
-		var _bx = (46 * _k) + (_i * 44 * _k);
+		var _bx = (44 * _k) + ((_i mod _per) * _st);
+		var _by = _gh - (100 * _k) - ((_i div _per) * _st);
 		draw_set_color(_m.col);
-		draw_circle(_bx, _gh - (110 * _k), 16 * _k, false);
+		draw_circle(_bx, _by, 16 * _k, false);
 		draw_set_halign(fa_center);
+		draw_set_valign(fa_middle);
 		draw_set_color(MENU_B_INK);
-		draw_text_transformed(_bx, _gh - (109 * _k), _m.tag, 0.3 * _k, 0.3 * _k, 0);
+		draw_text_transformed(_bx, _by + (1 * _k), _m.tag, 0.38 * _k, 0.38 * _k, 0);
 		}
 	
 	draw_set_alpha(1);

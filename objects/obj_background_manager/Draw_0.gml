@@ -10,6 +10,11 @@ var _dx = _cam_x - (((480 * 6) - camera_width) / 2);
 
 var _stage = stage_get(obj_game.stage_id);
 
+if (ceil_fx_active())
+	{
+	_cam_y += ceil_fx_view_up(_vh);
+	}
+
 for (var _l = 0; _l < array_length(_stage.layers); _l++)
 	{
 	var _layer = _stage.layers[_l];
@@ -37,6 +42,13 @@ for (var _l = 0; _l < array_length(_stage.layers); _l++)
 			acid_fx_draw_particles();
 			}
 		}
+	}
+
+if (ceil_fx_active())
+	{
+	var _l0 = _stage.layers[0];
+	var _ceil_top = _cam_y + 796 - (sprite_get_height(_l0.sprite) * _l0.scale) + (_l0.y_off * _l0.scale) + _stage.art_y;
+	ceil_fx_draw_layer(_ceil_top);
 	}
 
 // Objetos del escenario (detrás de los personajes)

@@ -55,6 +55,8 @@ online_options = [
 	"BACK"
 ];
 
+survival_options = ["START RUN", "LEADERBOARD", "BACK"];
+
 // Se rearma cada frame en el Step con private_lobby_menu_build()
 private_lobby_options = ["SET LOBBY CODE", "JOIN LOBBY BY CODE", "BACK"];
 private_lobby_actions = ["set_code", "join_code", "back"];
