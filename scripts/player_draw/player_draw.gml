@@ -17,7 +17,7 @@ if (obj_game.bail_active && id == obj_game.bail_rival)
 	if (acid_ko && obj_game.game_meta_state == GAME_META_STATE.ending)
 		{
 		// Raíz: la víctima completa la dibuja la capa del fondo (root_fx_draw_layer)
-		if (obj_game.stage_has_root) then return;
+		if (obj_game.stage_has_root || obj_game.stage_has_ceiling) then return;
 		
 		var _pose = acid_fx_pose(id);
 		if (_pose.phase == 0) then acid_fx_draw_body(id, _pose);

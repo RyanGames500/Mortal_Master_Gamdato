@@ -268,6 +268,7 @@ function stage_get(_id)
 			return {
 				name: "Entrada del laboratorio",
 				has_acid: false,
+				has_ceiling: true,
 				ground_y: -90,
 				art_y: 80,
 				layers: [
@@ -435,6 +436,7 @@ function stage_apply()
 	var _stage = stage_get(obj_game.stage_id);
 	obj_game.stage_has_acid = _stage.has_acid;
 	obj_game.stage_has_root = variable_struct_exists(_stage, "has_root") ? _stage.has_root : false;
+	obj_game.stage_has_ceiling = variable_struct_exists(_stage, "has_ceiling") ? _stage.has_ceiling : false;
 	if (instance_exists(obj_ground)) then obj_ground.y = obj_ground.base_y + _stage.ground_y;
 	}
 	
@@ -733,3 +735,186 @@ function stage_preview_draw(_id, _x, _y, _w, _h, _tint)
 		}
 	}
 
+#macro CEIL_RISE			30
+#macro CEIL_HOLD			150
+#macro CEIL_CAM_DOWN		56
+#macro CEIL_FX_TOTAL		266
+#macro CEIL_HOVER_H			900
+#macro CEIL_GEAR_DROP		230
+#macro CEIL_CAM_UP			490
+#macro CEIL_GEAR_STEP		160
+#macro CEIL_GEAR_N			4
+
+function stage_get_has_ceiling(_id)
+	{
+	var _s = stage_get(_id);
+	return variable_struct_exists(_s, "has_ceiling") ? _s.has_ceiling : false;
+	}
+
+function ceil_fx_victim()
+	{
+	for (var _i = 0; _i < instance_number(obj_player); _i++)
+		{
+		var _p = instance_find(obj_player, _i);
+		if (_p.acid_ko) then return _p;
+		}
+	return noone;
+	}
+
+function ceil_fx_active()
+	{
+	return (obj_game.stage_has_ceiling && obj_game.game_meta_state == GAME_META_STATE.ending && ceil_fx_victim() != noone);
+	}
+
+function ceil_fx_cam_up()
+	{
+	var _t = CEIL_FX_TOTAL - obj_game.ending_frame;
+	if (_t < 0) then return 0;
+	if (_t < CEIL_RISE)
+		{
+		var _u = clamp(_t / (CEIL_RISE * 0.8), 0, 1);
+		return CEIL_CAM_UP * (1 - sqr(1 - _u));
+		}
+	var _d0 = CEIL_RISE + CEIL_HOLD;
+	if (_t < _d0) then return CEIL_CAM_UP;
+	var _s = clamp((_t - _d0) / CEIL_CAM_DOWN, 0, 1);
+	return CEIL_CAM_UP * (1 - (_s * _s * (3 - (2 * _s))));
+	}
+
+function ceil_fx_view_up(_vh)
+	{
+	return clamp((room_height - _vh) - camera_get_view_y(camera_index), 0, 2000);
+	}
+
+function ceil_fx_land_x(_v)
+	{
+	var _cx = room_width div 2;
+	var _k = round((_v.acid_x - _cx) / CEIL_GEAR_STEP);
+	return _cx + (clamp(_k, -CEIL_GEAR_N, CEIL_GEAR_N) * CEIL_GEAR_STEP);
+	}
+
+function ceil_fx_pose(_v)
+	{
+	var _t = CEIL_FX_TOTAL - obj_game.ending_frame;
+	var _hover = obj_ground.y - CEIL_HOVER_H;
+	var _lx = ceil_fx_land_x(_v);
+	var _p = { x: _v.acid_x, y: _v.acid_y, key: "hitstun_aerial", frame: 0 };
+	if (_t < CEIL_RISE)
+		{
+		var _u = clamp(_t / CEIL_RISE, 0, 1);
+		var _e = 1 - sqr(1 - _u);
+		_p.x = lerp(_v.acid_x, _lx, _e);
+		_p.y = lerp(_v.acid_y, _hover, _e);
+		_p.frame = floor(_t / 4);
+		}
+	else
+		{
+		_p.x = _lx;
+		_p.y = _hover;
+		_p.key = "acostado";
+		_p.frame = 9999;
+		}
+	return _p;
+	}
+
+function ceil_fx_draw_body(_v, _pose)
+	{
+	var _spr = _v.anim_sprite;
+	if (variable_struct_exists(_v.sprites, _pose.key) && !is_undefined(_v.sprites[$ _pose.key]))
+		{
+		_spr = _v.sprites[$ _pose.key];
+		}
+	else if (_pose.key == "acostado" && variable_struct_exists(_v.sprites, "knockdown"))
+		{
+		_spr = _v.sprites[$ "knockdown"];
+		}
+	var _frame = min(_pose.frame, sprite_get_number(_spr) - 1);
+	pal_swap_set(_v.palette_sprite, _v.current_pal, false);
+	draw_sprite_ext(_spr, _frame, _pose.x, _pose.y, _v.sprite_scale * _v.facing, _v.sprite_scale, 0, _v.image_blend, _v.image_alpha);
+	pal_swap_reset();
+	}
+
+function ceil_fx_draw_gear(_x, _y, _ang)
+	{
+	draw_set_color(make_colour_rgb(74, 75, 54));
+	draw_circle(_x, _y, 64, false);
+	draw_set_color(make_colour_rgb(106, 107, 76));
+	for (var _k = 0; _k < 12; _k++)
+		{
+		var _a = _ang + (_k * 30);
+		draw_triangle(_x + lengthdir_x(60, _a - 11), _y + lengthdir_y(60, _a - 11),
+			_x + lengthdir_x(98, _a), _y + lengthdir_y(98, _a),
+			_x + lengthdir_x(60, _a + 11), _y + lengthdir_y(60, _a + 11), false);
+		}
+	draw_set_color(make_colour_rgb(27, 28, 20));
+	draw_circle(_x, _y, 22, false);
+	}
+
+function ceil_fx_draw_blood(_pose, _t)
+	{
+	var _a = _t - CEIL_RISE;
+	if (_a < 0) then return;
+	var _gy = obj_ground.y;
+	root_fx_blood(_pose.x, _pose.y, _a, 28, 11, 0.9, _gy + 14);
+	root_fx_blood(_pose.x, _pose.y, _a - 5, 22, 53, 0.7, _gy + 14);
+	root_fx_blood(_pose.x, _pose.y, _a - 14, 18, 97, 1.0, _gy + 14);
+	for (var _d = 0; _d < 16; _d++)
+		{
+		var _da = _a - (4 + (_d * 8));
+		if (_da < 0) then continue;
+		var _dx = _pose.x + ((((_d * 29) mod 9) - 4) * 16);
+		var _dy = _pose.y + 50 + (0.25 * _da * _da);
+		if (_dy > _gy) then continue;
+		draw_set_alpha(1);
+		draw_set_color((_d mod 2 == 0) ? ROOT_BLOOD_B : ROOT_BLOOD_C);
+		draw_rectangle(floor(_dx / 6) * 6, floor(_dy / 6) * 6, floor(_dx / 6) * 6 + 6, floor(_dy / 6) * 6 + 18, false);
+		}
+	draw_set_color(c_white);
+	}
+
+function ceil_fx_draw_layer(_top)
+	{
+	if (!ceil_fx_active()) then return;
+	var _v = ceil_fx_victim();
+	var _t = CEIL_FX_TOTAL - obj_game.ending_frame;
+	var _cx = room_width div 2;
+	var _gb = obj_ground.y - CEIL_HOVER_H + CEIL_GEAR_DROP;
+	var _vx = camera_get_view_x(camera_index) - 400;
+	var _vw = camera_get_view_width(camera_index) + 800;
+
+	draw_set_color(make_colour_rgb(20, 21, 12));
+	draw_set_alpha(1);
+	draw_rectangle(_vx, _top - 4000, _vx + _vw, _top, false);
+	for (var _b = 0; _b < 8; _b++)
+		{
+		draw_set_alpha(1 - (_b / 8));
+		draw_rectangle(_vx, _top + (_b * 24), _vx + _vw, _top + ((_b + 1) * 24), false);
+		}
+	draw_set_alpha(1);
+
+	var _hot = (_t >= CEIL_RISE);
+	var _half = (CEIL_GEAR_N * CEIL_GEAR_STEP) + 140;
+	draw_set_color(make_colour_rgb(58, 59, 40));
+	draw_rectangle(_cx - _half, _gb - 128, _cx + _half, _gb - 100, false);
+	draw_set_color(_hot ? make_colour_rgb(165, 58, 42) : make_colour_rgb(85, 86, 64));
+	draw_rectangle(_cx - _half, _gb - 100, _cx + _half, _gb - 94, false);
+	for (var _g = -CEIL_GEAR_N; _g <= CEIL_GEAR_N; _g++)
+		{
+		var _dir = ((_g mod 2) == 0) ? 1 : -1;
+		ceil_fx_draw_gear(_cx + (_g * CEIL_GEAR_STEP), _gb - 98, _t * (_hot ? 17 : 6) * _dir);
+		}
+
+	if (_t >= CEIL_RISE && _t < CEIL_RISE + 6)
+		{
+		draw_set_color(make_colour_rgb(214, 255, 200));
+		draw_set_alpha(((CEIL_RISE + 6 - _t) / 6) * 0.55);
+		draw_rectangle(_vx, _top - 4000, _vx + _vw, _top + 6000, false);
+		draw_set_alpha(1);
+		}
+
+	var _pose = ceil_fx_pose(_v);
+	ceil_fx_draw_body(_v, _pose);
+	ceil_fx_draw_blood(_pose, _t);
+	draw_set_color(c_white);
+	draw_set_alpha(1);
+	}

@@ -36,6 +36,7 @@ function saori_character_init()
 
 	//Gameplay sprites
 	sprites[$ "idle"			] = spr_saori_idle;
+	sprites[$ "win"				] = spr_saori_win;	
 	sprites[$ "crouch"			] = spr_saori_crouch;
 	sprites[$ "walk_forward"	] = spr_saori_walk;
 	sprites[$ "walk_backward"	] = spr_saori_walk_backward;

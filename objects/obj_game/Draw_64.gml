@@ -28,7 +28,7 @@ if (game_meta_state == GAME_META_STATE.starting)
 	draw_set_valign(fa_center);
 	
 	// Calcular número de ronda actual
-	var _current_round = p1_wins + p2_wins + 1;
+	var _current_round = p1_wins + p2_wins + 1 - round_draws;
 	var _text = "ROUND " + string(_current_round);
 	
 	// Si es la ronda decisiva
@@ -283,11 +283,13 @@ if (game_meta_state == GAME_META_STATE.round_restart || game_meta_state == GAME_
 	
 	if (_p1 != noone && _p2 != noone)
 		{
-		if (_p1.hp > _p2.hp)
+		var _p1_score = _p1.hp * max(_p2.hp_max, 1);
+		var _p2_score = _p2.hp * max(_p1.hp_max, 1);
+		if (_p1_score > _p2_score)
 			{
 			_winner_name = variable_instance_exists(_p1, "character_name") ? _p1.character_name : "P1";
 			}
-		else if (_p2.hp > _p1.hp)
+		else if (_p2_score > _p1_score)
 			{
 			_winner_name = variable_instance_exists(_p2, "character_name") ? _p2.character_name : "P2";
 			}

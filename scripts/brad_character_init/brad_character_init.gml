@@ -34,6 +34,7 @@ function brad_character_init()
 
 	//Gameplay sprites
 	sprites[$ "idle"			] = spr_brad_idle;
+	sprites[$ "win"				] = spr_brad_win;		
 	sprites[$ "crouch"			] = spr_brad_crouch;
 	sprites[$ "walk_forward"	] = spr_brad_walk;
 	sprites[$ "walk_backward"	] = spr_brad_walk_backward;

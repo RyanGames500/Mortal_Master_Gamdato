@@ -36,12 +36,20 @@ function game_check_player_ko(_result_array)
 ///@param {array} _hp_array
 /*
 Callback used with with_synced_object to collect each player's current HP.
-Writes into _hp_array: [0]=_p1_hp, [1]=_p2_hp
+Writes into _hp_array: [0]=_p1_hp, [1]=_p2_hp, [2]=_p1_hp_max, [3]=_p2_hp_max
 */
 function game_collect_player_hp(_hp_array)
 	{
-	if (player_number == 0) _hp_array[@ 0] = hp;
-	if (player_number == 1) _hp_array[@ 1] = hp;
+	if (player_number == 0)
+		{
+		_hp_array[@ 0] = hp;
+		_hp_array[@ 2] = max(hp_max, 1);
+		}
+	if (player_number == 1)
+		{
+		_hp_array[@ 1] = hp;
+		_hp_array[@ 3] = max(hp_max, 1);
+		}
 	}
 
 /*
@@ -75,15 +83,32 @@ function game_end_conditions()
 			{
 			p1_wins++;
 			}
+		else if (_p1_dead && _p2_dead)
+			{
+			//Doble KO: los dos ganan la ronda (me gusta NK y SF asi que use la logica de esos juegos no me jusguen xddd)
+			p1_wins++;
+			p2_wins++;
+			round_draws++;
+			}			
 		else if (_time_out)
 			{
-			var _hp_result = [0, 0]; // [_p1_hp, _p2_hp]
+			var _hp_result = [0, 0, 1, 1]; // [_p1_hp, _p2_hp, _p1_hp_max, _p2_hp_max]
 			with_synced_object(obj_player, game_collect_player_hp, _hp_result);
-			var _p1_hp = _hp_result[0];
-			var _p2_hp = _hp_result[1];
 			
-			if (_p1_hp > _p2_hp) p1_wins++;
-			else if (_p2_hp > _p1_hp) p2_wins++;
+			//Gana el que tenga la barra más llena (porcentaje), no más vida en números.
+			//Multiplicado en cruz para comparar con enteros y no romper el rollback.
+			var _p1_score = _hp_result[0] * _hp_result[3];
+			var _p2_score = _hp_result[1] * _hp_result[2];
+			
+			if (_p1_score > _p2_score) p1_wins++;
+			else if (_p2_score > _p1_score) p2_wins++;
+			else
+				{
+				//Empate por tiempo: los dos ganan la ronda
+				p1_wins++;
+				p2_wins++;
+				round_draws++;
+				}
 			}
 		// Si algún jugador alcanzó la cantidad de rondas para ganar el MATCH (Ej: 2 rondas)
 		if (p1_wins >= rounds_to_win || p2_wins >= rounds_to_win)
@@ -96,7 +121,7 @@ function game_end_conditions()
 				{
 				if (instance_find(obj_player, _i).acid_ko) then _acid = true;
 				}
-				ending_frame = _acid ? (obj_game.stage_has_root ? ROOT_FX_TOTAL : ACID_FX_TOTAL) : KO_HOLD_FRAMES;
+				ending_frame = _acid ? (obj_game.stage_has_ceiling ? CEIL_FX_TOTAL : (obj_game.stage_has_root ? ROOT_FX_TOTAL : ACID_FX_TOTAL)) : KO_HOLD_FRAMES;
 			}
 		else
 			{

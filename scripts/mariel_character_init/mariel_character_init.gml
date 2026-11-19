@@ -27,6 +27,7 @@ function mariel_character_init()
 
 	//Gameplay sprites
 	sprites[$ "idle"			] = spr_mariel_idle;
+	sprites[$ "win"				] = spr_mariel_win;	
 	sprites[$ "crouch"			] = spr_mariel_crouch;
 	sprites[$ "walk_forward"	] = spr_mariel_walk;
 	sprites[$ "walk_backward"	] = spr_mariel_walk_backward;

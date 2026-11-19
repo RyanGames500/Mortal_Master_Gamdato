@@ -632,14 +632,47 @@ function player_update(_inputs_array)
 		}
 		stage_props_check();	// objetos del escenario
 	stage_npc_check();		// personajes del escenario	
-	if (frozen && state != PLAYER_STATE.hitstun_ground) then frozen = false;	
-	if (sprite_exists(anim_sprite))
+	if (frozen && state != PLAYER_STATE.hitstun_ground) then frozen = false;
+	
+	//Pose de victoria (nuestro): solo fuera del combate, el que va ganando y ya parado en idle
+	if (win_pose)
 		{
-		anim_frame += anim_speed;
-		if (anim_frame > sprite_get_number(anim_sprite))
+		anim_sprite = sprites[$ "win"];
+		anim_speed = win_anim_speed;
+		hsp = 0;
+		}
+	else if (obj_game.game_meta_state != GAME_META_STATE.running && state == PLAYER_STATE.idle && hp > 0 && variable_struct_exists(sprites, "win"))
+		{
+		var _winner = true;
+		with (obj_player)
 			{
-			anim_frame -= sprite_get_number(anim_sprite);
+			if (id != other.id && hp * other.hp_max >= other.hp * hp_max) then _winner = false;
+			}
+		if (_winner && ++win_wait >= 40)
+			{
+			win_pose = true;
+			anim_sprite = sprites[$ "win"];
+			anim_frame = 0;
+			anim_speed = win_anim_speed;
 			}
 		}
+	
+	if (sprite_exists(anim_sprite))
+		{
+		if (win_pose)
+			{
+			//Se queda congelada en el último frame, no se repite
+			anim_frame = min(anim_frame + anim_speed, sprite_get_number(anim_sprite) - 1);
+			}
+		else
+			{
+			anim_frame += anim_speed;
+			if (anim_frame > sprite_get_number(anim_sprite))
+				{
+				anim_frame -= sprite_get_number(anim_sprite);
+				}
+			}
+		}
+		
 	}
 /* Copyright 2024 Springroll Games / Yosi */

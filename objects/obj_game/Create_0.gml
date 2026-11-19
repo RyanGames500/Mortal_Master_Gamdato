@@ -186,6 +186,7 @@ stage_step = 0;			// 0 = sin elegir, 1 = eligiendo, 2 = elegido (cuenta atrás)
 stage_cursor = 0;
 stage_atk_prev = false;
 stage_has_acid = stage_get(stage_id).has_acid;	// true solo en el escenario del ácido
+stage_has_ceiling = stage_get_has_ceiling(stage_id);
 stage_has_root = stage_get_has_root(stage_id);	// true solo en el escenario con remate de raíz (nuestro)
 stage_props = [];
 stage_props_for = -1;
@@ -199,4 +200,5 @@ olm_index = 0;
 olm_confirm = false;
 olm_cs = 0;
 olm_touch_prev = false;
-if (!instance_exists(obj_frost_overlay)) then instance_create_depth(0, 0, -10000, obj_frost_overlay);
+round_draws = 0; // empates 
+if (!instance_exists(obj_frost_overlay)) then instance_create_depth(0, 0, -10000, obj_frost_overlay); // ip pc 

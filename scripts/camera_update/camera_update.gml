@@ -39,13 +39,24 @@ function camera_update()
 	//En y la vista queda pegada abajo: el suelo se ve igual y el extra del zoom se agrega arriba
 	cam_x = clamp(_mean_x - (_vw * 0.5), 0, room_width - _vw);
 	cam_y = room_height - _vh;
+	var _lerp_y = 0.1;
+	if (ceil_fx_active())
+		{
+		cam_y -= ceil_fx_cam_up();
+		_lerp_y = 0.25;
+		}
 	
 	//Don't move the camera during rollback frames
 	if (!ggmr_session_is_in_rollback())
 		{
 		//Smoothly move the camera to the goal coordinates
 		cam_x_display = lerp(cam_x_display, cam_x, 0.1);
-		cam_y_display = lerp(cam_y_display, cam_y, 0.1);
+		cam_y_display = lerp(cam_y_display, cam_y, _lerp_y);
+		
+		if (ceil_fx_active() && (CEIL_FX_TOTAL - obj_game.ending_frame) == CEIL_RISE)
+			{
+			cam_shake = max(cam_shake, 40);
+			}
 		
 		//Camera shake
 		cam_x_display += choose(-cam_shake, cam_shake);

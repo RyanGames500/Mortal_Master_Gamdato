@@ -37,6 +37,7 @@ function mayel_character_init()
 	
 	//Gameplay sprites
 	sprites[$ "idle"			] = spr_mayel_idle;
+	sprites[$ "win"				] = spr_mayel_win
 	sprites[$ "crouch"			] = spr_mayel_crouch;
 	sprites[$ "walk_forward"	] = spr_mayel_walk;
 	sprites[$ "walk_backward"	] = spr_mayel_walk_backward;

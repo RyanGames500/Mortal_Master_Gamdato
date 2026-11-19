@@ -40,6 +40,12 @@ while (!is_undefined(_e)) {
 	//  LEADERBOARDS & SCORES
 	// =====================================================================
 	case "submit_completed": // { table, response, best_score }
+	if (_e.table == SURVIVAL_LB_TABLE && !is_undefined(global.survival))
+		{
+		global.survival.sub = _e.response;
+		global.survival.sub_t = global.survival.t;
+		break;
+		}
 	switch (_e.response){
 	case "record":       show_message_async("New record!"); break;
 	case "saved":        show_message_async("Score Submitted!"); break;
@@ -48,8 +54,10 @@ while (!is_undefined(_e)) {
 	}
 	break;
 
-	case "view_loaded":              // gmda_loadLeaderboardView -> { tag, response.scores, response.player_score }
-	case "players_search_completed": // gmda_searchPlayers -> { response.scores }
+	case "view_loaded":
+	lb_on_view(_e);
+	break;// gmda_loadLeaderboardView -> { tag, response.scores, response.player_score }
+	case "players_search_completed":
 	gmda_logResponse(_e);
 	break;
 

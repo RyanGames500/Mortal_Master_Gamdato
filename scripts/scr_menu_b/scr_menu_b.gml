@@ -36,11 +36,11 @@ function menu_b_desc(_name)
 	{
 	if (string_pos("ACCEPT ", _name) == 1) then return "Let this player into your lobby.";
 	if (string_pos("KICK ", _name) == 1) then return "Remove this player from the lobby.";
+	if (_name == "SURVIVAL") then return menu_b_survival_desc();
 	switch (_name)
 		{
 		case "LOCAL VS":				return "1v1 on the same machine.";
 		case "ARCADE":					return "Fight the CPU all the way to the final boss.";
-		case "SURVIVAL":				return "Hold out against rival after rival.";
 		case "ONLINE MATCHMAKING":		return "Find a rival or play a private room.\nRollback netcode.";
 		case "REPLAYS":					return "Watch your saved fights again.";
 		case "SETTINGS":				return "Volume, CRT effect, name and more.";
@@ -48,6 +48,8 @@ function menu_b_desc(_name)
 		case "EXIT":					return "Leave the game.";
 		case "QUICK PLAY":				return "Find a rival right now.";
 		case "SALA PRIVADA":			return "Play a friend with a lobby code.";
+		case "START RUN":				return "Begin a new run.\nHow far can you go?";
+		case "LEADERBOARD":				return "See the best survivors in the world.";
 		case "SET LOBBY CODE":			return "Create a lobby with your own code.";
 		case "JOIN LOBBY BY CODE":		return "Enter a friend's code to join.";
 		case "READY!":					return "Tell the lobby you are ready to fight.";
@@ -652,4 +654,372 @@ function menu_b_button(_x, _y, _w, _h, _label, _hover, _col, _txt_col, _fade, _s
 	draw_set_color(_txt_col);
 	draw_text_transformed(_x + (_w * 0.5), _y + (_h * 0.5), _label, 1.0 * _s, 1.0 * _s, 0);
 	draw_set_alpha(1);
+	}
+
+function menu_b_survival_desc()
+	{
+	var _d = "Hold out against rival after rival.";
+	if (!variable_global_exists("_gmda_table_count")) then return _d;
+	var _best = lb_num(gmda_getBestscore(SURVIVAL_LB_TABLE));
+	if (_best > 0)
+		{
+		_d += "\nBest: " + lb_fmt(_best);
+		var _pos = lb_num(gmda_getPlayerpos(SURVIVAL_LB_TABLE));
+		if (_pos > 0) then _d += " | World #" + string(_pos);
+		}
+	return _d;
+	}
+
+function lb_init()
+	{
+	if (variable_global_exists("lb")) then return;
+	global.lb = {tab: 0, req: -1, t: 0, periods: ["all", "weekly", "daily"], tabs: []};
+	for (var _i = 0; _i < 3; _i++)
+		{
+		array_push(global.lb.tabs, {st: 0, pend: false, stale: false, t: -100000, rows: [], me: undefined});
+		}
+	}
+
+function lb_num(_v)
+	{
+	if (is_real(_v)) then return _v;
+	if (is_string(_v) && string_digits(_v) != "") then return real(string_digits(_v));
+	return 0;
+	}
+
+function lb_fmt(_n)
+	{
+	var _s = string(floor(_n));
+	var _o = "";
+	var _l = string_length(_s);
+	for (var _i = 1; _i <= _l; _i++)
+		{
+		_o += string_char_at(_s, _i);
+		if (((_l - _i) mod 3) == 0 && _i < _l) then _o += ",";
+		}
+	return _o;
+	}
+
+function lb_get(_cd, _key)
+	{
+	if (!is_struct(_cd)) then return "-";
+	var _v = _cd[$ _key];
+	if (is_undefined(_v)) then return "-";
+	var _s = string(_v);
+	if (_s == "") then return "-";
+	return _s;
+	}
+
+function lb_row(_r, _idx)
+	{
+	var _cd = _r[$ "custom_data"];
+	if (is_string(_cd))
+		{
+		try
+			{
+			_cd = json_parse(_cd);
+			}
+		catch (_ex)
+			{
+			_cd = undefined;
+			}
+		}
+	var _rank = lb_num(_r[$ "rank"]);
+	if (_rank <= 0) then _rank = _idx + 1;
+	var _nm = _r[$ "player_name"];
+	return {
+		rank: _rank,
+		name: is_undefined(_nm) ? "?" : string(_nm),
+		score: lb_num(_r[$ "score"]),
+		wins: lb_get(_cd, "wins"),
+		rk: lb_get(_cd, "rank"),
+		ch: lb_get(_cd, "char"),
+		combo: lb_get(_cd, "combo"),
+		me: false
+		};
+	}
+
+function lb_pump()
+	{
+	var _d = global.lb;
+	if (_d.req != -1) then return;
+	var _pick = -1;
+	if (_d.tabs[_d.tab].pend)
+		{
+		_pick = _d.tab;
+		}
+	else
+		{
+		for (var _i = 0; _i < 3; _i++)
+			{
+			if (_d.tabs[_i].pend)
+				{
+				_pick = _i;
+				break;
+				}
+			}
+		}
+	if (_pick == -1) then return;
+	var _tb = _d.tabs[_pick];
+	_tb.pend = false;
+	if (!gmda_isSessionActive() || !gmda_loadLeaderboardView(SURVIVAL_LB_TABLE, _d.periods[_pick]))
+		{
+		if (_tb.st != 2) then _tb.st = 3;
+		return;
+		}
+	_d.req = _pick;
+	_d.t = current_time;
+	}
+
+function lb_request(_tab)
+	{
+	lb_init();
+	var _tb = global.lb.tabs[_tab];
+	_tb.pend = true;
+	if (_tb.st != 2) then _tb.st = 1;
+	lb_pump();
+	}
+
+function lb_select(_tab)
+	{
+	lb_init();
+	var _d = global.lb;
+	_d.tab = _tab;
+	var _tb = _d.tabs[_tab];
+	if (_tb.st != 2 || (current_time - _tb.t) > 20000) then lb_request(_tab);
+	}
+
+function lb_tick()
+	{
+	lb_init();
+	var _d = global.lb;
+	if (_d.req != -1 && (current_time - _d.t) > 15000)
+		{
+		var _tt = _d.tabs[_d.req];
+		if (_tt.st != 2) then _tt.st = 3;
+		_d.req = -1;
+		}
+	lb_pump();
+	}
+
+function lb_on_view(_e)
+	{
+	lb_init();
+	var _d = global.lb;
+	var _i = _d.req;
+	if (_i < 0) then return;
+	_d.req = -1;
+	var _tb = _d.tabs[_i];
+	var _resp = _e[$ "response"];
+	if (_e[$ "success"] != true || !is_struct(_resp))
+		{
+		if (_tb.st != 2) then _tb.st = 3;
+		}
+	else
+		{
+		var _myname = gmda_getPlayername();
+		var _me = undefined;
+		var _ps = _resp[$ "player_score"];
+		if (is_struct(_ps) && lb_num(_ps[$ "rank"]) > 0)
+			{
+			_ps[$ "player_name"] = _myname;
+			_me = lb_row(_ps, 0);
+			}
+		var _rows = [];
+		var _sc = _resp[$ "scores"];
+		if (is_array(_sc))
+			{
+			var _n = min(10, array_length(_sc));
+			for (var _k = 0; _k < _n; _k++)
+				{
+				if (is_struct(_sc[_k]))
+					{
+					var _row = lb_row(_sc[_k], _k);
+					_row.me = (_row.name == _myname) || (!is_undefined(_me) && _row.rank == _me.rank);
+					array_push(_rows, _row);
+					}
+				}
+			}
+		_tb.rows = _rows;
+		_tb.me = _me;
+		_tb.st = 2;
+		_tb.t = current_time;
+		}
+	lb_pump();
+	}
+
+function lb_tab_rect(_i, _s, _ox, _oy)
+	{
+	var _px = 180 + (_i * 190);
+	return {l: _ox + (_px * _s), t: _oy + (150 * _s), r: _ox + ((_px + 182) * _s), b: _oy + (184 * _s)};
+	}
+
+function lb_retry_rect(_s, _ox, _oy)
+	{
+	return {l: _ox + (500 * _s), t: _oy + (490 * _s), r: _ox + (796 * _s), b: _oy + (540 * _s)};
+	}
+
+function lb_quad(_x1, _y1, _x2, _y2, _sk, _col, _a, _s, _ox, _oy)
+	{
+	menu_b_para(_ox + ((_x1 + _sk) * _s), _oy + (_y1 * _s), (_x2 - _x1) * _s, (_y2 - _y1) * _s, _sk * _s, _col, _a);
+	}
+
+function lb_txt(_x, _y, _str, _px, _col, _al, _a, _sh, _s, _ox, _oy, _mw = 0)
+	{
+	var _sc = (_px / 48) * _s;
+	draw_set_font(fnt_menu);
+	draw_set_halign(_al);
+	draw_set_valign(fa_middle);
+	draw_set_alpha(_a);
+	var _w = max(1, string_width(_str));
+	if (_mw > 0 && _w * _sc > _mw * _s)
+		{
+		_sc = (_mw * _s) / _w;
+		}
+	var _dx = _ox + (_x * _s);
+	var _dy = _oy + (_y * _s);
+	if (_sh > 0)
+		{
+		draw_set_color(c_black);
+		draw_text_transformed(_dx + (_sh * _s), _dy + (_sh * _s), _str, _sc, _sc, 0);
+		}
+	draw_set_color(_col);
+	draw_text_transformed(_dx, _dy, _str, _sc, _sc, 0);
+	}
+
+function lb_draw_row(_r, _y, _alt, _s, _ox, _oy, _fade)
+	{
+	var _gray = make_colour_rgb(138, 142, 164);
+	var _gold = make_colour_rgb(255, 200, 60);
+	var _silv = make_colour_rgb(200, 204, 216);
+	var _bron = make_colour_rgb(217, 140, 82);
+	var _ink = _r.me ? MENU_B_INK : c_white;
+	var _sh = _r.me ? 0 : 2;
+
+	if (_r.me)
+		{
+		lb_quad(190, _y - 17, 1100, _y + 17, 16, MENU_B_ACC, _fade, _s, _ox, _oy);
+		}
+	else if (_alt)
+		{
+		lb_quad(190, _y - 17, 1100, _y + 17, 16, make_colour_rgb(26, 29, 42), 0.8 * _fade, _s, _ox, _oy);
+		}
+
+	var _rc = _gray;
+	if (_r.rank == 1) then _rc = _gold;
+	else if (_r.rank == 2) then _rc = _silv;
+	else if (_r.rank == 3) then _rc = _bron;
+	if (_r.me) then _rc = MENU_B_INK;
+
+	var _kc = MENU_B_TEXT;
+	if (_r.me) then _kc = MENU_B_INK;
+	else if (_r.rk == "S") then _kc = _gold;
+	else if (_r.rk == "A") then _kc = MENU_B_ACC;
+
+	lb_txt(232, _y, string(_r.rank), 24, _rc, fa_center, _fade, _sh, _s, _ox, _oy, 60);
+	lb_txt(290, _y, _r.name, 24, _ink, fa_left, _fade, _sh, _s, _ox, _oy, 300);
+	lb_txt(640, _y, lb_fmt(_r.score), 24, _r.me ? MENU_B_INK : _gold, fa_right, _fade, _sh, _s, _ox, _oy, 170);
+	lb_txt(720, _y, _r.wins, 24, _ink, fa_center, _fade, _sh, _s, _ox, _oy, 70);
+	lb_txt(800, _y, _r.rk, 24, _kc, fa_center, _fade, _sh, _s, _ox, _oy, 70);
+	lb_txt(930, _y, _r.ch, 22, _ink, fa_center, _fade, _sh, _s, _ox, _oy, 150);
+	lb_txt(1045, _y, _r.combo, 24, _ink, fa_center, _fade, _sh, _s, _ox, _oy, 80);
+	}
+
+function menu_b_draw_ranking(_s, _ox, _oy, _fade, _game)
+	{
+	lb_init();
+	var _d = global.lb;
+	var _tb = _d.tabs[_d.tab];
+	var _gray = make_colour_rgb(138, 142, 164);
+	var _green = make_colour_rgb(140, 240, 176);
+	var _off = (_tb.st == 3);
+	var _acc = _off ? MENU_B_RED : MENU_B_ACC;
+
+	lb_quad(150, 40, 1130, 120, 28, MENU_B_DARK, 0.97 * _fade, _s, _ox, _oy);
+	lb_quad(150, 40, 166, 120, 28, MENU_B_ACC, _fade, _s, _ox, _oy);
+	lb_txt(640, 82, "SURVIVAL RANKING", 52, c_white, fa_center, _fade, 2, _s, _ox, _oy, 760);
+
+	lb_quad(150, 140, 1130, 656, 28, MENU_B_DARK, 0.9 * _fade, _s, _ox, _oy);
+	lb_quad(150, 140, 160, 656, 28, _acc, _fade, _s, _ox, _oy);
+
+	var _names = ["ALL TIME", "WEEKLY", "DAILY"];
+	for (var _i = 0; _i < 3; _i++)
+		{
+		var _on = (_i == _d.tab);
+		var _px = 180 + (_i * 190);
+		lb_quad(_px, 150, _px + 170, 184, 12, _on ? MENU_B_ACC : make_colour_rgb(34, 36, 47), _fade, _s, _ox, _oy);
+		lb_txt(_px + 91, 167, _names[_i], 22, _on ? MENU_B_INK : _gray, fa_center, _fade, _on ? 0 : 1, _s, _ox, _oy, 140);
+		if (!_game)
+			{
+			var _tr = lb_tab_rect(_i, _s, _ox, _oy);
+			array_push(hit_rects, {kind: "lbtab", i: _i, l: _tr.l, t: _tr.t, r: _tr.r, b: _tr.b});
+			}
+		}
+
+	if (_tb.st == 3)
+		{
+		lb_txt(640, 340, "NO CONNECTION", 60, c_white, fa_center, _fade, 2, _s, _ox, _oy, 760);
+		lb_txt(640, 400, "The ranking needs an internet connection.", 26, _gray, fa_center, _fade, 1, _s, _ox, _oy, 820);
+		lb_txt(640, 436, "Your scores are saved and will be sent when you are back online.", 22, _gray, fa_center, _fade, 1, _s, _ox, _oy, 860);
+		var _pulse = 0.5 + (0.5 * sin(current_time / 300));
+		lb_quad(500, 490, 780, 540, 16, MENU_B_ACC, (0.5 + (_pulse * 0.5)) * _fade, _s, _ox, _oy);
+		lb_txt(644, 515, "RETRY", 34, MENU_B_INK, fa_center, _fade, 0, _s, _ox, _oy, 240);
+		if (!_game)
+			{
+			var _rr = lb_retry_rect(_s, _ox, _oy);
+			array_push(hit_rects, {kind: "lbretry", i: 0, l: _rr.l, t: _rr.t, r: _rr.r, b: _rr.b});
+			}
+		}
+	else if (_tb.st != 2)
+		{
+		var _a = (0.55 + (0.45 * sin(current_time / 250))) * _fade;
+		lb_txt(640, 360, "LOADING...", 48, c_white, fa_center, _a, 2, _s, _ox, _oy, 600);
+		}
+	else
+		{
+		lb_txt(232, 214, "#", 20, _gray, fa_center, _fade, 1, _s, _ox, _oy);
+		lb_txt(290, 214, "PLAYER", 20, _gray, fa_left, _fade, 1, _s, _ox, _oy);
+		lb_txt(640, 214, "SCORE", 20, _gray, fa_right, _fade, 1, _s, _ox, _oy);
+		lb_txt(720, 214, "WINS", 20, _gray, fa_center, _fade, 1, _s, _ox, _oy);
+		lb_txt(800, 214, "RANK", 20, _gray, fa_center, _fade, 1, _s, _ox, _oy);
+		lb_txt(930, 214, "CHAR", 20, _gray, fa_center, _fade, 1, _s, _ox, _oy);
+		lb_txt(1045, 214, "COMBO", 20, _gray, fa_center, _fade, 1, _s, _ox, _oy);
+
+		var _n = array_length(_tb.rows);
+		if (_n == 0)
+			{
+			lb_txt(640, 380, "NO SCORES YET", 44, c_white, fa_center, _fade, 2, _s, _ox, _oy, 600);
+			lb_txt(640, 430, "Be the first survivor of this period.", 24, _gray, fa_center, _fade, 1, _s, _ox, _oy, 700);
+			}
+		for (var _k = 0; _k < _n; _k++)
+			{
+			lb_draw_row(_tb.rows[_k], 248 + (_k * 35), (_k mod 2) == 0, _s, _ox, _oy, _fade);
+			}
+
+		var _me = _tb.me;
+		if (!is_undefined(_me) && _me.rank > 10)
+			{
+			var _pin = {rank: _me.rank, name: _me.name, score: _me.score, wins: _me.wins, rk: _me.rk, ch: _me.ch, combo: _me.combo, me: true};
+			lb_draw_row(_pin, 627, false, _s, _ox, _oy, _fade);
+			}
+		else if (!is_undefined(_me))
+			{
+			lb_txt(640, 630, "YOUR POSITION  #" + string(_me.rank), 20, _green, fa_center, _fade, 1, _s, _ox, _oy, 600);
+			}
+		else if (_n > 0)
+			{
+			lb_txt(640, 630, "SET A SCORE IN THIS PERIOD TO APPEAR HERE", 20, _gray, fa_center, _fade, 1, _s, _ox, _oy, 760);
+			}
+		}
+
+	if (_game)
+		{
+		var _hint = _off ? "LIGHT: BACK   |   CLICK RETRY" : "LEFT / RIGHT: PERIOD   |   LIGHT: BACK";
+		lb_txt(640, 692, _hint, 22, MENU_B_ACC, fa_center, _fade, 0, _s, _ox, _oy, 900);
+		}
+
+	draw_set_alpha(1);
+	draw_set_color(c_white);
+	draw_set_halign(fa_left);
+	draw_set_valign(fa_middle);
 	}

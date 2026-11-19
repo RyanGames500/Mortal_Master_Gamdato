@@ -33,6 +33,7 @@ function danny_character_init()
 
 	//Gameplay sprites
 	sprites[$ "idle"			] = spr_danny_idle;
+	sprites[$ "win"				] = spr_danny_win;	
 	sprites[$ "crouch"			] = spr_danny_crouch;
 	sprites[$ "walk_forward"	] = spr_danny_walk;
 	sprites[$ "walk_backward"	] = spr_danny_walk_backward;

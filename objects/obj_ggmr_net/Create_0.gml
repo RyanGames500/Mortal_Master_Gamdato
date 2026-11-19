@@ -15,8 +15,8 @@ if (instance_number(obj_ggmr_net) > 1)
 randomize();
 
 //Ports
-net_port = GGMR_PORT;
-
+//net_port = GGMR_PORT;
+net_port = GGMR_PORT + ((prueba_instancia_num() == 2) ? 1 : 0);	//pruebas: la 2da ventana usa otro puerto
 //Sockets
 net_socket = network_create_socket_ext(network_socket_udp, net_port);
 if (net_socket == -1)
