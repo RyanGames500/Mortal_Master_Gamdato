@@ -33,6 +33,7 @@ function scar_character_init()
 
 	//Gameplay sprites
 	sprites[$ "idle"			] = spr_scar_idle;
+	sprites[$ "win"				] = spr_scar_win;	
 	sprites[$ "crouch"			] = spr_scar_crouch;
 	sprites[$ "walk_forward"	] = spr_scar_walk;
 	sprites[$ "walk_backward"	] = spr_scar_walk_backward;

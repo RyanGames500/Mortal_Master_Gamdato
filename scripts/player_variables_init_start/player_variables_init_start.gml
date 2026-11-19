@@ -68,6 +68,9 @@ function player_variables_init_start()
 	jump_impulse_done = false;
 	air_hits = 0;
 	air_hit_limit = 3;
+	//Pose de victoria (nuestro)
+	win_pose = false;		//ya está haciendo la pose
+	win_wait = 0;			//espera antes de empezarla 
 	combo_hits = 0;
 	combo_active = false;
 	combo_show = 0;

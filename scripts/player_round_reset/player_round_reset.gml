@@ -29,4 +29,7 @@ function player_round_reset()
 	npc_seq = -1;
 	npc_linger = 0;
 	npc_back = -1;
+	//Pose de victoria
+	win_pose = false;
+	win_wait = 0;	
 	}

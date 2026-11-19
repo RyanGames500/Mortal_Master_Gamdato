@@ -8,31 +8,37 @@ function demon_proyectil(_override_phase)
 		case ATTACK_PHASE.start:
 			{
 			//Animation
-			anim_sprite = spr_demon_especial2; 
+			anim_sprite = spr_demon_especial2;
 			anim_frame = 0;
 			anim_speed = 0;
 			
-			attack_frame = 8;
+			attack_frame = 11;
 			
 			hsp = 0;
 			vsp = 0;
 			}
 		break;
 		
-		//Startup (frames 0 a 2)
+		//Startup (frames 0 a 6) - el proyectil sale en el frame 7
 		case 0:
 			{
 			attack_frame--;
 			
-			//Animation
-			if (attack_frame == 4) then anim_frame = 1;
+			//Animation (frames de 2 y 1 alternados)
+			var _t = 11 - attack_frame;
+			if (_t == 2) then anim_frame = 1;
+			if (_t == 3) then anim_frame = 2;
+			if (_t == 5) then anim_frame = 3;
+			if (_t == 6) then anim_frame = 4;
+			if (_t == 8) then anim_frame = 5;
+			if (_t == 9) then anim_frame = 6;
 			
-			//Dispara en el frame 2
+			//Dispara en el frame 7, desde la boca
 			if (attack_frame <= 0)
 				{
-				anim_frame = 2;
+				anim_frame = 7;
 				attack_phase = 1;
-				attack_frame = 30;
+				attack_frame = 27;
 				
 				//No se puede lanzar otro si ya hay uno en pantalla
 				var _exists = false;
@@ -46,7 +52,7 @@ function demon_proyectil(_override_phase)
 					}
 				if (!_exists)
 					{
-					var _hitbox = hitbox_create(151, -82, 1, 1, 20, 120);
+					var _hitbox = hitbox_create(110, -66, 1, 1, 20, 120);
 					_hitbox.destroy_on_stop = true;
 					_hitbox.custom_update = demon_proyectil_hitbox_update;
 					_hitbox.custom_draw = demon_proyectil_hitbox_draw;
@@ -64,19 +70,14 @@ function demon_proyectil(_override_phase)
 			}
 		break;
 		
-		//Recuperacion (frames 3 a 9)
+		//Recuperacion (frames 7 a 9, 9 frames cada uno)
 		case 1:
 			{
 			attack_frame--;
 			
 			//Animation
-			if (attack_frame == 28) then anim_frame = 3;
-			if (attack_frame == 24) then anim_frame = 4;
-			if (attack_frame == 20) then anim_frame = 5;
-			if (attack_frame == 16) then anim_frame = 6;
-			if (attack_frame == 12) then anim_frame = 7;
-			if (attack_frame == 8)  then anim_frame = 8;
-			if (attack_frame == 4)  then anim_frame = 9;
+			if (attack_frame == 18) then anim_frame = 8;
+			if (attack_frame == 9)  then anim_frame = 9;
 			
 			//Movement
 			player_move();

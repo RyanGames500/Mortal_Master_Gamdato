@@ -33,6 +33,7 @@ function blocky_character_init()
 
 	//Gameplay sprites
 	sprites[$ "idle"			] = spr_blocky_idle;
+	sprites[$ "win"				] = spr_blocky_win;	
 	sprites[$ "crouch"			] = spr_blocky_crouch;
 	sprites[$ "walk_forward"	] = spr_blocky_walk;
 	sprites[$ "walk_backward"	] = spr_blocky_walk_backward;

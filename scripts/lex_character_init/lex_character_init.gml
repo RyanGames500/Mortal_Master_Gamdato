@@ -24,6 +24,7 @@ function lex_character_init()
 	
 	//Gameplay sprites
 	sprites[$ "idle"			] = spr_lex_idle;
+	sprites[$ "win"				] = spr_lex_win;
 	sprites[$ "crouch"			] = spr_lex_crouch;
 	sprites[$ "walk_forward"	] = spr_lex_walk;
 	sprites[$ "walk_backward"	] = spr_lex_walk_backward;

@@ -200,4 +200,5 @@ olm_index = 0;
 olm_confirm = false;
 olm_cs = 0;
 olm_touch_prev = false;
-if (!instance_exists(obj_frost_overlay)) then instance_create_depth(0, 0, -10000, obj_frost_overlay);
+round_draws = 0; // empates 
+if (!instance_exists(obj_frost_overlay)) then instance_create_depth(0, 0, -10000, obj_frost_overlay); // ip pc 

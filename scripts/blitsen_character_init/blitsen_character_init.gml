@@ -33,6 +33,7 @@ function blitsen_character_init()
 
 	//Gameplay sprites
 	sprites[$ "idle"			] = spr_blitsen_idle;
+	sprites[$ "win"				] = spr_blitsen_win;	
 	sprites[$ "crouch"			] = spr_blitsen_crouch;
 	sprites[$ "walk_forward"	] = spr_blitsen_walk;
 	sprites[$ "walk_backward"	] = spr_blitsen_walk_backward;
