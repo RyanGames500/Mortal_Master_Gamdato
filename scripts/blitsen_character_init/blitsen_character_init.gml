@@ -63,6 +63,11 @@ function blitsen_character_init()
 	attacks[$ "heavy_crouch"	] = blitsen_heavy_crouch;
 	attacks[$ "heavy_aerial"	] = blitsen_heavy_aerial;
 
+	//Fatalities
+	fat_cabeza = spr_blitsen_fat_cabeza;
+	fat_cuerpo = spr_blitsen_fat_cuerpo;
+	fat_pies = spr_generic_fat_pies;
+
 	//sprite_inicial
 	anim_sprite = sprites[$ "idle"];
 

@@ -65,6 +65,11 @@ function scar_character_init()
 	attacks[$ "heavy_aerial"	] = scar_heavy_aerial;
 	attacks[$ "throw"			] = scar_throw;
 
+	//Fatalities
+	fat_cabeza = spr_scar_fat_cabeza;
+	fat_cuerpo = spr_scar_fat_cuerpo;
+	fat_pies = spr_generic_fat_pies;
+
 	//sprite_inicial
 	anim_sprite = sprites[$ "idle"];
 

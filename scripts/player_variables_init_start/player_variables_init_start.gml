@@ -84,6 +84,16 @@ function player_variables_init_start()
     acid_x = 0;
     acid_y = 0;
     acid_dir = 1;
+	//Fatality
+	fatal_type = FATALITY.none;	// qué fatality le hicieron a este jugador
+	fatal_x = 0;
+	fatal_dir = 1;
+	fatal_launch = 24;
+	fatal_timer = 0;			// contador del fatality en entrenamiento	
+	no_fatality = false;		// true en los jefes: sin fatality ni stage fatality
+	fat_cabeza = -1;			// arte de este char como víctima (cada char pone el suyo en su init)
+	fat_cuerpo = -1;
+	fat_pies = -1;	
 	ex_flash = 0;		//frames restantes del brillo de EX (nuestro)
 	ex_glow_color = make_colour_rgb(255, 40, 40);	//color del brillo, se puede cambiar por personaje (nuestro)
 	hp_top = 0;

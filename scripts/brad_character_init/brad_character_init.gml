@@ -66,6 +66,11 @@ function brad_character_init()
 	attacks[$ "heavy_aerial"	] = brad_heavy_aerial;
 	attacks[$ "throw"			] = brad_throw_brainbuster;
 
+	//Fatalities
+	fat_cabeza = spr_brad_fat_cabeza;
+	fat_cuerpo = spr_brad_fat_cuerpo;
+	fat_pies = spr_generic_fat_pies;
+
 	//sprite_inicial
 	anim_sprite = sprites[$ "idle"];
 

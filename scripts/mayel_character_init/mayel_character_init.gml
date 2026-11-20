@@ -69,6 +69,11 @@ function mayel_character_init()
 	attacks[$ "heavy_aerial"	] = mayel_heavy_aerial;
 	attacks[$ "throw"			] = mayel_throw;
 
+	//Fatalities
+	fat_cabeza = spr_mayel_fat_cabeza;
+	fat_cuerpo = spr_mayel_fat_cuerpo;
+	fat_pies = spr_generic_fat_pies;
+
 	//sprite_inicial
 	anim_sprite = sprites[$ "idle"];
 

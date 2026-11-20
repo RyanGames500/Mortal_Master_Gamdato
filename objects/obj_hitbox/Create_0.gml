@@ -39,3 +39,4 @@ has_hit_forward = false;
 has_hit_return = false;
 shake = 6;
 acid_finisher = false;	// true = este golpe puede mandar al rival al ácido si es el golpe mortal
+fatality = FATALITY.none;	// fatality del personaje si este golpe mata (nuestro)

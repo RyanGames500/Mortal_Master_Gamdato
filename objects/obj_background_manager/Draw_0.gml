@@ -55,3 +55,4 @@ if (ceil_fx_active())
 stage_props_draw();
 //stage_npcs_draw();
 game_draw_super_bg();
+fatality_draw_dark();

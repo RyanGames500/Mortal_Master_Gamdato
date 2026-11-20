@@ -6,6 +6,7 @@ function demon_character_init()
 	{
 	//Properties
 	character_name = "DEMON";
+	no_fatality = true;		// jefe: no se le puede hacer fatality ni stage fatality	
 	can_use_props = false;	// jefe: no usa objetos del escenario (nuestro)
 	walk_speed = 5;
 	dash_speed = 13;

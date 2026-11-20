@@ -43,6 +43,7 @@ function blocky_runkick_ex(_override_phase)
 				_hitbox.high = true;
 				_hitbox.knockback = 8;
 				_hitbox.hitstun = 20;
+				_hitbox.fatality = FATALITY.explotar;				
 				}
 			
 			player_move();

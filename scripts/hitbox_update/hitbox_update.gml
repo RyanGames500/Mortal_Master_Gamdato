@@ -197,7 +197,18 @@ function hitbox_update()
 						var _final_damage = other.damage * _scale;
 						if (_ch == 1) then _final_damage *= 1.2;	// counter: +20% de dano
 						if (_ch == 2) then _final_damage *= 1.5;	// punish counter: +50% de dano						
-						if (other.acid_finisher && (obj_game.stage_has_acid || obj_game.stage_has_root || obj_game.stage_has_ceiling) && ceil(hp - _final_damage) <= 0)
+
+						// Fatality del personaje (nuestro): si este golpe mata en la ronda que gana la pelea
+						if (other.fatality != FATALITY.none && (ceil(hp - _final_damage) <= 0 || (global.training && global.training_fat)) && fatality_can(id, other.owner, other.fatality))
+							{
+							fatal_type = other.fatality;
+							fatal_x = x;
+							fatal_dir = other.owner.facing;
+							fatal_launch = max(other.launch_speed, 24);
+							other.hitlag = 0;	// instantáneo: nadie se congela
+							}
+
+						if (other.acid_finisher && fatal_type == FATALITY.none && !no_fatality && (obj_game.stage_has_acid || obj_game.stage_has_root || obj_game.stage_has_ceiling) && ceil(hp - _final_damage) <= 0)
 							{
 							var _killer_wins = (other.owner.player_number == 0) ? obj_game.p1_wins : obj_game.p2_wins;
 							if (_killer_wins >= obj_game.rounds_to_win - 1)
@@ -231,6 +242,11 @@ function hitbox_update()
 							player_damage(5);
 							}
 						frozen = false;
+						if (fatal_type != FATALITY.none)
+							{
+							hsp = 0;	
+							vsp = 0;
+							}						
 						// Cámara: los golpes que lanzan o tiran al suelo tiemblan como el aterrizaje
 						var _shake = other.shake;
 						if (other.launch_speed > 0 || other.knockdown) then _shake = max(_shake, SHAKE_HEAVY);

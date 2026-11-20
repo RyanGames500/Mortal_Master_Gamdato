@@ -68,6 +68,11 @@ function saori_character_init()
 	attacks[$ "heavy_aerial"	] = saori_heavy_aerial;
 	//attacks[$ "throw"			] = blocky_throw;
 
+	//Fatalities
+	fat_cabeza = spr_saori_fat_cabeza;
+	fat_cuerpo = spr_saori_fat_cuerpo;
+	fat_pies = spr_generic_fat_pies;
+
 	//sprite_inicial
 	anim_sprite = sprites[$ "idle"];
 

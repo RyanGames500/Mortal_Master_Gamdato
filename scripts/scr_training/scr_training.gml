@@ -24,6 +24,7 @@ global.training_ml_idx = 0;			// personaje que se esta viendo
 global.training_ml_names = ["BEAR", "BLITSEN", "JOE", "BRAD", "DANNY", "DEMON", "LEX", "MARIEL", "MAYEL", "SAORI", "SCAR", "NINJA"];
 global.training_fdb = [];			// frame data guardado de cada movimiento (se llena solo)
 global.training_ml_tab = 0;			// 0 = especiales, 1 = normales
+global.training_fat = false;		// true = cualquier golpe con fatality lo hace al instante (F6)
 /* Entradas del dummy (jugador 2) segun el modo elegido. Se llama desde input_collect_local. */
 function training_dummy_input(_buffer)
 	{
@@ -57,6 +58,7 @@ function training_dummy_input(_buffer)
 /* Reinicia posiciones y estados de los dos jugadores (igual que entre rondas). Se llama desde obj_game. */
 function training_reset()
 	{
+	fatality_music_stop();		
 	with (obj_hitbox) instance_destroy();
 	with (obj_vfx) instance_destroy();
 	with (obj_blood) instance_destroy();
@@ -541,7 +543,21 @@ function training_update()
 	if (keyboard_check_pressed(vk_f2)) then training_reset();
 	if (keyboard_check_pressed(vk_f4)) then training_rec_set((global.training_rec_state == 1) ? 0 : 1);
 	if (keyboard_check_pressed(vk_f5)) then training_rec_set((global.training_rec_state == 2) ? 0 : 2);
+	if (keyboard_check_pressed(vk_f6)) then global.training_fat = !global.training_fat;
 	
+	// Prueba de fatalities: cuando termina la animación, se reinicia solo
+	var _fat_done = false;
+	with (obj_player)
+		{
+		if (fatal_type != FATALITY.none)
+			{
+			fatal_timer++;
+			if (fatal_timer == 1) then fatality_music_play();
+			hsp = 0;
+			if (fatal_timer >= FATAL_FX_TOTAL) then _fat_done = true;
+			}
+		}
+	if (_fat_done) then training_reset();	
 	// Frame data: se mide ANTES de rellenar la vida (si no, se pierde el dano)
 	if (global.training_framedata)
 		{
@@ -925,6 +941,13 @@ function training_draw_hud()
 	training_draw_inputs();
 	training_draw_damage();
 	training_draw_rec();
+	if (global.training_fat)
+		{
+		var _ha = draw_get_halign();
+		draw_set_halign(fa_center);
+		training_draw_txt(display_get_gui_width() * 0.5, 140, "FATALITY TEST [F6]", 0.5, c_red);
+		draw_set_halign(_ha);
+		}	
 	}
 
 /* Vuelve al menu principal desde una partida local (nuestro). Solo offline. */

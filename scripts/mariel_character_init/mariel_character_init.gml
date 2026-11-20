@@ -58,7 +58,11 @@ function mariel_character_init()
 	attacks[$ "heavy_aerial"	] = mariel_heavy_aerial;
 	attacks[$ "throw"			] = mayel_throw;
 	
-	
+	//Fatalities
+	fat_cabeza = spr_mariel_fat_cabeza;
+	fat_cuerpo = spr_mariel_fat_cuerpo;
+	fat_pies = spr_generic_fat_pies;
+
 	//sprite_inicial
 	anim_sprite = sprites[$ "idle"];
 	//Passive script

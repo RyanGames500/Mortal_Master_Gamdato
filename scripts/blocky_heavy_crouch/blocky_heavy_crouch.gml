@@ -54,6 +54,7 @@ function blocky_heavy_crouch(_override_phase)
 				_hitbox.launch_speed = 30;   // vuelo de ~55 frames; el real del video serían ~43
 				_hitbox.knockback = 15;       // casi vertical
 				_hitbox.knockdown = true;    // cae acostado
+				_hitbox.fatality = FATALITY.decapitar;				
 				}
 			
 			//Movement

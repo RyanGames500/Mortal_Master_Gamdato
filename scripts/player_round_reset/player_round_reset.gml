@@ -31,5 +31,7 @@ function player_round_reset()
 	npc_back = -1;
 	//Pose de victoria
 	win_pose = false;
-	win_wait = 0;	
+	win_wait = 0;
+	fatal_type = FATALITY.none;
+	fatal_timer = 0;	
 	}

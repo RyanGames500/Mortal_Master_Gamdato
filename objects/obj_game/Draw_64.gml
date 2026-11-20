@@ -278,7 +278,7 @@ if (game_meta_state == GAME_META_STATE.round_restart || game_meta_state == GAME_
 		if (player_number == 0) _p1 = id;
 		if (player_number == 1) _p2 = id;
 		if (hp <= 0) _any_ko = true;
-		if (acid_ko) _any_acid = true;
+		if (acid_ko || fatal_type != FATALITY.none) _any_acid = true;
 		}
 	
 	if (_p1 != noone && _p2 != noone)

@@ -69,6 +69,11 @@ function blocky_character_init()
 	attacks[$ "heavy_aerial"	] = blocky_heavy_aerial;
 	attacks[$ "throw"			] = blocky_throw;
 
+	//Fatalities
+	fat_cabeza = spr_blocky_fat_cabeza;
+	fat_cuerpo = spr_blocky_fat_cuerpo;
+	fat_pies = spr_blocky_fat_pies;
+
 	//sprite_inicial
 	anim_sprite = sprites[$ "idle"];
 

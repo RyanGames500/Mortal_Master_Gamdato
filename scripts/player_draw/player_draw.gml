@@ -7,7 +7,13 @@ if (obj_game.bail_active && id == obj_game.bail_rival)
 	{
 	bail_draw_world();
 	return;
-	}		
+	}
+	//Fatality (nuestro): el rival lo dibuja el fatality
+		if (fatality_on(id))
+		{
+		fatality_draw(id);
+		return;
+		}	
 	if (obj_game.game_meta_state == GAME_META_STATE.starting && obj_game.starting_frame > INTRO_END)
 		{
 		if (intro_player_draw(id)) then return;

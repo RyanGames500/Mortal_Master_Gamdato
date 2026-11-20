@@ -452,7 +452,8 @@ function game_advance_frame(_inputs_array, _relative_frame = undefined)
 				}
 
 				var _ko_slow = false;
-				var _ko_age = KO_HOLD_FRAMES  - ending_frame;
+				var _ko_age = (fatality_active() ? FATAL_FX_TOTAL : KO_HOLD_FRAMES) - ending_frame;
+				if (!_in_rollback && fatality_active()) then fatality_music_play();				
 				if (_ko_age >= 0 && _ko_age < 60)
 					{
 					var _acid_now = false;

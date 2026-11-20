@@ -54,7 +54,11 @@ function lex_character_init()
 	attacks[$ "heavy_crouch"	] = lex_heavy_crouch;
 	attacks[$ "heavy_aerial"	] = lex_heavy_aerial;
 	
-	
+	//Fatalities
+	fat_cabeza = spr_lex_fat_cabeza;
+	fat_cuerpo = spr_lex_fat_cuerpo;
+	fat_pies = spr_generic_fat_pies;
+
 	//sprite_inicial
 	anim_sprite = sprites[$ "idle"];
 	//Passive script
