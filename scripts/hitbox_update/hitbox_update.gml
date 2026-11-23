@@ -198,14 +198,10 @@ function hitbox_update()
 						if (_ch == 1) then _final_damage *= 1.2;	// counter: +20% de dano
 						if (_ch == 2) then _final_damage *= 1.5;	// punish counter: +50% de dano						
 
-						// Fatality del personaje (nuestro): si este golpe mata en la ronda que gana la pelea
+						// Fatality del personaje: si este golpe mata en la ronda que gana la pelea
 						if (other.fatality != FATALITY.none && (ceil(hp - _final_damage) <= 0 || (global.training && global.training_fat)) && fatality_can(id, other.owner, other.fatality))
 							{
-							fatal_type = other.fatality;
-							fatal_x = x;
-							fatal_dir = other.owner.facing;
-							fatal_launch = max(other.launch_speed, 24);
-							other.hitlag = 0;	// instantáneo: nadie se congela
+							fatality_start(id, other);
 							}
 
 						if (other.acid_finisher && fatal_type == FATALITY.none && !no_fatality && (obj_game.stage_has_acid || obj_game.stage_has_root || obj_game.stage_has_ceiling) && ceil(hp - _final_damage) <= 0)

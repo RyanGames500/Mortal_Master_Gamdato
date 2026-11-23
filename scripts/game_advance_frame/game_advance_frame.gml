@@ -450,7 +450,7 @@ function game_advance_frame(_inputs_array, _relative_frame = undefined)
 						}
 					}
 				}
-
+				if (!_in_rollback) then fatality_shake();
 				var _ko_slow = false;
 				var _ko_age = (fatality_active() ? FATAL_FX_TOTAL : KO_HOLD_FRAMES) - ending_frame;
 				if (!_in_rollback && fatality_active()) then fatality_music_play();				

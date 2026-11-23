@@ -557,7 +557,8 @@ function training_update()
 			if (fatal_timer >= FATAL_FX_TOTAL) then _fat_done = true;
 			}
 		}
-	if (_fat_done) then training_reset();	
+	if (_fat_done) then training_reset();
+	fatality_shake();	
 	// Frame data: se mide ANTES de rellenar la vida (si no, se pierde el dano)
 	if (global.training_framedata)
 		{

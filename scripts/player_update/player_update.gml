@@ -633,22 +633,64 @@ function player_update(_inputs_array)
 		stage_props_check();	// objetos del escenario
 	stage_npc_check();		// personajes del escenario	
 	if (frozen && state != PLAYER_STATE.hitstun_ground) then frozen = false;
-	
+	//Hielo de Danny (nuestro): cuenta cuánto lleva congelado y cuándo se rompió
+	if (frozen)
+		{
+		frz_age++;
+		frz_break = -1;
+		}
+	else
+		{
+		if (frz_age > 0)
+			{
+			frz_break = 0;
+			frz_bx = x;
+			frz_by = y;
+			frz_bface = facing;
+			}
+		else if (frz_break >= 0)
+			{
+			frz_break++;
+			if (frz_break > ICE_BREAK_LEN) then frz_break = -1;
+			}
+		frz_age = 0;
+		}
+	//Fatality columna: se queda congelado en el golpe un momento y luego levanta el trofeo
+	if (fatal_trophy)
+		{
+		if (state == PLAYER_STATE.attacking)
+			{
+			attack_stop();
+			player_state_set(PLAYER_STATE.idle);
+			hsp = 0;
+			}
+		if (fatal_hold > 0)
+			{
+			fatal_hold--;
+			anim_sprite = fatal_hold_spr;
+			anim_frame = fatal_hold_img;
+			anim_speed = 0;
+			}
+		}
+
 	//Pose de victoria (nuestro): solo fuera del combate, el que va ganando y ya parado en idle
-	if (win_pose)
+	if (win_pose && fatal_hold <= 0)
 		{
 		anim_sprite = sprites[$ "win"];
 		anim_speed = win_anim_speed;
 		hsp = 0;
 		}
-	else if (obj_game.game_meta_state != GAME_META_STATE.running && state == PLAYER_STATE.idle && hp > 0 && variable_struct_exists(sprites, "win"))
+		else if ((obj_game.game_meta_state != GAME_META_STATE.running || fatal_trophy) && fatal_hold <= 0 && state == PLAYER_STATE.idle && hp > 0 && variable_struct_exists(sprites, "win"))
 		{
 		var _winner = true;
-		with (obj_player)
+		if (!fatal_trophy)
 			{
-			if (id != other.id && hp * other.hp_max >= other.hp * hp_max) then _winner = false;
+			with (obj_player)
+				{
+				if (id != other.id && hp * other.hp_max >= other.hp * hp_max) then _winner = false;
+				}
 			}
-		if (_winner && ++win_wait >= 40)
+		if (_winner && (fatal_trophy || ++win_wait >= 40))
 			{
 			win_pose = true;
 			anim_sprite = sprites[$ "win"];

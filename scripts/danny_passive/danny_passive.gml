@@ -6,7 +6,9 @@ function danny_passive()
 	{
 	var _special_cost = METER_COST_SPECIAL;
 	var _mine_cost = 15;
-	
+
+	danny_ninja_update();	// salto de pared y efectos 
+
 	// Danny tambien puede lanzar caminando hacia atras (incluye cancel de normales)
 	if (!(special_state_ok() || state == PLAYER_STATE.walk_backward)) then return;
 	
@@ -25,7 +27,22 @@ function danny_passive()
 				}
 			}
 		}
-	
+
+	//Cambio químico: abajo, abajo + medium 
+	if (meter_can_pay(_special_cost) && input_motion_check([STICK_DIR.down, STICK_DIR.neutral, STICK_DIR.down]))
+		{
+		if (input_pressed(INPUT.attack_light2))
+			{
+			if (attack_script != danny_swap)
+				{
+				meter_pay(_special_cost);
+				attack_stop();
+				attack_start(danny_swap);
+				return;
+				}
+			}
+		}
+
 	//Bola de hielo: cuarto de circulo hacia adelante + medium
 	if (meter_can_pay(_special_cost) && !danny_projectile_exists()
 		&& input_motion_check([STICK_DIR.down, STICK_DIR.forward_down, STICK_DIR.forward]))

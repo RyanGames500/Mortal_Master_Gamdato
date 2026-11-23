@@ -33,5 +33,20 @@ function player_round_reset()
 	win_pose = false;
 	win_wait = 0;
 	fatal_type = FATALITY.none;
-	fatal_timer = 0;	
+	fatal_timer = 0;
+	fatal_trophy = false;
+	fatal_hold = 0;
+	fatal_tongue = false;
+	frz_age = 0;
+	frz_break = -1;
+	//Danny: que no empiece la ronda escondido
+	if (variable_instance_exists(id, "swap_hide"))
+		{
+		swap_hide = false;
+		super_invuln = false;
+		wall_used = false;
+		dn_fx_wall = -1;
+		dn_fx_out = -1;
+		dn_fx_in = -1;
+		}	
 	}

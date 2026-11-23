@@ -70,8 +70,8 @@ function css_vs_draw()
 
 	var _feet = _gui_h * 0.86;
 	var _fr = current_time div 130;
-	css_b_fighter(_sprs[_i1], _fr, (_gui_w * 0.2) + _dl + _ox, _feet + _oy, 430, _s, false, -1, 0);
-	css_b_fighter(_sprs[_i2], _fr, (_gui_w * 0.8) + _dr + _ox, _feet + _oy, 430, _s, true, _pals[_i2], _same ? 1 : 0);
+	css_b_fighter(_sprs[_i1], _fr, (_gui_w * 0.2) + _dl + _ox, _feet + _oy, 430, _s, false, _pals[_i1], css_b_pal(_c1.char_id, false));
+	css_b_fighter(_sprs[_i2], _fr, (_gui_w * 0.8) + _dr + _ox, _feet + _oy, 430, _s, true, _pals[_i2], css_b_pal(_c2.char_id, _same));
 
 	var _ph = 96 * _s;
 	var _pw = 420 * _s;

@@ -95,9 +95,12 @@ function danny_frost_ball_hitbox_update()
 						anim_frame = 0;
 						player_face_opponent();
 						frozen = true;
+						frz_dx = other.x - x;	// donde pegó la bola
+						frz_dy = other.y - y;
+						other.ice_froze = true;	// para no dibujar la bola rompiéndose encima						
 						hsp = 0;
 						vsp = 0;
-						state_frame = 50;   // duración del congelado
+						state_frame = 90;   // duración del congelado
 						}
 					else
 						{
@@ -111,7 +114,13 @@ function danny_frost_ball_hitbox_update()
 						hsp = other.knockback * other.owner.facing;
 						}
 					
-					player_damage(projectile_hit_damage(other.damage, _ch, other.owner));
+					var _dmg = projectile_hit_damage(other.damage, _ch, other.owner);
+					// Fatality (nuestro): congelar
+					if (other.fatality != FATALITY.none && (ceil(hp - _dmg) <= 0 || (global.training && global.training_fat)) && fatality_can(id, other.owner, other.fatality))
+						{
+						fatality_start(id, other);
+						}
+					player_damage(_dmg);
 					combo_register_hit();
 					hitlag_frame = other.hitlag;
 					hit_sfx_play(snd_hit_heavy);
@@ -125,16 +134,21 @@ function danny_frost_ball_hitbox_update()
 			}
 		}
 	
-	//Other destruction checks
 	if (to_be_destroyed)
 		{
+		//Si congeló al rival, no sale la bola rompiéndose encima de él
+		if (variable_instance_exists(id, "ice_froze"))
+			{
+			instance_destroy();
+			return;
+			}
 		//VFX: el hielo se rompe
 		var _vfx = instance_create_layer(x, y, "VFX_Layer", obj_vfx);
-		_vfx.sprite_index = spr_danny_iceblock;
-		_vfx.image_xscale = owner.sprite_scale * 0.5 * facing;
-		_vfx.image_yscale = owner.sprite_scale * 0.5;
-		_vfx.anim_speed = 0.4;
-		_vfx.lifetime = sprite_get_number(spr_danny_iceblock) / _vfx.anim_speed;
+		_vfx.sprite_index = spr_danny_shuriken;
+		_vfx.image_xscale = owner.sprite_scale * facing;
+		_vfx.image_yscale = owner.sprite_scale;
+		_vfx.anim_speed = 0.5;
+		_vfx.lifetime = sprite_get_number(spr_danny_shuriken) / _vfx.anim_speed;
 		_vfx.owner = owner;
 		
 		instance_destroy();

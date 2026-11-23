@@ -202,4 +202,4 @@ olm_cs = 0;
 olm_touch_prev = false;
 round_draws = 0; // empates 
 fatal_music = -1;	// música del fatality que esta sonando
-if (!instance_exists(obj_frost_overlay)) then instance_create_depth(0, 0, -10000, obj_frost_overlay); // ip pc 
+//if (!instance_exists(obj_frost_overlay)) then instance_create_depth(0, 0, -10000, obj_frost_overlay); // ip pc 

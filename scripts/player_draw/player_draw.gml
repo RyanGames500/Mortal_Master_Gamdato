@@ -13,7 +13,13 @@ if (obj_game.bail_active && id == obj_game.bail_rival)
 		{
 		fatality_draw(id);
 		return;
-		}	
+		}
+	//Fatality de la lengua: a Blitsen lo dibuja el fatality
+	if (fatal_tongue && fatality_active())
+		{
+		fatality_draw_tongue();
+		return;
+		}		
 	if (obj_game.game_meta_state == GAME_META_STATE.starting && obj_game.starting_frame > INTRO_END)
 		{
 		if (intro_player_draw(id)) then return;
@@ -29,7 +35,10 @@ if (obj_game.bail_active && id == obj_game.bail_rival)
 		if (_pose.phase == 0) then acid_fx_draw_body(id, _pose);
 		return;
 		}
-	
+
+	//Extra del personaje (nuestro): efectos propios; si devuelve true no se dibuja el cuerpo
+	if (draw_extra != -1 && script_execute(draw_extra)) then return;
+
 	//Shadow
 	draw_sprite_ext(spr_player_shadow, 0, x, obj_ground.y - 20, sprite_scale, sprite_scale, 0, c_white, 1.0);
 	
@@ -50,4 +59,9 @@ if (obj_game.bail_active && id == obj_game.bail_rival)
 		}
 	
 	pal_swap_reset();
+	//Fatality columna: el que levanta el trofeo lo dibuja encima de sí mismo
+	if (fatal_trophy) then fatality_draw_trophy();
+	
+	//Hielo de Danny (nuestro)
+	ice_draw();	
 	}

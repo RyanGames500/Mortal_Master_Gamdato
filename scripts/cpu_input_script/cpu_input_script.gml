@@ -13,6 +13,7 @@ en los proximos frames. Todo el azar es determinista (cpu_rand), nada de random(
 #macro CPU_P_DF		5	// abajo, adelante
 #macro CPU_P_DB		6	// abajo, atras
 #macro CPU_P_SUPER	7	// doble cuarto de circulo (solo la palanca; el boton lo pone la logica del combo)
+#macro CPU_P_DD		8	// abajo, abajo (nuestro: cambio químico de Danny)
 
 // Botones: 1 ligero, 2 medio (light2), 3 fuerte, 4 agarre (ligero + fuerte)
 // Memoria por jugador: [plan, frame del plan, boton, super armado hasta (game_frame)]
@@ -65,7 +66,7 @@ function cpu_moves(_name)
 		case "SCAR":	_m.s1 = true; _m.s2 = true; break;
 		case "BRAD":	_m.gap = [CPU_P_DB, 2]; _m.ender = [CPU_P_DB, 2]; _m.cmd = [CPU_P_DB, 3]; _m.s1 = true; _m.s2 = true; break;
 		case "MAYEL":	_m.proj = [CPU_P_QCF, 1]; _m.proj2 = [CPU_P_BF, 2]; _m.ender = [CPU_P_QCF, 3]; _m.s1 = true; _m.s2 = true; break;
-		case "DANNY":	_m.proj = [CPU_P_QCF, 2]; _m.ender = [CPU_P_QCF, 2]; break;
+		case "DANNY":	_m.proj = [CPU_P_QCF, 2]; _m.ender = [CPU_P_QCF, 2]; _m.gap = [CPU_P_DD, 2]; break;
 		case "MARIEL":	_m.ender = [CPU_P_QCF, 1]; _m.cmd = [CPU_P_BF, 3]; _m.s1 = true; _m.s2 = true; break;
 		case "DEMON":	_m.proj = [CPU_P_BF, 1]; _m.ender = [CPU_P_QCF, 2]; break;
 		}
@@ -111,6 +112,12 @@ function cpu_plan_frame(_plan, _t, _btn)
 		case CPU_P_DB:
 			_o.d = (_t < 2) ? STICK_DIR.down : STICK_DIR.backward;
 			_fire = 4; _end = 6;
+		break;
+		case CPU_P_DD:
+			if (_t < 2) then _o.d = STICK_DIR.down;
+			else if (_t < 3) then _o.d = STICK_DIR.neutral;
+			else if (_t < 6) then _o.d = STICK_DIR.down;
+			_fire = 6; _end = 8;
 		break;
 		case CPU_P_SUPER:
 			var _s = _t mod 6;
@@ -220,6 +227,34 @@ function cpu_input_script(_buffer, _player_number)
 		if (_o.done) then _mem[@ 0] = 0;
 		cpu_write(_buffer, _facing, _o.d, _o.l, _o.h, _o.m);
 		return;
+		}
+	
+	// Danny (nuestro): salto de pared para salir de la esquina
+	if (_name == "DANNY")
+		{
+		var _wall_rate = round(lerp(5, 30, _lvl));
+		var _wall = (_cpu.bbox_right >= room_width - 120) ? 1 : ((_cpu.bbox_left <= 120) ? -1 : 0);
+		
+		//Pegado a la pared: espera un momentito y se impulsa
+		if (_atk && _cpu.attack_script == danny_wall_cling)
+			{
+			cpu_write(_buffer, _facing, (_cpu.attack_frame >= 6) ? STICK_DIR.up : STICK_DIR.neutral, false, false, false);
+			return;
+			}
+		
+		//En el aire junto a la pared: se mueve hacia ella para pegarse
+		if (_cpu.state == PLAYER_STATE.aerial && _wall != 0 && !_cpu.wall_used && _cpu.vsp > -8)
+			{
+			cpu_write(_buffer, _facing, (_wall == _facing) ? STICK_DIR.forward : STICK_DIR.backward, false, false, false);
+			return;
+			}
+		
+		//Arrinconado y con el rival cerca: a veces salta hacia la pared
+		if (_cpu.state == PLAYER_STATE.idle && _wall == -_facing && _dist < 260 && _t == 0 && _r < _wall_rate)
+			{
+			cpu_write(_buffer, _facing, STICK_DIR.backward_up, false, false, false);
+			return;
+			}
 		}
 	
 	// 2) Super armado: la palanca ya esta metida, falta el boton cuando conecte algo

@@ -78,6 +78,13 @@ function player_variables_init_start()
 	combo_final_show = 0;
 	combo_ended_n = 0;
 	frozen = false;
+	frz_age = 0;		// frames que lleva congelado
+	frz_break = -1;		// frames desde que se rompió el hielo (-1 = nada)
+	frz_bx = 0;			// donde estaba cuando se rompió
+	frz_by = 0;
+	frz_bface = 1;
+	frz_dx = 0;			// donde le pegó la bola (respecto a él)
+	frz_dy = 0;	
 	rage_frames = 0;
 	acid_ko = false;	// true = este jugador murió por un golpe marcado y debe caer al ácido
 	acid_ko = false;
@@ -90,6 +97,20 @@ function player_variables_init_start()
 	fatal_dir = 1;
 	fatal_launch = 24;
 	fatal_timer = 0;			// contador del fatality en entrenamiento	
+	fatal_y = 0;
+	fatal_spr = -1;		// sprite del rival al recibir el golpe (congelado)
+	fatal_img = 0;
+	fatal_face = 1;
+	fatal_trophy = false;		// true = levantando el trofeo del fatality columna
+	fatal_hold = 0;				// frames que se queda congelado en el golpe del trofeo
+	fatal_hold_spr = -1;
+	fatal_hold_img = 0;
+	fatal_tongue = false;
+	fatal_bx = 0;
+	fatal_tx = 0;
+	fat_lengua = -1;	
+	fat_hand_hit = undefined;	// dónde está la mano en el golpe del fatality columna
+	fat_hand_win = undefined;	// dónde está la mano en cada frame de la pose de victoria	
 	no_fatality = false;		// true en los jefes: sin fatality ni stage fatality
 	fat_cabeza = -1;			// arte de este char como víctima (cada char pone el suyo en su init)
 	fat_cuerpo = -1;
@@ -97,7 +118,6 @@ function player_variables_init_start()
 	ex_flash = 0;		//frames restantes del brillo de EX (nuestro)
 	ex_glow_color = make_colour_rgb(255, 40, 40);	//color del brillo, se puede cambiar por personaje (nuestro)
 	hp_top = 0;
-		// Personajes del escenario (nuestro)
 	npc_seq = -1;		// -1 = libre; 0 o más = frames de la secuencia de agarre
 	npc_idx = 0;		// qué equipo lo agarró
 	npc_linger = 0;		// frames seguidos dentro de la zona de un equipo
@@ -114,7 +134,8 @@ function player_variables_init_start()
 	ch_phase = 0;		// fase de mi ataque: 0 startup, 1 activo, 2 recuperacion (nuestro)
 	ch_script = -1;		// ataque que estoy midiendo (nuestro)
 	ch_kind = 0;		// 1 counter, 2 punish counter: el ultimo que recibi (nuestro)
-	ch_show = 0;		// frames que se muestra el letrero (nuestro)	
+	ch_show = 0;		// frames que se muestra el letrero (nuestro)
+	draw_extra = -1;	// efectos propios del personaje (nuestro)	
 	//diferenciar espejos de cada peleador duplicado
 	current_pal = 0
 	override_surface=noone;

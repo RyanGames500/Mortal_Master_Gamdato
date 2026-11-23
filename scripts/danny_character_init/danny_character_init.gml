@@ -27,7 +27,8 @@ function danny_character_init()
 	
 	//Palette
 	palette_sprite = spr_danny_palette;
-
+	//Paleta (nuestro): normal = tóxico (columna 1), espejo = bata de lab (columna 2). La 0 es el azul viejo y no se usa
+	current_pal = (current_pal == 0) ? 1 : 2;
 	//hurtbox
 	hurtbox_sprite = spr_danny_hurtbox;
 
@@ -52,7 +53,8 @@ function danny_character_init()
 	sprites[$ "grabbed_carry"	] = spr_danny_grabbed_throw1;
 	sprites[$ "getup"			] = spr_danny_idle;
 	sprites[$ "throw_victim"	] = spr_mayel_lanzado;
-	
+	//sprites[$ "wall"			] = spr_danny_wall;
+
 	//Attack scripts
 	attacks[$ "light_ground"	] = danny_light_ground;
 	attacks[$ "medium_ground"	] = danny_medium_ground;
@@ -65,6 +67,7 @@ function danny_character_init()
 	attacks[$ "heavy_aerial"	] = danny_heavy_aerial;
 	attacks[$ "throw"			] = blocky_throw;
 
+
 	//Fatalities
 	fat_cabeza = spr_danny_fat_cabeza;
 	fat_cuerpo = spr_danny_fat_cuerpo;
@@ -75,6 +78,19 @@ function danny_character_init()
 
 	//Passive script
 	passive = danny_passive;
+	
+	//Movilidad ninja 
+	draw_extra = danny_draw_extra;
+	wall_used = false;
+	wall_side = 1;
+	swap_hide = false;
+	swap_tx = 0;
+	dn_fx_wall = -1;
+	dn_wall_x = 0;
+	dn_wall_y = 0;
+	dn_fx_out = -1;
+	dn_out_x = 0;
+	dn_fx_in = -1;	
 	}
 
 /* Copyright 2024 Springroll Games / Yosi */

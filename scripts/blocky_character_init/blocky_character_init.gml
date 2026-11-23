@@ -74,6 +74,10 @@ function blocky_character_init()
 	fat_cuerpo = spr_blocky_fat_cuerpo;
 	fat_pies = spr_blocky_fat_pies;
 
+	//Mano de Joe para el fatality columna (pixeles desde el origen del sprite)
+	fat_hand_hit = [20, -9];	// remate del combo light (frame 13)
+	fat_hand_win = [[-9, -9], [-9, -8], [-9, -8], [-10, -7], [-11, -30], [-12, -32], [-10, -31], [-10, -30]];
+
 	//sprite_inicial
 	anim_sprite = sprites[$ "idle"];
 

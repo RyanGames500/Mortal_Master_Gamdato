@@ -67,6 +67,7 @@ function blitsen_character_init()
 	fat_cabeza = spr_blitsen_fat_cabeza;
 	fat_cuerpo = spr_blitsen_fat_cuerpo;
 	fat_pies = spr_generic_fat_pies;
+	fat_lengua = spr_blitsen_fat_lengua;	
 
 	//sprite_inicial
 	anim_sprite = sprites[$ "idle"];

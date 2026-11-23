@@ -55,7 +55,8 @@ function danny_frost_ball(_override_phase)
 					_hitbox.custom_draw = danny_frost_ball_hitbox_draw;
 					_hitbox.knockback = 10;
 					_hitbox.hitstun = 28;
-					_hitbox.hsp = 4 * facing; // nace lenta, acelera en el update
+					_hitbox.hsp = 4 * facing;
+					_hitbox.fatality = FATALITY.congelar;					
 					_hitbox.facing = facing;
 					}
 				}

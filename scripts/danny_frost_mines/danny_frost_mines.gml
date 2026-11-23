@@ -49,6 +49,7 @@ function danny_frost_mines(_override_phase)
 					_hitbox.knockback = 6;
 					_hitbox.hitstun = 28;
 					_hitbox.facing = facing;
+					_hitbox.fatality = FATALITY.estallido;					
 					}
 				}
 			

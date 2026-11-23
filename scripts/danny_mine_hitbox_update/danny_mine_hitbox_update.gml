@@ -73,9 +73,11 @@ function danny_mine_hitbox_update()
 							anim_frame = 0;
 							player_face_opponent();
 							frozen = true;
+							frz_dx = other.x - x;
+							frz_dy = other.y - y;							
 							hsp = 0;
 							vsp = 0;
-							state_frame = 50;
+							state_frame = 90;
 							}
 						else
 							{
@@ -89,7 +91,13 @@ function danny_mine_hitbox_update()
 							state_frame = other.hitstun + counter_hit_finish(_ch);
 							}
 						
-						player_damage(projectile_hit_damage(other.damage, _ch, other.owner));
+					var _dmg = projectile_hit_damage(other.damage, _ch, other.owner);
+					// Fatality (nuestro): estallido de hielo
+					if (other.fatality != FATALITY.none && (ceil(hp - _dmg) <= 0 || (global.training && global.training_fat)) && fatality_can(id, other.owner, other.fatality))
+						{
+						fatality_start(id, other);
+						}
+					player_damage(_dmg);
 						combo_register_hit();
 						hitlag_frame = other.hitlag;
 						hit_sfx_play(snd_hit_heavy);
@@ -110,11 +118,11 @@ function danny_mine_hitbox_update()
 		{
 		//VFX: el hielo se rompe
 		var _vfx = instance_create_layer(x, y, "VFX_Layer", obj_vfx);
-		_vfx.sprite_index = spr_danny_iceblock;
-		_vfx.image_xscale = owner.sprite_scale * 0.5 * facing;
-		_vfx.image_yscale = owner.sprite_scale * 0.5;
-		_vfx.anim_speed = 0.4;
-		_vfx.lifetime = sprite_get_number(spr_danny_iceblock) / _vfx.anim_speed;
+		_vfx.sprite_index = spr_danny_burbuja;
+		_vfx.image_xscale = owner.sprite_scale * facing;
+		_vfx.image_yscale = owner.sprite_scale;
+		_vfx.anim_speed = 0.5;
+		_vfx.lifetime = sprite_get_number(spr_danny_burbuja) / _vfx.anim_speed;
 		_vfx.owner = owner;
 		
 		instance_destroy();

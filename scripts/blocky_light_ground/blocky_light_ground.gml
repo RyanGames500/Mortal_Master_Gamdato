@@ -44,6 +44,7 @@ function blocky_light_ground(_override_phase)
 				attack_frame = 10; // Reducido de 12 a 10 (mantiene ritmo sin acelerar de golpe)
 				
 				var _hitbox = hitbox_create(85, -54, 1, 0.3, 2, 4);
+				_hitbox.fatality = FATALITY.columna;				
 				_hitbox.knockback = 5;
 				}
 			
