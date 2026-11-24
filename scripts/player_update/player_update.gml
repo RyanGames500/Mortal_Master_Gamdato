@@ -85,7 +85,8 @@ function player_update(_inputs_array)
 		with (obj_player)
 			{
 			// 90 = maximo de frames del super que espero el golpe (si el super falla, no me quedo congelado para siempre)
-			if (id != other.id && state == PLAYER_STATE.attacking && super_id != 0 && state_time <= 90)
+			if (id != other.id && state == PLAYER_STATE.attacking && super_id != 0 && state_time <= 90
+				&& !(variable_instance_exists(id, "super_nofreeze") && super_nofreeze))
 				{
 				_super_prep = true;
 				}

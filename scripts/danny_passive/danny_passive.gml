@@ -7,11 +7,41 @@ function danny_passive()
 	var _special_cost = METER_COST_SPECIAL;
 	var _mine_cost = 15;
 
+	//--- SUPERS: cancelan cualquier ataque que ya conecto (golpe o bloqueo) ---
+	if (attack_script != danny_super_lotus && attack_script != danny_super_clones && super_state_ok())
+		{
+		// Super 2 (cinemático): doble media luna + heavy, toda la barra
+		if (meter_can_pay(METER_COST_SUPER_MAX) && input_pressed(INPUT.attack_heavy) && super_motion_check())
+			{
+			meter_pay(METER_COST_SUPER_MAX);
+			input_ex_consume();
+			attack_stop();
+			attack_start(danny_super_clones);
+			super_activation_fx(2);
+			return;
+			}
+		
+		// Super 1: doble media luna + medium, 2 barras
+		if (meter_can_pay(METER_COST_SUPER) && input_pressed(INPUT.attack_light2) && super_motion_check())
+			{
+			meter_pay(METER_COST_SUPER);
+			input_ex_consume();
+			attack_stop();
+			attack_start(danny_super_lotus);
+			super_activation_fx(1);
+			return;
+			}
+		}
+
 	danny_ninja_update();	// salto de pared y efectos 
 
 	// Danny tambien puede lanzar caminando hacia atras (incluye cancel de normales)
 	if (!(special_state_ok() || state == PLAYER_STATE.walk_backward)) then return;
+
 	
+	// Si ya está en un super no se dispara nada más
+	if (attack_script == danny_super_lotus || attack_script == danny_super_clones) then return;
+
 	//Minas de escarcha: cuarto de circulo hacia atras + medium (una por una)
 	if (meter_can_pay(_mine_cost) && danny_mine_count() < DANNY_MINE_MAX
 		&& input_motion_check([STICK_DIR.down, STICK_DIR.backward_down, STICK_DIR.backward]))

@@ -78,7 +78,7 @@ function blocky_super_cine(_override_phase)
 				_dust.image_xscale = facing;
 				_dust.anim_speed   = 0.2;
 				_dust.lifetime     = sprite_get_number(spr_effect_step_dust) / _dust.anim_speed;
-				_dust.owner        = id;
+				_dust.owner        = id;				
 				}
 			
 			player_move();
@@ -110,6 +110,7 @@ function blocky_super_cine(_override_phase)
 				_op.hitlag = 4;
 				_op.knockback = 3;
 				_op.hitstun = 60;
+				_op.hits_down = true;				
 				}
 			
 			player_move();

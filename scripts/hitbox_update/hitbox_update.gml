@@ -32,7 +32,9 @@ function hitbox_update()
 				// Si la ronda no está en ejecución o el rival ya no tiene vida, ignorar colisión
 				if (_hurtbox.owner.hp <= 0 || obj_game.game_meta_state != GAME_META_STATE.running) then continue;
 				if (_hurtbox.owner.npc_seq >= 0) then continue;	// agarrado por el escenario: no se le puede pegar
-				if (_hurtbox.owner.state == PLAYER_STATE.knockdown || _hurtbox.owner.state == PLAYER_STATE.acostado) then continue;
+				//Derribado: no se le pega. Excepción (nuestro): golpes con hits_down pueden agarrarlo mientras va cayendo, nunca acostado
+				var _hits_down = variable_instance_exists(id, "hits_down") && hits_down;
+				if ((_hurtbox.owner.state == PLAYER_STATE.knockdown && !_hits_down) || _hurtbox.owner.state == PLAYER_STATE.acostado) then continue;
 				// Rage: los proyectiles no le hacen daño (los golpes normales sí)
 				if (destroy_on_stop && _hurtbox.owner.rage_frames > 0) then continue;
 				//Hitboxes that can only hit grounded opponents
@@ -226,7 +228,8 @@ function hitbox_update()
 							}
 						hitlag_frame = other.hitlag;
 						hsp = other.knockback * other.owner.facing;
-						if (_was_frozen)
+						//Cristal roto: lo derriba, menos si el golpe es de un super (el super lo sigue agarrando) (nuestro)
+						if (_was_frozen && other.owner.super_id == 0)
 							{
 							air_hits = 0;
 							player_state_set(PLAYER_STATE.knockdown);

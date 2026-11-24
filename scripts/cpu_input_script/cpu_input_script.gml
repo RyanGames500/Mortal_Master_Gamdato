@@ -66,7 +66,7 @@ function cpu_moves(_name)
 		case "SCAR":	_m.s1 = true; _m.s2 = true; break;
 		case "BRAD":	_m.gap = [CPU_P_DB, 2]; _m.ender = [CPU_P_DB, 2]; _m.cmd = [CPU_P_DB, 3]; _m.s1 = true; _m.s2 = true; break;
 		case "MAYEL":	_m.proj = [CPU_P_QCF, 1]; _m.proj2 = [CPU_P_BF, 2]; _m.ender = [CPU_P_QCF, 3]; _m.s1 = true; _m.s2 = true; break;
-		case "DANNY":	_m.proj = [CPU_P_QCF, 2]; _m.ender = [CPU_P_QCF, 2]; _m.gap = [CPU_P_DD, 2]; break;
+		case "DANNY":	_m.proj = [CPU_P_QCF, 2]; _m.ender = [CPU_P_QCF, 2]; _m.gap = [CPU_P_DD, 2]; _m.s1 = true; _m.s2 = true; break;
 		case "MARIEL":	_m.ender = [CPU_P_QCF, 1]; _m.cmd = [CPU_P_BF, 3]; _m.s1 = true; _m.s2 = true; break;
 		case "DEMON":	_m.proj = [CPU_P_BF, 1]; _m.ender = [CPU_P_QCF, 2]; break;
 		}

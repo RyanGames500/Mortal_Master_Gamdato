@@ -3,6 +3,9 @@ The script player instances call to draw themselves.
 */
 function player_draw()
 	{
+	//Lo está dibujando otro jugador (super de Danny): no se dibuja solo
+	if (drawn_by != noone && instance_exists(drawn_by)) then return;
+
 if (obj_game.bail_active && id == obj_game.bail_rival)
 	{
 	bail_draw_world();

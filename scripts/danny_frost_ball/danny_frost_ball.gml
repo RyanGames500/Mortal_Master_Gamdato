@@ -56,7 +56,7 @@ function danny_frost_ball(_override_phase)
 					_hitbox.knockback = 10;
 					_hitbox.hitstun = 28;
 					_hitbox.hsp = 4 * facing;
-					_hitbox.fatality = FATALITY.congelar;					
+					_hitbox.fatality = FATALITY.mutar;					
 					_hitbox.facing = facing;
 					}
 				}

@@ -16,7 +16,11 @@ function danny_ninja_update()
 	if (dn_fx_wall >= 0 && ++dn_fx_wall > 40) then dn_fx_wall = -1;
 	if (dn_fx_out >= 0 && ++dn_fx_out > 90) then dn_fx_out = -1;
 	if (dn_fx_in >= 0 && ++dn_fx_in > 40) then dn_fx_in = -1;
-	
+	if (dn_bub_burst >= 0 && ++dn_bub_burst > 60) then dn_bub_burst = -1;
+	if (dn_boom >= 0 && ++dn_boom > 40) then dn_boom = -1;
+	if (dn_hit_t >= 0 && ++dn_hit_t > 10) then dn_hit_t = -1;
+	if (dn_imp >= 0 && ++dn_imp > 50) then dn_imp = -1;
+
 	if (bbox_bottom >= obj_ground.y) then wall_used = false;
 	
 	if (state == PLAYER_STATE.aerial && !wall_used && vsp > -8)
@@ -210,6 +214,8 @@ function danny_draw_extra()
 		}
 	danny_gas(dn_out_x, y, dn_fx_out, 40, 50);
 	danny_gas(x, y, dn_fx_in, 40, 60);
+
+	if (danny_supers_draw()) return true;
 	
 	return swap_hide;
 	}

@@ -135,7 +135,8 @@ function player_variables_init_start()
 	ch_script = -1;		// ataque que estoy midiendo (nuestro)
 	ch_kind = 0;		// 1 counter, 2 punish counter: el ultimo que recibi (nuestro)
 	ch_show = 0;		// frames que se muestra el letrero (nuestro)
-	draw_extra = -1;	// efectos propios del personaje (nuestro)	
+	draw_extra = -1;	// efectos propios del personaje (nuestro)
+	drawn_by = noone;	// si otro jugador lo está dibujando (super de Danny)
 	//diferenciar espejos de cada peleador duplicado
 	current_pal = 0
 	override_surface=noone;

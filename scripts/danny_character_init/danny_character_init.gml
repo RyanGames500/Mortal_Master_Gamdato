@@ -90,7 +90,29 @@ function danny_character_init()
 	dn_wall_y = 0;
 	dn_fx_out = -1;
 	dn_out_x = 0;
-	dn_fx_in = -1;	
+	dn_fx_in = -1;
+	//Supers (nuestro)
+	dn_sv = noone;
+	dn_vx = 0;
+	dn_vy = 0;
+	dn_bub_burst = -1;
+	dn_boom = -1;
+	dn_bx = 0;
+	dn_by = 0;
+	dn_bub_side = 1;
+	dn_y0 = 0;
+	dn_hit_t = -1;
+	dn_hx = 0;
+	dn_hy = 0;
+	dn_side = 1;
+	dn_ax = 0;
+	dn_ay = 0;
+	dn_vgy = 0;
+	dn_imp = -1;
+	dn_spin = false;
+	dn_face0 = 1;
+	dn_vh = 0;
+	super_nofreeze = false;	
 	}
 
 /* Copyright 2024 Springroll Games / Yosi */

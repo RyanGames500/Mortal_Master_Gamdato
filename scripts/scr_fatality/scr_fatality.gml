@@ -5,7 +5,7 @@ Si ese golpe mata en la ronda que gana la pelea, sale el fatality en vez del KO 
 La animación se calcula SOLO con el tiempo del final (ending_frame), igual que el ácido:
 no se crean objetos ni se guarda nada extra, así el rollback no se puede desincronizar.
 */
-enum FATALITY { none, decapitar, explotar, congelar, columna, estallido, lengua, flor }
+enum FATALITY { none, decapitar, explotar, congelar, columna, estallido, lengua, flor, mutar }
 
 #macro FATAL_FX_TOTAL		300		// duración del final con fatality (normal = KO_HOLD_FRAMES)
 #macro FATAL_DECAP_STAND	45		// frames que el cuerpo se queda parado echando sangre
@@ -33,7 +33,8 @@ function fatality_can(_v, _a, _type)
 	if (_type == FATALITY.explotar && !sprite_exists(_v.fat_pies)) return false;
 	if (_type == FATALITY.columna && (!sprite_exists(_v.fat_cabeza) || !sprite_exists(_v.fat_cuerpo) || !is_array(_a.fat_hand_win) || !variable_struct_exists(_a.sprites, "win"))) return false;
 	if (_type == FATALITY.lengua && !sprite_exists(_v.fat_cuerpo)) return false;	
-	if (_type == FATALITY.flor && !sprite_exists(_v.fat_cuerpo)) return false;	
+	if (_type == FATALITY.flor && !sprite_exists(_v.fat_cuerpo)) return false;
+	if (_type == FATALITY.mutar && !sprite_exists(_v.fat_pies)) return false;	
 	if (global.training) return global.training_fat;		// entrenamiento: sin rondas ni candados (F6)
 	var _wins = (_a.player_number == 0) ? obj_game.p1_wins : obj_game.p2_wins;
 	if (_wins < obj_game.rounds_to_win - 1) return false;	// solo en el golpe que gana la pelea
@@ -556,6 +557,10 @@ function fatality_draw(_v)
 	{
 		fatality_draw_flor(_v, _t);
 	}
+	else if (_v.fatal_type == FATALITY.mutar)
+		{
+		fatality_draw_mutar(_v, _t);
+		}	
 	draw_set_colour(c_white);
 	}
 #macro FATAL_SLOW_FRAMES	60		// igual que la cámara lenta del KO en game_advance_frame
@@ -639,7 +644,8 @@ function fatality_impact_age(_type)
 	if (_type == FATALITY.congelar) return fatality_age_of(FATAL_ICE_FREEZE + FATAL_ICE_HOLD);
 	if (_type == FATALITY.estallido) return fatality_age_of(FATAL_BURST_FRZ);
 	if (_type == FATALITY.lengua) return fatality_age_of(FATAL_TG_START + FATAL_TG_CATCH);
-	if (_type == FATALITY.flor) return fatality_age_of(FATAL_FLOR_POP);	
+	if (_type == FATALITY.flor) return fatality_age_of(FATAL_FLOR_POP);
+	if (_type == FATALITY.mutar) return fatality_age_of(FATAL_MUT_BURST);	
 	return 1;
 	}
 
@@ -1116,4 +1122,175 @@ function fatality_draw_flor(_v, _t)
 			}
 		}
 	draw_set_colour(c_white);
-	}	
+	}
+
+#macro FATAL_MUT_START		14		// tiembla en hitstun y empieza a mutar
+#macro FATAL_MUT_FULL		110		// ya está todo hinchado y verde
+#macro FATAL_MUT_BURST		116		// ¡revienta!
+#macro FATAL_MUT_BLISTERS	10		// cuántas ampollas le salen
+#macro FATAL_MUT_GOO		make_colour_rgb(80, 255, 140)
+
+//Fatality "Mutación" de Danny
+function fatality_draw_mutar(_v, _t)
+	{
+	var _s = _v.sprite_scale;
+	var _gy = obj_ground.y;
+	var _fx = _v.fatal_x;
+	var _dir = _v.fatal_dir;
+	var _face = -_dir;
+	
+	if (_t < FATAL_MUT_BURST)
+		{
+		var _hs = _v.sprites[$ "hitstun_ground"];
+		var _rw = fatality_rows(_hs, 0);
+		var _xo = sprite_get_xoffset(_hs);
+		var _yo = sprite_get_yoffset(_hs);
+		var _u = clamp((_t - FATAL_MUT_START) / (FATAL_MUT_FULL - FATAL_MUT_START), 0, 1);
+		
+		//Se hincha a tirones
+		var _jerk = 0;
+		if (_t >= FATAL_MUT_START)
+			{
+			var _ph = (_t - FATAL_MUT_START) mod 22;
+			if (_ph < 4) then _jerk = 0.06 * (4 - _ph) / 4;
+			}
+		var _sw = 1 + 0.35 * _u + _jerk;
+		var _sh = 1 + 0.12 * _u + _jerk * 0.5;
+		var _shk = 0;
+		if (_t < FATAL_MUT_START) then _shk = (((_t div 2) mod 2) == 0) ? 4 : -4;
+		if (_t >= FATAL_MUT_BURST - 20)
+			{
+			_shk = (((_t div 2) mod 2) == 0) ? 6 : -6;
+			_sw += 0.08 * sin(_t * 3);
+			}
+		var _x = _fx + _shk;
+		var _y = _gy - (sprite_get_bbox_bottom(_hs) + 1 - _yo) * _s * _sh;
+		
+		//El cuerpo con su paleta, y encima el verde
+		pal_swap_set(_v.palette_sprite, _v.current_pal, false);
+		draw_sprite_ext(_hs, 0, _x, _y, _s * _face * _sw, _s * _sh, 0, c_white, 1);
+		pal_swap_reset();
+		if (_u > 0)
+			{
+			gpu_set_fog(true, FATAL_FLOR_COL, 0, 0);
+			draw_sprite_ext(_hs, 0, _x, _y, _s * _face * _sw, _s * _sh, 0, c_white, 0.75 * _u);
+			gpu_set_fog(false, c_white, 0, 0);
+			}
+		
+		if (_rw.top < 0) return;
+		var _ps = _s * _sw;
+		var _pv = _s * _sh;
+		
+		//El shuriken clavado en el pecho
+		var _row = _rw.top + floor((_rw.bot - _rw.top) * 0.3);
+		if (_rw.R[_row] >= 0)
+			{
+			var _c = _rw.R[_row] - 2 - _xo;
+			draw_sprite_ext(spr_danny_shuriken, 0, _x + _c * _ps * _face, _y + (_row - _yo) * _pv, _s * _face, _s, 0, c_white, 1);
+			}
+		
+		//Ampollas que crecen y laten
+		for (var _i = 0; _i < FATAL_MUT_BLISTERS; _i++)
+			{
+			var _appear = _i / FATAL_MUT_BLISTERS;
+			if (_u <= _appear) continue;
+			var _br = _rw.top + 6 + floor(fatality_rnd(_i, 31) * max(1, _rw.bot - _rw.top - 10));
+			if (_rw.L[_br] < 0) continue;
+			var _bc = round(lerp(_rw.L[_br], _rw.R[_br], fatality_rnd(_i, 32)));
+			var _rad = (0.3 + fatality_rnd(_i, 33) * 0.7) * (1 + (_u - _appear) * 3) * (1 + 0.25 * sin(_t * 0.5 + _i));
+			var _R = ceil(_rad);
+			var _wx = _x + (_bc - _xo) * _ps * _face;
+			var _wy = _y + (_br - _yo) * _pv;
+			for (var _dy = -_R; _dy <= _R; _dy++)
+				{
+				for (var _dx = -_R; _dx <= _R; _dx++)
+					{
+					var _d2 = _dx * _dx + _dy * _dy;
+					if (_d2 > _rad * _rad) continue;
+					var _col = (_d2 > (_rad - 1) * (_rad - 1)) ? make_colour_rgb(30, 120, 70) : make_colour_rgb(110, 240, 140);
+					if (_dx == -1 && _dy == -1 && _rad > 1.5) then _col = make_colour_rgb(220, 255, 230);
+					draw_set_colour(_col);
+					var _qx = _wx + _dx * _s;
+					var _qy = _wy + _dy * _s;
+					draw_rectangle(_qx, _qy, _qx + _s - 1, _qy + _s - 1, false);
+					}
+				}
+			}
+		
+		//Burbujitas que suben del cuerpo
+		draw_set_colour(make_colour_rgb(150, 255, 190));
+		for (var _e = max(FATAL_MUT_START, _t - 24); _e <= _t; _e++)
+			{
+			if ((_e mod 3) != 0) continue;
+			var _tau = _t - _e;
+			var _r2 = _rw.top + floor(fatality_rnd(_e, 34) * (_rw.bot - _rw.top + 1));
+			if (_rw.L[_r2] < 0) continue;
+			var _c2 = round(lerp(_rw.L[_r2], _rw.R[_r2], fatality_rnd(_e, 35))) - _xo;
+			var _bx = _x + _c2 * _ps * _face + sin(_tau * 0.3) * 3;
+			var _by = _y + (_r2 - _yo) * _pv - _tau * 1.2;
+			draw_set_alpha(0.8 * (1 - _tau / 25));
+			draw_rectangle(_bx, _by, _bx + _s * 0.5, _by + _s * 0.5, false);
+			}
+		draw_set_alpha(1);
+		draw_set_colour(c_white);
+		return;
+		}
+	
+	//¡Revienta!
+	var _a = _t - FATAL_MUT_BURST;
+	var _tall = sprite_get_height(_v.sprites[$ "idle"]) * _s;
+	var _cy = _gy - _tall * 0.5;
+	var _hh = sprite_get_height(_v.fat_cabeza) * _s * 0.5;
+	
+	//Charco verde
+	var _pw = min(_s * 24, _a * _s * 0.5);
+	draw_set_colour(make_colour_rgb(40, 170, 100));
+	draw_rectangle(_fx - _pw * 0.5, _gy - _s * 0.5, _fx + _pw * 0.5, _gy, false);
+	
+	//Los pies que quedaron (verdosos)
+	var _feet = _v.fat_pies;
+	var _fi = min((_a < 18) ? (_a div 6) : (1 + ((_a div 6) mod 2)), sprite_get_number(_feet) - 1);
+	pal_swap_set(_v.palette_sprite, _v.current_pal, false);
+	draw_sprite_ext(_feet, _fi, _fx, _gy, _s * _face, _s, 0, c_white, 1);
+	pal_swap_reset();
+	gpu_set_fog(true, FATAL_FLOR_COL, 0, 0);
+	draw_sprite_ext(_feet, _fi, _fx, _gy, _s * _face, _s, 0, c_white, 0.5);
+	gpu_set_fog(false, c_white, 0, 0);
+	
+	//La cabeza mutada sale volando
+	var _h = fatality_piece(_fx, _gy - _tall * 0.85, 3 * _dir, -16, _v.grav, _gy - _hh, _a, true);
+	fatality_green_sprite(_v, _v.fat_cabeza, (_h.flying ? _a : _h.t_rest) div 4, _h.x, _h.y, _face, 0.6, 0);
+	
+	//Huesos
+	var _bones = [spr_fat_hueso1, spr_fat_hueso2, spr_fat_hueso3, spr_fat_hueso4];
+	for (var _i = 0; _i < 8; _i++)
+		{
+		var _spr = _bones[_i mod 4];
+		var _side = ((_i mod 2) == 0) ? _dir : -_dir;
+		var _bh = sprite_get_height(_spr) * _s * 0.5;
+		var _p = fatality_piece(_fx + (fatality_rnd(_i, 36) - 0.5) * 40, _cy + (fatality_rnd(_i, 37) - 0.5) * 60,
+			_side * (3 + fatality_rnd(_i, 38) * 9), -(14 + fatality_rnd(_i, 39) * 18), _v.grav, _gy - _bh, _a, true);
+		var _spd = 3 + floor(fatality_rnd(_i, 40) * 3);
+		draw_sprite_ext(_spr, (_p.flying ? _a : _p.t_rest) div _spd, _p.x, _p.y, _s * _side, _s, 0, c_white, 1);
+		}
+	
+	//Lluvia de líquido verde con sangre
+	for (var _i = 0; _i < 160; _i++)
+		{
+		var _ang = fatality_rnd(_i, 41) * 2 * pi;
+		var _sp = 3 + fatality_rnd(_i, 42) * 12;
+		var _vx = cos(_ang) * _sp * 0.8;
+		var _vy = sin(_ang) * _sp - 7;
+		if ((_i mod 3) == 0)
+			{
+			fatality_blood(_fx, _cy, _vx, _vy, _a);
+			}
+		else
+			{
+			var _g = fatality_piece(_fx, _cy, _vx, _vy, 1.2, _gy, _a, false);
+			draw_set_colour(_g.flying ? FATAL_MUT_GOO : make_colour_rgb(40, 170, 100));
+			draw_rectangle(_g.x, _g.y - 7, _g.x + 7, _g.y, false);
+			}
+		}
+	draw_set_colour(c_white);
+	}

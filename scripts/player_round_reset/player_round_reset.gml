@@ -16,7 +16,8 @@ function player_round_reset()
 	x = xstart;
 	y = ystart;
 	facing = (player_number == 0) ? 1 : -1;
-
+	image_angle = 0;	// que nadie empiece la ronda de cabeza (super de Danny)
+	drawn_by = noone;
 	player_move();
 
 	hp = hp_max;
@@ -39,7 +40,7 @@ function player_round_reset()
 	fatal_tongue = false;
 	frz_age = 0;
 	frz_break = -1;
-	//Danny: que no empiece la ronda escondido
+	//Danny: que no empiece la ronda escondido ni con efectos de la ronda pasada
 	if (variable_instance_exists(id, "swap_hide"))
 		{
 		swap_hide = false;
@@ -48,5 +49,11 @@ function player_round_reset()
 		dn_fx_wall = -1;
 		dn_fx_out = -1;
 		dn_fx_in = -1;
-		}	
+		dn_sv = noone;
+		dn_bub_burst = -1;
+		dn_boom = -1;
+		dn_hit_t = -1;
+		dn_imp = -1;
+		dn_spin = false;
+		}
 	}
