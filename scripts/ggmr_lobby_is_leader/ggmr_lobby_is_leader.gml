@@ -1,7 +1,4 @@
 ///@category GGMR
-/*
-Returns true if the player is marked as being the lobby leader.
-*/
 function ggmr_lobby_is_leader()
 	{
 	with (obj_ggmr_lobby) 

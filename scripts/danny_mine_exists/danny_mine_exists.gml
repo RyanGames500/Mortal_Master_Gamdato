@@ -1,5 +1,5 @@
-#macro DANNY_MINE_LIFE 420   // 7 segundos
-#macro DANNY_MINE_MAX 3      // máximo de minas a la vez
+#macro DANNY_MINE_LIFE 420
+#macro DANNY_MINE_MAX 3
 
 function danny_mine_count()
 	{

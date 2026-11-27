@@ -3,9 +3,6 @@
 ///@param {string} name				The name of the client
 ///@param {int} location			The location, from the GGMR_LOCATION_TYPE enum
 ///@param {int} client_type			The client type, from the GGMR_CLIENT_TYPE enum
-/*
-Adds a client to the session, and returns the index of that client. Only works before the session is finalized.
-*/
 function ggmr_session_client_add()
 	{
 	with (obj_ggmr_session) 
@@ -24,7 +21,6 @@ function ggmr_session_client_add()
 			_client[@ GGMR_CLIENT.input_delay] = undefined;
 			_client[@ GGMR_CLIENT.finished] = false;
 
-			//Add the client data to the list
 			if (ds_list_size(session_client_list) < GGMR_CLIENTS_MAX) 
 				{
 				ds_list_add(session_client_list, _client);

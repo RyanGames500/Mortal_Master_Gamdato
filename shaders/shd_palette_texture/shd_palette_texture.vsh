@@ -1,6 +1,3 @@
-/*
-This part of the shader effectively does nothing.
-*/
 attribute vec3 in_Position;
 attribute vec4 in_Colour;
 attribute vec2 in_TextureCoord;

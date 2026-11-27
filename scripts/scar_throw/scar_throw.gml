@@ -3,7 +3,6 @@ function scar_throw(_override_phase)
 	var _phase = !is_undefined(_override_phase) ? _override_phase : attack_phase;
 	switch (_phase)
 		{
-		//--- INIT ---
 		case ATTACK_PHASE.start:
 			{
 			anim_sprite = spr_scar_special1_ground;
@@ -17,7 +16,6 @@ function scar_throw(_override_phase)
 			}
 		break;
 		
-		//--- STARTUP ---
 		case 0:
 			{
 			attack_frame--;
@@ -38,7 +36,6 @@ function scar_throw(_override_phase)
 			}
 		break;
 		
-		//--- DETECCION Y CAMBIO DE ESTADO ---
 		case 1:
 			{
 			attack_frame--;
@@ -86,7 +83,6 @@ function scar_throw(_override_phase)
 			}
 		break;
 		
-		//--- MULTI-HITS Y SECUENCIA DE GOLPES ---
 		case 2:
 			{
 			attack_frame--;
@@ -104,7 +100,6 @@ function scar_throw(_override_phase)
 					}
 				}
 			
-			// Si el rival rompio el agarre (tech) ya no esta en grabbed: se aborta la secuencia
 			if (_other_player != noone && attack_frame < 79 && _other_player.state != PLAYER_STATE.grabbed)
 				{
 				_other_player.being_carried = false;
@@ -115,7 +110,6 @@ function scar_throw(_override_phase)
 				break;
 				}
 			
-			// Retroceso cosmetico del rival durante 3 frames despues de cada golpe
 			var _recoil = 0;
 			if ((attack_frame <= 62 && attack_frame > 59)
 			 || (attack_frame <= 42 && attack_frame > 39)
@@ -132,7 +126,6 @@ function scar_throw(_override_phase)
 				_other_player.x = x + ((105 + _recoil) * facing);
 				_other_player.y = y - 28;
 				
-				// el rival mira hacia Scar con el mecanismo del propio motor
 				with (_other_player)
 					{
 					player_face_opponent();
@@ -142,7 +135,6 @@ function scar_throw(_override_phase)
 			if (attack_frame == 74) then anim_frame = 7;
 			if (attack_frame == 68) then anim_frame = 8;
 			
-			// GOLPE 1
 			if (attack_frame == 62)
 				{
 				anim_frame = 11;
@@ -160,7 +152,6 @@ function scar_throw(_override_phase)
 			if (attack_frame == 54) then anim_frame = 13;
 			if (attack_frame == 48) then anim_frame = 14;
 			
-			// GOLPE 2
 			if (attack_frame == 42)
 				{
 				anim_frame = 16;
@@ -178,7 +169,6 @@ function scar_throw(_override_phase)
 			if (attack_frame == 34) then anim_frame = 18;
 			if (attack_frame == 28) then anim_frame = 19;
 			
-			// GOLPE 3
 			if (attack_frame == 22)
 				{
 				anim_frame = 21;
@@ -196,7 +186,6 @@ function scar_throw(_override_phase)
 			if (attack_frame == 16) then anim_frame = 23;
 			if (attack_frame == 10) then anim_frame = 25;
 			
-			// IMPACTO FINAL Y SOLTAR RIVAL
 			if (attack_frame == 0)
 				{
 				anim_frame = 27;
@@ -220,8 +209,6 @@ function scar_throw(_override_phase)
 				
 				if (_rival_muerto)
 					{
-					// KO: el hitbox ya no llega (la ronda termino), asi que lo mandamos
-					// nosotros a knockdown. El estado knockdown/acostado hace el resto.
 					with (_other_player)
 						{
 						player_state_set(PLAYER_STATE.knockdown);
@@ -247,7 +234,6 @@ function scar_throw(_override_phase)
 			}
 		break;
 		
-		//--- ENDLAG ---
 		case 3:
 			{
 			attack_frame--;

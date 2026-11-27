@@ -1,4 +1,3 @@
-//Hover
 if (point_in_rectangle(mouse_x, mouse_y, bbox_left, bbox_top, bbox_right, bbox_bottom))
 	{
 	hover_time = min(++hover_time, 6);
@@ -6,7 +5,6 @@ if (point_in_rectangle(mouse_x, mouse_y, bbox_left, bbox_top, bbox_right, bbox_b
 		{
 		clicked = true;
 		
-		//Kick the player, then refresh the UI so it removes their UI
 		ggmr_lobby_member_kick(member);
 		main_menu_ui_refresh();
 		}

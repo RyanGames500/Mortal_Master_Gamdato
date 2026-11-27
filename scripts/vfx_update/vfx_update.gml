@@ -1,10 +1,8 @@
 function vfx_update()
 	{
-	//Animation
 	image_speed = 0;
 	image_index += anim_speed;
 	
-	// Trozos que salen disparados (nuestro): se mueven con gravedad y giran; no terminan por animación
 	var _debris = variable_instance_exists(id, "debris_hsp");
 	if (_debris)
 		{
@@ -14,13 +12,12 @@ function vfx_update()
 		image_angle += debris_spin;
 		if (y >= obj_ground.y)
 			{
-			// Cae al piso y se queda quieto
 			y = obj_ground.y;
 			debris_hsp = 0;
 			debris_vsp = 0;
 			debris_spin = 0;
 			}
-			image_alpha = clamp(lifetime / 12, 0, 1);	// se desvanece al final
+			image_alpha = clamp(lifetime / 12, 0, 1);
 		}
 	
 	var _last_frame = sprite_get_number(sprite_index) - 1;
@@ -31,7 +28,6 @@ function vfx_update()
 		return;
 		}
 	
-	//Lifetime (por si el efecto necesita destruirse antes de terminar su animación completa, ej. tocado por otro efecto)
 	if (--lifetime < 0)
 		{
 		instance_destroy();

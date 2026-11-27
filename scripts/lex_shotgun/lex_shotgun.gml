@@ -26,10 +26,8 @@ function lex_shotgun(_override_phase)
 				attack_phase = 1;
 				attack_frame = 24;
 
-				// Retroceso del personaje por el disparo
 				hsp = -7 * facing;
 
-				// Generar ráfaga de 3 perdigones 
 				var _bullet_speeds_y = [-3, 0, 3];
 				
 				for (var i = 0; i < 3; i++)
@@ -44,7 +42,6 @@ function lex_shotgun(_override_phase)
 					_hitbox.custom_update = lex_shotgun_hitbox_update;
 					_hitbox.custom_draw = lex_shotgun_hitbox_draw;
 					
-					// Trayectoria de los perdigones
 					_hitbox.hsp = 22 * facing;
 					_hitbox.vsp = _bullet_speeds_y[i];
 					}

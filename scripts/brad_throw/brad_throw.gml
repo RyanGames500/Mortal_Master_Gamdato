@@ -14,7 +14,6 @@ function brad_throw(_override_phase)
 			}
 		break;
 		
-		//--- STARTUP: Frames 0 -> 3 ---
 		case 0:
 			{
 			attack_frame--;
@@ -38,7 +37,6 @@ function brad_throw(_override_phase)
 			}
 		break;
 		
-		//--- SUJECIÓN INICIAL: Frames 4, 5, 6 ---
 		case 1:
 			{
 			attack_frame--;
@@ -51,7 +49,7 @@ function brad_throw(_override_phase)
 				{
 				anim_frame = 7;
 				attack_phase = 2;
-				attack_frame = 24; // Duración exacta de la carga
+				attack_frame = 24;
 				
 				var _other_player = noone;
 				with (obj_player)
@@ -86,7 +84,6 @@ function brad_throw(_override_phase)
 			}
 		break;
 		
-		//--- ALZAMIENTO Y CARGA ---
 		case 2:
 			{
 			attack_frame--;
@@ -132,7 +129,6 @@ function brad_throw(_override_phase)
 					}
 				else if (anim_frame >= 12)
 					{
-					// Lanzamiento con arco: viaja de las manos al piso en pocos frames
 					var _t = clamp((10 - attack_frame) / 3, 0, 1);
 					_carry_x = lerp(0, 150, _t);
 					_carry_y = lerp(0, -15, _t) - (sin(_t * pi) * 50);
@@ -156,13 +152,9 @@ function brad_throw(_override_phase)
 			if (attack_frame == 9)
 				{
 				anim_frame = 12;
-				// Temblor leve al lanzarlo
 				obj_game.cam_shake = max(obj_game.cam_shake, 3);
 				}
 			
-			// =========================================================================
-			// REMATE: el hitbox derriba al rival (daño, combo, sonido, chispa y temblor)
-			// =========================================================================
 			if (attack_frame == 6)
 				{
 				anim_frame = 13;
@@ -170,13 +162,10 @@ function brad_throw(_override_phase)
 				
 				if (_other_player != noone)
 					{
-					// El rival ya no es "cargado": el hitbox lo manda a knockdown
 					_other_player.being_carried = false;
 					
-					// Lo apoya en el piso
 					_other_player.y = ceil(obj_ground.y - (_other_player.bbox_bottom - _other_player.y));
 					
-					// Polvo donde lo estrella
 					var _land_vfx = instance_create_layer(_other_player.x, obj_ground.y, "VFX_Layer", obj_vfx);
 					_land_vfx.sprite_index = spr_effect_landing_dust;
 					_land_vfx.image_xscale = facing;
@@ -184,7 +173,6 @@ function brad_throw(_override_phase)
 					_land_vfx.lifetime     = sprite_get_number(spr_effect_landing_dust) / _land_vfx.anim_speed;
 					_land_vfx.owner        = id;
 					
-					// Hitbox justo sobre el rival (desde su posicion real)
 					var _hx = (_other_player.x - x) * facing;
 					var _hy = _other_player.y - y;
 					var _hitbox = hitbox_create(_hx, _hy, 1.3, 1.5, 20, 3);
@@ -202,7 +190,6 @@ function brad_throw(_override_phase)
 			}
 		break;
 		
-		//--- ENDLAG ---
 		case 3:
 			{
 			attack_frame--;

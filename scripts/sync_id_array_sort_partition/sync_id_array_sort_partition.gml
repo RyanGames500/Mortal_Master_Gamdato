@@ -2,9 +2,6 @@
 ///@param {array} array			The array to sort
 ///@param {int} [left]			The left position
 ///@param {int} [right]			The right position
-/*
-Helper function used in <sync_id_array_sort> - do NOT call independently.
-*/
 function sync_id_array_sort_partition()
 	{
 	var _array = argument[0];

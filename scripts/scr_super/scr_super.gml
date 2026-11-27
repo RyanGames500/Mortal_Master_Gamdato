@@ -1,23 +1,16 @@
-/* Supers (nuestro). Activacion, pausa y efectos; la logica de cada super vive en el script de cada personaje. */
-#macro SUPER_CHARGE_FRAMES		5	//pausa del rival justo antes del golpe final (60 frames = 1 segundo): menos = el golpe sale mas rapido
-#macro SUPER_FREEZE_FRAMES		20	//pausa de ambos jugadores al activar un super
-#macro SUPER_FX_FRAMES			20	//duracion total del efecto (incluye la pausa)
-#macro SUPER_DIM_ALPHA			0.4	//que tanto se oscurece la pantalla (0 a 1)
-#macro SUPER_MOTION_LENIENCY	80	//45 //frames para completar la doble media luna
-#macro METER_COST_SUPER_MAX		300	//super cinematico: toda la barra
+#macro SUPER_CHARGE_FRAMES		5
+#macro SUPER_FREEZE_FRAMES		20
+#macro SUPER_FX_FRAMES			20
+#macro SUPER_DIM_ALPHA			0.4
+#macro SUPER_MOTION_LENIENCY	80
+#macro METER_COST_SUPER_MAX		300
 
-/* Doble media luna (cuarto de circulo dos veces): abajo, abajo-adelante, adelante, x2.
-   El "abajo" acepta tambien las diagonales abajo-atras y abajo-adelante, para que no sea tan exacto. */
 function super_motion_check()
 	{
 	return input_motion_check([STICK_DIR.down_any, STICK_DIR.forward_down, STICK_DIR.forward,
 							   STICK_DIR.down_any, STICK_DIR.forward_down, STICK_DIR.forward], SUPER_MOTION_LENIENCY);
 	}
 
-/*
-True si el personaje puede lanzar un super ahora.
-Libre en el suelo, y cancela cualquier ataque que ya conecto (golpe o bloqueo), o al inicio de un ataque.
-*/
 function super_state_ok()
 	{
 	if (bbox_bottom < obj_ground.y) then return false;
@@ -39,7 +32,6 @@ function super_state_ok()
 	return false;
 	}
 
-/* Se llama desde el jugador que lanza el super: pausa corta para los dos y prende el efecto */
 function super_activation_fx(_id)
 	{
 	super_id = _id;
@@ -57,11 +49,6 @@ function super_activation_fx(_id)
 		}
 	}
 
-/*
-Efecto de super: oscurece la pantalla y dibuja energia (rayos, resplandor, aro y destello)
-alrededor de quien lo lanza. Se llama al final del Draw GUI de obj_game.
-Solo lee variables (super_fx, super_id, ex_glow_color), no cambia nada del juego.
-*/
 function game_draw_super_fx()
 	{
 	if (!instance_exists(obj_game)) then return;
@@ -76,25 +63,23 @@ function game_draw_super_fx()
 	with (obj_player)
 		{
 		if (super_fx <= 0) then continue;
-		if (super_id == 2) then continue;	// los de 3 barras usan el fondo de game_draw_super_bg
+		if (super_id == 2) then continue;
 		
-		var _t = 1 - (super_fx / SUPER_FX_FRAMES);		// 0 al activar, 1 al terminar
+		var _t = 1 - (super_fx / SUPER_FX_FRAMES);
 		var _fade = 1 - _t;
-		var _k = (super_id == 2) ? 1.4 : 1;				// el cinematico es mas grande
-		var _u = max(1, (bbox_bottom - bbox_top) * _sc);	// alto del personaje en pantalla
+		var _k = (super_id == 2) ? 1.4 : 1;
+		var _u = max(1, (bbox_bottom - bbox_top) * _sc);
 		var _cx = (((bbox_left + bbox_right) * 0.5) - _vx) * _sc;
 		var _cy = (((bbox_top + bbox_bottom) * 0.5) - _vy) * _sc;
 		var _col = ex_glow_color;
 		var _hot = merge_colour(ex_glow_color, c_white, 0.6);
 		
-		// 1) Oscurecer: entra rapido, se mantiene y sale suave
 		draw_set_colour(c_black);
 		draw_set_alpha(SUPER_DIM_ALPHA * clamp(super_fx / 10, 0, 1) * clamp((SUPER_FX_FRAMES - super_fx) / 3, 0, 1));
 		draw_rectangle(0, 0, _gw, _gh, false);
 		
 		gpu_set_blendmode(bm_add);
 		
-		// 2) Rayos de luz saliendo del personaje
 		draw_set_colour(_hot);
 		draw_set_alpha(0.55 * _fade);
 		for (var _r = 0; _r < 14; _r++)
@@ -107,7 +92,6 @@ function game_draw_super_fx()
 						  _cx + lengthdir_x(_len, _ang + _w), _cy + lengthdir_y(_len, _ang + _w), false);
 			}
 		
-		// 3) Resplandor del nucleo (capas suaves)
 		draw_set_colour(_col);
 		for (var _g = 0; _g < 6; _g++)
 			{
@@ -115,7 +99,6 @@ function game_draw_super_fx()
 			draw_circle(_cx, _cy, _u * (1.4 - (_g * 0.2)) * lerp(1, 0.6, _t) * _k, false);
 			}
 		
-		// 4) Aro grueso que se expande
 		var _tt = clamp(_t * 1.5, 0, 1);
 		var _rr = _u * lerp(0.3, 1.8, _tt) * _k;
 		var _thick = max(3, _u * 0.07);
@@ -126,7 +109,6 @@ function game_draw_super_fx()
 			draw_circle(_cx, _cy, _rr + _i, true);
 			}
 		
-		// 5) Destello blanco al activar
 		if (_t < 0.2)
 			{
 			draw_set_colour(c_white);
@@ -141,20 +123,11 @@ function game_draw_super_fx()
 	draw_set_colour(c_white);
 	}
 	
-/*
-Linea de tiempo de un super cinematico (nuestro).
-super_ev crea un evento: en el frame _t de la secuencia, pone el sprite y frame de la pose,
-opcionalmente da un impulso hacia adelante (_mv) y opcionalmente lanza un golpe (_hit).
-_hit = [x_offset, y_offset, ancho, alto, daño, lanzamiento, empuje (opcional, por defecto 3)]  (lanzamiento 0 = no lanza)
-Regla: dos golpes deben estar separados por 5 frames o mas.
-*/
 function super_ev(_t, _spr, _f, _mv = 0, _hit = undefined)
 	{
 	return { t: _t, spr: _spr, f: _f, mv: _mv, hit: _hit };
 	}
 
-//Ejecuta los eventos de la linea de tiempo que caen en el frame _t. Lo llama el jugador que lanza el super.
-//_hit = [x, y, ancho, alto, daño, lanzamiento, empuje (opcional, por defecto 3)]
 function super_timeline_run(_tl, _t)
 	{
 	for (var _i = 0; _i < array_length(_tl); _i++)

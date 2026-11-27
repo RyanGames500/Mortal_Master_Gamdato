@@ -1,32 +1,20 @@
-/*
-Super 1 de Mayel: TORNADO DE CAPA (nuestro). Doble media luna + medium, 2 barras. Se activa en el piso o en el aire.
-Mayel gira como tornado (spr_mayel_super_giro, 8 cuadros). Si el primer golpe CONECTA, atrapa al rival, lo centra
-detras de Mayel (en su pose de hit stun) y suben juntos mientras el giro lo va golpeando. Arriba lo lanza hacia atras.
-Si el primer golpe falla o lo bloquean, se corta y Mayel queda castigable.
-Despues de atraparlo el rival no puede morir hasta el remate (super_lock).
-Fases: 0 = giro y primer golpe, 1 = lo atrapa, 2 = suben girando, 3 = pausa y remate, 4 = recuperacion, 5 = fallo.
-*/
 
-//--- GIRO Y PRIMER GOLPE ---
-#macro MS1_SPIN_SPEED	0.8		//velocidad del giro: cuadros de la animacion por frame (0.5 = lento, 1 = normal, 2 = muy rapido)
-#macro MS1_FIRST_T		18		//frames del giro inicial (la ventana para pegar)
-#macro MS1_DMG_FIRST	3		//dano del primer golpe
-#macro MS1_MISS_LAG		30		//si falla o lo bloquean
-//--- SUBIDA ---
-#macro MS1_PULL_T		10		//frames que tarda en jalar al rival al centro del tornado
-#macro MS1_RISE_T		64		//frames que dura la subida (mas grande = mas lenta)
-#macro MS1_RISE_H		360		//cuanto suben (pixeles)
-#macro MS1_HIT_EVERY	8		//cada cuantos frames le pega durante la subida
-#macro MS1_DMG_HIT		5		//dano de cada golpe de la subida
-#macro MS1_RIVAL_DY		0		//altura del rival respecto a Mayel (0 = centrado)
-//--- REMATE ---
-#macro MS1_FINISH_T		10		//pausa arriba antes de soltarlo
-#macro MS1_DMG_FINAL	12		//dano del remate
-#macro MS1_FINAL_HSP	40		//empuje del rival hacia ATRAS de Mayel
-#macro MS1_FINAL_VSP	-12		//arco del lanzamiento (negativo = sale hacia arriba, positivo = hacia abajo)
-#macro MS1_END_LAG		14		//frames que Mayel queda arriba antes de caer
+#macro MS1_SPIN_SPEED	0.8
+#macro MS1_FIRST_T		18
+#macro MS1_DMG_FIRST	3
+#macro MS1_MISS_LAG		30
+#macro MS1_PULL_T		10
+#macro MS1_RISE_T		64
+#macro MS1_RISE_H		360
+#macro MS1_HIT_EVERY	8
+#macro MS1_DMG_HIT		5
+#macro MS1_RIVAL_DY		0
+#macro MS1_FINISH_T		10
+#macro MS1_DMG_FINAL	12
+#macro MS1_FINAL_HSP	40
+#macro MS1_FINAL_VSP	-12
+#macro MS1_END_LAG		14
 
-// Puede lanzar el super en el aire (nuestro)
 function mayel_super_air_ok()
 	{
 	if (bbox_bottom >= obj_ground.y) then return false;
@@ -38,7 +26,6 @@ function mayel_super_air_ok()
 	return false;
 	}
 
-// El otro jugador (nuestro)
 function mayel_s1_rival()
 	{
 	var _r = noone;
@@ -53,14 +40,12 @@ function mayel_s1_rival()
 	return _r;
 	}
 
-// Suavizado 0..1 -> 0..1 (nuestro)
 function mayel_s1_sm(_u)
 	{
 	_u = clamp(_u, 0, 1);
 	return _u * _u * (3 - 2 * _u);
 	}
 
-// Mantiene al rival congelado mientras lo manejamos (nuestro)
 function mayel_s1_hold(_r)
 	{
 	_r.hitlag_frame = max(_r.hitlag_frame, 2);
@@ -69,8 +54,6 @@ function mayel_s1_hold(_r)
 	_r.vsp = 0;
 	}
 
-// Donde hay que poner el origen del rival para que el CENTRO de su cuerpo quede en (_tx, _ty).
-// Devuelve [x, y] y deja puesto su sprite de hit stun (nuestro)
 function mayel_s1_spin_pos(_r, _tx, _ty, _ang)
 	{
 	var _spr = _r.sprites[$ "hitstun_aerial"];
@@ -86,7 +69,6 @@ function mayel_s1_spin_pos(_r, _tx, _ty, _ang)
 	return [round(_tx - _rx), round(_ty - _ry)];
 	}
 
-// Pone al rival centrado dentro del tornado, en su pose de hit stun (nuestro)
 function mayel_s1_spin(_r, _tx, _ty, _ang)
 	{
 	mayel_s1_hold(_r);
@@ -96,7 +78,6 @@ function mayel_s1_spin(_r, _tx, _ty, _ang)
 	_r.y = _p[1];
 	}
 
-// Chispa de golpe (alterna entre dos chispas, sin random) (nuestro)
 function mayel_s1_spark(_x, _y, _n)
 	{
 	var _sprs = [spr_effect_spark, spr_effect_spark2];
@@ -108,7 +89,6 @@ function mayel_s1_spark(_x, _y, _n)
 	_vfx.owner        = id;
 	}
 
-// Mayel se vuelve a dibujar ENCIMA del rival mientras lo lleva: asi el rival queda detras (solo dibujo) (nuestro)
 function mayel_s1_over_spawn()
 	{
 	var _h = hitbox_create(0, 0, 0.1, 0.1, 0, 1);
@@ -151,10 +131,10 @@ function mayel_super_tornado(_override_phase)
 			attack_connected = false;
 			super_invuln = false;
 			super_lock = false;
-			ms_age = 0;			// contador del giro
-			ms_hitn = 0;		// numero de golpes de la subida
-			ms_y0 = y;			// altura donde empieza a subir
-			ms_rx0 = x;			// donde estaba el rival al atraparlo
+			ms_age = 0;
+			ms_hitn = 0;
+			ms_y0 = y;
+			ms_rx0 = x;
 			ms_ry0 = y;
 			ex_glow_color = make_colour_rgb(255, 150, 40);
 			}
@@ -162,7 +142,6 @@ function mayel_super_tornado(_override_phase)
 		
 		case ATTACK_PHASE.stop:
 			{
-			// Si algo corta el super a medias, el rival no se queda congelado
 			if (attack_phase >= 1 && attack_phase <= 3)
 				{
 				var _rs = mayel_s1_rival();
@@ -183,7 +162,6 @@ function mayel_super_tornado(_override_phase)
 			}
 		break;
 		
-		// 0 = giro y primer golpe: en el aire se queda suspendido
 		case 0:
 			{
 			attack_frame--;
@@ -205,7 +183,6 @@ function mayel_super_tornado(_override_phase)
 				var _r = mayel_s1_rival();
 				if (attack_hit_confirmed() && _r != noone)
 					{
-					// lo atrapa: pasa a un estado controlado por nosotros
 					with (_r)
 						{
 						player_state_set(PLAYER_STATE.hitstun_aerial);
@@ -224,7 +201,6 @@ function mayel_super_tornado(_override_phase)
 					break;
 					}
 				
-				// lo bloquearon: se corta
 				attack_phase = 5;
 				attack_frame = MS1_MISS_LAG;
 				break;
@@ -238,7 +214,6 @@ function mayel_super_tornado(_override_phase)
 			}
 		break;
 		
-		// 1 = jala al rival al centro del tornado
 		case 1:
 			{
 			attack_frame--;
@@ -267,7 +242,6 @@ function mayel_super_tornado(_override_phase)
 			}
 		break;
 		
-		// 2 = suben juntos; el giro lo va golpeando (el rival queda en su pose de hit stun)
 		case 2:
 			{
 			attack_frame--;
@@ -284,7 +258,6 @@ function mayel_super_tornado(_override_phase)
 				{
 				mayel_s1_spin(_r, x, y + MS1_RIVAL_DY, 0);
 				
-				// golpe del giro
 				if (attack_frame > 0 && (attack_frame mod MS1_HIT_EVERY) == 0)
 					{
 					with (_r)
@@ -306,14 +279,12 @@ function mayel_super_tornado(_override_phase)
 			}
 		break;
 		
-		// 3 = se detiene arriba un momento y lo lanza hacia atras
 		case 3:
 			{
 			attack_frame--;
 			hsp = 0;
 			vsp = 0;
 			
-			// el giro frena: queda de frente (cuadro 0)
 			anim_frame = 0;
 			
 			var _r = mayel_s1_rival();
@@ -346,7 +317,6 @@ function mayel_super_tornado(_override_phase)
 			}
 		break;
 		
-		// 4 = recuperacion arriba (vulnerable), despues cae normal
 		case 4:
 			{
 			attack_frame--;
@@ -362,7 +332,6 @@ function mayel_super_tornado(_override_phase)
 			}
 		break;
 		
-		// 5 = fallo (castigable): sigue el giro y cae con la gravedad del engine
 		case 5:
 			{
 			attack_frame--;

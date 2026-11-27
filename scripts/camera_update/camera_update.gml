@@ -1,6 +1,3 @@
-/*
-Updates the camera coordinates.
-*/
 function camera_update()
 	{
 	if (intro_active())
@@ -19,7 +16,6 @@ function camera_update()
 			}
 		return;
 		}		
-	//Get the average x and y of all players
 	var _num_players = instance_number(obj_player);
 	var _mean_x = 0;
 	var _mean_y = 0;
@@ -31,12 +27,9 @@ function camera_update()
 	_mean_x = _mean_x div _num_players;
 	_mean_y = _mean_y div _num_players;
 	
-	//Tamano real de la vista (con el zoom aplicado) (nuestro)
 	var _vw = camera_get_view_width(camera_index);
 	var _vh = camera_get_view_height(camera_index);
 	
-	//Restrict the camera to the room boundaries
-	//En y la vista queda pegada abajo: el suelo se ve igual y el extra del zoom se agrega arriba
 	cam_x = clamp(_mean_x - (_vw * 0.5), 0, room_width - _vw);
 	cam_y = room_height - _vh;
 	var _lerp_y = 0.1;
@@ -46,10 +39,8 @@ function camera_update()
 		_lerp_y = 0.25;
 		}
 	
-	//Don't move the camera during rollback frames
 	if (!ggmr_session_is_in_rollback())
 		{
-		//Smoothly move the camera to the goal coordinates
 		cam_x_display = lerp(cam_x_display, cam_x, 0.1);
 		cam_y_display = lerp(cam_y_display, cam_y, _lerp_y);
 		
@@ -58,7 +49,6 @@ function camera_update()
 			cam_shake = max(cam_shake, 40);
 			}
 		
-		//Camera shake
 		cam_x_display += choose(-cam_shake, cam_shake);
 		cam_y_display += choose(-cam_shake, cam_shake);
 		cam_shake *= 0.9;

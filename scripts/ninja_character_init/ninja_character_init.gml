@@ -1,9 +1,5 @@
-/*
-Ninja Rojo (nuestro). Versión base: sprites de Danny con otra paleta.
-*/
 function ninja_character_init()
 	{
-	//Properties
 	character_name = "NINJA";
 	walk_speed = 5;
 	dash_speed = 15;
@@ -19,17 +15,13 @@ function ninja_character_init()
 	
 	sprite_scale = 6;
 	
-	//Environmental collision box
 	sprite_index = spr_danny_ecb;
 	
-	//Palette: rojo normal, verde si es espejo (la paleta 0 es el azul de Danny y no se usa)
 	palette_sprite = spr_ninja_palette;
 	current_pal = (current_pal == 0) ? 1 : 2;
 
-	//hurtbox
 	hurtbox_sprite = spr_danny_hurtbox;
 
-	//Gameplay sprites
 	sprites[$ "idle"			] = spr_danny_idle;
 	sprites[$ "crouch"			] = spr_danny_crouch;
 	sprites[$ "walk_forward"	] = spr_danny_walk;
@@ -50,7 +42,6 @@ function ninja_character_init()
 	sprites[$ "getup"			] = spr_danny_idle;
 	sprites[$ "throw_victim"	] = spr_mayel_lanzado;
 	
-	//Attack scripts (por ahora los de Danny; los iremos reemplazando)
 	attacks[$ "light_ground"	] = danny_light_ground;
 	attacks[$ "medium_ground"	] = danny_medium_ground;
 	attacks[$ "medium_aerial"	] = danny_medium_aerial;
@@ -62,9 +53,7 @@ function ninja_character_init()
 	attacks[$ "heavy_aerial"	] = danny_heavy_aerial;
 	attacks[$ "throw"			] = blocky_throw;
 
-	//sprite_inicial
 	anim_sprite = sprites[$ "idle"];
 
-	//Passive script
 	passive = danny_passive;
 	}

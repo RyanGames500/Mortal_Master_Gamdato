@@ -1,7 +1,4 @@
 ///@category GGMR
-/*
-Returns true if there are 2 or more lobby members and all are ready.
-*/
 function ggmr_lobby_everyone_is_ready()
 	{
 	with (obj_ggmr_lobby) 

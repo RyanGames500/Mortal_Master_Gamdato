@@ -1,12 +1,7 @@
 ///@description Matchmaking Search Logic
 
-//The whole matchmaking state in a single call per step. Besides saving calls it
-//is a consistent snapshot: separate getters could each read a value updated by a
-//reply that landed halfway through the step
 var _mm = gmda_matchmakingState();
 
-//Diagnostics: one line per state change. It goes at the very top because there
-//are several exits below and it would be lost in the cases that matter most
 if (state != state_prev)
 	{
 	var _lob = instance_exists(obj_ggmr_lobby)
@@ -20,7 +15,6 @@ if (state != state_prev)
 	state_prev = state;
 	}
 
-//--- Buttons: geometry, hover and click ---
 var _gw = display_get_gui_width();
 var _asking = (state == "confirm" && !confirm_sent);
 
@@ -58,7 +52,6 @@ if (fade_alpha >= 1)
 			}
 		if (btn2_hover)
 			{
-			//Declining does not go back to the queue
 			leave_search("Match declined");
 			exit;
 			}
@@ -70,7 +63,6 @@ else
 	btn2_hover = false;
 	}
 
-//The match fell through. Whoever had accepted goes back to the queue
 if ((state == "confirm" || state == "match_found" || state == "waiting_join"
 	|| state == "joining_host" || state == "starting")
 	&& gmda_matchmakingTakeCancelled())
@@ -100,7 +92,6 @@ switch (state)
 	break;
 
 	case "searching":
-		//Animacion de puntos
 		search_time++;
 		if (search_time mod 30 == 0)
 			{
@@ -113,14 +104,12 @@ switch (state)
 
 		if (_mm.found)
 			{
-			//With auto-accept it is already confirmed; only the others are left
 			confirm_sent = mm_auto_accept || _mm.confirmed;
 			status_text = confirm_sent ? "Waiting for the other players" : "Accept the match";
 			state = "confirm";
 			break;
 			}
 
-		//The server stopped answering
 		if (_mm.server_ms_ago > signal_timeout_ms)
 			{
 			leave_search("Lost contact with the server");
@@ -134,17 +123,15 @@ switch (state)
 			}
 		else if (joined_ok || _mm.ticket_id != "")
 			{
-			//We were queued and the server took us out
 			status_text = "Search ended";
 			state = "fade_out";
 			fade_timer = 0;
 			}
 		else
 			{
-			//The join has not come back yet
 			status_text = "Connecting to server";
 			join_timeout++;
-			if (join_timeout > 600) //10 seconds
+			if (join_timeout > 600)
 				{
 				status_text = "Could not reach the matchmaking server";
 				state = "fade_out";
@@ -166,7 +153,6 @@ switch (state)
 
 		status_text = confirm_sent ? "Waiting for the other players" : "Accept the match";
 
-		//If we had already accepted, go back to the queue instead of the menu
 		if (_mm.confirm_ms_left <= 0)
 			{
 			if (confirm_sent)
@@ -182,7 +168,6 @@ switch (state)
 
 	case "requeue":
 		wait_timer++;
-		//Waits for the cancel to land before asking for a new ticket
 		if (_mm.ticket_id == "" && !_mm.in_queue && !_mm.found)
 			{
 			gamdato_matchmaking_start({ team_size: mm_team_size, auto_accept: mm_auto_accept });
@@ -194,7 +179,7 @@ switch (state)
 			state = "searching";
 			break;
 			}
-		if (wait_timer > 300) //5s: the cancel never came back
+		if (wait_timer > 300)
 			{
 			status_text = "Could not return to the queue";
 			state = "fade_out";
@@ -206,7 +191,7 @@ case "match_found":
 		match_found_timer++;
 		status_text = "Opponent found! Connecting...";
 
-		if (match_found_timer >= 90) //1.5 seconds to show opponent info
+		if (match_found_timer >= 90)
 		{
 			var _opponents = _mm.opponents;
 			if (array_length(_opponents) <= 0)
@@ -215,13 +200,11 @@ case "match_found":
 				break;
 				}
 
-			//The server assigns our slot. Slot 0 acts as the host
 			my_slot = _mm.slot;
 
 			wait_timer = 0;
 			if (my_slot == 0)
 				{
-				//We are the host: wait for the request and accept it
 				status_text = "Waiting for opponent to connect...";
 				state = "waiting_join";
 				}
@@ -237,7 +220,6 @@ case "match_found":
 						}
 					}
 
-				// --- OBTENER ENDPOINT OFICIAL DE GAMDATO ---
 				var _ep = gmda_matchmakingGetEndpoint(_host_idx);
 				var _ip = "";
 				var _port = 0;
@@ -267,7 +249,6 @@ case "match_found":
 	case "waiting_join":
 		wait_timer++;
 
-		//Matchmaking already picked the opponent: accept without asking
 		while (ds_list_size(obj_ggmr_lobby.lobby_join_requests) > 0
 			&& ggmr_lobby_size() < _mm.team_size * 2)
 			{
@@ -279,14 +260,13 @@ case "match_found":
 
 		if (ggmr_lobby_size() >= 2)
 			{
-			//As the host we send the start and walk straight in
 			status_text = "Starting match...";
 			if (ggmr_lobby_session_start())
 				{
 				start_match();
 				}
 			}
-		else if (wait_timer > 600) //10s
+		else if (wait_timer > 600)
 			{
 			requeue("The opponent did not connect. Back to the queue");
 			}
@@ -296,12 +276,11 @@ case "match_found":
 		wait_timer++;
 		if (ggmr_lobby_size() >= 2)
 			{
-			//Connected: wait for the host to start
 			status_text = "Connected! Waiting for host...";
 			wait_timer = 0;
 			state = "starting";
 			}
-		else if (wait_timer > 600) //10s
+		else if (wait_timer > 600)
 			{
 			requeue("Could not connect. Back to the queue");
 			}
@@ -310,21 +289,19 @@ case "match_found":
 	case "starting":
 		wait_timer++;
 
-		//Only whoever joined gets here: waits for the start
 		if (ggmr_lobby_session_is_started())
 			{
 			start_match();
 			break;
 			}
 
-		//The lobby fell apart: the host left
 		if (ggmr_lobby_size() < 2)
 			{
 			requeue("Lost connection to the host");
 			break;
 			}
 
-		if (wait_timer > 600) //10s
+		if (wait_timer > 600)
 			{
 			requeue("The host never started the match");
 			}

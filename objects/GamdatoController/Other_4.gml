@@ -1,6 +1,3 @@
-// ROOM START
-//If the netcode socket could not be opened, look for the next free port.
-//Happens when two copies of the game run on the same machine
 if (instance_exists(obj_ggmr_net) && obj_ggmr_net.net_socket == -1)
 	{
 	var _base = real(obj_ggmr_net.net_port);

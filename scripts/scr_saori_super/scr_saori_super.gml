@@ -1,35 +1,26 @@
-/*
-Super 1 de Saori (nuestro): LLUVIA DE PATADAS (2 barras). Doble media luna + medium.
-Usa spr_saori_special_divekick (la picada que ya tiene) y spr_saori_super_tumble (rebote: 4 frames de 31x32, origen centro 15,16).
-Fases: 0 = preparacion, 1 = salto, 2 = primera picada (la unica que puede fallar), 3 = rebotes y picadas 2 y 3,
-       4 = caida y recuperacion.
-Si la primera picada falla o la bloquean, el super se corta ahi y Saori queda vendida.
-Si conecta, el rival no puede morir hasta la ultima picada (super_lock).
-*/
 
-#macro SQ_WINDUP		8		//frames de preparacion
-#macro SQ_LEAP_T		12		//frames del salto
-#macro SQ_LEAP_VSP		-32		//impulso hacia arriba del salto
-#macro SQ_LEAP_GRAV		2.6		//cuanto frena el salto cada frame
-#macro SQ_DIVE_DX		240		//distancia horizontal del rival desde la que empieza a bajar
-#macro SQ_DIVE_T		10		//frames que dura la primera picada hasta llegar al rival
-#macro SQ_DIVE_MAXSPD	40		//velocidad maxima de la picada
-#macro SQ_DMG1			12		//daño de la primera picada
-#macro SQ_DMG2			14		//daño de la segunda
-#macro SQ_DMG3			24		//daño de la ultima
-#macro SQ_PIN_Y			330		//a que altura sobre el piso queda el rival suspendido
-#macro SQ_SIDE			240		//cuanto se aleja Saori al lado antes de cada picada
-#macro SQ_UP			230		//cuanto sube Saori sobre el rival antes de cada picada
-#macro SQ_ARC			160		//que tan alto pasa el rebote sobre el rival
-#macro SQ_RB_T			14		//frames de cada rebote
-#macro SQ_DV_T			7		//frames de las picadas 2 y 3
-#macro SQ_PAUSE			6		//pausa despues del impacto de la picada 2
-#macro SQ_FINAL_V		22		//velocidad con la que el rival cae al piso en la ultima
-#macro SQ_FINAL_KNOCK	10		//empuje horizontal del rival en la ultima
-#macro SQ_MISS_LAG		24		//recuperacion si la primera picada falla o la bloquean
-#macro SQ_END_LAG		26		//recuperacion despues de la ultima picada
+#macro SQ_WINDUP		8
+#macro SQ_LEAP_T		12
+#macro SQ_LEAP_VSP		-32
+#macro SQ_LEAP_GRAV		2.6
+#macro SQ_DIVE_DX		240
+#macro SQ_DIVE_T		10
+#macro SQ_DIVE_MAXSPD	40
+#macro SQ_DMG1			12
+#macro SQ_DMG2			14
+#macro SQ_DMG3			24
+#macro SQ_PIN_Y			330
+#macro SQ_SIDE			240
+#macro SQ_UP			230
+#macro SQ_ARC			160
+#macro SQ_RB_T			14
+#macro SQ_DV_T			7
+#macro SQ_PAUSE			6
+#macro SQ_FINAL_V		22
+#macro SQ_FINAL_KNOCK	10
+#macro SQ_MISS_LAG		24
+#macro SQ_END_LAG		26
 
-/* Devuelve el rival de Saori (noone si no hay) */
 function saori_sq_rival()
 	{
 	var _r = noone;
@@ -40,7 +31,6 @@ function saori_sq_rival()
 	return _r;
 	}
 
-/* Engancha al rival cuando conecta la primera picada: guarda los datos y lo pone en el aire. Se llama desde Saori. */
 function saori_sq_lock()
 	{
 	var _v = saori_sq_rival();
@@ -68,7 +58,6 @@ function saori_sq_lock()
 		}
 	}
 
-/* Mantiene al rival congelado en el lugar indicado. Se llama desde Saori. */
 function saori_sq_hold(_x, _y)
 	{
 	var _v = saori_sq_rival();
@@ -81,7 +70,6 @@ function saori_sq_hold(_x, _y)
 	_v.hitlag_frame = max(_v.hitlag_frame, 2);
 	}
 
-/* Impacto de las picadas 2: daño, contador de hits, temblor y sonido. Se llama desde Saori. */
 function saori_sq_impact(_dmg)
 	{
 	var _v = saori_sq_rival();
@@ -99,12 +87,11 @@ function saori_sq_impact(_dmg)
 	if (!ggmr_session_is_in_rollback()) then hit_sfx_play(snd_hit_heavy);
 	}
 
-/* Ultima picada: el rival cae al piso en knockdown. Se llama desde Saori. */
 function saori_sq_finish()
 	{
 	var _v = saori_sq_rival();
 	
-	super_lock = false;			// desde aqui la ultima picada SI puede matar
+	super_lock = false;
 	super_hit_fx = 16;
 	obj_game.cam_shake = max(obj_game.cam_shake, 26);
 	if (!ggmr_session_is_in_rollback()) then hit_sfx_play(snd_hit_heavy);
@@ -150,7 +137,6 @@ function saori_super_dives(_override_phase)
 			super_lock = false;
 			ex_glow_color = make_colour_rgb(255, 60, 200);
 			
-			// Datos del super (nuestros)
 			sq_rx = 0;
 			sq_ry = 0;
 			sq_px = 0;
@@ -169,7 +155,6 @@ function saori_super_dives(_override_phase)
 			super_invuln = false;
 			super_lock = false;
 			
-			// Si lo cortan en medio de los rebotes, suelta al rival para que caiga
 			if (attack_phase == 3)
 				{
 				var _vs = saori_sq_rival();
@@ -187,7 +172,6 @@ function saori_super_dives(_override_phase)
 			}
 		break;
 		
-		// Preparacion (intocable)
 		case 0:
 			{
 			attack_frame--;
@@ -196,7 +180,6 @@ function saori_super_dives(_override_phase)
 			
 			if (attack_frame <= 0)
 				{
-				// Salto hacia el rival
 				var _vl = saori_sq_rival();
 				var _dist = 0;
 				if (_vl != noone)
@@ -208,14 +191,13 @@ function saori_super_dives(_override_phase)
 				hsp = facing * clamp((_dist - SQ_DIVE_DX) / SQ_LEAP_T, 0, 24);
 				vsp = SQ_LEAP_VSP;
 				attack_phase = 1;
-				attack_frame = 0;		// desde aqui cuenta hacia arriba
+				attack_frame = 0;
 				}
 			
 			player_move();
 			}
 		break;
 		
-		// Salto girando (intocable)
 		case 1:
 			{
 			attack_frame++;
@@ -226,7 +208,6 @@ function saori_super_dives(_override_phase)
 			
 			if (attack_frame >= SQ_LEAP_T)
 				{
-				// Apunta a donde esta el rival ahora y baja en picada
 				var _vd = saori_sq_rival();
 				var _ax = x + (facing * 200);
 				var _ay = obj_ground.y - 40;
@@ -241,9 +222,9 @@ function saori_super_dives(_override_phase)
 				vsp = clamp((_ay - y) / SQ_DIVE_T, 8, SQ_DIVE_MAXSPD);
 				
 				attack_phase = 2;
-				attack_frame = 0;		// desde aqui cuenta hacia arriba
+				attack_frame = 0;
 				attack_connected = false;
-				super_invuln = false;		// desde aqui, si falla o la bloquean, queda vendida
+				super_invuln = false;
 				
 				var _hb = hitbox_create(55, 45, 1.4, 1.3, SQ_DMG1, SQ_DIVE_T + 8);
 				_hb.hitlag = 8;
@@ -253,7 +234,6 @@ function saori_super_dives(_override_phase)
 			}
 		break;
 		
-		// Primera picada: si conecta limpio sigue el super; si no, se corta
 		case 2:
 			{
 			if (attack_connected)
@@ -264,13 +244,12 @@ function saori_super_dives(_override_phase)
 					hsp = 0;
 					vsp = 0;
 					attack_phase = 3;
-					attack_frame = 0;		// desde aqui cuenta hacia arriba
+					attack_frame = 0;
 					super_invuln = true;
-					super_lock = true;		// el rival no puede morir hasta la ultima picada
+					super_lock = true;
 					}
 				else
 					{
-					// la bloquearon: rebota y cae
 					hsp = -facing * 4;
 					vsp = -6;
 					sq_tumble = false;
@@ -289,7 +268,6 @@ function saori_super_dives(_override_phase)
 			
 			if (bbox_bottom >= obj_ground.y || attack_frame >= SQ_DIVE_T + 6)
 				{
-				// fallo: cae y queda vendida
 				sq_tumble = false;
 				sq_landed = false;
 				sq_lag = SQ_MISS_LAG;
@@ -299,7 +277,6 @@ function saori_super_dives(_override_phase)
 			}
 		break;
 		
-		// Rebotes y picadas 2 y 3, todo guiado por codigo (el rival queda suspendido en el aire)
 		case 3:
 			{
 			var _cyc = SQ_RB_T + SQ_DV_T + SQ_PAUSE;
@@ -307,13 +284,12 @@ function saori_super_dives(_override_phase)
 			var _t = attack_frame mod _cyc;
 			var _hit_t = SQ_RB_T + SQ_DV_T - 1;
 			
-			// Ciclo 0: rebota hacia el lado contrario del rival. Ciclo 1: vuelve al lado de donde vino.
 			var _side = (_c == 0) ? sq_dir : -sq_dir;
-			var _sx = clamp(sq_px + (_side * SQ_SIDE), 100, room_width - 100);		// donde empieza la picada
+			var _sx = clamp(sq_px + (_side * SQ_SIDE), 100, room_width - 100);
 			var _sy = sq_py - SQ_UP;
-			var _tx = clamp(sq_px + (_side * 80), 100, room_width - 100);			// donde pega
+			var _tx = clamp(sq_px + (_side * 80), 100, room_width - 100);
 			var _ty = sq_py - 40;
-			var _fx = sq_x1;		// de donde sale el rebote
+			var _fx = sq_x1;
 			var _fy = sq_y1;
 			if (_c > 0)
 				{
@@ -323,10 +299,8 @@ function saori_super_dives(_override_phase)
 			
 			facing = -_side;
 			
-			// Saori
 			if (_t < SQ_RB_T)
 				{
-				// Rebote: pasa por encima del rival
 				var _u = (_t + 1) / SQ_RB_T;
 				var _e = _u * _u * (3 - (2 * _u));
 				x = lerp(_fx, _sx, _e);
@@ -336,7 +310,6 @@ function saori_super_dives(_override_phase)
 				}
 			else if (_t <= _hit_t)
 				{
-				// Picada: acelera hasta pegarle
 				var _u2 = (_t - SQ_RB_T + 1) / SQ_DV_T;
 				var _e2 = _u2 * _u2;
 				x = lerp(_sx, _tx, _e2);
@@ -346,14 +319,12 @@ function saori_super_dives(_override_phase)
 				}
 			else
 				{
-				// Pausa despues del impacto
 				x = _tx;
 				y = _ty;
 				anim_sprite = spr_saori_special_divekick;
 				anim_frame = 6;
 				}
 			
-			// Rival: en el rebote 1 sube hasta quedar suspendido; despues se queda ahi
 			var _rx = sq_px;
 			var _ry = sq_py;
 			if (_c == 0 && _t < SQ_RB_T)
@@ -364,10 +335,9 @@ function saori_super_dives(_override_phase)
 				_ry = lerp(sq_ry, sq_py, _le);
 				}
 			var _jx = 0;
-			if (_t >= _hit_t && _t < _hit_t + 4) then _jx = ((_t mod 2) == 0) ? 10 : -10;		// temblor del impacto
+			if (_t >= _hit_t && _t < _hit_t + 4) then _jx = ((_t mod 2) == 0) ? 10 : -10;
 			saori_sq_hold(_rx + _jx, _ry);
 			
-			// Impacto
 			if (_t == _hit_t)
 				{
 				if (_c >= 1)
@@ -392,7 +362,6 @@ function saori_super_dives(_override_phase)
 			}
 		break;
 		
-		// Caida y recuperacion (vulnerable): despues de la ultima picada, o si la primera fallo o la bloquearon
 		case 4:
 			{
 			if (!sq_landed)
@@ -420,7 +389,6 @@ function saori_super_dives(_override_phase)
 					attack_frame = sq_lag;
 					hsp = hsp * 0.5;
 					vsp = 0;
-					// Aterriza agachada
 					anim_sprite = spr_saori_crouch;
 					anim_frame = 0;
 					anim_speed = 0;
@@ -430,7 +398,6 @@ function saori_super_dives(_override_phase)
 				{
 				attack_frame--;
 				
-				// Despues de unos frames agachada, se levanta a su idle animado
 				if (attack_frame == (sq_lag - 8))
 					{
 					anim_sprite = sprites[$ "idle"];

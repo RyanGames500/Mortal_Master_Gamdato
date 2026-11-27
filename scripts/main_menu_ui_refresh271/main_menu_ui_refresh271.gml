@@ -1,9 +1,5 @@
-/*
-Refreshes all of the UI on the main menu.
-*/
 function main_menu_ui_refresh271()
 	{
-	//Destroy existing lobby UI
 	instance_destroy(obj_menu_player);
 	instance_destroy(obj_menu_spectator);
 	instance_destroy(obj_menu_kick);
@@ -13,7 +9,6 @@ function main_menu_ui_refresh271()
 	var _xscale = 60;
 	var _yscale = 4;
 	
-	//Loop through all lobby members and create new UI
 	for (var i = 0; i < ds_list_size(obj_ggmr_lobby.lobby_members); i++)
 		{
 		var _player = instance_create_depth(_x, _y, 0, obj_menu_player);
@@ -36,8 +31,6 @@ function main_menu_ui_refresh271()
 				text = "Spectator";
 				}
 			
-			//Only create the kick button for other players
-			//You can't kick yourself from the lobby
 			if (i != obj_ggmr_lobby.lobby_member_number)
 				{
 				var _kick = instance_create_depth(_x + 16 * 52, _y + 8, -1, obj_menu_kick);

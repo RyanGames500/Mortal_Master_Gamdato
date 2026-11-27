@@ -1,8 +1,3 @@
-/*
-Arma las filas del menú de SALA PRIVADA según el estado del lobby (nuestro).
-Se ejecuta dentro de obj_main_menu_v2 (lo llama el Step).
-Rellena private_lobby_options (texto), private_lobby_actions (acción) y private_lobby_args (índice).
-*/
 function private_lobby_menu_build()
 	{
 	var _opts = [];
@@ -13,7 +8,6 @@ function private_lobby_menu_build()
 	var _members = ds_list_size(obj_ggmr_lobby.lobby_members);
 	var _requests = ds_list_size(obj_ggmr_lobby.lobby_join_requests);
 	
-	// Solo (sin nadie en la sala): reservar un código o entrar a la sala de otro
 	if (_members <= 1)
 		{
 		array_push(_opts, "SET LOBBY CODE");
@@ -25,7 +19,6 @@ function private_lobby_menu_build()
 		array_push(_args, 0);
 		}
 	
-	// Solicitudes pendientes: solo el anfitrión puede aceptarlas
 	if (_leader)
 		{
 		for (var i = 0; i < _requests; i++)
@@ -37,7 +30,6 @@ function private_lobby_menu_build()
 			}
 		}
 	
-	// Con alguien en la sala: listo, expulsar y salir
 	if (_members > 1)
 		{
 		var _me = obj_ggmr_lobby.lobby_member_number;

@@ -1,18 +1,15 @@
 /// @description Selección y Asignación Directa
 
-// --- CONTROLES P1 ---
 var _p1_left   = keyboard_check_pressed(ord("A"));
 var _p1_right  = keyboard_check_pressed(ord("D"));
 var _p1_select = keyboard_check_pressed(ord("J")) || keyboard_check_pressed(vk_enter);
 var _p1_cancel = keyboard_check_pressed(ord("K")) || keyboard_check_pressed(vk_backspace);
 
-// --- CONTROLES P2 (SOLO FLECHAS / NUMPAD) ---
 var _p2_left   = keyboard_check_pressed(vk_left);
 var _p2_right  = keyboard_check_pressed(vk_right);
 var _p2_select = keyboard_check_pressed(vk_numpad1) || keyboard_check_pressed(vk_space);
 var _p2_cancel = keyboard_check_pressed(vk_numpad2);
 
-// --- SELECCIÓN P1 ---
 if (!p1_confirmed)
 	{
 	if (_p1_left)
@@ -37,7 +34,6 @@ else if (_p1_cancel)
 	start_timer = -1;
 	}
 
-// --- SELECCIÓN P2 (MODO LOCAL) ---
 if (!global.online_mode)
 	{
 	if (!p2_confirmed)
@@ -65,7 +61,6 @@ if (!global.online_mode)
 		}
 	}
 
-// --- IR A GAMEPLAY ---
 if (p1_confirmed && (p2_confirmed || global.online_mode))
 	{
 	if (start_timer == -1) start_timer = 30;
@@ -76,7 +71,6 @@ if (p1_confirmed && (p2_confirmed || global.online_mode))
 		}
 	}
 
-// Salir al menú con ESC
 if (keyboard_check_pressed(vk_escape))
 	{
 	room_goto(rm_main_menu);

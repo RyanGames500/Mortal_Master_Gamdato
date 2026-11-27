@@ -5,11 +5,10 @@ function scar_heavy_ground(_override_phase)
 		{
 		case ATTACK_PHASE.start:
 			{
-			anim_sprite = spr_scar_heavy_ground; // Tira de 12 subimágenes (0 a 11)
+			anim_sprite = spr_scar_heavy_ground;
 			anim_frame = 0;
 			anim_speed = 0;
 			
-			// Startup pesado (8 frames) para cargar la patada
 			attack_frame = 8;
 			
 			hsp = 0;
@@ -21,20 +20,17 @@ function scar_heavy_ground(_override_phase)
 			{
 			attack_frame--;
 			
-			// Carga progresiva del torso y rodilla (frames 0 al 4)
 			if (attack_frame == 6) then anim_frame = 1;
 			if (attack_frame == 4) then anim_frame = 2;
 			if (attack_frame == 2) then anim_frame = 3;
 			if (attack_frame == 1) then anim_frame = 4;
 			
-			// Instante del golpe pesado (Subimagen 5: Impacto con ráfaga)
 			if (attack_frame <= 0)
 				{
 				anim_frame = 5;
 				attack_phase = 1;
-				attack_frame = 24; // Recovery largo por ser Heavy
+				attack_frame = 24;
 				
-				// Ligera zancada hacia adelante para dar alcance
 				hsp = 4 * facing;
 				
 			
@@ -54,16 +50,14 @@ function scar_heavy_ground(_override_phase)
 			{
 			attack_frame--;
 			
-			// Frenar la inercia de la patada
 			hsp = lerp(hsp, 0, 0.2);
 
-			// Recorrido ordenado de los frames restantes (6 a 11)
-			if (attack_frame == 20) then anim_frame = 6;  // Mantiene extensión
+			if (attack_frame == 20) then anim_frame = 6;
 			if (attack_frame == 16) then anim_frame = 7;
 			if (attack_frame == 12) then anim_frame = 8;
 			if (attack_frame == 8)  then anim_frame = 9;
 			if (attack_frame == 4)  then anim_frame = 10;
-			if (attack_frame == 1)  then anim_frame = 11; // Retorno
+			if (attack_frame == 1)  then anim_frame = 11;
 			
 			player_move();
 			

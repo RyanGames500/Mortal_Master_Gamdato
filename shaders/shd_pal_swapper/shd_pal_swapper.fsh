@@ -1,6 +1,5 @@
 #define Transparent vec4(.0,.0,.0,.0)
 #define Tolerance 0.004 
-//If you feel like your colors should be matching but aren't, increase this number a bit.
 
 varying vec2 v_vTexcoord;
 varying vec4 v_vColour;

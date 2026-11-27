@@ -1,16 +1,13 @@
 function scar_medium_ground(_override_phase)
 	{
-	//Phases
 	var _phase = !is_undefined(_override_phase) ? _override_phase : attack_phase;
 	switch (_phase)
 		{
-		//Init
 		case ATTACK_PHASE.start:
 			{
-			//Animation
 			anim_sprite = spr_scar_medium_ground; 
 			anim_frame = 0;
-			anim_speed = 0; // Determinista: cero image_speed para el rollback
+			anim_speed = 0;
 			
 			attack_frame = 5;
 			
@@ -19,9 +16,6 @@ function scar_medium_ground(_override_phase)
 			}
 		break;
 		
-		//-------------------------------------------------------------
-		//--- PRIMER GOLPE (Sub-imágenes 0 -> 8 | Hitbox en Frame 3) ---
-		//-------------------------------------------------------------
 		case 0:
 			{
 			attack_frame--;
@@ -51,7 +45,6 @@ function scar_medium_ground(_override_phase)
 			}
 		break;
 		
-		// Endlag 1er Golpe (Sub-imágenes 4 -> 8)
 		case 1:
 			{
 			attack_frame--;
@@ -64,7 +57,6 @@ function scar_medium_ground(_override_phase)
 			
 			player_move();
 			
-			// Cancelación al 2do Golpe
 			if (attack_frame < 8 && attack_connected)
 				{
 				if (input_pressed(INPUT.attack_light2, true))
@@ -85,9 +77,6 @@ function scar_medium_ground(_override_phase)
 			}
 		break;
 		
-		//-------------------------------------------------------------
-		//--- SEGUNDO GOLPE (Sub-imágenes 9 -> 15 | Hitbox en Frame 12) -
-		//-------------------------------------------------------------
 		case 2:
 			{
 			attack_frame--;
@@ -110,7 +99,6 @@ function scar_medium_ground(_override_phase)
 			}
 		break;
 		
-		// Endlag 2do Golpe (Sub-imágenes 13 -> 15)
 		case 3:
 			{
 			attack_frame--;
@@ -121,7 +109,6 @@ function scar_medium_ground(_override_phase)
 			
 			player_move();
 			
-			// Cancelación al 3er Golpe (Remate)
 			if (attack_frame < 8 && attack_connected)
 				{
 				if (input_pressed(INPUT.attack_light2, true))
@@ -142,9 +129,6 @@ function scar_medium_ground(_override_phase)
 			}
 		break;
 		
-		//-------------------------------------------------------------
-		//--- TERCER GOLPE (Sub-imágenes 16 -> 24 | Hitbox en Frame 19)
-		//-------------------------------------------------------------
 		case 4:
 			{
 			attack_frame--;
@@ -177,7 +161,6 @@ function scar_medium_ground(_override_phase)
 			}
 		break;
 		
-		// Endlag Final (Sub-imágenes 20 -> 24)
 		case 5:
 			{
 			attack_frame--;
@@ -190,7 +173,6 @@ function scar_medium_ground(_override_phase)
 			
 			player_move();
 			
-			// Fin del combo
 			if (attack_frame <= 0)
 				{
 				attack_stop();

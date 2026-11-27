@@ -1,6 +1,3 @@
-/*
-The overall phase the game is in.
-*/
 enum GAME_META_STATE
 	{
 	starting,
@@ -10,9 +7,6 @@ enum GAME_META_STATE
 	char_select
 	}
 
-/*
-All possible states players can be in.
-*/
 enum PLAYER_STATE
 	{
 	idle,
@@ -34,9 +28,6 @@ enum PLAYER_STATE
 	LENGTH,
 	}
 
-/*
-All the different inputs that the game logic can use.
-*/
 enum INPUT
 	{
 	stick_dir,
@@ -48,10 +39,6 @@ enum INPUT
 	LENGTH,
 	}
 
-/*
-The different directions you can check the control stick for.
-The "any" directions cover a full 90 degrees, while the other directions cover 30 degrees each.
-*/
 enum STICK_DIR
 	{
 	forward_down,
@@ -69,17 +56,12 @@ enum STICK_DIR
 	neutral,
 	}
 
-/*
-Reserved numbers for attack phases.
-Any other numbers are free to be used for any types of phases in attack scripts.
-*/
 enum ATTACK_PHASE
 	{
 	start = -1,
 	stop = -2,
 	}
 
-// --- ESTADOS Y NAVEGACION DEL MENU ---
 enum MENU_STATE
 	{
 	main,

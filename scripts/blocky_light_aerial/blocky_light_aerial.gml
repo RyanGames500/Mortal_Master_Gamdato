@@ -1,13 +1,10 @@
 function blocky_light_aerial(_override_phase)
 	{
-	//Phases
 	var _phase = !is_undefined(_override_phase) ? _override_phase : attack_phase;
 	switch (_phase)
 		{
-		//Init
 		case ATTACK_PHASE.start:
 			{
-			//Animation
 			anim_sprite = spr_blocky_light_aerial;
 			anim_frame = 0;
 			anim_speed = 0;
@@ -16,12 +13,10 @@ function blocky_light_aerial(_override_phase)
 			}
 		break;
 		
-		//Startup
 		case 0:
 			{
 			attack_frame--;
 			
-			//Hitbox
 			if (attack_frame == 0)
 				{
 				anim_frame = 1;
@@ -33,11 +28,9 @@ function blocky_light_aerial(_override_phase)
 				_hitbox.high = true;
 				}
 			
-			//Movement
 			vsp += grav;
 			player_move();
 			
-			//Landing on the ground
 			if (bbox_bottom >= obj_ground.y)
 				{
 				attack_stop();
@@ -46,27 +39,22 @@ function blocky_light_aerial(_override_phase)
 			}
 		break;
 		
-		//Active and Endlag
 		case 1:
 			{
 			attack_frame--;
 			
-			//Animation
 			if (attack_frame == 20) then anim_frame = 2;
 			if (attack_frame == 10) then anim_frame = 3;
 			
-			//Movement
 			vsp += grav;
 			player_move();
 			
-			//Landing on the ground
 			if (bbox_bottom >= obj_ground.y)
 				{
 				attack_stop();
 				break;
 				}
 			
-			//Stop
 			if (attack_frame <= 0)
 				{
 				attack_stop();

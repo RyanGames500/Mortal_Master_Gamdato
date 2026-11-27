@@ -1,24 +1,20 @@
 function lex_bomb_hitbox_update()
 	{
-	//Lifetime
 	if (owner.hitlag_frame <= 0 && --lifetime < 0)
 		{
 		instance_destroy();
 		return;
 		}
 	
-	//Física parabólica (Determinista)
 	x += hsp;
 	y += vsp;
-	vsp += 0.4; // Gravedad constante aplicada al proyectil
+	vsp += 0.4;
 	
-	// Si la bomba toca el suelo se destruye/explota
 	if (y >= obj_ground.y)
 		{
 		to_be_destroyed = true;
 		}
 	
-	//Colliding with other projectiles will destroy both projectiles
 	var _hitboxes = instance_place_array(x, y, obj_hitbox);
 	for (var i = 0; i < array_length(_hitboxes); i++)
 		{
@@ -34,7 +30,6 @@ function lex_bomb_hitbox_update()
 			}
 		}
 	
-	//Colliding with hurtboxes
 	var _hurtboxes = instance_place_array(x, y, obj_hurtbox);
 	for (var i = 0; i < array_length(_hurtboxes); i++)
 		{
@@ -51,7 +46,6 @@ function lex_bomb_hitbox_update()
 			
 			with (_hurtbox.owner)
 				{
-				//Blocking (El rival NO recibe meter)
 				if ((state == PLAYER_STATE.walk_backward || state == PLAYER_STATE.blockstun) && stick_check_direction(STICK_DIR.backward) && !other.low)
 					{
 					anim_sprite = sprites[$ "high_block"];  
@@ -68,10 +62,9 @@ function lex_bomb_hitbox_update()
 					state_frame = other.hitlag + ceil(other.hitstun * block_multiplier);
 					other.owner.block_pushback = other.knockback * other.owner.facing;
 					}
-				//Hit
 				else
 					{
-					var _ch = counter_hit_kind();	// ANTES de attack_stop: mira que estaba haciendo el rival (nuestro)
+					var _ch = counter_hit_kind();
 					attack_stop();
 					
 					if (bbox_bottom >= obj_ground.y && other.launch_speed == 0)
@@ -97,7 +90,6 @@ function lex_bomb_hitbox_update()
 					
 					obj_game.cam_shake = other.damage * 0.75;
 					
-					// ÚNICAMENTE EL ATACANTE SUMA METER
 					other.owner.meter = clamp(other.owner.meter + 8, 0, other.owner.meter_max);
 					}
 				}
@@ -106,7 +98,6 @@ function lex_bomb_hitbox_update()
 			}
 		}
 	
-	//Other destruction checks (Explosión / Fizzle)
 	if (to_be_destroyed)
 		{
 		var _vfx = instance_create_layer(x, y, "VFX_Layer", obj_vfx);

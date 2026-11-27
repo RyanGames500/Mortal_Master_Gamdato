@@ -1,9 +1,5 @@
 ///@param {array} inputs		The array used to store player inputs
 ///@param {int} player_index	The index of the player (0 or 1)
-/*
-Loads the next set of player inputs from the replay buffer into the given array.
-Does not depend on obj_player instances existing.
-*/
 function input_replay_load_index(_inputs, _player_index)
 	{
 	var _replay = global.replay_buffer;

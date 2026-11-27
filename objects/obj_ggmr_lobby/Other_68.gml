@@ -1,8 +1,6 @@
-//Check the networking event type
 var _network_type = async_load[? "type"];
 if (_network_type == network_type_data) 
 	{
-	//Check the buffer
 	var _buff = async_load[? "buffer"];
 	if (buffer_exists(_buff)) 
 		{
@@ -10,19 +8,15 @@ if (_network_type == network_type_data)
 		var _type = ggmr_net_header_read(_buff);
 		if (_type == GGMR_PACKET_TYPE.ignore) then exit;
 
-		//Packet Types
 		switch (_type) 
 			{
 			case GGMR_PACKET_TYPE.join:
-				//Get the port and ip
 				var _port = async_load[? "port"];
 				var _ip = string(async_load[? "ip"]);
-				//Only lobby leaders can get join requests
 				if (is_lobby_leader) 
 					{
 					var _name = buffer_read(_buff, buffer_string);
 		
-					//Check to see if that request has already been added
 					var _already_exists = false;
 					for (var i = 0; i < ds_list_size(lobby_join_requests); i++) 
 						{
@@ -30,7 +24,6 @@ if (_network_type == network_type_data)
 						if (_request[GGMR_LOBBY_JOIN_REQUEST.ip] == _ip && _request[GGMR_LOBBY_JOIN_REQUEST.port] == _port) 
 							{
 							_already_exists = true;
-							//Update the silent time
 							_request[@ GGMR_LOBBY_JOIN_REQUEST.silence] = 0;
 							break;
 							}
@@ -45,14 +38,12 @@ if (_network_type == network_type_data)
 					} 
 				else 
 					{
-					//Denial packet
 					ggmr_net_send_direct(GGMR_PACKET_TYPE.join_denial, noone, _ip, _port);
 					ggmr_error("Join request denied. Only lobby leaders can accept join requests");
 					}
 			break;
 		
 			case GGMR_PACKET_TYPE.join_confirmation:
-				//Join the lobby
 				if (lobby_state == GGMR_LOBBY_STATE.joining) 
 					{
 					lobby_state = GGMR_LOBBY_STATE.idle;
@@ -80,7 +71,6 @@ if (_network_type == network_type_data)
 				var _sending_ip = async_load[? "ip"];
 				if (ggmr_lobby_equals(_sending_ip))	
 					{
-					//Rebuild lobby based on the sync packet
 					var _number = buffer_read(_buff, buffer_u8);
 					lobby_member_number = _number;
 					var _lobby_size = buffer_read(_buff, buffer_u8);
@@ -94,14 +84,12 @@ if (_network_type == network_type_data)
 						var _location = buffer_read(_buff, buffer_u8);
 						var _ready = buffer_read(_buff, buffer_bool);
 			
-						//Local member
 						if (_location == GGMR_LOCATION_TYPE.remote && lobby_member_number == i) 
 							{
 							_location = GGMR_LOCATION_TYPE.local;
 							_port = GGMR_BLANK_PORT;
 							_ip = GGMR_BLANK_IP;
 							} 
-						//Sending member
 						else if (_location == GGMR_LOCATION_TYPE.local)	
 							{
 							_location = GGMR_LOCATION_TYPE.remote;
@@ -112,7 +100,6 @@ if (_network_type == network_type_data)
 						ggmr_lobby_member_add(_connection, _name, _location, _type, _ready);
 						}
 						
-					//Sync custom data
 					lobby_custom_data = json_parse(buffer_read(_buff, buffer_string));
 					} 
 				else 
@@ -122,11 +109,9 @@ if (_network_type == network_type_data)
 			break;
 		
 			case GGMR_PACKET_TYPE.leave:
-				//Get the port and ip
 				var _port = async_load[? "port"];
 				var _ip = string(async_load[? "ip"]);
 		
-				//Check to see if that person is in the lobby
 				var _already_exists = false;
 				var i;
 				for (i = 0; i < ds_list_size(lobby_members); i++) 
@@ -149,30 +134,24 @@ if (_network_type == network_type_data)
 					ggmr_log("Member does not exist in the lobby and cannot be removed");
 					}
 		
-				//Sync packet
 				ggmr_lobby_sync_members();
 				ggmr_log("Leave request received");
 			break;
 				
 			case GGMR_PACKET_TYPE.kick:
-				//Get the ip
 				var _ip = string(async_load[? "ip"]);
 				
-				//Check to see if you are in the sending person's lobby
 				if (ggmr_lobby_equals(_ip)) 
 					{
-					//Remove yourself from the lobby
 					ggmr_lobby_reset();
 					ggmr_log("You were kicked from the lobby");
 					}
 			break;
 				
 			case GGMR_PACKET_TYPE.heartbeat:
-				//Get the port and ip
 				var _port = async_load[? "port"];
 				var _ip = string(async_load[? "ip"]);
 				
-				//Find the person with the port and ip and update their silent time
 				if (is_lobby_leader) 
 					{
 					for (var i = 0; i < ds_list_size(lobby_members); i++) 
@@ -196,24 +175,19 @@ if (_network_type == network_type_data)
 			break;
 		
 			case GGMR_PACKET_TYPE.ready:
-				//Get number & ready boolean
 				var _number = buffer_read(_buff, buffer_u8);
 				var _ready = buffer_read(_buff, buffer_bool);
 		
-				//Check requirements
 				if (is_lobby_leader && ds_list_size(lobby_members) > _number) 
 					{
-					//Change the lobby members
 					lobby_members[| _number][@ GGMR_LOBBY_MEMBER.ready] = _ready;
 					}
 				
-				//Sync packet
 				ggmr_lobby_sync_members();
 				ggmr_log("Ready Up received");
 			break;
 		
 			case GGMR_PACKET_TYPE.start_time:
-				//Get the start timer
 				ggmr_globals().session_start_time = buffer_read(_buff, buffer_u8);
 				lobby_session_is_started = true;
 			break;

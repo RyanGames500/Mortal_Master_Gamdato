@@ -16,7 +16,6 @@ function demon_heavy_crouch(_override_phase)
 			}
 		break;
 		
-		//Preparacion (frames 0 a 3) y golpe (frame 4)
 		case 0:
 			{
 			attack_frame--;
@@ -46,7 +45,6 @@ function demon_heavy_crouch(_override_phase)
 			}
 		break;
 		
-		//Recuperacion (frames 5 a 8)
 		case 1:
 			{
 			attack_frame--;

@@ -1,15 +1,10 @@
 ///@category GGMR
-/*
-This object allows players to send and receive chat messages, which can be accessed through <ggmr_chat_history>.
-*/
 
-//NET system
 ggmr_net_init();
 chat_packet = buffer_create(1, buffer_grow, 1);
 
 ggmr_logger_init();
 
-//Chat variables
 chat_name = "<Unknown>";
 chat_history = [];
 chat_preset_messages = 

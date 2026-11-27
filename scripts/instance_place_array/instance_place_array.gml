@@ -2,9 +2,6 @@
 ///@param {real} y				The y coordinate to check
 ///@param {asset} object		The object to check collisions with
 ///@param {bool} [ordered]		Whether to sort instances from closest to farthest
-/*
-Runs <instance_place_list>, but returns an array instead of a list.
-*/
 function instance_place_array(_x, _y, _obj, _ordered = false)
 	{
 	var _array = [];
@@ -18,7 +15,6 @@ function instance_place_array(_x, _y, _obj, _ordered = false)
 	return _array;
 	}
 
-//Global list
 global.instance_place_ds_list = ds_list_create();
 
 /* Copyright 2024 Springroll Games / Yosi */

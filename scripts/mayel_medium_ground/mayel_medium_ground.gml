@@ -3,23 +3,19 @@ function mayel_medium_ground(_override_phase)
 	var _phase = !is_undefined(_override_phase) ? _override_phase : attack_phase;
 	switch (_phase)
 		{
-		//Init
 		case ATTACK_PHASE.start:
 			{
 			anim_sprite = spr_mayel_medium_ground;
 			anim_frame = 0;
 			anim_speed = 0;
 			
-			attack_frame = 6; // Startup del 1er golpe (patada alta)
+			attack_frame = 6;
 			
 			hsp = 0;
 			vsp = 0;
 			}
 		break;
 		
-		//-------------------------------------------------------------
-		//--- PRIMER GOLPE: Patada alta (Sub-imágenes 0 -> 2) ---------
-		//-------------------------------------------------------------
 		case 0:
 			{
 			attack_frame--;
@@ -34,9 +30,9 @@ function mayel_medium_ground(_override_phase)
 			
 			if (attack_frame == 0)
 				{
-				anim_frame = 2; // Impacto
+				anim_frame = 2;
 				attack_phase = 1;
-				attack_frame = 9; // 2 sub-imágenes de endlag (3,4) x 3 frames c/u (más margen)
+				attack_frame = 9;
 				
 				var _hitbox = hitbox_create(40, 28, 0.5, 0.5, 4, 4);
 				_hitbox.knockback = 5;
@@ -46,7 +42,6 @@ function mayel_medium_ground(_override_phase)
 			}
 		break;
 		
-		// Endlag 1er Golpe (Sub-imágenes 3, 4)
 		case 1:
 			{
 			attack_frame--;
@@ -64,7 +59,7 @@ function mayel_medium_ground(_override_phase)
 					
 					anim_frame = 5;
 					attack_phase = 2;
-					attack_frame = 6; // 1 sub-imagen de windup (6) x 3 frames + margen
+					attack_frame = 6;
 					hsp = 7 * facing;
 					}
 				}
@@ -77,9 +72,6 @@ function mayel_medium_ground(_override_phase)
 			}
 		break;
 		
-		//-------------------------------------------------------------
-		//--- SEGUNDO GOLPE: Puñetazo (Sub-imágenes 5 -> 7) ------------
-		//-------------------------------------------------------------
 		case 2:
 			{
 			attack_frame--;
@@ -88,9 +80,9 @@ function mayel_medium_ground(_override_phase)
 			
 			if (attack_frame == 0)
 				{
-				anim_frame = 8; // Impacto
+				anim_frame = 8;
 				attack_phase = 3;
-				attack_frame = 12; // 4 sub-imágenes de endlag (8,9,10,11) x 3 frames c/u
+				attack_frame = 12;
 				
 				var _hitbox = hitbox_create(40, 28, 0.5, 0.5, 4, 4);
 				_hitbox.knockback = 5;
@@ -100,7 +92,6 @@ function mayel_medium_ground(_override_phase)
 			}
 		break;
 		
-		// Endlag 2do Golpe (Sub-imágenes 8, 9, 10, 11)
 		case 3:
 			{
 			attack_frame--;
@@ -124,7 +115,7 @@ function mayel_medium_ground(_override_phase)
 					
 					anim_frame = 12;
 					attack_phase = 4;
-					attack_frame = 9; // 2 sub-imágenes de carga (13,14) x 3 frames c/u + margen
+					attack_frame = 9;
 					hsp = 10 * facing;
 					}
 				}
@@ -137,9 +128,6 @@ function mayel_medium_ground(_override_phase)
 			}
 		break;
 		
-		//-------------------------------------------------------------
-		//--- TERCER GOLPE: Barrido bajo (Sub-imágenes 12 -> 15) -------
-		//-------------------------------------------------------------
 		case 4:
 			{
 			attack_frame--;
@@ -149,13 +137,13 @@ function mayel_medium_ground(_override_phase)
 			
 			if (attack_frame == 0)
 				{
-				anim_frame = 15; // Impacto del barrido
+				anim_frame = 15;
 				attack_phase = 5;
 				
 				var _hitbox = hitbox_create(40, 28, 0.5, 0.5, 7, 6);
 				_hitbox.knockback = 12;
 				_hitbox.launch_speed = 10;
-				_hitbox.hit_angle = 35; // Corregido: era "angle", no existía como propiedad
+				_hitbox.hit_angle = 35;
 				
 				if (attack_connected)
 					{
@@ -171,7 +159,6 @@ function mayel_medium_ground(_override_phase)
 			}
 		break;
 		
-		// Endlag Final (Sub-imágenes 16, 17, 18, 19)
 		case 5:
 			{
 			attack_frame--;

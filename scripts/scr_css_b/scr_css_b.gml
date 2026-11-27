@@ -139,6 +139,12 @@ function css_b_fighter(_spr, _frame, _x, _feet, _h, _s, _flip, _pal_spr, _pal_id
 	if (_use_pal) then pal_swap_reset();
 	}
 
+function css_b_pal(_char_id, _mirror)
+	{
+	if (_char_id == 8) return _mirror ? 2 : 1;
+	return _mirror ? 1 : 0;
+	}
+
 function css_b_draw()
 	{
 	static _sprs = undefined;
@@ -207,8 +213,8 @@ function css_b_draw()
 	var _i1 = clamp(_c1.char_id - 1, 0, array_length(_sprs) - 1);
 	var _i2 = clamp(_c2.char_id - 1, 0, array_length(_sprs) - 1);
 	var _same = (p1_css_cursor == p2_css_cursor);
-	css_b_fighter(_sprs[_i1], _fr, _gui_w * 0.17, _feet, _fh, _s, false, -1, 0);
-	css_b_fighter(_sprs[_i2], _fr, _gui_w * 0.83, _feet, _fh, _s, true, _pals[_i2], _same ? 1 : 0);
+	css_b_fighter(_sprs[_i1], _fr, _gui_w * 0.17, _feet, _fh, _s, false, _pals[_i1], css_b_pal(_c1.char_id, false));
+	css_b_fighter(_sprs[_i2], _fr, _gui_w * 0.83, _feet, _fh, _s, true, _pals[_i2], css_b_pal(_c2.char_id, _same));
 
 	css_b_text(40 * _s, 34 * _s, "MUTAGEN FIGHTERS", 1.0 * _s, 1.0 * _s, make_colour_rgb(236, 236, 236), fa_left, 1);
 	draw_set_color(MENU_B_ACC);

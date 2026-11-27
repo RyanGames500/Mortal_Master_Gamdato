@@ -1,13 +1,11 @@
 function danny_mine_hitbox_update()
 	{
-	//Lifetime
 	if (--lifetime < 0)
 		{
 		instance_destroy();
 		return;
 		}
 	
-	//La mina desaparece si Danny es golpeado o la ronda ya no está en juego
 	if (obj_game.game_meta_state != GAME_META_STATE.running
 		|| owner.state == PLAYER_STATE.hitstun_ground
 		|| owner.state == PLAYER_STATE.hitstun_aerial
@@ -18,10 +16,8 @@ function danny_mine_hitbox_update()
 		to_be_destroyed = true;
 		}
 	
-	//Se arma 20 frames después de salir (no se mueve: no cae ni avanza)
 	var _armed = (lifetime < DANNY_MINE_LIFE - 20);
 	
-	//Colliding with hurtboxes
 	if (_armed && !to_be_destroyed)
 		{
 		var _hurtboxes = instance_place_array(x, y, obj_hurtbox);
@@ -33,12 +29,10 @@ function danny_mine_hitbox_update()
 				{
 				if (_hurtbox.owner.hp <= 0) then continue;
 				if (_hurtbox.owner.state == PLAYER_STATE.knockdown || _hurtbox.owner.state == PLAYER_STATE.acostado) then continue;
-				// Rage: los proyectiles no le hacen daño
 				if (_hurtbox.owner.rage_frames > 0) then continue;
 				
 				with (_hurtbox.owner)
 					{
-					//Blocking
 					if ((state == PLAYER_STATE.walk_backward || state == PLAYER_STATE.blockstun) && stick_check_direction(STICK_DIR.backward) && !other.low)
 						{
 						anim_sprite = sprites[$ "high_block"];
@@ -57,15 +51,13 @@ function danny_mine_hitbox_update()
 						hit_sfx_play(snd_block);
 						meter = clamp(meter + 2, 0, meter_max);
 						}
-					//Hit
 					else
 						{
-						var _ch = counter_hit_kind();	// ANTES de attack_stop: mira que estaba haciendo el rival (nuestro)
+						var _ch = counter_hit_kind();
 						attack_stop();
 						
 						if (bbox_bottom >= obj_ground.y)
 							{
-							// En el suelo: queda congelado
 							air_hits = 0;
 							player_state_set(PLAYER_STATE.hitstun_ground);
 							anim_sprite = sprites[$ "hitstun_ground"];
@@ -73,13 +65,14 @@ function danny_mine_hitbox_update()
 							anim_frame = 0;
 							player_face_opponent();
 							frozen = true;
+							frz_dx = other.x - x;
+							frz_dy = other.y - y;							
 							hsp = 0;
 							vsp = 0;
-							state_frame = 50;
+							state_frame = 90;
 							}
 						else
 							{
-							// En el aire: lo hace subir un poco
 							air_hits++;
 							player_state_set(PLAYER_STATE.hitstun_aerial);
 							anim_sprite = sprites[$ "hitstun_aerial"];
@@ -89,7 +82,12 @@ function danny_mine_hitbox_update()
 							state_frame = other.hitstun + counter_hit_finish(_ch);
 							}
 						
-						player_damage(projectile_hit_damage(other.damage, _ch, other.owner));
+					var _dmg = projectile_hit_damage(other.damage, _ch, other.owner);
+					if (other.fatality != FATALITY.none && (ceil(hp - _dmg) <= 0 || (global.training && global.training_fat)) && fatality_can(id, other.owner, other.fatality))
+						{
+						fatality_start(id, other);
+						}
+					player_damage(_dmg);
 						combo_register_hit();
 						hitlag_frame = other.hitlag;
 						hit_sfx_play(snd_hit_heavy);
@@ -98,23 +96,20 @@ function danny_mine_hitbox_update()
 						}
 					}
 				
-				// La mina se consume al tocar
 				to_be_destroyed = true;
 				break;
 				}
 			}
 		}
 	
-	//Other destruction checks
 	if (to_be_destroyed)
 		{
-		//VFX: el hielo se rompe
 		var _vfx = instance_create_layer(x, y, "VFX_Layer", obj_vfx);
-		_vfx.sprite_index = spr_danny_iceblock;
-		_vfx.image_xscale = owner.sprite_scale * 0.5 * facing;
-		_vfx.image_yscale = owner.sprite_scale * 0.5;
-		_vfx.anim_speed = 0.4;
-		_vfx.lifetime = sprite_get_number(spr_danny_iceblock) / _vfx.anim_speed;
+		_vfx.sprite_index = spr_danny_burbuja;
+		_vfx.image_xscale = owner.sprite_scale * facing;
+		_vfx.image_yscale = owner.sprite_scale;
+		_vfx.anim_speed = 0.5;
+		_vfx.lifetime = sprite_get_number(spr_danny_burbuja) / _vfx.anim_speed;
 		_vfx.owner = owner;
 		
 		instance_destroy();

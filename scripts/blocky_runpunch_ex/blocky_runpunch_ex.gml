@@ -34,7 +34,6 @@ function blocky_runpunch_ex(_override_phase)
 				hsp = 20 * facing;
 				vsp = -2;
 				
-				// polvo y temblor en el despegue
 				var _dust = instance_create_layer(x, obj_ground.y, "VFX_Layer", obj_vfx);
 				_dust.sprite_index = spr_effect_step_dust;
 				_dust.image_xscale = facing;

@@ -1,10 +1,6 @@
 ///@category GGMR
 ///@param {int} member_number		The member to switch the player type of
 ///@param {int} [type]				A specific type to switch the member to, from the GGMR_CLIENT_TYPE enum
-/*
-Changes the player type of the given member in the lobby, and returns the new type of the player.
-By default, there are two player types: GGMR_CLIENT_TYPE.player and GGMR_CLIENT_TYPE.spectator.
-*/
 function ggmr_lobby_member_player_type_switch()
 	{
 	with (obj_ggmr_lobby) 

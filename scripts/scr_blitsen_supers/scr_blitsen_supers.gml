@@ -1,38 +1,26 @@
-/*
-Super 2 de Blitsen (nuestro).
-  blitsen_super_fosa   Super 2: LA FOSA CARNIVORA (3 barras). Raices que sujetan -> planta gigante que se lo traga,
-                       lo mastica y lo escupe. Si las raices fallan o las bloquean, el super se corta.
-El Super 1 (Latigos de Zarza) vive en el script scr_blitsen_whip.
-Sprites nuevos (nuestros): spr_blitsen_summon, spr_fosa_grow, spr_fosa_idle, spr_fosa_bite, spr_fosa_retract.
-*/
 
-//--- Super 2: La Fosa Carnivora ---
-#macro FOSA_SCALE			9.0		//tamaño de la planta (el personaje usa 5.5)
-#macro FOSA_YFIX			1.32	//estira la tira "grow" para que iguale a la planta idle (poner 1.0 para quitarlo)
-#macro FOSA_BITE_DX			33		//distancia (en pixeles del sprite) de la base de la planta a su boca al morder
-#macro FOSA_ROOT_SPEED		26		//velocidad de las raices (px por frame)
-#macro FOSA_ROOT_RANGE		1300	//distancia maxima que recorren
+#macro FOSA_SCALE			9.0
+#macro FOSA_YFIX			1.32
+#macro FOSA_BITE_DX			33
+#macro FOSA_ROOT_SPEED		26
+#macro FOSA_ROOT_RANGE		1300
 #macro FOSA_ROOT_DMG		6
-#macro FOSA_CHOMPS			6		//cuantas mordidas
-#macro FOSA_CHOMP_LEN		16		//frames de cada mordida
+#macro FOSA_CHOMPS			6
+#macro FOSA_CHOMP_LEN		16
 #macro FOSA_CHOMP_DMG		2
-#macro FOSA_SPIT_DMG		15		//daño de la escupida final
+#macro FOSA_SPIT_DMG		15
 #macro FOSA_SPIT_LAUNCH		24
 #macro FOSA_SPIT_KNOCK		30
-#macro FOSA_SUMMON_LEN		26		//invocacion antes de lanzar las raices
-#macro FOSA_HOLD_LEN		24		//raices sujetando antes de que salga la planta
-#macro FOSA_ERUPT_LEN		40		//la planta sale del piso
-#macro FOSA_SWALLOW_LEN		18		//se dobla y se lo traga
-#macro FOSA_SPIT_LEN		30		//total de la fase de escupida
-#macro FOSA_SPIT_AT			8		//frame de la escupida en que lo suelta
-#macro FOSA_RECOVER_LEN		44		//recuperacion despues de escupirlo
-#macro FOSA_MISS_LEN		44		//recuperacion si las raices fallan o las bloquean
+#macro FOSA_SUMMON_LEN		26
+#macro FOSA_HOLD_LEN		24
+#macro FOSA_ERUPT_LEN		40
+#macro FOSA_SWALLOW_LEN		18
+#macro FOSA_SPIT_LEN		30
+#macro FOSA_SPIT_AT			8
+#macro FOSA_RECOVER_LEN		44
+#macro FOSA_MISS_LEN		44
 
-// =====================================================================
-// SUPER 2: LA FOSA CARNIVORA
-// =====================================================================
 
-/* Mantiene congelado al rival (y escondido si _hide es true). Se llama desde Blitsen. */
 function blitsen_fosa_hold(_hide)
 	{
 	with (obj_player)
@@ -45,7 +33,6 @@ function blitsen_fosa_hold(_hide)
 		}
 	}
 
-/* Una mordida: daño + contador de hits. Se llama desde Blitsen. */
 function blitsen_fosa_chomp()
 	{
 	with (obj_player)
@@ -61,7 +48,6 @@ function blitsen_fosa_chomp()
 	if (!ggmr_session_is_in_rollback()) then hit_sfx_play(snd_hit_heavy);
 	}
 
-/* La escupida final: aparece el rival y sale volando lejos de Blitsen. Se llama desde Blitsen. */
 function blitsen_fosa_spit()
 	{
 	var _dir = facing;
@@ -71,7 +57,7 @@ function blitsen_fosa_spit()
 		}
 	if (_dir == 0) then _dir = facing;
 	
-	super_lock = false;			// desde aqui la escupida SI puede matar
+	super_lock = false;
 	super_hit_fx = 16;
 	obj_game.cam_shake = max(obj_game.cam_shake, 24);
 	if (!ggmr_session_is_in_rollback()) then hit_sfx_play(snd_hit_heavy);
@@ -99,7 +85,6 @@ function blitsen_fosa_spit()
 		}
 	}
 
-/* Crea las raices que viajan por el piso. Se llama desde Blitsen. */
 function blitsen_roots_spawn()
 	{
 	var _rx = x + (400 * facing);
@@ -122,24 +107,21 @@ function blitsen_roots_spawn()
 	_r.hitstun = 200;
 	_r.knockback = 0;
 	
-	// Datos de las raices (nuestros)
 	_r.r_dir = _dir;
 	_r.r_x0 = x;
 	_r.r_hx = x + (_dir * 70);
 	_r.r_t = 0;
 	_r.r_hit_t = 0;
-	_r.r_mode = 0;		// 0 = viajando, 1 = sujetando al rival, 2 = desapareciendo
+	_r.r_mode = 0;
 	_r.r_fade = 0;
 	_r.gy = obj_ground.y;
 	return _r;
 	}
 
-/* Logica de las raices: viajan, golpean bajo (se bloquean agachado) y sujetan al rival */
 function blitsen_roots_update()
 	{
 	r_t++;
 	
-	// Si el ataque se corto, desaparecen
 	if (owner.attack_script != blitsen_super_fosa)
 		{
 		instance_destroy();
@@ -157,7 +139,6 @@ function blitsen_roots_update()
 			r_hx += r_dir * FOSA_ROOT_SPEED;
 			x = r_hx;
 			
-			// Llegaron al limite sin tocar a nadie: el super se corta
 			if (abs(r_hx - r_x0) > FOSA_ROOT_RANGE || r_hx < 0 || r_hx > room_width)
 				{
 				r_mode = 2;
@@ -177,12 +158,11 @@ function blitsen_roots_update()
 					if (_victim.hp <= 0 || obj_game.game_meta_state != GAME_META_STATE.running) then continue;
 					if (_victim.npc_seq >= 0) then continue;
 					if (_victim.state == PLAYER_STATE.knockdown || _victim.state == PLAYER_STATE.acostado) then continue;
-					if (_victim.bbox_bottom < obj_ground.y) then continue;		// en el aire: salta las raices
+					if (_victim.bbox_bottom < obj_ground.y) then continue;
 					
 					var _held = false;
 					with (_victim)
 						{
-						// Las raices son un golpe bajo: solo se bloquean agachado
 						if ((state == PLAYER_STATE.crouch || state == PLAYER_STATE.blockstun) && stick_check_direction(STICK_DIR.backward_down))
 							{
 							anim_sprite = sprites[$ "low_block"];
@@ -236,7 +216,6 @@ function blitsen_roots_update()
 		}
 	else if (r_mode == 1)
 		{
-		// Sujeta al rival hasta que sale la planta
 		if (owner.attack_phase >= 3)
 			{
 			r_mode = 2;
@@ -254,7 +233,6 @@ function blitsen_roots_update()
 		}
 	}
 
-/* Dibujo de las raices: tallo que se ondula pegado al piso y, al sujetar, anillos alrededor de los pies del rival */
 function blitsen_roots_draw()
 	{
 	var _dark = make_colour_rgb(18, 70, 30);
@@ -263,7 +241,6 @@ function blitsen_roots_draw()
 	var _a = (r_mode == 2) ? clamp(1 - (r_fade / 10), 0, 1) : 1;
 	draw_set_alpha(_a);
 	
-	// Tallo desde Blitsen hasta la punta
 	var _sx = r_x0 + (r_dir * 40);
 	var _len = abs(r_hx - _sx);
 	var _n = max(2, floor(_len / 34));
@@ -293,7 +270,6 @@ function blitsen_roots_draw()
 		_py = _cy;
 		}
 	
-	// Punta
 	draw_set_colour(_dark);
 	draw_circle(r_hx, gy - 28, 26, false);
 	draw_set_colour(_col);
@@ -301,7 +277,6 @@ function blitsen_roots_draw()
 	draw_set_colour(_light);
 	draw_circle(r_hx - 6, gy - 34, 7, false);
 	
-	// Anillos alrededor de los pies del rival (se aprietan al principio)
 	if (r_mode != 0)
 		{
 		var _vx = r_hx;
@@ -339,12 +314,6 @@ function blitsen_roots_draw()
 	draw_set_colour(c_white);
 	}
 
-/*
-Crea la planta gigante. Se llama desde Blitsen cuando termina de sujetar al rival.
-La planta es un hitbox que solo dibuja: lee la fase de Blitsen (attack_phase y attack_frame, que se guardan en el rollback)
-para saber que animacion mostrar.
-La planta sale en el lado lejano del rival y se dobla sobre el para morderlo; si ese lado no cabe en el escenario, sale del lado de Blitsen.
-*/
 function blitsen_fosa_plant_spawn()
 	{
 	var _vx = x + (400 * facing);
@@ -360,22 +329,20 @@ function blitsen_fosa_plant_spawn()
 	if ((_vx + (_side * _dx)) < 80 || (_vx + (_side * _dx)) > room_width - 80) then _pside = -_side;
 	
 	var _p = hitbox_create(0, 0, 0.1, 0.1, 0, 4000);
-	_p.x = -100000;			// fuera de todo: este hitbox solo dibuja
+	_p.x = -100000;
 	_p.y = -100000;
 	_p.destroy_on_stop = false;
 	_p.custom_update = blitsen_fosa_update;
 	_p.custom_draw = blitsen_fosa_draw;
 	
-	// Datos de la planta (nuestros)
-	_p.f_gx = _vx + (_pside * _dx);		// base de la planta
+	_p.f_gx = _vx + (_pside * _dx);
 	_p.f_gy = obj_ground.y;
-	_p.f_vx = _vx;						// donde esta el rival (aqui cae la boca)
-	_p.f_face = -_pside;				// hacia donde mira la planta
-	_p.f_side = _side;					// hacia donde sale volando el rival
+	_p.f_vx = _vx;
+	_p.f_face = -_pside;
+	_p.f_side = _side;
 	return _p;
 	}
 
-/* La planta desaparece cuando termina el super */
 function blitsen_fosa_update()
 	{
 	if (owner.attack_script != blitsen_super_fosa)
@@ -384,7 +351,6 @@ function blitsen_fosa_update()
 		}
 	}
 
-/* Grietas en el piso entre el rival y la base de la planta (_p = progreso de 0 a 1) */
 function fosa_draw_cracks(_x1, _x2, _gy, _p)
 	{
 	var _n = 18;
@@ -407,7 +373,6 @@ function fosa_draw_cracks(_x1, _x2, _gy, _p)
 		}
 	}
 
-/* Chorros de savia (posiciones por formula, sin random). _age = frames desde que empezo (0 a 34) */
 function fosa_draw_sap(_x, _y, _dir, _age, _n, _power)
 	{
 	if (_age < 0 || _age > 34) then return;
@@ -431,13 +396,12 @@ function fosa_draw_sap(_x, _y, _dir, _age, _n, _power)
 	draw_set_alpha(1);
 	}
 
-/* Dibujo de la planta gigante segun la fase del super */
 function blitsen_fosa_draw()
 	{
 	var _ph = owner.attack_phase;
 	var _fr = owner.attack_frame;
 	var _sc = FOSA_SCALE;
-	var _xs = -f_face * _sc;		// los sprites de la planta miran a la izquierda
+	var _xs = -f_face * _sc;
 	var _ys = _sc;
 	var _spr = -1;
 	var _idx = 0;
@@ -445,7 +409,6 @@ function blitsen_fosa_draw()
 	
 	switch (_ph)
 		{
-		// La planta sale del piso: grietas, crece y se mueve
 		case 3:
 			{
 			var _pe = 1 - (_fr / FOSA_ERUPT_LEN);
@@ -466,7 +429,6 @@ function blitsen_fosa_draw()
 			}
 		break;
 		
-		// Se dobla sobre el rival
 		case 4:
 			{
 			var _ps = 1 - (_fr / FOSA_SWALLOW_LEN);
@@ -475,7 +437,6 @@ function blitsen_fosa_draw()
 			}
 		break;
 		
-		// Mastica: ciclo de frames 3 a 6 con temblor
 		case 5:
 			{
 			var _el = (FOSA_CHOMPS * FOSA_CHOMP_LEN) - _fr;
@@ -486,7 +447,6 @@ function blitsen_fosa_draw()
 			}
 		break;
 		
-		// Lo escupe: levanta la cabeza y vuelve a su posicion
 		case 6:
 			{
 			var _es = FOSA_SPIT_LEN - _fr;
@@ -503,7 +463,6 @@ function blitsen_fosa_draw()
 			}
 		break;
 		
-		// Se hunde en el piso
 		case 7:
 			{
 			var _er = FOSA_RECOVER_LEN - _fr;
@@ -519,7 +478,6 @@ function blitsen_fosa_draw()
 	
 	if (_spr != -1)
 		{
-		// Monticulo de tierra en la base
 		draw_set_colour(make_colour_rgb(70, 45, 30));
 		draw_ellipse(f_gx - 150, f_gy - 14, f_gx + 150, f_gy + 20, false);
 		draw_set_colour(c_white);
@@ -527,7 +485,6 @@ function blitsen_fosa_draw()
 		draw_sprite_ext(_spr, _idx, f_gx + _jx, f_gy, _xs, _ys, 0, c_white, 1);
 		}
 	
-	// Savia: salpica en cada mordida y sale a chorros con la escupida
 	if (_ph == 5)
 		{
 		var _el2 = (FOSA_CHOMPS * FOSA_CHOMP_LEN) - _fr;
@@ -542,18 +499,10 @@ function blitsen_fosa_draw()
 	draw_set_colour(c_white);
 	}
 
-/*
-Super 2 de Blitsen: LA FOSA CARNIVORA. Doble media luna + heavy, toda la barra (300).
-Raices por el piso -> si CONECTAN limpio: sujetan, sale la planta gigante, se lo traga, lo mastica y lo escupe.
-Si las raices fallan, las bloquean agachado o el rival las salta, el super se corta ahi y Blitsen queda castigable.
-Durante la secuencia el rival no puede morir (super_lock): se queda en 1 de vida hasta la escupida.
-Fases: 0 = invocacion, 1 = raices viajando, 2 = sujetando, 3 = sale la planta, 4 = se lo traga,
-       5 = mastica, 6 = lo escupe, 7 = recuperacion.
-*/
 function blitsen_super_fosa(_override_phase)
 	{
 	var _phase = !is_undefined(_override_phase) ? _override_phase : attack_phase;
-	if (_phase >= 0 && _phase <= 6) then vsp = 0;		// secuencia en el piso: nada lo eleva
+	if (_phase >= 0 && _phase <= 6) then vsp = 0;
 	switch (_phase)
 		{
 		case ATTACK_PHASE.start:
@@ -576,7 +525,6 @@ function blitsen_super_fosa(_override_phase)
 			{
 			super_invuln = false;
 			super_lock = false;
-			// por si cortaron el super con el rival escondido
 			with (obj_player)
 				{
 				if (id != other.id) then image_alpha = 1;
@@ -584,7 +532,6 @@ function blitsen_super_fosa(_override_phase)
 			}
 		break;
 		
-		// Invocacion (intocable)
 		case 0:
 			{
 			attack_frame--;
@@ -598,7 +545,7 @@ function blitsen_super_fosa(_override_phase)
 				attack_phase = 1;
 				attack_frame = ceil(FOSA_ROOT_RANGE / FOSA_ROOT_SPEED) + 12;
 				attack_connected = false;
-				super_invuln = false;		// desde aqui, si falla o lo bloquean, queda vendido
+				super_invuln = false;
 				
 				blitsen_roots_spawn();
 				obj_game.cam_shake = max(obj_game.cam_shake, 8);
@@ -608,7 +555,6 @@ function blitsen_super_fosa(_override_phase)
 			}
 		break;
 		
-		// Raices viajando: si conectan limpio sigue el super; si no, se corta
 		case 1:
 			{
 			attack_frame--;
@@ -621,7 +567,7 @@ function blitsen_super_fosa(_override_phase)
 					attack_phase = 2;
 					attack_frame = FOSA_HOLD_LEN;
 					super_invuln = true;
-					super_lock = true;		// el rival no puede morir hasta la escupida
+					super_lock = true;
 					}
 				else
 					{
@@ -642,7 +588,6 @@ function blitsen_super_fosa(_override_phase)
 			}
 		break;
 		
-		// Las raices sujetan al rival
 		case 2:
 			{
 			attack_frame--;
@@ -662,7 +607,6 @@ function blitsen_super_fosa(_override_phase)
 			}
 		break;
 		
-		// Sale la planta
 		case 3:
 			{
 			attack_frame--;
@@ -679,7 +623,6 @@ function blitsen_super_fosa(_override_phase)
 			}
 		break;
 		
-		// Se dobla y se lo traga
 		case 4:
 			{
 			attack_frame--;
@@ -689,7 +632,7 @@ function blitsen_super_fosa(_override_phase)
 				{
 				attack_phase = 5;
 				attack_frame = FOSA_CHOMPS * FOSA_CHOMP_LEN;
-				blitsen_fosa_hold(true);		// desaparece dentro de la planta
+				blitsen_fosa_hold(true);
 				obj_game.cam_shake = max(obj_game.cam_shake, 12);
 				if (!ggmr_session_is_in_rollback()) then hit_sfx_play(snd_hit_heavy);
 				}
@@ -698,7 +641,6 @@ function blitsen_super_fosa(_override_phase)
 			}
 		break;
 		
-		// Mastica: cada mordida hace daño y suma un hit al contador
 		case 5:
 			{
 			attack_frame--;
@@ -717,7 +659,6 @@ function blitsen_super_fosa(_override_phase)
 			}
 		break;
 		
-		// Lo escupe
 		case 6:
 			{
 			attack_frame--;
@@ -744,7 +685,6 @@ function blitsen_super_fosa(_override_phase)
 			}
 		break;
 		
-		// Recuperacion (vulnerable)
 		case 7:
 			{
 			attack_frame--;

@@ -137,24 +137,8 @@ function menu_b_draw_scene(_gui_w, _gui_h, _s, _mode)
 	draw_rectangle(0, 0, _gui_w, _gui_h, false);
 	draw_set_alpha(1);
 
-	//var _spr = menu_b_fighter;
-	//if (_mode != 2 && sprite_exists(_spr))
-	//	{
-	//	var _h = (_mode == 0) ? MENU_B_FIGHTER_H : 366;
-	//	var _sc = max(1, round((_h * _s) / sprite_get_height(_spr)));
-	//	var _px = _gui_w * ((_mode == 0) ? 0.72 : 0.87);
-	//	var _feet = _gui_h * 0.89;
-	//	var _fr = (_t div 130) mod sprite_get_number(_spr);
-	//	var _py = _feet - ((sprite_get_height(_spr) - sprite_get_yoffset(_spr)) * _sc);
 
-	//	draw_set_alpha(0.45);
-	//	draw_set_color(c_black);
-	//	var _sw = (_mode == 0) ? 190 : 140;
-	//	draw_ellipse(_px - (_sw * _s), _feet - (14 * _s), _px + (_sw * _s), _feet + (14 * _s), false);
-	//	draw_set_alpha(1);
 
-	//	draw_sprite_ext(_spr, _fr, _px, _py, -_sc, _sc, 0, c_white, 1);
-	//	}
 
 	draw_set_font(fnt_menu);
 	draw_set_halign(fa_left);

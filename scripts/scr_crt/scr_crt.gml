@@ -1,14 +1,11 @@
-//--- Ajustes del efecto CRT (solo visual) ---
-#macro CRT_SCAN_ALPHA	0.20	//oscuridad de las lineas (0 a 1)
-#macro CRT_VIGNETTE		0.55	//oscuridad de las esquinas (0 = sin vineta)
+#macro CRT_SCAN_ALPHA	0.20
+#macro CRT_VIGNETTE		0.55
 
-//Crea el objeto del efecto si no existe (persistente: sobrevive a los cambios de room)
 function crt_ensure()
 	{
 	if (!instance_exists(obj_crt)) then instance_create_layer(0, 0, "scanlines", obj_crt);
 	}
 
-//Dibuja un anillo con degradado entre dos rectangulos (inset en fraccion de w/h, alpha en cada borde)
 function crt_ring(_w, _h, _ia, _aa, _ib, _ab)
 	{
 	var _ax = _w * _ia, _ay = _h * _ia, _bx = _w * _ib, _by = _h * _ib;

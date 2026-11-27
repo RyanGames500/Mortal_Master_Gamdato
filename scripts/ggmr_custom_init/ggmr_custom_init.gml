@@ -1,9 +1,6 @@
 ///@category GGMR
 ///@param {function} step		The step function or script
 ///@param {function} async		The async function or script
-/*
-Creates a new <obj_ggmr_custom>, and assigns it the given callback functions or scripts.
-*/
 function ggmr_custom_init()
 	{
 	if (!instance_exists(obj_ggmr_custom)) 

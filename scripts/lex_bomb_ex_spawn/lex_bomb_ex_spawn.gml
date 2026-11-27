@@ -23,14 +23,13 @@ function lex_bomb_ex(_override_phase)
 			anim_frame = 0;
 			anim_speed = 0;
 			
-			attack_frame = 4;		// startup mas rapido que el normal (6)
+			attack_frame = 4;
 			
 			hsp = 0;
 			vsp = 0;
 			}
 		break;
 		
-		//--- Startup + bomba 1 (corta) ---
 		case 0:
 			{
 			attack_frame--;
@@ -50,7 +49,6 @@ function lex_bomb_ex(_override_phase)
 			}
 		break;
 		
-		//--- Bomba 2 (media) y bomba 3 (larga) ---
 		case 1:
 			{
 			attack_frame--;

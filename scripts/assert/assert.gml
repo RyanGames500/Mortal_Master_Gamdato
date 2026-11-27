@@ -1,9 +1,6 @@
 ///@category Debugging
 ///@param {bool} value			The value to check
 ///@param {string} messages		The messages to display if the value isn't true
-/*
-Crashes the game with the given messages if the specified value is not true.
-*/
 function assert()
 	{
 	var _val = argument[0];

@@ -1,11 +1,6 @@
 ///@param {id} hitbox			El hitbox al que se le da peso
 ///@param {int} tier			Nivel de peso: 1 = golpe rápido, 2 = medio, 3 = golpe pesado
 ///@param {bool} [keep_advantage]	Si es true (por defecto) se compensa el hitstun para no cambiar la ventaja del golpe
-/*
-Le da peso a un golpe del jefe: más congelado, más temblor de cámara y un empuje mínimo.
-Nombre y valores nuestros: afínalos probando en el juego.
-Llámalo después de haber puesto los demás datos del hitbox (daño, knockback, etc.).
-*/
 function boss_hit_weight(_hitbox, _tier, _keep_advantage = true)
 	{
 	static _hitlag = [12, 14, 17];

@@ -1,10 +1,4 @@
-/*
-Personajes del escenario hechos por codigo (nuestro).
-Los dibujos estan guardados como datos (pixeles comprimidos) y se convierten en sprites
-UNA vez, la primera vez que se dibujan. No toca el online: es solo dibujo.
-*/
 
-/* Devuelve el sprite del NPC: el tuyo si existe, o el hecho por codigo. _key: "A_idle","A_grab","B_idle","B_punch","S_idle","S_punch" */
 function npc_spr(_spr, _key)
 	{
 	if (sprite_exists(_spr)) then return _spr;
@@ -12,7 +6,6 @@ function npc_spr(_spr, _key)
 	return global.npc_art[$ _key];
 	}
 
-/* Convierte los datos en sprites (64x52, origen abajo al centro) */
 function npc_art_bake()
 	{
 	global.npc_art = {};
@@ -24,7 +17,6 @@ function npc_art_bake()
 	var _buf = buffer_create(_w * _h * 4, buffer_fixed, 1);
 	var _surf = surface_create(_w, _h);
 	
-	// [nombre, funcion de datos, primer dibujo, orden de los frames]
 	var _defs = [
 		["A_idle",  npc_art_a(), 0, [0, 1, 1, 0]],
 		["A_grab",  npc_art_a(), 2, [0, 1, 2, 3, 4, 5]],
@@ -79,7 +71,6 @@ function npc_art_bake()
 	buffer_delete(_buf);
 	}
 
-/* ---------- DATOS (no los edites) ---------- */
 
 function npc_art_pal()
 	{

@@ -1,32 +1,25 @@
 function bear_light_ground(_override_phase)
 	{
-	//Phases
 	var _phase = !is_undefined(_override_phase) ? _override_phase : attack_phase;
 	switch (_phase)
 		{
-		//Init
 		case ATTACK_PHASE.start:
 			{
-			//Animation
-			anim_sprite = spr_bear_combo;	// tira de 27 frames: puño 1 (0-8), puño 2 (9-21), zarpazo (22-26)
+			anim_sprite = spr_bear_combo;
 			anim_frame = 0;
-			anim_speed = 0;		// Determinista: cero image_speed para el rollback
+			anim_speed = 0;
 			
-			attack_frame = 10;	// startup del puño 1 (cuadros 0 a 3)
+			attack_frame = 10;
 			
 			hsp = 0;
 			vsp = 0;
 			}
 		break;
 		
-		//-------------------------------------------------------------
-		//--- PUÑO 1: STARTUP + GOLPE (cuadros 0 -> 3 | hitbox en el cuadro 4) ---
-		//-------------------------------------------------------------
 		case 0:
 			{
 			attack_frame--;
 			
-			// Throws (solo si el personaje tiene agarre)
 			if (has_grab && state_time <= throw_input_leniency && input_pressed(INPUT.attack_heavy))
 				{
 				attack_start(attacks[$ "throw"]);
@@ -37,14 +30,12 @@ function bear_light_ground(_override_phase)
 			if (attack_frame == 5) then anim_frame = 2;
 			if (attack_frame == 2) then anim_frame = 3;
 			
-			// Impacto -> cuadro 4
 			if (attack_frame == 0)
 				{
 				anim_frame = 4;
 				attack_phase = 1;
 				attack_frame = 16;
 				
-				// Golpe de combo: no tira al piso ni empuja, el rival sigue en hitstun para el siguiente
 				var _hitbox = hitbox_create(200, -50, 3.2, 1.6, 6, 3);
 				_hitbox.hitstun = 40;
 				_hitbox.knockback = 0;
@@ -55,7 +46,6 @@ function bear_light_ground(_override_phase)
 			}
 		break;
 		
-		// Recuperación del puño 1 (cuadros 5 -> 8)
 		case 1:
 			{
 			attack_frame--;
@@ -67,7 +57,6 @@ function bear_light_ground(_override_phase)
 			
 			player_move();
 			
-			// Cancelación al puño 2: solo en la parte final de la recuperación, si conectó y presionas light otra vez
 			if (attack_frame < 9 && attack_connected)
 				{
 				if (input_pressed(INPUT.attack_light, true))
@@ -89,9 +78,6 @@ function bear_light_ground(_override_phase)
 			}
 		break;
 		
-		//-------------------------------------------------------------
-		//--- PUÑO 2: STARTUP + GOLPE (cuadros 9 -> 13 | hitbox en el cuadro 14) ---
-		//-------------------------------------------------------------
 		case 2:
 			{
 			attack_frame--;
@@ -101,10 +87,8 @@ function bear_light_ground(_override_phase)
 			if (attack_frame == 5)  then anim_frame = 12;
 			if (attack_frame == 3)  then anim_frame = 13;
 			
-			// El paso hacia adelante se va frenando
 			if (abs(hsp) < 0.5) then hsp = 0; else hsp *= 0.8;
 			
-			// Impacto -> cuadro 14
 			if (attack_frame == 0)
 				{
 				anim_frame = 14;
@@ -112,7 +96,6 @@ function bear_light_ground(_override_phase)
 				attack_frame = 24;
 				hsp = 0;
 				
-				// Golpe de combo: no tira al piso ni empuja
 				var _hitbox = hitbox_create(200, -25, 3.2, 1.4, 8, 3);
 				_hitbox.hitstun = 40;
 				_hitbox.knockback = 0;
@@ -123,7 +106,6 @@ function bear_light_ground(_override_phase)
 			}
 		break;
 		
-		// Recuperación del puño 2 (cuadros 15 -> 21)
 		case 3:
 			{
 			attack_frame--;
@@ -138,7 +120,6 @@ function bear_light_ground(_override_phase)
 			
 			player_move();
 			
-			// Cancelación al zarpazo: solo en la parte final de la recuperación, si conectó y presionas light otra vez
 			if (attack_frame < 10 && attack_connected)
 				{
 				if (input_pressed(INPUT.attack_light, true))
@@ -160,24 +141,18 @@ function bear_light_ground(_override_phase)
 			}
 		break;
 		
-		//-------------------------------------------------------------
-		//--- ZARPAZO: STARTUP + GOLPE (cuadro 22 | hitbox en el cuadro 23) ---
-		//-------------------------------------------------------------
 		case 4:
 			{
 			attack_frame--;
 			
-			// El paso hacia adelante se va frenando
 			if (abs(hsp) < 0.5) then hsp = 0; else hsp *= 0.8;
 			
-			// Impacto -> cuadro 23 (el arco)
 			if (attack_frame == 0)
 				{
 				anim_frame = 23;
 				attack_phase = 5;
 				attack_frame = 19;
 				
-				// Remate: lanza al rival y lo tira al piso
 				var _hitbox = hitbox_create(200, -58, 3.2, 1.5, 16, 3);
 				_hitbox.hitstun = 40;
 				_hitbox.launch_speed = 15;
@@ -190,7 +165,6 @@ function bear_light_ground(_override_phase)
 			}
 		break;
 		
-		// Recuperación del zarpazo (cuadros 24 -> 26)
 		case 5:
 			{
 			attack_frame--;
@@ -199,12 +173,10 @@ function bear_light_ground(_override_phase)
 			if (attack_frame == 14) then anim_frame = 25;
 			if (attack_frame == 11) then anim_frame = 26;
 			
-			// El paso hacia adelante se va frenando
 			if (abs(hsp) < 0.5) then hsp = 0; else hsp *= 0.8;
 			
 			player_move();
 			
-			// Fin del combo
 			if (attack_frame <= 0)
 				{
 				attack_stop();

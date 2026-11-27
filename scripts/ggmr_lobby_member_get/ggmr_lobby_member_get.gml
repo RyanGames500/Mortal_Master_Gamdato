@@ -1,9 +1,6 @@
 ///@category GGMR
 ///@param {int} member_number		The member to get a property from
 ///@param {int} property			The property to get, from the GGMR_LOBBY_MEMBER enum
-/*
-Returns the value of a property from the specified lobby member.
-*/
 function ggmr_lobby_member_get(_num)
 	{
 	with (obj_ggmr_lobby) 

@@ -1,8 +1,4 @@
 ///@param {string} char_name	El nombre exacto del personaje a desbloquear (ej: "BRAD")
-/*
-Desbloquea un personaje en memoria y guarda el progreso en el archivo INI.
-Devuelve true si se desbloqueó por primera vez, o false si ya estaba libre.
-*/
 function character_unlock(_char_name)
 	{
 	with (obj_game)

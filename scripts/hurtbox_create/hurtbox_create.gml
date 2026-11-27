@@ -3,9 +3,6 @@
 ///@param {real} xscale				The horizontal size multiplier
 ///@param {real} yscale				The vertical size multiplier
 ///@param {int} lifetime			How many frames the hurtbox exists for		
-/*
-Creates a new hurtbox for a player  and returns the id.
-*/
 function hurtbox_create(_x_offset, _y_offset, _xscale, _yscale, _lifetime)
 	{
 	var _hurtbox = instance_create_layer(x + (_x_offset * facing), y + _y_offset, layer, obj_hurtbox);

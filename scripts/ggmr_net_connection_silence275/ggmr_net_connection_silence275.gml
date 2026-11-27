@@ -1,9 +1,5 @@
 ///@category GGMR
 ///@param {int} connection_id		The connection to check
-/*
-Returns the amount of time (in milliseconds) since a packet was received on the given connection.
-This is mainly intended for detecting if another player has disconnected from the network.
-*/
 function ggmr_net_connection_silence275()
 	{
 	with (obj_ggmr_net)

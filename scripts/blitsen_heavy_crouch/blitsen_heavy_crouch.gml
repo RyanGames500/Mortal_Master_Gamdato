@@ -20,18 +20,16 @@ function blitsen_heavy_crouch(_override_phase)
 			{
 			attack_frame--;
 			
-			// Crecimiento progresivo del brote
 			if (attack_frame == 9) then anim_frame = 1;
 			if (attack_frame == 6) then anim_frame = 2;
 			if (attack_frame == 4) then anim_frame = 3;
 			if (attack_frame == 2) then anim_frame = 4;
 			
-			// Mordisco y punto máximo en sub-imagen 5
 			if (attack_frame <= 0)
 				{
 				anim_frame = 5;
 				attack_phase = 1;
-				attack_frame = 24; // Recuperación más pesada
+				attack_frame = 24;
 				
 				var _hitbox = hitbox_create(95, -75, 1.2, 1.5, 11, 14);
 				_hitbox.hitlag = 12;
@@ -49,7 +47,6 @@ function blitsen_heavy_crouch(_override_phase)
 			{
 			attack_frame--;
 			
-			// Distribución fluida de retracción (24 frames)
 			if (attack_frame == 21) then anim_frame = 6;
 			if (attack_frame == 18) then anim_frame = 7;
 			if (attack_frame == 15) then anim_frame = 8;

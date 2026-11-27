@@ -8,9 +8,6 @@ var _quad = function(_x1, _y1, _x2, _y2, _sk)
 	draw_triangle(_x1 + _sk, _y1, _x2 + _sk, _y1, _x1, _y2, false);
 	draw_triangle(_x2 + _sk, _y1, _x2, _y2, _x1, _y2, false);
 	};
-// ==========================================
-// OVERLAY CRÍTICO (desconexión / desync)
-// ==========================================
 if (global.critical_overlay_active)
 	{
 	var _fade = 1;
@@ -60,9 +57,6 @@ if (global.critical_overlay_active)
 	draw_set_valign(fa_top);
 	}
 
-// ==========================================
-// NOTIFICACIONES PEQUEÑAS (avisos menores)
-// ==========================================
 var _count = array_length(global.notice_queue);
 if (_count > 0)
 	{
@@ -74,7 +68,7 @@ if (_count > 0)
 	var _bottom_margin = 130 * _scale;
 	var _pad_h = 30 * _scale;
 	var _bar_w = 6 * _scale;
-	var _card_w = 480 * _scale; // ancho fijo, uniforme para todos los avisos
+	var _card_w = 480 * _scale;
 
 	for (var i = 0; i < _count; i++)
 		{

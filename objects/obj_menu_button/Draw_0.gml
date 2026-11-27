@@ -1,4 +1,3 @@
-//Change color
 if (clicked)
 	{
 	image_blend = color_click;
@@ -11,7 +10,6 @@ else
 image_alpha = lerp(0.3, 0.9, hover_time / 6) + (dcos((current_time + x + y) / 20) * 0.05);
 draw_self();
 
-//Button text
 draw_set_font(fnt_menu);
 draw_set_halign(fa_center);
 draw_set_valign(fa_center);

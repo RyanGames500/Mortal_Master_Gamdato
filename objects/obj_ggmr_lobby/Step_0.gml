@@ -1,18 +1,14 @@
 ///@description Lobby Logic
 
-//Count down timer
 lobby_timer = max(0, --lobby_timer);
 
 switch (lobby_state) 
 	{
 	case GGMR_LOBBY_STATE.idle:
-		//If you are in a lobby with other players
 		if (ds_list_size(lobby_members) >= 2) 
 			{
-			//If you are the leader
 			if (is_lobby_leader) 
 				{
-				//Timing out members who haven't responded in a while
 				for (var i = 0; i < ds_list_size(lobby_members); i++) 
 					{
 					if (i == lobby_member_number) then continue;
@@ -24,7 +20,6 @@ switch (lobby_state)
 						i--;
 						}
 					}
-				//Automatic sync every 3 seconds
 				if (lobby_timer == 0) 
 					{
 					lobby_timer = 180;
@@ -33,13 +28,11 @@ switch (lobby_state)
 				} 
 			else 
 				{
-				//If you aren't the leader, send a Still Here packet every 2 seconds
 				if (lobby_timer == 0) 
 					{
 					lobby_timer = 120;
 					ggmr_lobby_heartbeat();
 					}
-				//Disconnect if the leader hasn't sent a packet in a while
 				if ((ggmr_net_connection_silence(lobby_joined_connection) / 16.66) > GGMR_LOBBY_TIMEOUT)
 					{
 					ggmr_error("Disconnecting from lobby because the leader isn't sending packets!");
@@ -48,7 +41,6 @@ switch (lobby_state)
 					}
 				}
 			}
-		//Join Requests expiration
 		for (var i = 0; i < ds_list_size(lobby_join_requests); i++) 
 			{
 			lobby_join_requests[| i][@ GGMR_LOBBY_JOIN_REQUEST.silence] += 1;	
@@ -61,7 +53,6 @@ switch (lobby_state)
 	break;
 	
 	case GGMR_LOBBY_STATE.joining:
-		//Resend join packets every 2 seconds
 		if (lobby_timer == 0)
 			{
 			var _connection = ggmr_net_connection_get_data(lobby_joined_connection);

@@ -2,7 +2,6 @@ draw_set_font(fnt_menu);
 draw_set_halign(fa_center);
 draw_set_valign(fa_center);
 
-//Light up the button if there is a pending join request
 if (ds_list_size(obj_ggmr_lobby.lobby_join_requests) > 0)
 	{
 	if (clicked)

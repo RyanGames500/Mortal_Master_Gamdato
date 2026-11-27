@@ -2,7 +2,6 @@ function mayel_boomerang_update()
 {
 	if (owner.hitlag_frame > 0) return;
 	
-	// Control seguro del lifetime para que no expire antes de tiempo
 	if (--lifetime <= 0) 
 		{
 		instance_destroy();
@@ -12,41 +11,39 @@ function mayel_boomerang_update()
 	x += hsp;
 	y += vsp;
 
-	// --- MÁQUINA DE ESTADOS DEL BOOMERANG ---
 	switch (boomerang_state)
 		{
-		case 0: // ESTADO 0: Viaje de ida (Avanza con velocidad normal)
+		case 0:
 			{
 			if (abs(hsp) > 2)
 				{
-				hsp -= 0.3 * sign(hsp); // Desaceleración gradual
+				hsp -= 0.3 * sign(hsp);
 				}
 			else
 				{
-				boomerang_state = 1; // Pasa al estado de frenado/pausa en el aire
+				boomerang_state = 1;
 				}
 			}
 		break;
 		
-		case 1: // ESTADO 1: Freno y pausa flotando en el aire (Estilo Kung Lao)
+		case 1:
 			{
 			hsp = 0;
 			brake_timer--;
 			if (brake_timer <= 0)
 				{
-				boomerang_state = 2;    // Pasa al estado de retorno
-				has_hit_return = false; // Permite golpear una vez de vuelta
+				boomerang_state = 2;
+				has_hit_return = false;
 				}
 			}
 		break;
 		
-		case 2: // ESTADO 2: Retorno guiado y acelerado hacia las manos de Mayel
+		case 2:
 			{
 			var _dir = sign(owner.x - x);
 			hsp += 0.8 * _dir;
 			hsp = clamp(hsp, -18, 18);
 			
-			// Si el boomerang llega de vuelta a la posición exacta de Mayel, se destruye en sus manos
 			if ((facing == 1 && x <= owner.x) || (facing == -1 && x >= owner.x))
 				{
 				instance_destroy();
@@ -56,7 +53,6 @@ function mayel_boomerang_update()
 		break;
 		}
 	
-	// Colisión con otros proyectiles
 	var _hitboxes = instance_place_array(x, y, obj_hitbox);
 	for (var i = 0; i < array_length(_hitboxes); i++)
 		{
@@ -71,7 +67,6 @@ function mayel_boomerang_update()
 			}
 		}
 	
-	// --- COLISIÓN CON HURTBOXES (FILTRO DE 1 SOLO GOLPAZO POR TRAYECTORIA) ---
 	var _hurtboxes = instance_place_array(x, y, obj_hurtbox);
 	for (var i = 0; i < array_length(_hurtboxes); i++)
 		{
@@ -120,7 +115,7 @@ function mayel_boomerang_update()
 						}
 					else
 						{
-						var _ch = counter_hit_kind();	// ANTES de attack_stop: mira que estaba haciendo el rival (nuestro)
+						var _ch = counter_hit_kind();
 						attack_stop();
 						
 						if (bbox_bottom >= obj_ground.y && other.launch_speed == 0)

@@ -1,12 +1,8 @@
 ///@category GGMR
-/*
-Adds inputs for all local players using the local_input callback.
-*/
 function ggmr_session_input_add_local()
 	{
 	with (obj_ggmr_session) 
 		{
-		//Loop through all of the local players
 		for (var i = 0; i < array_length(session_players_local); i++) 
 			{
 			var _number = session_clients_local[@ i];

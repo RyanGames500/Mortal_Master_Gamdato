@@ -1,8 +1,5 @@
 ///@category GGMR
 ///@param {int} index		The index of the request in the join requests list
-/*
-Accepts the join request in the list at the given index, adding the player who sent the request to your lobby. Only works if you are the lobby leader.
-*/
 function ggmr_lobby_join_request_accept()
 	{
 	with (obj_ggmr_lobby) 
@@ -14,7 +11,6 @@ function ggmr_lobby_join_request_accept()
 			var _port = _request[@ GGMR_LOBBY_JOIN_REQUEST.port];
 			var _name = _request[@ GGMR_LOBBY_JOIN_REQUEST.name];
 		
-			//Check to see if that person has already been added
 			var _already_exists = false;
 			var _connection = -1;
 			for (var i = 0; i < ds_list_size(lobby_members); i++) 
@@ -43,18 +39,15 @@ function ggmr_lobby_join_request_accept()
 					}
 				}
 		
-			//Confirmation packet (send even if they are already in the lobby, just in case)
 			buffer_seek(lobby_buffer, buffer_seek_start, 0);
 			buffer_write(lobby_buffer, buffer_s8, _member_index);
 			buffer_write(lobby_buffer, buffer_string, lobby_member_name);
 			buffer_resize(lobby_buffer, buffer_tell(lobby_buffer));
 			ggmr_net_send_double(GGMR_PACKET_TYPE.join_confirmation, lobby_buffer, _connection);
 
-			//Sync packet
 			ggmr_lobby_sync_members();
 			ggmr_log("Join request ", argument[0], " accepted");
 
-			//Delete the join request (might be added back even after this depending on lag)
 			ggmr_lobby_join_request_remove(argument[0]);
 			
 			return true;

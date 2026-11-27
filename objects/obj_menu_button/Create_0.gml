@@ -1,6 +1,3 @@
-/*
-This is simple UI button for the main menu.
-*/
 
 hover_time = 0;
 clicked = false;

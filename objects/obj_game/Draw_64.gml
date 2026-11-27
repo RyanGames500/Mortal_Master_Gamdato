@@ -19,19 +19,15 @@ if (game_meta_state == GAME_META_STATE.char_select)
 	exit;
 	}
 
-//Ending countdown
-// Conteo de Rondas, "ROUND X" y "FIGHT!" (estilo cinematográfico)
 if (game_meta_state == GAME_META_STATE.starting)
 	{
 	draw_set_font(fnt_countdown);
 	draw_set_halign(fa_center);
 	draw_set_valign(fa_center);
 	
-	// Calcular número de ronda actual
 	var _current_round = p1_wins + p2_wins + 1 - round_draws;
 	var _text = "ROUND " + string(_current_round);
 	
-	// Si es la ronda decisiva
 	var _is_final_round = (p1_wins == rounds_to_win - 1 && p2_wins == rounds_to_win - 1);
 	if (_is_final_round)
 		{
@@ -108,7 +104,6 @@ else
 	draw_set_alpha(1.0);
 	draw_set_color(c_white);
 	
-	// Voces de ronda y fight (solo sonido, una vez por ronda)
 	var _round_voices = [snd_round_1, snd_round_2, snd_round_3, snd_round_4, snd_round_5];
 	if (starting_frame > 50 && starting_frame <= 150 && !round_voice_played)
 		{
@@ -129,7 +124,6 @@ else
 		}
 	}
 
-// Al salir de la cuenta regresiva se reinician las banderas de las voces
 if (game_meta_state != GAME_META_STATE.starting)
 	{
 	round_voice_played = false;
@@ -142,7 +136,6 @@ if (intro_active())
 	exit;
 	}
 
-//Player HP bars & Meter bars
 with (obj_player)
 	{
 	var _margin = 16;
@@ -150,39 +143,34 @@ with (obj_player)
 	var _hp_bar_width = 400;
 	var _hp_bar_height = 32;
 	
-	// Dimensiones para la barra de especial
 	var _meter_bar_width = 300; 
 	var _meter_bar_height = 14;
 	var _meter_y = _margin + _hp_bar_height + (_pad * 2) + 4; 
 	
 	if (player_number == 0)
 		{
-		// Barra de Vida y Meter P1
 		draw_hp_bar((camera_width div 2) - (_margin * 3), _margin, _hp_bar_width, _hp_bar_height, _pad, hp, hp_prev, hp_max, -1);
 		draw_meter_bar((camera_width div 2) - (_margin * 3), _meter_y, _meter_bar_width, _meter_bar_height, _pad, meter, meter_max, -1);
 		}
 	else
 		{
-		// Barra de Vida y Meter P2
 		draw_hp_bar((camera_width div 2) + (_margin * 3), _margin, _hp_bar_width, _hp_bar_height, _pad, hp, hp_prev, hp_max, 1);
 		draw_meter_bar((camera_width div 2) + (_margin * 3), _meter_y, _meter_bar_width, _meter_bar_height, _pad, meter, meter_max, 1);
 		}
 
-	// === CONFIGURAR ALINEACIÓN X DE LOS TEXTOS ===
 	draw_set_font(fnt_menu);
 	
 	if (player_number == 0)
 		{
-		draw_set_halign(fa_left); // Alineado a la izquierda para P1
+		draw_set_halign(fa_left);
 		var _nx = (camera_width div 2) - (_margin * 3) - _hp_bar_width;
 		}
 	else
 		{
-		draw_set_halign(fa_right); // Alineado a la derecha para P2
+		draw_set_halign(fa_right);
 		var _nx = (camera_width div 2) + (_margin * 3) + _hp_bar_width;
 		}
 
-	// 1. DIBUJAR P1 / P2 DEBAJO DE LAS BARRAS
 	var _label = (player_number == 0) ? "P1" : "P2";
 	if (global.online_mode && instance_exists(obj_ggmr_session))
 		{
@@ -193,10 +181,9 @@ with (obj_player)
 			}
 		}
 
-	draw_set_valign(fa_top); // Hacia abajo
+	draw_set_valign(fa_top);
 	var _ny = _meter_y + _meter_bar_height + (_pad * 2) + 4;
 	
-	// Sombra y texto de P1/P2
 	draw_set_color(c_black);
 	draw_text(_nx + 2, _ny + 2, _label);
 	draw_text(_nx - 2, _ny + 2, _label);
@@ -204,35 +191,32 @@ with (obj_player)
 	draw_text(_nx, _ny, _label);
 	
 	
-	// 2. DIBUJAR NOMBRE DEL PERSONAJE DENTRO DE LA BARRA DE HP
 	if (variable_instance_exists(id, "character_name"))
 		{
 		draw_set_valign(fa_top);
 		
-		var _char_y = _margin + 4; // Ligeramente desplazado hacia abajo dentro de la barra
+		var _char_y = _margin + 4;
 		var _nx_inside = 0;
 		
 		if (player_number == 0)
 			{
 			draw_set_halign(fa_left);
-			_nx_inside = (camera_width div 2) - (_margin * 3) - _hp_bar_width + 12; // Offset interno P1
+			_nx_inside = (camera_width div 2) - (_margin * 3) - _hp_bar_width + 12;
 			}
 		else
 			{
 			draw_set_halign(fa_right);
-			_nx_inside = (camera_width div 2) + (_margin * 3) + _hp_bar_width - 12; // Offset interno P2
+			_nx_inside = (camera_width div 2) + (_margin * 3) + _hp_bar_width - 12;
 			}
 		
-		// Sombra y texto del personaje
 		draw_set_color(c_black);
 		draw_text(_nx_inside + 2, _char_y + 2, character_name);
 		draw_text(_nx_inside - 2, _char_y + 2, character_name);
-		draw_set_color(c_white); // Blanco para resaltar sobre el color de la barra
+		draw_set_color(c_white);
 		draw_text(_nx_inside, _char_y, character_name);
 		}
 
 
-	// === RONDAS GANADAS: frascos de suero que se llenan ===
 	var _wins = (player_number == 0) ? obj_game.p1_wins : obj_game.p2_wins;
 	if (_wins != obj_game.wins_seen[player_number])
 		{
@@ -250,7 +234,6 @@ with (obj_player)
 		draw_round_vial(_vx, _ny + 2, _f);
 		}
 	}
-// === MONITOR DE SIGNOS VITALES (centro, bajo las barras) ===
 var _min_ratio = 1;
 var _any_ko = false;
 with (obj_player)
@@ -278,7 +261,7 @@ if (game_meta_state == GAME_META_STATE.round_restart || game_meta_state == GAME_
 		if (player_number == 0) _p1 = id;
 		if (player_number == 1) _p2 = id;
 		if (hp <= 0) _any_ko = true;
-		if (acid_ko) _any_acid = true;
+		if (acid_ko || fatal_type != FATALITY.none) _any_acid = true;
 		}
 	
 	if (_p1 != noone && _p2 != noone)
@@ -412,14 +395,11 @@ else if (_text != "")
 	draw_set_color(c_white);
 	}
 
-// === CONTADOR DE COMBOS ===
 if (game_meta_state != GAME_META_STATE.starting)
 	{
 	with (obj_player)
 		{
-		// Este jugador es el golpeado; el texto va del lado del que le pega
 		
-		// Sonido: al terminar el combo suena solo la frase del golpe en que se quedó (solo cosmético)
 		if (combo_ended_n > obj_game.combo_ended_seen[player_number])
 			{
 			obj_game.combo_ended_seen[player_number] = combo_ended_n;
@@ -429,14 +409,13 @@ if (game_meta_state != GAME_META_STATE.starting)
 		
 		var _live  = (combo_active && combo_hits >= COMBO_MIN_SHOW);
 		var _ended = (!combo_active && combo_final_show > 0 && combo_final_hits >= COMBO_MIN_SHOW);
-		// La frase sigue visible aunque empiece un combo nuevo; se apaga sola
 		var _call  = (combo_final_show > 0 && combo_final_hits >= COMBO_MIN_SHOW) ? combo_callout(combo_final_hits) : undefined;
 		
 		if (_live || _ended || !is_undefined(_call))
 			{
 			var _age = COMBO_SHOW_FRAMES - combo_show;
-			var _pop = _live ? (1 + 0.35 * max(0, 1 - _age / 6)) : 1;   // "rebote" al sumar un golpe
-			var _fade = min(1, combo_final_show / 20);                    // se desvanece al final
+			var _pop = _live ? (1 + 0.35 * max(0, 1 - _age / 6)) : 1;
+			var _fade = min(1, combo_final_show / 20);
 			
 			var _cx = (player_number == 1) ? camera_width * 0.09 : camera_width * 0.91;
 			var _cy = camera_height * 0.32;
@@ -508,7 +487,6 @@ if (!is_undefined(_call))
 		}
 	}
 
-// === COUNTER HIT === (solo dibujo)
 if (game_meta_state != GAME_META_STATE.starting)
 	{
 	with (obj_player)
@@ -517,7 +495,7 @@ if (game_meta_state != GAME_META_STATE.starting)
 			{
 			var _cx = (player_number == 1) ? camera_width * 0.14 : camera_width * 0.86;
 			var _cy = (camera_height * 0.32) - 80;
-			var _pop = 1 + (0.4 * max(0, (ch_show - 50) / 10));		// rebote al aparecer
+			var _pop = 1 + (0.4 * max(0, (ch_show - 50) / 10));
 			var _txt = (ch_kind == 2) ? "PUNISH COUNTER" : "COUNTER";
 			var _col = (ch_kind == 2) ? make_colour_rgb(255, 70, 60) : make_colour_rgb(255, 190, 40);
 			
@@ -538,7 +516,6 @@ if (game_meta_state != GAME_META_STATE.starting)
 		}
 	}
 
-//Timer
 if (game_meta_state == GAME_META_STATE.running)
 	{
 	var _timer = global.training ? match_time : (match_time - (game_frame div 60));
@@ -554,8 +531,6 @@ if (game_meta_state == GAME_META_STATE.running)
 	draw_text(camera_width div 2, 44, _timer);
 	}
 
-// === RISA DEL ANFITRIÓN ===
-// Corre también en round_restart y ending, porque el KO cambia el estado del juego en ese mismo frame
 if (game_meta_state == GAME_META_STATE.running
 	|| game_meta_state == GAME_META_STATE.round_restart
 	|| game_meta_state == GAME_META_STATE.ending)
@@ -567,8 +542,6 @@ if (game_meta_state == GAME_META_STATE.running
 		var _entered_knockdown = (state == PLAYER_STATE.knockdown && _prev != PLAYER_STATE.knockdown);
 		obj_game.laugh_state_seen[player_number] = state;
 		
-		// Risa larga: la primera vez que a este jugador le queda poca vida
-		// (también si llega a 0 de un solo golpe sin haber pasado por ahí)
 		var _low = (hp <= hp_max * LAUGH_LOW_HP);
 		if (_low && !obj_game.laugh_low_seen[player_number])
 			{
@@ -576,9 +549,8 @@ if (game_meta_state == GAME_META_STATE.running
 			obj_game.laugh_last_ms = current_time;
 			hit_sfx_play(snd_laugh_ko);
 			}
-		if (!_low) then obj_game.laugh_low_seen[player_number] = false;   // ronda nueva o vida recuperada
+		if (!_low) then obj_game.laugh_low_seen[player_number] = false;
 		
-		// Risa corta: solo en 1 de cada LAUGH_EVERY lanzamientos y con pausa mínima
 		if (_entered_knockdown)
 			{
 			obj_game.laugh_count++;
@@ -593,7 +565,6 @@ if (game_meta_state == GAME_META_STATE.running
 		}
 	}
 
-//Pausing
 if (game_paused)
 	{
 	draw_set_alpha(0.8);
@@ -634,17 +605,15 @@ if (global.online_mode && olm_open && !bail_active && game_meta_state == GAME_ME
 	online_menu_draw();
 	}
 
-// Efecto de Transición (Fade to Black)
 if (fade_alpha > 0)
 	{
 	draw_set_alpha(fade_alpha);
 	draw_set_color(c_black);
 	draw_rectangle(0, 0, camera_width, camera_height, false);
-	draw_set_alpha(1.0); // Resetear el alfa general para no afectar otros dibujos
+	draw_set_alpha(1.0);
 	}
 
 training_draw_hud();
 survival_draw_hud();
 if (global.online_mode && !bail_active) then online_draw_status();
 game_draw_super_fx();
-//game_draw_super_green();

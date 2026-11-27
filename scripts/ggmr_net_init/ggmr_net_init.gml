@@ -1,7 +1,4 @@
 ///@category GGMR
-/*
-Creates an instance of <obj_ggmr_net> if there is none.
-*/
 function ggmr_net_init()
 	{
 	if (!instance_exists(obj_ggmr_net)) 

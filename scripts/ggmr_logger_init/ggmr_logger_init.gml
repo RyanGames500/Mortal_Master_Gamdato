@@ -1,7 +1,4 @@
 ///@category GGMR
-/*
-Creates an instance of <obj_ggmr_logger> if there is none.
-*/
 function ggmr_logger_init()
 	{
 	if (!instance_exists(obj_ggmr_logger)) 

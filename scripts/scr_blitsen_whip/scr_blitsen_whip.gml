@@ -1,31 +1,21 @@
-/*
-Super 1 de Blitsen (nuestro): LATIGOS DE ZARZA (2 barras). Doble media luna + medium.
-Usa la hoja spr_blitsen_super_whip (24 frames de 109x57, origen 21,28) con 4 latigazos: recto, arriba, arriba y abajo.
-La animacion completa se repite WHIP_LOOPS veces. El primer latigazo debe conectar limpio; si falla o lo bloquean, se corta.
-*/
 
-#macro WHIP_LOOPS			2		//cuantas veces se repite la animacion completa
-#macro WHIP_CHARGE			10		//frames de carga antes del primer latigazo
-#macro WHIP_T_VINE			2		//frames que dura cada pose con la liana extendida
-#macro WHIP_T_MOVE			1		//frames de las poses de preparacion y retroceso
-#macro WHIP_T_IDLE			1		//frames de las poses de regreso a neutral
-#macro WHIP_END_LAG			10		//recuperacion despues del ultimo latigazo
-#macro WHIP_MISS_LAG		22		//recuperacion si el primer latigazo falla o lo bloquean
+#macro WHIP_LOOPS			2
+#macro WHIP_CHARGE			10
+#macro WHIP_T_VINE			2
+#macro WHIP_T_MOVE			1
+#macro WHIP_T_IDLE			1
+#macro WHIP_END_LAG			10
+#macro WHIP_MISS_LAG		22
 
-/*
-Construye la tabla de la hoja: cuanto dura cada frame y cuales traen golpe.
-tipo de frame: v = liana extendida, m = preparacion o retroceso, i = regreso a neutral
-golpe = [x, y, ancho, alto, tipo]  (tipo: 0 normal, 1 alto, 2 bajo). Medidos sobre la liana de cada frame (escala 5.5).
-*/
 function blitsen_whip_table()
 	{
 	var _types = "mvvmmiiivvmiivvmmiiivvmi";
 	
 	var _hits = array_create(24, undefined);
-	_hits[@ 1]  = [291, -11, 2.92, 0.62, 0];		// recto
-	_hits[@ 8]  = [291, -44, 2.92, 0.80, 1];		// arriba
-	_hits[@ 13] = [291, -47, 2.92, 0.85, 1];		// arriba
-	_hits[@ 20] = [280,  77, 2.75, 1.20, 2];		// abajo
+	_hits[@ 1]  = [291, -11, 2.92, 0.62, 0];
+	_hits[@ 8]  = [291, -44, 2.92, 0.80, 1];
+	_hits[@ 13] = [291, -47, 2.92, 0.85, 1];
+	_hits[@ 20] = [280,  77, 2.75, 1.20, 2];
 	
 	var _tb = [];
 	var _t = 0;
@@ -51,9 +41,7 @@ function blitsen_whip_table()
 function blitsen_super_whip(_override_phase)
 	{
 	static _tb = blitsen_whip_table();
-	// Daño de cada latigazo [recto, arriba, arriba, abajo]: fila 0 = ciclos normales, fila 1 = ultimo ciclo
 	static _dmg = [[6, 6, 6, 7], [6, 6, 6, 14]];
-	// Que numero de latigazo es cada frame de la hoja (-1 = no pega)
 	static _which = [-1, 0, -1, -1, -1, -1, -1, -1, 1, -1, -1, -1, -1, 2, -1, -1, -1, -1, -1, -1, 3, -1, -1, -1];
 	
 	var _phase = !is_undefined(_override_phase) ? _override_phase : attack_phase;
@@ -69,7 +57,7 @@ function blitsen_super_whip(_override_phase)
 			hsp = 0;
 			vsp = 0;
 			attack_connected = false;
-			super_invuln = true;		// intocable mientras carga
+			super_invuln = true;
 			ex_glow_color = make_colour_rgb(110, 255, 90);
 			}
 		break;
@@ -80,7 +68,6 @@ function blitsen_super_whip(_override_phase)
 			}
 		break;
 		
-		// Carga corta (despues de la pausa)
 		case 0:
 			{
 			attack_frame--;
@@ -90,7 +77,7 @@ function blitsen_super_whip(_override_phase)
 			if (attack_frame <= 0)
 				{
 				attack_phase = 1;
-				attack_frame = 0;		// desde aqui cuenta hacia arriba
+				attack_frame = 0;
 				attack_connected = false;
 				super_invuln = false;
 				}
@@ -99,7 +86,6 @@ function blitsen_super_whip(_override_phase)
 			}
 		break;
 		
-		// Latigazos: la hoja se repite WHIP_LOOPS veces
 		case 1:
 			{
 			var _len = _tb.len;
@@ -107,7 +93,6 @@ function blitsen_super_whip(_override_phase)
 			var _t = attack_frame mod _len;
 			var _loop = attack_frame div _len;
 			
-			// Pose del frame actual y golpe si empieza un frame con liana
 			for (var k = 0; k < array_length(_tb.frames); k++)
 				{
 				var _e = _tb.frames[k];
@@ -141,7 +126,6 @@ function blitsen_super_whip(_override_phase)
 			
 			attack_frame++;
 			
-			// Si el primer latigazo no conecto limpio, se corta
 			var _gate = _tb.frames[1].start + 6;
 			if (attack_frame == _gate && !(attack_connected && attack_hit_confirmed()))
 				{
@@ -160,7 +144,6 @@ function blitsen_super_whip(_override_phase)
 			}
 		break;
 		
-		// Recuperacion si fallo o lo bloquearon (vulnerable): vuelve a neutral
 		case 2:
 			{
 			attack_frame--;
@@ -178,7 +161,6 @@ function blitsen_super_whip(_override_phase)
 			}
 		break;
 		
-		// Final normal: breve recuperacion en pose neutral
 		case 3:
 			{
 			attack_frame--;

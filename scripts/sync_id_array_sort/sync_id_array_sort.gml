@@ -2,9 +2,6 @@
 ///@param {array} array			The array to sort
 ///@param {int} [from]			The start position
 ///@param {int} [until]			The end position
-/*
-Helper function used in <sync_id_grid_sort> - do NOT call independently.
-*/
 function sync_id_array_sort()
 	{
 	var _array = argument[0];

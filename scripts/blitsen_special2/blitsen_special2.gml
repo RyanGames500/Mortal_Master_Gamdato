@@ -35,6 +35,7 @@ function blitsen_special2(_override_phase)
 				_hitbox.launch_speed = 12;
 				_hitbox.knockback = 18;
 				_hitbox.low = true;
+				_hitbox.fatality = FATALITY.flor;				
 				}
 			
 			player_move();

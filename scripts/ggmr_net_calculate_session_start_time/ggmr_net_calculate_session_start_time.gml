@@ -1,9 +1,5 @@
 ///@category GGMR
 ///@param {array} connections		An array of connection numbers
-/*
-Calculates the ping to each connection in the given array, and then sends a packet to each containing the number of milliseconds that the player should wait before starting.
-The <GGMR_SESSION_START_TIMER> will be added onto the calculated number to determine the actual time before players start.
-*/
 function ggmr_net_calculate_session_start_time()
 	{
 	with (obj_ggmr_net) 
@@ -13,7 +9,6 @@ function ggmr_net_calculate_session_start_time()
 		
 		if (_len == 0) then return false;
 		
-		//Try to sync all of the session starting times
 		var _max_ping = 0;
 		for (var i = 0; i < _len; i++) 
 			{
@@ -21,10 +16,8 @@ function ggmr_net_calculate_session_start_time()
 			}
 		var _delay_time = ceil(_max_ping / 2);
 			
-		//Self start timer
 		ggmr_globals().session_start_time = _delay_time;
 			
-		//Send start packet to all connections
 		var _b = buffer_create(1, buffer_grow, 1);
 		buffer_write(_b, buffer_u16, 0);
 			

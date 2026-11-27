@@ -1,7 +1,4 @@
 ///@param {array} inputs_array			The array of input buffers for all players
-/*
-Contains the code that player instances will run every step.
-*/
 function player_update(_inputs_array)
 	{
 	var _buffer = _inputs_array[@ player_number];
@@ -71,21 +68,20 @@ function player_update(_inputs_array)
 		player_move(block_pushback, 0);
 		}
 	if (super_fx > 0) then super_fx--;	
-	if (state != PLAYER_STATE.attacking && super_fx <= 0) then super_id = 0;	// el fondo de super se apaga cuando termina el super
+	if (state != PLAYER_STATE.attacking && super_fx <= 0) then super_id = 0;
 	if (hitlag_frame > 0)
 		{
 		hitlag_frame--;
 		return;
 		}
 	counter_phase_update();	
-	// Combo garantizado: si el rival prepara un super y yo estoy en medio de un combo, me quedo congelado hasta que me pegue (nuestro)
 	var _super_prep = false;
 	if (combo_active && (state == PLAYER_STATE.hitstun_ground || state == PLAYER_STATE.hitstun_aerial || state == PLAYER_STATE.grabbed))
 		{
 		with (obj_player)
 			{
-			// 90 = maximo de frames del super que espero el golpe (si el super falla, no me quedo congelado para siempre)
-			if (id != other.id && state == PLAYER_STATE.attacking && super_id != 0 && state_time <= 90)
+			if (id != other.id && state == PLAYER_STATE.attacking && super_id != 0 && state_time <= 90
+				&& !(variable_instance_exists(id, "super_nofreeze") && super_nofreeze))
 				{
 				_super_prep = true;
 				}
@@ -94,7 +90,7 @@ function player_update(_inputs_array)
 	if (_super_prep)
 		{
 		if (super_freeze_hits < 0) then super_freeze_hits = combo_hits;
-		if (combo_hits == super_freeze_hits) then return;		// el super todavia no me pega: sigo congelado
+		if (combo_hits == super_freeze_hits) then return;
 		}
 	else
 		{
@@ -109,8 +105,6 @@ function player_update(_inputs_array)
 	if (ex_flash > 0) then ex_flash--;
 	
 	hp_top = max(hp_top, hp);
-	//Combo: termina cuando el jugador sale de los estados de golpe
-	//Un super rival que ya conecto mantiene vivo el combo aunque el engine mande al rival a knockdown a medio super (nuestro)
 	var _super_keep = false;
 	if (combo_active)
 		{
@@ -129,7 +123,6 @@ function player_update(_inputs_array)
 		combo_final_hits = combo_hits;
 		combo_ended_n++;
 		
-		//La frase se queda al menos lo que dura su voz
 		combo_final_show = COMBO_SHOW_FRAMES;
 		var _fin = combo_callout(combo_hits);
 		if (!is_undefined(_fin) && _fin.snd != -1)
@@ -283,7 +276,6 @@ function player_update(_inputs_array)
 
 			case PLAYER_STATE.grabbed:
 				{
-				// SI ESTÁ SIENDO CARGADO, EL SCRIPT DEL ATAQUE CONTROLA EL SPRITE Y EL FRAME
 				if (!being_carried)
 					{
 					var _grab_sprite = sprites[$ "hitstun_ground"];
@@ -302,7 +294,6 @@ function player_update(_inputs_array)
 				hsp = 0;
 				vsp = 0;
 				
-				// Lógica de Throw Tech (Romper agarre)
 				if (state_time <= 12)
 					{
 					if (input_pressed(INPUT.attack_light, false) && input_pressed(INPUT.attack_heavy, false))
@@ -342,7 +333,7 @@ function player_update(_inputs_array)
 				
 				if (state_frame == 0)
 					{
-					being_carried = false; // Resetear al terminar el agarre
+					being_carried = false;
 					player_state_set(PLAYER_STATE.idle);
 					break;
 					}
@@ -407,7 +398,7 @@ function player_update(_inputs_array)
 				anim_sprite = sprites[$ "idle"];
 				anim_speed = anim_idle_speed;
 				player_face_opponent();
-				air_hits = 0;   // se acabo el combo
+				air_hits = 0;
 				if (stick_check_direction(STICK_DIR.up_any))
 					{
 					if (stick_check_direction(STICK_DIR.forward_up))
@@ -519,7 +510,6 @@ function player_update(_inputs_array)
 				anim_sprite = sprites[$ "knockdown"];
 				anim_speed = anim_idle_speed;
 				
-				// Si no hay sprite "acostado" aparte, en el aire solo se repiten los cuadros 0-3
 				if (is_undefined(sprites[$ "acostado"]) && anim_frame >= 4) then anim_frame = 0;
 				
 				vsp += grav;
@@ -528,12 +518,9 @@ function player_update(_inputs_array)
 				
 				if (bbox_bottom >= obj_ground.y)
 					{
-					//temblor	
 					obj_game.cam_shake = max(obj_game.cam_shake, 7);
-					//sonido de impacto en piso
 					var _land_sounds = [snd_hit_floor1, snd_hit_floor2];
 					hit_sfx_play(_land_sounds[(obj_game.game_frame + state_time) mod 2]);
-					//efecto de polvo
 					var _land_vfx = instance_create_layer(x, obj_ground.y, "VFX_Layer", obj_vfx);
 					_land_vfx.sprite_index = spr_effect_landing_dust;
 					_land_vfx.image_xscale = facing;
@@ -555,10 +542,9 @@ function player_update(_inputs_array)
 				hsp = 0;
 				vsp = 0;
 				
-				var _lying_total   = 20; // frames totales en el suelo (acostado + levantarse)
-				var _get_up_frames = 8; // últimos frames: se levanta
+				var _lying_total   = 20;
+				var _get_up_frames = 8;
 				
-				// Si no murió (KO), se levanta al cumplirse el tiempo
 				if (hp > 0 && state_time >= _lying_total)
 					{
 					player_state_set(PLAYER_STATE.idle);
@@ -567,7 +553,6 @@ function player_update(_inputs_array)
 				
 				if (hp <= 0 || state_time < _lying_total - _get_up_frames)
 					{
-					// Acostado: usa el sprite "acostado" o, si no existe, los cuadros 4-6 del knockdown
 					var _lie_sprite = sprites[$ "acostado"];
 					var _lie_start = 0;
 					if (is_undefined(_lie_sprite))
@@ -588,7 +573,6 @@ function player_update(_inputs_array)
 					}
 				else
 					{
-					// Levantándose
 					var _up = sprites[$ "levantarse"];
 					if (!is_undefined(_up))
 						{
@@ -607,7 +591,6 @@ function player_update(_inputs_array)
 						}
 					else
 						{
-						// Sin sprite de levantarse: se queda en el último cuadro acostado
 						var _hold = sprites[$ "acostado"];
 						if (is_undefined(_hold)) then _hold = sprites[$ "knockdown"];
 						anim_sprite = _hold;
@@ -630,25 +613,64 @@ function player_update(_inputs_array)
 		{
 		script_execute(passive);
 		}
-		stage_props_check();	// objetos del escenario
-	stage_npc_check();		// personajes del escenario	
+		stage_props_check();
+	stage_npc_check();
 	if (frozen && state != PLAYER_STATE.hitstun_ground) then frozen = false;
-	
-	//Pose de victoria (nuestro): solo fuera del combate, el que va ganando y ya parado en idle
-	if (win_pose)
+	if (frozen)
+		{
+		frz_age++;
+		frz_break = -1;
+		}
+	else
+		{
+		if (frz_age > 0)
+			{
+			frz_break = 0;
+			frz_bx = x;
+			frz_by = y;
+			frz_bface = facing;
+			}
+		else if (frz_break >= 0)
+			{
+			frz_break++;
+			if (frz_break > ICE_BREAK_LEN) then frz_break = -1;
+			}
+		frz_age = 0;
+		}
+	if (fatal_trophy)
+		{
+		if (state == PLAYER_STATE.attacking)
+			{
+			attack_stop();
+			player_state_set(PLAYER_STATE.idle);
+			hsp = 0;
+			}
+		if (fatal_hold > 0)
+			{
+			fatal_hold--;
+			anim_sprite = fatal_hold_spr;
+			anim_frame = fatal_hold_img;
+			anim_speed = 0;
+			}
+		}
+
+	if (win_pose && fatal_hold <= 0)
 		{
 		anim_sprite = sprites[$ "win"];
 		anim_speed = win_anim_speed;
 		hsp = 0;
 		}
-	else if (obj_game.game_meta_state != GAME_META_STATE.running && state == PLAYER_STATE.idle && hp > 0 && variable_struct_exists(sprites, "win"))
+		else if ((obj_game.game_meta_state != GAME_META_STATE.running || fatal_trophy) && fatal_hold <= 0 && state == PLAYER_STATE.idle && hp > 0 && variable_struct_exists(sprites, "win"))
 		{
 		var _winner = true;
-		with (obj_player)
+		if (!fatal_trophy)
 			{
-			if (id != other.id && hp * other.hp_max >= other.hp * hp_max) then _winner = false;
+			with (obj_player)
+				{
+				if (id != other.id && hp * other.hp_max >= other.hp * hp_max) then _winner = false;
+				}
 			}
-		if (_winner && ++win_wait >= 40)
+		if (_winner && (fatal_trophy || ++win_wait >= 40))
 			{
 			win_pose = true;
 			anim_sprite = sprites[$ "win"];
@@ -661,7 +683,6 @@ function player_update(_inputs_array)
 		{
 		if (win_pose)
 			{
-			//Se queda congelada en el último frame, no se repite
 			anim_frame = min(anim_frame + anim_speed, sprite_get_number(anim_sprite) - 1);
 			}
 		else

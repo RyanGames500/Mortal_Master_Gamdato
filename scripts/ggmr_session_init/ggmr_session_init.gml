@@ -6,19 +6,6 @@
 ///@param {function} finish_game					A function or script for when the game ends
 ///@param {function} on_event						A function or script called when a GGMR_EVENT happens
 ///@param {function} input_template_buffer			The buffer to use as a template for player input
-/*
-Creates the ggmr_session object if there is none, and passes it the callback functions / input buffer template.
-Set <ggmr_callback_default> for any non-required callbacks you don't have a function for.
-Callback Functions:
-	- local_input(buffer, player_number) : The function must add the local player's inputs to the given buffer. Ideally, the changes to the buffer should stack with the data already in the buffer, so if the game needs to pause inputs are still saved.
-	- advance_frame(inputs_array, [relative_frame]) : The function must advance the game state a single frame using the inputs provided in the inpus_array.
-	- save_game(buffer) : The function must save the current game state to the given buffer.
-	- load_game(buffer) : The function must load the game state stored in the given buffer.
-	- finish_game() : Called when the GGMR session is completely finished. Ideally, it should switch to a different room.
-	- on_event(event) : The function should handle all the types of events (from the GGMR_EVENT enum).
-Input Buffer Template:
-	- This is a buffer that will act as the default for all player inputs. It must be large enough to store all possible player inputs.
-*/
 function ggmr_session_init()
 	{
 	if (!instance_exists(obj_ggmr_session)) 

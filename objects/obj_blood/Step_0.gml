@@ -1,7 +1,5 @@
-//Quieta mientras el juego está en pausa
 if (obj_game.game_paused) then exit;
 
-//Espera el congelado del golpe y sale disparada justo cuando el rival arranca
 if (delay > 0)
 	{
 	delay--;

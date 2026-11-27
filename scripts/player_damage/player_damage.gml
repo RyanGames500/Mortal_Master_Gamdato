@@ -1,8 +1,5 @@
 ///@param {int} damage			The amount of damage to deal
 ///@param {id} [player]			The player to affect
-/*
-Deals damage to a player.
-*/
 function player_damage(_damage, _player = id)
 	{
 	if (survival_active()) then _damage = survival_damage_mod(_damage, _player);

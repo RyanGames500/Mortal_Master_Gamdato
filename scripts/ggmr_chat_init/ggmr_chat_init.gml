@@ -6,12 +6,6 @@
 ///@param {bool} [clear]				Whether to clear existing messages or not
 ///@param {bool} [allow_custom]			Whether to let players send anything they want, or to restrict them to the presets
 ///@param {int} [timeout]				The number of frames a player must wait before sending another message
-/*
-Sets the given properties for <obj_ggmr_chat>. If no instance of <obj_ggmr_chat> exists in the room, a new one is created.
-The preset_script should take the following arguments and return a string value:
-	- message {string} : The string of the preset message that will be dynamically changed
-	- index	{int} : The index of the preset message
-*/
 function ggmr_chat_init()
 	{
 	if (!instance_exists(obj_ggmr_chat))

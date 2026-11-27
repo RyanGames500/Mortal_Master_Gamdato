@@ -35,6 +35,7 @@ function blitsen_special1(_override_phase)
 				_hitbox.launch_speed = 13;
 				_hitbox.knockback = 20;
 				_hitbox.high = true;
+				_hitbox.fatality = FATALITY.lengua;				
 				}
 			
 			player_move();

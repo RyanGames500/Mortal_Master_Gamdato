@@ -1,4 +1,3 @@
-//Custom draw script
 if (custom_draw != -1 && script_exists(custom_draw))
 	{
 	script_execute(custom_draw);

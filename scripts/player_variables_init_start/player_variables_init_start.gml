@@ -1,9 +1,5 @@
-/*
-Initializes variables for a player BEFORE the character init script is run.
-*/
 function player_variables_init_start()
 	{
-	//Player variables
 	player_number = 0;
 
 	anim_sprite = spr_blocky_idle;
@@ -24,7 +20,6 @@ function player_variables_init_start()
 	
 	hp = 0;
 	hp_prev = 0;
-	//barra de especiales, super y EX
 	meter = 0;
 	meter_max = 300;
 	
@@ -39,7 +34,6 @@ function player_variables_init_start()
 	motion_input_direction = array_create(motion_input_array_size, STICK_DIR.neutral);
 	motion_input_frame = array_create(motion_input_array_size, 0);
 	
-	//Character-specific variables that may be overridden in the character init script
 	walk_speed = 0;
 	dash_speed = 0;
 	dash_time = 0;
@@ -68,9 +62,8 @@ function player_variables_init_start()
 	jump_impulse_done = false;
 	air_hits = 0;
 	air_hit_limit = 3;
-	//Pose de victoria (nuestro)
-	win_pose = false;		//ya está haciendo la pose
-	win_wait = 0;			//espera antes de empezarla 
+	win_pose = false;
+	win_wait = 0;
 	combo_hits = 0;
 	combo_active = false;
 	combo_show = 0;
@@ -78,39 +71,69 @@ function player_variables_init_start()
 	combo_final_show = 0;
 	combo_ended_n = 0;
 	frozen = false;
+	frz_age = 0;
+	frz_break = -1;
+	frz_bx = 0;
+	frz_by = 0;
+	frz_bface = 1;
+	frz_dx = 0;
+	frz_dy = 0;	
 	rage_frames = 0;
-	acid_ko = false;	// true = este jugador murió por un golpe marcado y debe caer al ácido
+	acid_ko = false;
 	acid_ko = false;
     acid_x = 0;
     acid_y = 0;
     acid_dir = 1;
-	ex_flash = 0;		//frames restantes del brillo de EX (nuestro)
-	ex_glow_color = make_colour_rgb(255, 40, 40);	//color del brillo, se puede cambiar por personaje (nuestro)
+	fatal_type = FATALITY.none;
+	fatal_x = 0;
+	fatal_dir = 1;
+	fatal_launch = 24;
+	fatal_timer = 0;
+	fatal_y = 0;
+	fatal_spr = -1;
+	fatal_img = 0;
+	fatal_face = 1;
+	fatal_trophy = false;
+	fatal_hold = 0;
+	fatal_hold_spr = -1;
+	fatal_hold_img = 0;
+	fatal_tongue = false;
+	fatal_bx = 0;
+	fatal_tx = 0;
+	fat_lengua = -1;	
+	fat_hand_hit = undefined;
+	fat_hand_win = undefined;
+	no_fatality = false;
+	fat_cabeza = -1;
+	fat_cuerpo = -1;
+	fat_pies = -1;	
+	ex_flash = 0;
+	ex_glow_color = make_colour_rgb(255, 40, 40);
 	hp_top = 0;
-		// Personajes del escenario (nuestro)
-	npc_seq = -1;		// -1 = libre; 0 o más = frames de la secuencia de agarre
-	npc_idx = 0;		// qué equipo lo agarró
-	npc_linger = 0;		// frames seguidos dentro de la zona de un equipo
+	npc_seq = -1;
+	npc_idx = 0;
+	npc_linger = 0;
 	npc_back = -1;
 	npc_back_idx = 0;
-	super_id = 0;		//que super se esta lanzando, para mostrar su nombre (nuestro)
-	super_fx = 0;		//frames restantes del efecto de super (nuestro)
-	super_hit_fx = 0;	//frames restantes del destello de impacto (nuestro)
-	super_invuln = false;	//true = el jugador es intocable (supers) (nuestro)
+	super_id = 0;
+	super_fx = 0;
+	super_hit_fx = 0;
+	super_invuln = false;
 	super_zoom = 1.0;
 	super_green = 0;	
 	super_lock = false;
 	super_freeze_hits = -1;
-	ch_phase = 0;		// fase de mi ataque: 0 startup, 1 activo, 2 recuperacion (nuestro)
-	ch_script = -1;		// ataque que estoy midiendo (nuestro)
-	ch_kind = 0;		// 1 counter, 2 punish counter: el ultimo que recibi (nuestro)
-	ch_show = 0;		// frames que se muestra el letrero (nuestro)	
-	//diferenciar espejos de cada peleador duplicado
+	ch_phase = 0;
+	ch_script = -1;
+	ch_kind = 0;
+	ch_show = 0;
+	draw_extra = -1;
+	drawn_by = noone;
 	current_pal = 0
 	override_surface=noone;
 	override_pal_index=0;
-	step_shake = 0;		//temblor de camara al pisar (0 = ninguno) (nuestro)
-	land_shake = 0;		//temblor de camara al aterrizar (0 = ninguno) (nuestro)
+	step_shake = 0;
+	land_shake = 0;
 	pal_swap_init_system(shd_pal_swapper,shd_pal_html_sprite,shd_pal_html_surface);
 	}
 

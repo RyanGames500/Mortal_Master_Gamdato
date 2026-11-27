@@ -9,7 +9,6 @@ function scar_medium_aerial(_override_phase)
 			anim_frame = 0;
 			anim_speed = 0;
 			
-			// Startup rapido para patada aérea (5 frames)
 			attack_frame = 5;
 			}
 		break;
@@ -20,18 +19,16 @@ function scar_medium_aerial(_override_phase)
 			
 			if (attack_frame == 2) then anim_frame = 1;
 			
-			// Instante del golpe (Active Frame)
 			if (attack_frame <= 0)
 				{
-				anim_frame = 2; // Frame de extensión máxima con destello
+				anim_frame = 2;
 				attack_phase = 1;
-				attack_frame = 21; // Tiempo de recolección en el aire
+				attack_frame = 21;
 				
-				// Hitbox diagonal apuntando hacia abajo a la pierna
 				var _hitbox = hitbox_create(65, 35, 0.8, 1, 12, 7);
 				_hitbox.knockback = 5;
-				_hitbox.hitstun = 24;      // Hitstun de medio para dar tiempo al tocar suelo
-				_hitbox.blockstun = 16;    // Parálisis de bloqueo sólida
+				_hitbox.hitstun = 24;
+				_hitbox.blockstun = 16;
 				_hitbox.hitlag = 8;
 				}
 			
@@ -50,20 +47,18 @@ function scar_medium_aerial(_override_phase)
 			{
 			attack_frame--;
 			
-			// Recorrido exacto de los 10 frames de la tira (3 al 9)
-			if (attack_frame == 18) then anim_frame = 3; // Mantener destello
+			if (attack_frame == 18) then anim_frame = 3;
 			if (attack_frame == 15) then anim_frame = 4;
 			if (attack_frame == 12) then anim_frame = 5;
 			if (attack_frame == 9)  then anim_frame = 6;
 			if (attack_frame == 6)  then anim_frame = 7;
 			if (attack_frame == 3)  then anim_frame = 8;
-			if (attack_frame == 1)  then anim_frame = 9; // Postura final aérea
+			if (attack_frame == 1)  then anim_frame = 9;
 			
 
 			vsp += grav;
 			player_move();
 			
-			// Cancelar por aterrizaje
 			if (bbox_bottom >= obj_ground.y)
 				{
 				attack_stop();

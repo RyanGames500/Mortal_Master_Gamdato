@@ -1,18 +1,17 @@
 /// Reto del Nucleo (nuestro): cabina estilo "pila al frente, personaje detras".
 /// Un solo obstaculo por evento: si lo rompes, el siguiente evento trae el siguiente; si pierdes, se repite.
-phase = 0;				// 0 intro · 1 jugando · 2 resultado
+phase = 0;
 phase_t = 0;
 won = false;
 end_t = 0;
 shake = 0;
 particles = [];
-floor_y = 600;				// borde superior de la placa; la pila se apoya aqui
+floor_y = 600;
 
-fill_per_press = 0.055;		// cuanto sube la barra por cada pulsacion de carga
-n_booths = 1;				// 1 = arcade. VS local de 2 humanos: se pondra en 2
+fill_per_press = 0.055;
+n_booths = 1;
 booth_w = (n_booths == 1) ? 600 : 500;
 
-// Obstaculos de blando a duro. need = fuerza minima (0 a 1), secs = tiempo, decay = cuanto cae la barra por frame
 mats = [
 	{ name: "DRIED MUD",       need: 0.30, secs: 9,  decay: 0.0020, col: make_colour_rgb(150, 104, 66),  col2: make_colour_rgb(190, 140, 96) },
 	{ name: "BONE",            need: 0.45, secs: 9,  decay: 0.0026, col: make_colour_rgb(214, 204, 176), col2: make_colour_rgb(242, 234, 210) },
@@ -21,7 +20,6 @@ mats = [
 	{ name: "CORE",            need: 0.92, secs: 10, decay: 0.0044, col: make_colour_rgb(60, 220, 110),  col2: make_colour_rgb(210, 255, 220) }
 ];
 
-// Pedazos que saltan al romper (solo visual, offline)
 burst = function(_x, _y, _n, _spd, _col, _sz)
 	{
 	for (var _i = 0; _i < _n; _i++)
@@ -30,7 +28,6 @@ burst = function(_x, _y, _n, _spd, _col, _sz)
 		}
 	};
 
-// Crea una cabina. Usa poses de frente si existen (spr_<nombre>_tym_ready / _tym_strike); si no, el sprite de perfil
 make_booth = function(_idx, _cid, _cx)
 	{
 	var _names = ["blocky", "blocky", "lex", "blitsen", "saori", "scar", "brad", "mayel", "danny", "mariel", "demon", "bear"];
@@ -50,13 +47,12 @@ make_booth = function(_idx, _cid, _cx)
 		idle: _idle, hit: _hit, scale: _scale,
 		foot: sprite_exists(_idle) ? (sprite_get_height(_idle) - sprite_get_yoffset(_idle)) * _scale : 0,
 		bar: 0, lvl: 0, mat: 0, t_left: mats[0].secs * 60,
-		state: 0,			// 0 jugando · 1 golpeando · 2 gano · 3 se acabo el tiempo
+		state: 0,
 		strike: 0, power: 0, pump: 0, cracks: 0, rub: -1,
 		grade: "", grade_col: c_white, flash: 0, appear: 30
 	};
 	};
 
-// Dibuja un obstaculo bajo y ancho (nuestro). _fl = suelo de la pila
 draw_mat = function(_kind, _x, _fl, _cracks, _ready)
 	{
 	var _m = mats[_kind];
@@ -67,7 +63,7 @@ draw_mat = function(_kind, _x, _fl, _cracks, _ready)
 	
 	switch (_kind)
 		{
-		case 0:		// barro: ladrillos
+		case 0:
 			for (var _r = 0; _r < 3; _r++)
 				{
 				var _y2 = _fl - _r * 40;
@@ -81,7 +77,7 @@ draw_mat = function(_kind, _x, _fl, _cracks, _ready)
 				}
 		break;
 		
-		case 1:		// hueso: huesos apilados
+		case 1:
 			for (var _r = 0; _r < 4; _r++)
 				{
 				var _yc = _fl - 16 - _r * 30;
@@ -93,7 +89,7 @@ draw_mat = function(_kind, _x, _fl, _cracks, _ready)
 				}
 		break;
 		
-		case 2:		// chatarra: placas oxidadas
+		case 2:
 			for (var _p = 0; _p < 2; _p++)
 				{
 				var _px = _x + (_p * 8) - 4;
@@ -109,7 +105,7 @@ draw_mat = function(_kind, _x, _fl, _cracks, _ready)
 				}
 		break;
 		
-		case 3:		// cristal mutante
+		case 3:
 			var _xs = [-120, -70, -20, 30, 80, 125];
 			var _hs = [70, 110, 135, 100, 125, 80];
 			draw_rectangle_colour(_x - 150, _fl - 16, _x + 150, _fl, _dk, _dk, _dk, _dk, false);
@@ -124,7 +120,7 @@ draw_mat = function(_kind, _x, _fl, _cracks, _ready)
 			gpu_set_blendmode(bm_normal);
 		break;
 		
-		case 4:		// nucleo en una jaula baja
+		case 4:
 			var _pr = 46 + sin(phase_t * 0.15) * 5;
 			draw_rectangle_colour(_x - 140, _fl - 34, _x + 140, _fl, make_colour_rgb(50, 58, 70), make_colour_rgb(50, 58, 70), make_colour_rgb(24, 28, 36), make_colour_rgb(24, 28, 36), false);
 			gpu_set_blendmode(bm_add);
@@ -145,7 +141,6 @@ draw_mat = function(_kind, _x, _fl, _cracks, _ready)
 		break;
 		}
 	
-	// Grietas por golpes sin fuerza
 	for (var _k = 0; _k < _cracks * 3; _k++)
 		{
 		var _sx = _x - 110 + ((_k * 61) mod 220);
@@ -156,7 +151,6 @@ draw_mat = function(_kind, _x, _fl, _cracks, _ready)
 		}
 	};
 
-// Escombros del ultimo obstaculo roto, a los lados de la pila (nuestro)
 draw_rubble = function(_x, _fl, _kind)
 	{
 	if (_kind < 0) then return;
@@ -176,11 +170,10 @@ if (is_undefined(global.arcade))
 	exit;
 	}
 
-// Progreso del arcade (nuestro): un solo obstaculo por evento. Avanza al siguiente solo si lo rompes
 if (!variable_struct_exists(global.arcade, "tym")) then global.arcade.tym = 0;
 var _lvl = clamp(global.arcade.tym, 0, array_length(mats) - 1);
 
 booths = [make_booth(0, global.arcade.p1, 640)];
-booths[0].lvl = _lvl;			// obstaculo de este evento
-booths[0].mat = _lvl;			// el que se dibuja ahora
+booths[0].lvl = _lvl;
+booths[0].mat = _lvl;
 booths[0].t_left = mats[_lvl].secs * 60;

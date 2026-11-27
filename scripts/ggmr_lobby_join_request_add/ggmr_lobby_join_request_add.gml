@@ -2,9 +2,6 @@
 ///@param {string} ip			The IP address
 ///@param {int} port			The port
 ///@param {string} name			The name of the player sending the join request
-/*
-Adds a join request to the list with the given properties, and returns the index of the request.
-*/
 function ggmr_lobby_join_request_add() 
 	{
 	with (obj_ggmr_lobby) 
@@ -15,7 +12,6 @@ function ggmr_lobby_join_request_add()
 		_request[@ GGMR_LOBBY_JOIN_REQUEST.name] = argument[2];
 		_request[@ GGMR_LOBBY_JOIN_REQUEST.silence] = 0;
 
-		//Add the join request data to the list
 		ds_list_add(lobby_join_requests, _request);
 		return (ds_list_size(lobby_join_requests) - 1);
 		}

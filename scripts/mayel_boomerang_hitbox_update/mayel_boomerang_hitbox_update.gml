@@ -2,23 +2,19 @@ function mayel_boomerang_hitbox_update()
 	{
 	if (owner.hitlag_frame > 0) return;
 	
-	// --- LÓGICA DE IDA, FRENO Y RETORNO (Estilo Kung Lao / Rollback Safe) ---
 	x += hsp;
-	y += vsp; // Mantiene su altura o la que lleve
+	y += vsp;
 
-	// El boomerang frena progresivamente al avanzar hasta detenerse en el punto máximo
 	if (abs(hsp) > 0.5)
 		{
 		hsp -= 0.35 * sign(hsp);
 		}
 	else
 		{
-		// Una vez que se detiene por completo en el aire, comienza el viaje de regreso hacia Mayel
 		var _dir = sign(owner.x - x);
 		hsp += 0.5 * _dir;
 		hsp = clamp(hsp, -16, 16);
 		
-		// Si el boomerang regresa y toca o sobrepasa la posición de Mayel, se destruye
 		if ((facing == 1 && x <= owner.x) || (facing == -1 && x >= owner.x))
 			{
 			instance_destroy();
@@ -26,13 +22,11 @@ function mayel_boomerang_hitbox_update()
 			}
 		}
 	
-	// Si toca el suelo por alguna razón, se destruye
 	if (y >= obj_ground.y)
 		{
 		to_be_destroyed = true;
 		}
 	
-	// Colisiones con otros proyectiles
 	var _hitboxes = instance_place_array(x, y, obj_hitbox);
 	for (var i = 0; i < array_length(_hitboxes); i++)
 		{
@@ -47,7 +41,6 @@ function mayel_boomerang_hitbox_update()
 			}
 		}
 	
-	// Colisiones con hurtboxes (Rival)
 	var _hurtboxes = instance_place_array(x, y, obj_hurtbox);
 	for (var i = 0; i < array_length(_hurtboxes); i++)
 		{

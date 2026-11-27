@@ -3,21 +3,19 @@ function demon_throw_ex(_override_phase)
 	var _phase = !is_undefined(_override_phase) ? _override_phase : attack_phase;
 	switch (_phase)
 		{
-		//Init
 		case ATTACK_PHASE.start:
 			{
 			anim_sprite = spr_demon_throw;
 			anim_frame = 0;
 			anim_speed = 0;
 			
-			attack_frame = 4;		// startup mas rapido que el normal (6)
+			attack_frame = 4;
 			
 			hsp = 0;
 			vsp = 0;
 			}
 		break;
 		
-		//Startup y hitbox de agarre (mas alcance, hitstun largo)
 		case 0:
 			{
 			attack_frame--;
@@ -38,7 +36,6 @@ function demon_throw_ex(_override_phase)
 			}
 		break;
 		
-		//Agarre activo y endlag si falla
 		case 1:
 			{
 			attack_frame--;
@@ -61,7 +58,6 @@ function demon_throw_ex(_override_phase)
 			}
 		break;
 		
-		//Carga con DRENAJE continuo y estrellada final
 		case 2:
 			{
 			attack_frame--;
@@ -76,7 +72,6 @@ function demon_throw_ex(_override_phase)
 					}
 				}
 			
-			//Si el rival rompio el agarre (tech) se suelta y se aborta
 			if (_other_player != noone && attack_frame < 23 && _other_player.state != PLAYER_STATE.grabbed)
 				{
 				_other_player.being_carried = false;
@@ -87,10 +82,8 @@ function demon_throw_ex(_override_phase)
 				break;
 				}
 			
-			//Brillo rojo del EX durante toda la secuencia
 			ex_flash = max(ex_flash, 10);
 			
-			//Frame de Demon segun el tiempo
 			if (attack_frame > 20)      then anim_frame = 2;
 			else if (attack_frame > 16) then anim_frame = 3;
 			else if (attack_frame > 11) then anim_frame = 4;
@@ -98,7 +91,6 @@ function demon_throw_ex(_override_phase)
 			else if (attack_frame > 2)  then anim_frame = 6;
 			else                             anim_frame = 7;
 			
-			//Posicion del rival en cada frame (igual que el normal)
 			var _vx = [95, 100.5, 82, 67.5, 43.5, 39];
 			var _vy = [63.5, 54, 37.5, 43.5, 51.5, 82.5];
 			var _i = clamp(anim_frame - 2, 0, 5);
@@ -118,13 +110,11 @@ function demon_throw_ex(_override_phase)
 				_other_player.anim_frame = clamp(_i, 0, sprite_get_number(_victim_sprite) - 1);
 				}
 			
-			//--- DRENAJE continuo: cada 3 frames quita 2 y cura 1 (sin hitlag, sin sonido, sin shake, sin contar como hit) ---
 			if (attack_connected && attack_frame <= 21 && attack_frame >= 6 && (attack_frame mod 3) == 0)
 				{
 				player_damage(2, _other_player);
 				hp_heal(1);
 				
-				//Si murio drenado: se suelta y cae a knockdown
 				if (_other_player.hp <= 0)
 					{
 					_other_player.being_carried = false;
@@ -145,7 +135,6 @@ function demon_throw_ex(_override_phase)
 					}
 				}
 			
-			//--- ESTRELLADA FINAL: el unico golpe que se siente, con la cura grande ---
 			if (attack_frame <= 2 && attack_connected)
 				{
 				attack_connected = false;
@@ -177,7 +166,6 @@ function demon_throw_ex(_override_phase)
 			}
 		break;
 		
-		//Endlag
 		case 3:
 			{
 			attack_frame--;

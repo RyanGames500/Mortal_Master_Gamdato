@@ -5,11 +5,6 @@
 ///@param {asset} audio_group			The audio group of the sound
 ///@param {real} [x]					The x position the sound is being played from, for stereo
 ///@param {real} [width]				The total width of the possible x values, for stereo
-/*
-Plays a sound and adjusts the volume of the sound based on the volume of the given audio group.
-You can optionally supply an "x" and "width", which will determine which side the sound is played on.
-Warning: This only supports the three default audio groups (audiogroup_music, audiogroup_sound_effects, and audiogroup_menu).
-*/
 function audio_play_sound_adjusted()
 	{
 	var _index = argument[0];

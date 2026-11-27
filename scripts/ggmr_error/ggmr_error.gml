@@ -1,9 +1,5 @@
 ///@category GGMR
 ///@param {any} values		The values in the message
-/*
-Adds a GGMR error message to the log and displays it in a debug message.
-Please note: Debug messages can only be seen when the game is run from the GameMaker IDE; exported games will not show any debug messages.
-*/
 function ggmr_error()
 	{
 	var _str = "GGMR Error! ";

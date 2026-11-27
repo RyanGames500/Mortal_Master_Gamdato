@@ -1,8 +1,5 @@
 ///@category Debugging
 ///@param {string} messages		The messages to display
-/*
-Crashes the game and displays the given messages.
-*/
 function crash()
 	{
 	var _output = "[PFE Crash] ";

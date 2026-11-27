@@ -30,7 +30,7 @@ function blocky_light_ground2(_override_phase)
 			
 			if (attack_frame == 0)
 				{
-				anim_frame = 2; // Hitbox en frame 2
+				anim_frame = 2;
 				attack_phase = 1;
 				attack_frame = 10; 
 				
@@ -81,7 +81,7 @@ function blocky_light_ground2(_override_phase)
 			
 			if (attack_frame == 0)
 				{
-				anim_frame = 8; // Hitbox en frame 8
+				anim_frame = 8;
 				attack_phase = 3;
 				attack_frame = 10; 
 				
@@ -136,7 +136,7 @@ function blocky_light_ground2(_override_phase)
 			
 			if (attack_frame == 0)
 				{
-				anim_frame = 14; // Hitbox en frame 14
+				anim_frame = 14;
 				attack_phase = 5;
 				
 				var _hitbox = hitbox_create(92, 0, 0.8, 0.6, 5, 4);

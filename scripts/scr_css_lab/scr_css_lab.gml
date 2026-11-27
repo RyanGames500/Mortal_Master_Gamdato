@@ -46,7 +46,6 @@ function lab_draw_backdrop(_gui_w, _gui_h, _s, _ceil_h, _floor_y)
 	var _c_metal = make_colour_rgb(34, 42, 44);
 	var _c_metal_light = make_colour_rgb(96, 116, 118);
 	
-	// Pared
 	draw_set_alpha(1.0);
 	draw_set_color(_c_wall);
 	draw_rectangle(0, 0, _gui_w, _gui_h, false);
@@ -59,23 +58,19 @@ function lab_draw_backdrop(_gui_w, _gui_h, _s, _ceil_h, _floor_y)
 		}
 	draw_set_alpha(1.0);
 	
-	// Tubería horizontal
 	draw_set_color(_c_metal);
 	draw_rectangle(0, _ceil_h + (10 * _s), _gui_w, _ceil_h + (18 * _s), false);
 	draw_set_color(_c_metal_light);
 	draw_rectangle(0, _ceil_h + (10 * _s), _gui_w, _ceil_h + (11 * _s), false);
 	
-	// Zócalo
 	draw_set_color(_c_wall_dark);
 	draw_rectangle(0, _floor_y - (26 * _s), _gui_w, _floor_y, false);
 	
-	// Techo
 	draw_set_color(_c_ceiling);
 	draw_rectangle(0, 0, _gui_w, _ceil_h, false);
 	draw_set_color(_c_metal);
 	draw_rectangle(0, _ceil_h - (4 * _s), _gui_w, _ceil_h, false);
 	
-	// Luces del techo con parpadeo ocasional
 	for (var l = 0; l < 6; l++)
 		{
 		var _lx = (l + 0.5) * (_gui_w / 6);
@@ -97,7 +92,6 @@ function lab_draw_backdrop(_gui_w, _gui_h, _s, _ceil_h, _floor_y)
 		}
 	draw_set_alpha(1.0);
 	
-	// Mesa de metal
 	draw_set_color(_c_metal);
 	draw_rectangle(0, _floor_y, _gui_w, _gui_h, false);
 	draw_set_color(_c_metal_light);
@@ -110,7 +104,6 @@ function lab_draw_backdrop(_gui_w, _gui_h, _s, _ceil_h, _floor_y)
 		}
 	draw_set_alpha(1.0);
 	
-	// Viñeta en los bordes
 	draw_primitive_begin(pr_trianglestrip);
 	draw_vertex_color(0, 0, c_black, 0.55);
 	draw_vertex_color(_gui_w * 0.18, 0, c_black, 0);
@@ -138,7 +131,6 @@ function lab_draw_terminal(_l, _t, _r, _b, _s, _alpha, _accent)
 	draw_set_color(make_colour_rgb(10, 18, 16));
 	draw_rectangle(_l, _t, _r, _b, false);
 	
-	// Líneas de barrido
 	draw_set_alpha(0.08 * _alpha);
 	draw_set_color(c_white);
 	for (var sy = _t; sy < _b; sy += 4 * _s)
@@ -146,12 +138,10 @@ function lab_draw_terminal(_l, _t, _r, _b, _s, _alpha, _accent)
 		draw_line(_l, sy, _r, sy);
 		}
 	
-	// Borde de color
 	draw_set_alpha(0.6 * _alpha);
 	draw_set_color(_accent);
 	draw_rectangle(_l + 2, _t + 2, _r - 2, _b - 2, true);
 	
-	// Tornillos
 	draw_set_alpha(_alpha);
 	draw_set_color(make_colour_rgb(120, 140, 140));
 	draw_circle(_l - (_pad * 0.5), _t - (_pad * 0.5), 2 * _s, false);
@@ -177,13 +167,11 @@ function lab_draw_capsule(_x, _floor_y, _ceil_h, _cap_w, _liq_col, _seed, _s)
 	var _c_metal_light = make_colour_rgb(96, 116, 118);
 	var _liq_dark = merge_colour(_liq_col, c_black, 0.6);
 	
-	// Tubería al techo
 	draw_set_color(_c_metal);
 	draw_rectangle(_x - (4 * _s), _ceil_h, _x + (4 * _s), _glass_t - _top_h, false);
 	draw_set_color(_c_metal_light);
 	draw_rectangle(_x - (4 * _s), _ceil_h, _x - (2 * _s), _glass_t - _top_h, false);
 	
-	// Sujeto en penumbra: cambia de personaje cada 4.5 s con un parpadeo
 	var _n = max(1, sprite_get_number(spr_chars_caras));
 	var _subimg = ((_t div 4500) + _seed) mod _n;
 	var _cycle = _t mod 4500;
@@ -194,7 +182,6 @@ function lab_draw_capsule(_x, _floor_y, _ceil_h, _cap_w, _liq_col, _seed, _s)
 	var _py = _glass_t + (_cap_h * 0.34) + (dsin((_t / 26) + (_seed * 40)) * 3 * _s);
 	draw_sprite_stretched_ext(spr_chars_caras, _subimg, _px, _py, _pw, _pw, merge_colour(c_black, _liq_col, 0.35), _a);
 	
-	// Líquido
 	var _liq_t = _glass_t + (_cap_h * 0.10) + (dsin((_t / 14) + (_seed * 50)) * 1.5 * _s);
 	draw_set_alpha(0.34);
 	draw_rectangle_color(_gl, _liq_t, _gr, _glass_b, _liq_col, _liq_col, _liq_dark, _liq_dark, false);
@@ -202,7 +189,6 @@ function lab_draw_capsule(_x, _floor_y, _ceil_h, _cap_w, _liq_col, _seed, _s)
 	draw_set_color(merge_colour(_liq_col, c_white, 0.5));
 	draw_line(_gl, _liq_t, _gr, _liq_t);
 	
-	// Burbujas
 	for (var b = 0; b < 6; b++)
 		{
 		var _bseed = (_seed * 17) + (b * 31);
@@ -214,7 +200,6 @@ function lab_draw_capsule(_x, _floor_y, _ceil_h, _cap_w, _liq_col, _seed, _s)
 		draw_circle(_bx, _by, (1 + (b mod 2)) * _s, false);
 		}
 	
-	// Cristal
 	draw_set_alpha(0.5);
 	draw_set_color(make_colour_rgb(170, 205, 205));
 	draw_rectangle(_gl, _glass_t, _gr, _glass_b, true);
@@ -223,7 +208,6 @@ function lab_draw_capsule(_x, _floor_y, _ceil_h, _cap_w, _liq_col, _seed, _s)
 	draw_rectangle(_gl + (4 * _s), _glass_t + (6 * _s), _gl + (8 * _s), _glass_b - (6 * _s), false);
 	draw_set_alpha(1.0);
 	
-	// Tapa y base
 	draw_set_color(_c_metal);
 	draw_rectangle(_x - (_cap_w * 0.58), _glass_t - _top_h, _x + (_cap_w * 0.58), _glass_t, false);
 	draw_set_color(_c_metal_light);
@@ -234,7 +218,6 @@ function lab_draw_capsule(_x, _floor_y, _ceil_h, _cap_w, _liq_col, _seed, _s)
 	draw_set_color(_c_metal_light);
 	draw_rectangle(_x - (_cap_w * 0.62), _base_top, _x + (_cap_w * 0.62), _base_top + (2 * _s), false);
 	
-	// Luz de alarma parpadeante
 	var _alarm_on = (((_t div 400) + _seed) mod 2) == 0;
 	draw_set_color(_alarm_on ? c_red : make_colour_rgb(70, 24, 24));
 	draw_circle(_x, _base_top + (_base_h * 0.58), 3 * _s, false);

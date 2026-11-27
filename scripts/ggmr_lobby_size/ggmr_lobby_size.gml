@@ -1,7 +1,4 @@
 ///@category GGMR
-/*
-Returns the number of members currently in the lobby.
-*/
 function ggmr_lobby_size()
 	{
 	with (obj_ggmr_lobby) 

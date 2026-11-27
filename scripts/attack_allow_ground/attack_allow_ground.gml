@@ -1,6 +1,3 @@
-/*
-Allows the player to start grounded standing attacks, and returns true if they did start an attack.
-*/
 function attack_allow_ground()
 	{
 	if (input_pressed(INPUT.attack_light))

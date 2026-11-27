@@ -1,13 +1,10 @@
 function mayel_light_aerial(_override_phase)
 	{
-	//Phases
 	var _phase = !is_undefined(_override_phase) ? _override_phase : attack_phase;
 	switch (_phase)
 		{
-		//Init
 		case ATTACK_PHASE.start:
 			{
-			//Animation
 			anim_sprite = spr_mayel_light_aerial;
 			anim_frame = 0;
 			anim_speed = 0;
@@ -16,12 +13,10 @@ function mayel_light_aerial(_override_phase)
 			}
 		break;
 		
-		//Startup
 		case 0:
 			{
 			attack_frame--;
 			
-			//Hitbox
 			if (attack_frame == 0)
 				{
 				anim_frame = 1;
@@ -31,15 +26,13 @@ function mayel_light_aerial(_override_phase)
 				var _hitbox = hitbox_create(42, 37, 0.6, 0.3, 5, 2);
 				_hitbox.image_angle = -33 * facing;
 				_hitbox.high = true;
-				_hitbox.knockback = 3;    // empuje bajo para poder seguirlo
-				_hitbox.hitstun = 30;     // que no se recupere antes del siguiente golpe
+				_hitbox.knockback = 3;
+				_hitbox.hitstun = 30;
 				}
 			
-			//Movement
 			vsp += grav;
 			player_move();
 			
-			//Landing on the ground (antes de que salga el golpe: sin lag)
 			if (bbox_bottom >= obj_ground.y)
 				{
 				attack_stop();
@@ -48,29 +41,25 @@ function mayel_light_aerial(_override_phase)
 			}
 		break;
 		
-		//Active and Endlag
 		case 1:
 			{
 			attack_frame--;
 			
-			//Animation
 			if (attack_frame == 20) then anim_frame = 2;
 			if (attack_frame == 10) then anim_frame = 3;
 			
-			//Movement
 			vsp += grav;
 			player_move();
 			
-			//Landing on the ground
 			if (bbox_bottom >= obj_ground.y)
 				{
 				if (attack_connected)
 					{
-					attack_stop();          // golpe conectado: aterriza libre
+					attack_stop();
 					}
 				else
 					{
-					hsp = 0;                // golpe fallado: lag de aterrizaje
+					hsp = 0;
 					vsp = 0;
 					anim_frame = 3;
 					attack_phase = 2;
@@ -79,7 +68,6 @@ function mayel_light_aerial(_override_phase)
 				break;
 				}
 			
-			//Cancel: si conectó, sube de fuerza
 			if (attack_connected && attack_frame < 24)
 				{
 				if (input_pressed(INPUT.attack_light2))
@@ -96,7 +84,6 @@ function mayel_light_aerial(_override_phase)
 					}
 				}
 			
-			//Stop
 			if (attack_frame <= 0)
 				{
 				attack_stop();
@@ -105,7 +92,6 @@ function mayel_light_aerial(_override_phase)
 			}
 		break;
 		
-		//Landing lag (solo si el golpe aéreo falló)
 		case 2:
 			{
 			attack_frame--;

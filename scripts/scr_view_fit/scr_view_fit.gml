@@ -1,7 +1,6 @@
-// scr_view_fit (nuestro): ajusta la vista a la pantalla y la aleja un poco. Solo dibujo.
 global.view_w = 1280;
-global.cam_zoom = 1.15;		// 1.0 = como antes, 1.15 = 15% mas lejos, 1.3 = 30% mas lejos
-global.cam_zoom_eff = 1.0;	// zoom realmente aplicado (nunca pasa del ancho del cuarto)
+global.cam_zoom = 1.15;
+global.cam_zoom_eff = 1.0;
 
 function view_fit_target_width()
 	{
@@ -15,10 +14,8 @@ function view_fit_target_width()
 function view_fit_apply(_w)
 	{
 	global.view_w = _w;
-	// El zoom nunca hace la vista mas ancha que el cuarto
 	var _z = max(1, min(global.cam_zoom, room_width / _w));
 	global.cam_zoom_eff = _z;
-	// La vista del mundo es mas grande (se ve mas lejos); la pantalla y el HUD siguen en _w x 720
 	camera_set_view_size(view_camera[0], _w * _z, 720 * _z);
 	view_wport[0] = _w;
 	view_hport[0] = 720;
@@ -40,13 +37,11 @@ function view_fit_reset()
 	display_set_gui_size(1280, 720);
 	}
 
-// Margen extra (a cada lado) que la vista ve de mas respecto a camera_width
 function view_fit_extra()
 	{
 	return max(0, (camera_get_view_width(camera_index) - camera_width) * 0.5);
 	}
 
-// Esquina de una ventana "virtual" de 1280x720, centrada en x y pegada abajo (para el acido)
 function view_fit_vx()
 	{
 	return camera_get_view_x(camera_index) + ((camera_get_view_width(camera_index) - 1280) * 0.5);

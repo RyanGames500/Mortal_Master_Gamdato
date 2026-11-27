@@ -3,7 +3,6 @@ function brad_roll_ex(_override_phase)
 	var _phase = !is_undefined(_override_phase) ? _override_phase : attack_phase;
 	switch (_phase)
 		{
-		//--- INIT ---
 		case ATTACK_PHASE.start:
 			{
 			anim_sprite = spr_brad_roll_ini;
@@ -17,7 +16,6 @@ function brad_roll_ex(_override_phase)
 			}
 		break;
 		
-		//--- FASE 0: PREPARACION ---
 		case 0:
 			{
 			attack_frame--;
@@ -35,7 +33,6 @@ function brad_roll_ex(_override_phase)
 				
 				hsp = 20 * facing;
 				
-				// polvo y temblor al arrancar
 				var _dust = instance_create_layer(x, obj_ground.y, "VFX_Layer", obj_vfx);
 				_dust.sprite_index = spr_effect_step_dust;
 				_dust.image_xscale = facing;
@@ -44,7 +41,6 @@ function brad_roll_ex(_override_phase)
 				_dust.owner        = id;
 				obj_game.cam_shake = max(obj_game.cam_shake, 4);
 				
-				// golpe 1: deja al rival en hitstun largo para poder rematar
 				var _hitbox = hitbox_create(40, -20, 1.2, 0.8, 8, 10);
 				_hitbox.hitlag = 8;
 				_hitbox.knockback = 3;
@@ -57,19 +53,16 @@ function brad_roll_ex(_override_phase)
 			}
 		break;
 		
-		//--- FASE 1: RODADA HACIA ADELANTE ---
 		case 1:
 			{
 			attack_frame--;
 			
-			// la bola gira rapido
 			anim_frame = ((22 - attack_frame) div 2) mod 8;
 			
-			// si el golpe conecto (y no fue bloqueado) -> REBOTE hacia atras en arco
 			if (attack_hit_confirmed())
 				{
 				attack_phase = 2;
-				attack_frame = 40;		// limite de seguridad del rebote
+				attack_frame = 40;
 				hsp = -6 * facing;
 				vsp = -11;
 				
@@ -85,7 +78,6 @@ function brad_roll_ex(_override_phase)
 			
 			player_move();
 			
-			// si falla o es bloqueado: frenado largo (castigable)
 			if (attack_frame <= 0)
 				{
 				anim_sprite = spr_brad_roll_ini;
@@ -96,7 +88,6 @@ function brad_roll_ex(_override_phase)
 			}
 		break;
 		
-		//--- FASE 2: REBOTE EN ARCO ---
 		case 2:
 			{
 			attack_frame--;
@@ -106,7 +97,6 @@ function brad_roll_ex(_override_phase)
 			vsp += grav;
 			player_move();
 			
-			// aterriza (o se acaba el limite de seguridad)
 			if ((bbox_bottom >= obj_ground.y && vsp > 0) || attack_frame <= 0)
 				{
 				y = ceil(obj_ground.y - (bbox_bottom - y));
@@ -120,15 +110,12 @@ function brad_roll_ex(_override_phase)
 				_land.owner        = id;
 				obj_game.cam_shake = max(obj_game.cam_shake, 6);
 				
-				// sale disparado hacia el rival
 				attack_phase = 3;
 				attack_frame = 14;
 				hsp = 24 * facing;
 				
-				// IMPORTANTE: hitbox_update solo golpea si attack_connected es false
 				attack_connected = false;
 				
-				// golpe final: tira al rival al piso (dura toda la rodada final)
 				var _fin = hitbox_create(50, -20, 1.4, 1.0, 14, 14);
 				_fin.hitlag = 13;
 				_fin.knockback = 18;
@@ -140,7 +127,6 @@ function brad_roll_ex(_override_phase)
 			}
 		break;
 		
-		//--- FASE 3: RODADA FINAL ---
 		case 3:
 			{
 			attack_frame--;
@@ -159,7 +145,6 @@ function brad_roll_ex(_override_phase)
 			}
 		break;
 		
-		//--- FASE 4: ENDLAG / FRENADO ---
 		case 4:
 			{
 			attack_frame--;

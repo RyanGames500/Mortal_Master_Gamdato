@@ -1,7 +1,4 @@
 ///@category GGMR
-/*
-Prints out debug data for every client added to the session.
-*/
 function ggmr_session_clients_print()
 	{
 	with (obj_ggmr_session) 

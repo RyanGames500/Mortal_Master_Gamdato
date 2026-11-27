@@ -2,7 +2,6 @@ function game_players_spawn()
 	{
 	var _spawn_distance = 258;
 	
-	// --- PLAYER 1 ---
 	var _player1 = instance_create_layer((room_width div 2) - _spawn_distance, obj_ground.y, layer, obj_player);
 	_player1.player_number = 0;
 	_player1.current_pal = 0;
@@ -30,7 +29,6 @@ function game_players_spawn()
 		player_variables_init_end();
 		}
 	
-	// --- PLAYER 2 ---
 	var _player2 = instance_create_layer((room_width div 2) + _spawn_distance, obj_ground.y, layer, obj_player);
 	_player2.player_number = 1;
 	_player2.current_pal = (p1_select == p2_select) ? 1 : 0;

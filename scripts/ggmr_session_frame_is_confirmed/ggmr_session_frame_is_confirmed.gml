@@ -1,8 +1,5 @@
 ///@category GGMR
 ///@param {int} relative_frame			The frame to check
-/*
-Returns true if the given frame is "confirmed", meaning input for every local and remote player has been received.
-*/
 function ggmr_session_frame_is_confirmed()
 	{
 	with (obj_ggmr_session) 
