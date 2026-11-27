@@ -1,13 +1,5 @@
-#macro STAGE_COUNT	7		// cantidad de stages que existen en stage_get
+#macro STAGE_COUNT	7
 
-/*
-Bombillos animados de una capa (nuestro).
-sprite: sprite chico animado, origen Middle Centre
-spots: lista de [x, y] del centro de cada bombillo, en pixeles del arte original de la capa
-frame_ms: milisegundos por frame
-offset: desfase entre bombillos para que no parpadeen todos iguales (0 = sincronizados)
-Solo dibujo: usa current_time, no toca la lógica ni el rollback.
-*/
 function stage_lamps(_sprite, _spots, _frame_ms = 120, _offset = 3)
 	{
 	return {
@@ -18,10 +10,6 @@ function stage_lamps(_sprite, _spots, _frame_ms = 120, _offset = 3)
 		};
 	}
 
-/*
-Dibuja los bombillos de una copia de la capa (nuestro).
-_tx, _y: esquina de esa copia de la capa. Solo dibuja los que se ven en cámara.
-*/
 function stage_draw_lamps(_layer, _tx, _y, _s, _cam_x)
 	{
 	var _l = _layer.lamps;
@@ -42,10 +30,6 @@ function stage_draw_lamps(_layer, _tx, _y, _s, _cam_x)
 		}
 	}
 
-/*
-Hash entero determinista (nuestro). Sustituye a random(): mismo número de entrada, mismo resultado
-en los dos jugadores, en los replays y después de un rollback. Devuelve 0 o más.
-*/
 function stage_hash(_n)
 	{
 	var _x = (_n * 73856093) & $7FFFFFFF;
@@ -53,18 +37,6 @@ function stage_hash(_n)
 	return _x ^ (_x >> 16);
 	}
 
-/*
-Silueta que pasa de vez en cuando detrás de los árboles (nuestro).
-sprite: strip animado, origen Bottom Centre
-feet_y: Y de los pies en el arte original de la capa (la del fondo)
-period: frames de cada "turno" (600 = 10 s a 60 fps). En cada turno hay un sorteo
-chance: probabilidad en % de que aparezca en un turno
-duration: frames que se ve cuando aparece (menor que period)
-speed: pixeles del arte por frame que camina (0 = parada)
-alpha: opacidad máxima (para que se vea como sombra)
-anim_div: frames del juego por cada frame de animación
-Solo dibujo: lee obj_game.game_frame y no cambia ningún estado.
-*/
 function stage_ghost(_sprite, _feet_y, _period = 600, _chance = 40, _duration = 300, _speed = 0.25, _alpha = 0.6, _anim_div = 8)
 	{
 	return {
@@ -79,10 +51,6 @@ function stage_ghost(_sprite, _feet_y, _period = 600, _chance = 40, _duration = 
 		};
 	}
 
-/*
-Dibuja la silueta de una capa si le toca aparecer (nuestro).
-_y: la misma Y de la capa (ya trae art_y y y_off)
-*/
 function stage_draw_ghost(_layer, _cam_x, _y, _s)
 	{
 	var _g = _layer.ghost;
@@ -93,18 +61,14 @@ function stage_draw_ghost(_layer, _cam_x, _y, _s)
 	var _slot = _t div _g.period;
 	var _local = _t mod _g.period;
 	
-	// ¿Este turno hay visita?
 	if ((stage_hash(_slot) mod 100) >= _g.chance) then return;
 	
-	// Cuándo empieza dentro del turno y cuánto lleva visible
 	var _start = stage_hash(_slot + 7919) mod max(1, _g.period - _g.duration);
 	var _t_in = _local - _start;
 	if (_t_in < 0 || _t_in >= _g.duration) then return;
 	
-	// Aparece y se va suavemente (30 frames)
 	var _a = min(1, min(_t_in, _g.duration - 1 - _t_in) / 30) * _g.alpha;
 	
-	// Dónde: un punto de la pantalla y hacia dónde camina, ambos sacados del turno
 	var _h = stage_hash(_slot + 104729);
 	var _dir = (((_h div 7) mod 2) == 0) ? 1 : -1;
 	var _sx = 0.15 + 0.7 * ((_h mod 1000) / 1000);
@@ -115,9 +79,8 @@ function stage_draw_ghost(_layer, _cam_x, _y, _s)
 	}
 
 
-/* Siluetas negras del desierto (nuestro). Cada "X" es un pixel. Solo dibujo. */
 global.stage_omen_bitmaps = [
-	[ // platillo volador
+	[
 	"..........XXXX..........",
 	"........XXXXXXXX........",
 	".......XXXXXXXXXX.......",
@@ -127,7 +90,7 @@ global.stage_omen_bitmaps = [
 	"....XX..XXXXXXXX..XX....",
 	"....X....X....X....X...."
 	],
-	[ // nube
+	[
 	"........XXXX..........",
 	"......XXXXXXXX..XXX...",
 	"..XXX.XXXXXXXXXXXXXXX.",
@@ -135,7 +98,7 @@ global.stage_omen_bitmaps = [
 	"XXXXXXXXXXXXXXXXXXXXXX",
 	".XXXXXXXXXXXXXXXXXXXX."
 	],
-	[ // silla
+	[
 	"XX........",
 	"XX........",
 	"XX........",
@@ -151,17 +114,13 @@ global.stage_omen_bitmaps = [
 ];
 global.stage_omen_zoom = [1, 1.4, 1.6];
 
-/*
-¿Hay una silueta visible ahora? Devuelve undefined o { type, t_in, dur, h }.
-Solo en arcade. Depende de la pelea (index y continues) y de game_frame, así que es determinista.
-*/
 function stage_omen_state()
 	{
 	if (!instance_exists(obj_game)) then return undefined;
 	if (!arcade_active()) then return undefined;
 	var _a = global.arcade;
 	var _seed = (_a.index * 977) + (_a.continues * 31) + 5;
-	if ((stage_hash(_seed) mod 100) >= 100) then return undefined;	// 50% de las peleas dejar en 50
+	if ((stage_hash(_seed) mod 100) >= 100) then return undefined;
 	var _start = 240 + (stage_hash(_seed + 7919) mod 900);
 	var _dur = 600;
 	var _t_in = obj_game.game_frame - _start;
@@ -169,7 +128,6 @@ function stage_omen_state()
 	return { type: stage_hash(_seed + 104729) mod 3, t_in: _t_in, dur: _dur, h: stage_hash(_seed + 31337) };
 	}
 
-/* Dibuja la silueta si le toca (nuestro). Solo dibujo. */
 function stage_draw_omen(_layer, _cam_x, _y, _s)
 	{
 	if (!_layer.omen) then return;
@@ -206,20 +164,6 @@ function stage_draw_omen(_layer, _cam_x, _y, _s)
 	draw_set_alpha(1);
 	draw_set_color(c_white);
 	}
-/*
-Crea una capa de stage con valores por defecto.
-parallax: cuánto se mueve con la cámara (0 = fija al mundo)
-y_off: desplazamiento vertical en pixeles del arte original
-tile: repetir en X para cubrir el escenario
-mirror: voltear una de cada dos copias (evita costura)
-wave: ondulación suave (ácido)
-acid_fx: justo después de esta capa se dibuja el cuerpo hundiéndose y la salpicadura
-scale: escala a la que se dibuja la capa (los personajes usan 6)
-front: true = se dibuja por delante de los personajes (lo hace obj_stage_front)
-lamps: bombillos animados (stage_lamps), o undefined
-x_off: desplazamiento horizontal en pixeles del arte original (negativo = a la izquierda, positivo = a la derecha)
-ghost: silueta que aparece de vez en cuando (stage_ghost), o undefined. Se dibuja justo después de esta capa
-*/
 function stage_layer(_sprite, _parallax = 0, _y_off = 0, _tile = false, _mirror = false, _wave = false, _acid_fx = false, _scale = 6, _front = false, _lamps = undefined, _x_off = 0, _ghost = undefined, _crowd = undefined, _omen = false)
 	{
 	return {
@@ -240,16 +184,11 @@ function stage_layer(_sprite, _parallax = 0, _y_off = 0, _tile = false, _mirror 
 		};
 	}
 
-/*
-Definición de cada stage. Agregar un stage = agregar un case.
-ground_y: cuánto se mueve el piso respecto al obj_ground del room (negativo = sube a los personajes)
-art_y: cuánto se baja (positivo) o se sube (negativo) todo el arte del stage, en pixeles de pantalla
-*/
 function stage_get(_id)
 	{
 	switch (_id)
 		{
-		case 0: // Toxi City
+		case 0:
 			return {
 				name: "Toxi City",
 				has_acid: true,
@@ -264,7 +203,7 @@ function stage_get(_id)
 					],
 				};
 		
-		case 1: // Entrada del laboratorio
+		case 1:
 			return {
 				name: "Entrada del laboratorio",
 				has_acid: false,
@@ -278,7 +217,7 @@ function stage_get(_id)
 					],
 				};
 		
-		case 2: // Sala de control del laboratorio (nombre nuestro, cámbialo si quieres)
+		case 2:
 			return {
 				name: "Sala de control",
 				has_acid: false,
@@ -295,7 +234,7 @@ function stage_get(_id)
 					],
 				};
 
-		case 3: //Ciudad Perdida
+		case 3:
 			return {
 				name: "City Lost",
 				has_acid: false,
@@ -306,16 +245,16 @@ function stage_get(_id)
 					],
 				};
 
-		case 4: // Desert
+		case 4:
 			return {
 				name: "Desert",
 				has_acid: false,
 				ground_y: -20,
 				art_y: -90,
 				layers: [
-					stage_layer(spr_stage5_fondo1, 0.30, -45, true, true, false, false, 5),	// cielo solido extra, sube el color hacia arriba (nuestro)
+					stage_layer(spr_stage5_fondo1, 0.30, -45, true, true, false, false, 5),
 					stage_layer(spr_stage5_fondo1, 0.30, 0, true, true, false, false, 5, false, undefined, 0, undefined, undefined, true),
-					stage_layer(spr_stage5_fondo4, 0.20, -14, true, true, false, false, 5),	// soles subidos (nuestro)
+					stage_layer(spr_stage5_fondo4, 0.20, -14, true, true, false, false, 5),
 					stage_layer(spr_stage5_fondo2, 0.14, 0, true, true, false, false, 5),
 					stage_layer(spr_stage5_fondo3, 0.09, 0, true, true, false, false, 5),
 					stage_layer(spr_stage5_fondo5, 0.00, 0, true, true, false, false, 5),
@@ -323,7 +262,7 @@ function stage_get(_id)
 					],
 				};
 
-		case 5: // Sala de control del laboratorio (nombre nuestro, cámbialo si quieres)
+		case 5:
 			return {
 				name: "Blitsen Jungle",
 				has_acid: false,
@@ -340,7 +279,7 @@ function stage_get(_id)
 					],
 				};
 
-		case 6: // Joe City
+		case 6:
 			return {
 				name: "Joe City",
 				has_acid: false,
@@ -359,11 +298,6 @@ function stage_get(_id)
 		}
 	}
 
-/*
-Dibuja una capa de stage. Si tile = true la repite en X para cubrir lo que ve la cámara.
-_art_y: desplazamiento vertical de todo el stage (viene de stage_get).
-Los sprites deben tener el origen arriba a la izquierda, igual que los del stage 1.
-*/
 function stage_draw_layer(_layer, _cam_x, _cam_y, _dx, _art_y)
 	{
 	var _s = _layer.scale;
@@ -371,7 +305,6 @@ function stage_draw_layer(_layer, _cam_x, _cam_y, _dx, _art_y)
 	var _w = sprite_get_width(_spr) * _s;
 	var _h = sprite_get_height(_spr) * _s;
 	
-	// Alineado por abajo: con arte de 216 a escala 6 da cam_y - 500, igual que antes
 	var _y = _cam_y + 796 - _h + (_layer.y_off * _s) + _art_y;
 	if (_layer.wave) then _y += round(sin(current_time * 0.0025) * 3);
 	
@@ -393,7 +326,6 @@ function stage_draw_layer(_layer, _cam_x, _cam_y, _dx, _art_y)
 	var _first = floor((_cam_x - view_fit_extra() - _x0) / _w);
 	var _last = floor((_cam_x + camera_width + view_fit_extra() - _x0) / _w);
 	
-	// Gente con posiciones del mundo detrás de todas las copias de la capa
 	stage_draw_crowd(_layer, 0, _y, _s, _cam_x, true, false, true);
 	
 	for (var _i = _first; _i <= _last; _i++)
@@ -418,19 +350,12 @@ function stage_draw_layer(_layer, _cam_x, _cam_y, _dx, _art_y)
 	stage_draw_omen(_layer, _cam_x, _y, _s);
 	}
 
-/*
-true si el stage tiene remate de raíz (nuestro). Los stages sin el campo has_root cuentan como false.
-*/
 function stage_get_has_root(_id)
 	{
 	var _s = stage_get(_id);
 	return variable_struct_exists(_s, "has_root") ? _s.has_root : false;
 	}
 
-/*
-Aplica lo que depende del stage actual: si hay ácido y la altura del piso.
-Se llama al cargar un estado, al arrancar la partida y cada Begin Step del piso.
-*/
 function stage_apply()
 	{
 	var _stage = stage_get(obj_game.stage_id);
@@ -442,10 +367,6 @@ function stage_apply()
 	
 	
 
-/*
-Dibuja la selección de escenario sobre el selector de personajes.
-Se llama desde el Draw GUI de obj_game. Es un diseño simple: cámbialo por el tuyo.
-*/
 function game_draw_stage_select()
 	{
 	if (obj_game.game_meta_state != GAME_META_STATE.char_select) then return;
@@ -540,11 +461,6 @@ function game_draw_stage_select()
 	draw_set_color(c_white);
 	}	
 	
-	/*
-Deja la partida lista para empezar: aplica el stage, crea a los jugadores y pasa al estado starting.
-La usan el selector de personajes y el arranque de un replay, para que los dos dejen el juego idéntico.
-Se llama dentro de obj_game.
-*/
 function game_match_setup()
 	{
 	stage_apply();
@@ -556,34 +472,29 @@ function game_match_setup()
 	}
 
 
-/*
-Música de cada stage: sonido y puntos de loop en segundos.
-loop_start / loop_end alimentan music_intro_pos / music_loop_pos de obj_stage_manager.
-Agregar música a un stage nuevo = agregar un case (el mismo número que en stage_get).
-*/
 function stage_music_get(_id)
 	{
 	switch (_id)
 		{
-		case 0: // Toxi City
+		case 0:
 			return { sound: snd_toxi_city, loop_start: 10.5, loop_end: 90.0 };
 		
-		case 1: // Entrada del laboratorio
+		case 1:
 			return { sound: snd_entrada_laboratorio, loop_start: 10.5, loop_end: 90.0 };
 		
-		case 2: // Sala de control: cambia snd_toxi_city por tu pista y ajusta los dos tiempos
+		case 2:
 			return { sound: snd_toxi_city, loop_start: 10.5, loop_end: 90.0 };
 
-		case 3: // Sala de control: cambia snd_toxi_city por tu pista y ajusta los dos tiempos
+		case 3:
 			return { sound: snd_toxi_city, loop_start: 10.5, loop_end: 90.0 };
 
-		case 4: // Sala de control: cambia snd_toxi_city por tu pista y ajusta los dos tiempos
+		case 4:
 			return { sound: snd_toxi_city, loop_start: 10.5, loop_end: 90.0 };
 
-		case 5: // Sala de control: cambia snd_toxi_city por tu pista y ajusta los dos tiempos
+		case 5:
 			return { sound: snd_toxi_city, loop_start: 10.5, loop_end: 90.0 };
 
-		case 6: // Sala de control: cambia snd_toxi_city por tu pista y ajusta los dos tiempos
+		case 6:
 			return { sound: snd_toxi_city, loop_start: 10.5, loop_end: 90.0 };
 
 		default:
@@ -591,16 +502,6 @@ function stage_music_get(_id)
 		}
 	}
 	
-/*
-Grupo de gente de fondo que festeja (nuestro). Se pone en una capa (último parámetro de stage_layer).
-x_from, x_to: de dónde a dónde se reparten, en pixeles del arte de esa capa
-count: cuántos
-feet_y: Y de los pies en el arte de la capa
-unit: tamaño de cada figura (el equipo principal usa 8.5; más chico = más lejos)
-behind: true = se dibuja DETRÁS del sprite de la capa (ej. detrás de la malla), false = delante
-seed: número cualquiera; cambia cómo se reparten (usa uno distinto por grupo)
-calm: % de la gente que no festeja, solo está parada
-*/
 function stage_crowd(_x_from, _x_to, _count, _feet_y, _unit = 6, _behind = true, _seed = 1, _calm = 30, _rows = 1, _row_dy = 12, _world = false)
 	{
 	return {
@@ -618,7 +519,6 @@ function stage_crowd(_x_from, _x_to, _count, _feet_y, _unit = 6, _behind = true,
 		};
 	}
 
-/* Dibuja los grupos de gente de una capa (nuestro). Solo dibujo, todo sale de stage_hash y game_frame */
 function stage_draw_crowd(_layer, _tx, _y, _s, _cam_x, _behind, _flip, _world_pass = false)
 	{
 	var _all = _layer.crowd;
@@ -634,7 +534,6 @@ function stage_draw_crowd(_layer, _tx, _y, _s, _cam_x, _behind, _flip, _world_pa
 		if (_c.world != _world_pass) then continue;
 		var _step = (_c.x_to - _c.x_from) / max(1, _c.count);
 		
-		// Las filas de atrás (más arriba) primero, para que las de adelante las tapen
 		for (var _row = _c.rows - 1; _row >= 0; _row--)
 			{
 			var _py = _y + ((_c.feet_y - (_row * _c.row_dy)) * _s);

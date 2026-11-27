@@ -1,54 +1,38 @@
-/*
-Super 2 de Brad: APLASTAMIENTO (nuestro). Doble media luna + heavy, toda la barra (300).
-Brad sale corriendo hacia el rival. Si lo toca, lo agarra, se hace bolita y sale en un salto altisimo hacia
-adelante girando con el rival agarrado (a la misma velocidad de la bolita). Al caer lo estrella contra el piso:
-el rival sale en knockdown hacia adelante y Brad rebota en bolita hacia atras y vuelve a idle.
-Solo continua si el agarre CONECTA. Si falla, Brad queda castigable. Despues del agarre el rival no puede morir
-hasta el golpe final (super_lock). Todo usa la gravedad (grav) y player_move del engine.
-Fases: 0 = carrera, 1 = agarra y se hace bolita, 2 = salto, 3 = impacto, 4 = rebote hacia atras, 5 = frenado y levantarse, 6 = fallo.
-*/
 
-//--- CARRERA Y AGARRE ---
-#macro SP_RUN_SPEED		12		//velocidad de la carrera
-#macro SP_RUN_T			36		//frames maximos corriendo (si no lo toca, falla)
-#macro SP_GRAB_X		95		//alcance del agarre (delante de Brad)
-#macro SP_DMG_GRAB		8		//dano del agarre
-#macro SP_MISS_LAG		36		//si falla el agarre
-//--- BOLITA CON EL RIVAL ---
-#macro SP_CURL_T		20		//frames que tarda en hacerse bolita (mas grande = mas lento)
-#macro SP_GRAB_CX		105		//donde esta el rival al agarrarlo (delante de Brad)
-#macro SP_GRAB_CY		25		//(altura relativa a Brad)
-#macro SP_HOLD_X		0		//donde lleva al rival mientras gira (0 = centrado con Brad)
-#macro SP_HOLD_Y		0		//(altura relativa al centro de la bolita)
-#macro SP_SPIN_STEP		2		//frames del juego por cada cuadro de la bolita (igual que tu rodada EX)
-#macro SP_SPIN_DIR		1		//1 o -1: hacia donde gira el rival
-//--- SALTO ---
-#macro SP_JUMP_VSP		-68		//fuerza del salto (mas negativo = mas alto)
-#macro SP_JUMP_HSP		6		//cuanto avanza hacia adelante en el aire
-//--- IMPACTO ---
-#macro SP_SLAM_X		200		//donde queda el rival, delante de Brad
-#macro SP_DMG_IMPACT	25		//dano del impacto
-#macro SP_IMPACT_LAG	12		//congelado corto al pegar contra el piso
-#macro SP_PAUSE_T		10		//pausa dramatica antes de soltarlo
-#macro SP_DMG_FINAL		12		//dano de la salida en knockdown
-#macro SP_FINAL_V		10		//salto del rival al salir en knockdown
-#macro SP_FINAL_KNOCK	15		//empuje del rival hacia adelante
-//--- REBOTE DE BRAD ---
-#macro SP_BACK_HSP		15		//Brad en bolita hacia atras
-#macro SP_BACK_VSP		11		//salto del rebote
-#macro SP_SLIDE			0.8		//frenado al caer (menor = frena mas rapido)
-#macro SP_SLIDE_T		10		//frames deslizando antes de levantarse
-//--- EFECTOS ---
-#macro SP_FX_LIFE		70		//duracion de grietas y trozos de piso
-#macro SP_FLASH_T		7		//frames del flash blanco que cubre la pantalla
-#macro SP_FLASH_ALPHA	0.9		//que tan blanco es el flash (0 a 1)
-#macro SP_CHUNKS		14		//trozos de piso que salen volando
-#macro SP_PIX			6		//tamano del pixel de las grietas
+#macro SP_RUN_SPEED		12
+#macro SP_RUN_T			36
+#macro SP_GRAB_X		95
+#macro SP_DMG_GRAB		8
+#macro SP_MISS_LAG		36
+#macro SP_CURL_T		20
+#macro SP_GRAB_CX		105
+#macro SP_GRAB_CY		25
+#macro SP_HOLD_X		0
+#macro SP_HOLD_Y		0
+#macro SP_SPIN_STEP		2
+#macro SP_SPIN_DIR		1
+#macro SP_JUMP_VSP		-68
+#macro SP_JUMP_HSP		6
+#macro SP_SLAM_X		200
+#macro SP_DMG_IMPACT	25
+#macro SP_IMPACT_LAG	12
+#macro SP_PAUSE_T		10
+#macro SP_DMG_FINAL		12
+#macro SP_FINAL_V		10
+#macro SP_FINAL_KNOCK	15
+#macro SP_BACK_HSP		15
+#macro SP_BACK_VSP		11
+#macro SP_SLIDE			0.8
+#macro SP_SLIDE_T		10
+#macro SP_FX_LIFE		70
+#macro SP_FLASH_T		7
+#macro SP_FLASH_ALPHA	0.9
+#macro SP_CHUNKS		14
+#macro SP_PIX			6
 #macro SP_COL_CRACK		make_colour_rgb(45, 30, 26)
 #macro SP_COL_ROCK1		make_colour_rgb(150, 110, 80)
 #macro SP_COL_ROCK2		make_colour_rgb(106, 74, 58)
 
-// El otro jugador (nuestro)
 function brad_sp_rival()
 	{
 	var _r = noone;
@@ -63,14 +47,12 @@ function brad_sp_rival()
 	return _r;
 	}
 
-// Suavizado 0..1 -> 0..1 (nuestro)
 function brad_sp_sm(_u)
 	{
 	_u = clamp(_u, 0, 1);
 	return _u * _u * (3 - 2 * _u);
 	}
 
-// Mantiene al rival congelado mientras lo manejamos (nuestro)
 function brad_sp_hold(_r)
 	{
 	_r.hitlag_frame = max(_r.hitlag_frame, 2);
@@ -79,7 +61,6 @@ function brad_sp_hold(_r)
 	_r.vsp = 0;
 	}
 
-// Pone al rival girando alrededor del CENTRO de su cuerpo, con el centro en (_tx, _ty) (nuestro)
 function brad_sp_spin(_r, _tx, _ty, _ang)
 	{
 	brad_sp_hold(_r);
@@ -99,7 +80,6 @@ function brad_sp_spin(_r, _tx, _ty, _ang)
 	_r.y = round(_ty - _ry);
 	}
 
-// Rival tirado en el piso, acostado, en la posicion guardada (nuestro)
 function brad_sp_lay(_r)
 	{
 	brad_sp_hold(_r);
@@ -119,7 +99,6 @@ function brad_sp_lay(_r)
 	_r.y = ceil(obj_ground.y - (_r.bbox_bottom - _r.y));
 	}
 
-// Polvo en el piso (nuestro)
 function brad_sp_dust(_x, _y)
 	{
 	var _vfx = instance_create_layer(_x, _y, "VFX_Layer", obj_vfx);
@@ -130,7 +109,6 @@ function brad_sp_dust(_x, _y)
 	_vfx.owner        = id;
 	}
 
-// Brad se vuelve a dibujar ENCIMA del rival mientras lo lleva: asi el rival queda detras (solo dibujo) (nuestro)
 function brad_sp_over_spawn()
 	{
 	var _h = hitbox_create(0, 0, 0.1, 0.1, 0, 1);
@@ -157,13 +135,12 @@ function brad_sp_over_draw()
 	pal_swap_reset();
 	}
 
-// Grietas, trozos de piso, chispazo y flash: hitbox "proxy" que solo dibuja (nuestro)
 function brad_sp_fx_spawn(_x)
 	{
 	var _h = hitbox_create(0, 0, 0.1, 0.1, 0, 1);
 	_h.x = -100000;
 	_h.y = -100000;
-	_h.destroy_on_stop = true;		// no se borra cuando termina el ataque
+	_h.destroy_on_stop = true;
 	_h.fx_x = _x;
 	_h.fx_t = 0;
 	_h.custom_update = brad_sp_fx_update;
@@ -183,7 +160,6 @@ function brad_sp_fx_draw()
 	var _gy = obj_ground.y - 6;
 	var _alpha = clamp((SP_FX_LIFE - _t) / 20, 0, 1);
 	
-	// Grietas que se abren por el piso hacia los dos lados
 	draw_set_alpha(_alpha);
 	var _segR = [[1,0],[1,0],[1,1],[1,0],[2,0],[1,-1],[1,0],[2,1],[1,0],[2,0]];
 	var _segL = [[1,0],[2,0],[1,-1],[1,0],[1,1],[2,0],[1,0],[1,-1],[2,0],[1,0]];
@@ -204,7 +180,6 @@ function brad_sp_fx_draw()
 			}
 		}
 	
-	// Trozos de piso rotos: salen volando, caen y se quedan en el suelo un rato
 	for (var _k = 0; _k < SP_CHUNKS; _k++)
 		{
 		var _vx = (((_k * 7) mod 13) - 6) * 1.6;
@@ -213,7 +188,6 @@ function brad_sp_fx_draw()
 		var _px = fx_x + ((((_k mod 5) - 2)) * 20) + (_vx * _t);
 		var _py = _gy + (_vy * _t) + (0.4 * _t * _t);
 		_py = min(_py, _gy - _s + 8);
-		// borde oscuro, relleno y brillo arriba (estilo pixel)
 		draw_set_colour(SP_COL_CRACK);
 		draw_rectangle(_px - _p, _py - _p, _px + _s + _p, _py + _s + _p, false);
 		draw_set_colour(SP_COL_ROCK2);
@@ -222,7 +196,6 @@ function brad_sp_fx_draw()
 		draw_rectangle(_px, _py, _px + _s, _py + _p, false);
 		}
 	
-	// Chispazo blanco en el punto de impacto (rayos que crecen rapido)
 	if (_t < 10)
 		{
 		var _sa = 1 - (_t / 10);
@@ -242,7 +215,6 @@ function brad_sp_fx_draw()
 		draw_circle(fx_x, _gy - 40, 40 + (_t * 6), false);
 		}
 	
-	// Flash blanco rapido que cubre toda la pantalla
 	if (_t < SP_FLASH_T)
 		{
 		var _cam = camera_index;
@@ -275,16 +247,15 @@ function brad_super_grab(_override_phase)
 			attack_connected = false;
 			super_invuln = false;
 			super_lock = false;
-			sp_age = 0;			// contador de la bolita (para el giro)
-			sp_jdone = false;	// ya dio el impulso del salto
-			sp_rx = x;			// donde queda el rival en el piso
+			sp_age = 0;
+			sp_jdone = false;
+			sp_rx = x;
 			ex_glow_color = make_colour_rgb(255, 170, 60);
 			}
 		break;
 		
 		case ATTACK_PHASE.stop:
 			{
-			// Si algo corta el super a medias, el rival no se queda girando ni congelado
 			if (attack_phase >= 1 && attack_phase <= 3)
 				{
 				var _rs = brad_sp_rival();
@@ -305,7 +276,6 @@ function brad_super_grab(_override_phase)
 			}
 		break;
 		
-		// 0 = carrera: el hitbox de agarre va pegado a Brad
 		case 0:
 			{
 			attack_frame--;
@@ -325,7 +295,6 @@ function brad_super_grab(_override_phase)
 				var _r = brad_sp_rival();
 				if (_r != noone && _r.state == PLAYER_STATE.grabbed)
 					{
-					// pasa a un estado sin "romper agarre" y queda a nuestro control
 					with (_r)
 						{
 						player_state_set(PLAYER_STATE.hitstun_aerial);
@@ -345,7 +314,6 @@ function brad_super_grab(_override_phase)
 					break;
 					}
 				
-				// conecto pero no lo agarro: falla
 				attack_phase = 6;
 				attack_frame = SP_MISS_LAG;
 				break;
@@ -361,7 +329,6 @@ function brad_super_grab(_override_phase)
 			}
 		break;
 		
-		// 1 = se hace bolita con el rival agarrado
 		case 1:
 			{
 			attack_frame--;
@@ -387,7 +354,6 @@ function brad_super_grab(_override_phase)
 			}
 		break;
 		
-		// 2 = salto altisimo en bolita, con la gravedad del engine
 		case 2:
 			{
 			if (!sp_jdone)
@@ -405,7 +371,6 @@ function brad_super_grab(_override_phase)
 			vsp += grav;
 			player_move();
 			
-			// la bolita y el rival giran a la misma velocidad
 			sp_age++;
 			anim_frame = (sp_age div SP_SPIN_STEP) mod 8;
 			
@@ -416,7 +381,6 @@ function brad_super_grab(_override_phase)
 				brad_sp_spin(_r, x + (SP_HOLD_X * facing), y + SP_HOLD_Y, _ang);
 				}
 			
-			// aterriza
 			if (bbox_bottom >= obj_ground.y && vsp >= 0)
 				{
 				y = ceil(obj_ground.y - (bbox_bottom - y));
@@ -424,7 +388,6 @@ function brad_super_grab(_override_phase)
 				hsp = 0;
 				sp_jdone = false;
 				
-				// IMPACTO: estrella al rival contra el piso
 				if (_r != noone)
 					{
 					sp_rx = clamp(x + (SP_SLAM_X * facing), 120, room_width - 120);
@@ -448,7 +411,6 @@ function brad_super_grab(_override_phase)
 			}
 		break;
 		
-		// 3 = pausa dramatica con el rival tirado; despues lo suelta
 		case 3:
 			{
 			attack_frame--;
@@ -458,7 +420,6 @@ function brad_super_grab(_override_phase)
 			
 			if (attack_frame <= 0)
 				{
-				// el rival sale en knockdown hacia adelante
 				super_lock = false;
 				super_invuln = false;
 				if (_r != noone)
@@ -475,19 +436,17 @@ function brad_super_grab(_override_phase)
 						}
 					}
 				
-				// Brad rebota en bolita hacia atras
 				hitlag_frame = 8;
 				hsp = -SP_BACK_HSP * facing;
 				vsp = -SP_BACK_VSP;
 				attack_phase = 4;
-				attack_frame = 60;		// limite de seguridad
+				attack_frame = 60;
 				brad_sp_dust(x, obj_ground.y);
 				obj_game.cam_shake = max(obj_game.cam_shake, 8);
 				}
 			}
 		break;
 		
-		// 4 = rebote hacia atras en bolita (gravedad del engine)
 		case 4:
 			{
 			attack_frame--;
@@ -511,7 +470,6 @@ function brad_super_grab(_override_phase)
 			}
 		break;
 		
-		// 5 = frena deslizando y se levanta (vuelve a idle)
 		case 5:
 			{
 			attack_frame--;
@@ -545,7 +503,6 @@ function brad_super_grab(_override_phase)
 			}
 		break;
 		
-		// 6 = fallo el agarre (castigable)
 		case 6:
 			{
 			attack_frame--;

@@ -1,13 +1,10 @@
 function lex_throw(_override_phase)
 	{
-	//Phases
 	var _phase = !is_undefined(_override_phase) ? _override_phase : attack_phase;
 	switch (_phase)
 		{
-		//Init
 		case ATTACK_PHASE.start:
 			{
-			//Animation
 			anim_sprite = spr_blocky_throw;
 			anim_frame = 0;
 			anim_speed = 0;
@@ -19,12 +16,10 @@ function lex_throw(_override_phase)
 			}
 		break;
 		
-		//Startup
 		case 0:
 			{
 			attack_frame--;
 			
-			//Hitbox
 			if (attack_frame == 0)
 				{
 				anim_frame = 1;
@@ -37,28 +32,23 @@ function lex_throw(_override_phase)
 				_hitbox.grounded_only = true;
 				}
 			
-			//Movement
 			player_move();
 			}
 		break;
 		
-		//Active and endlag for the grab
 		case 1:
 			{
 			attack_frame--;
 			
-			//Animation
 			if (attack_frame == 26) then anim_frame = 2;
 			if (attack_frame == 13) then anim_frame = 3;
 			
-			//If the grab connected, move on to the throw phase
 			if (attack_connected)
 				{
 				anim_frame = 4;
 				attack_phase = 2;
 				attack_frame = 40;
 				
-				//Turnaround
 				if (stick_check_direction(STICK_DIR.backward_any))
 					{
 					facing *= -1;
@@ -67,10 +57,8 @@ function lex_throw(_override_phase)
 				break;
 				}
 			
-			//Movement
 			player_move();
 			
-			//Stop
 			if (attack_frame == 0)
 				{
 				attack_stop();
@@ -79,12 +67,10 @@ function lex_throw(_override_phase)
 			}
 		break;
 		
-		//Throw active
 		case 2:
 			{
 			attack_frame--;
 			
-			//Move the other player to the correct position
 			var _other_player = noone;
 			with (obj_player)
 				{
@@ -97,7 +83,6 @@ function lex_throw(_override_phase)
 			_other_player.x = x + (4 * facing);
 			_other_player.y = y + 62;
 			
-			//Animation & multihits
 			if (attack_frame % 4 == 0)
 				{
 				if (anim_frame < 14) then anim_frame++;
@@ -110,7 +95,6 @@ function lex_throw(_override_phase)
 				obj_game.cam_shake = 2;
 				}
 			
-			//Final hit
 			if (attack_frame == 0)
 				{
 				attack_connected = false;
@@ -124,17 +108,14 @@ function lex_throw(_override_phase)
 			}
 		break;
 		
-		//Throw endlag
 		case 3:
 			{
 			attack_frame--;
 			
-			//Animation
 			if (attack_frame == 16) then anim_frame = 15;
 			if (attack_frame == 10) then anim_frame = 16;
 			if (attack_frame == 5) then anim_frame = 17;
 			
-			//Stop
 			if (attack_frame == 0)
 				{
 				attack_stop();

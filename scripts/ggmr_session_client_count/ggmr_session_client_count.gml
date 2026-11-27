@@ -1,7 +1,4 @@
 ///@category GGMR
-/*
-Returns the number of clients in the session.
-*/
 function ggmr_session_client_count()
 	{
 	with (obj_ggmr_session) 

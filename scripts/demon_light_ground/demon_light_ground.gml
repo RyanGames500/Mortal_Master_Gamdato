@@ -1,44 +1,35 @@
 function demon_light_ground(_override_phase)
 	{
-	//Phases
 	var _phase = !is_undefined(_override_phase) ? _override_phase : attack_phase;
 	switch (_phase)
 		{
-		//Init
 		case ATTACK_PHASE.start:
 			{
-			//Animation
-			anim_sprite = spr_demon_light_ground;	// sprite nuestro: cámbialo por el tuyo
+			anim_sprite = spr_demon_light_ground;
 			anim_frame = 0;
-			anim_speed = 0;		// Determinista: cero image_speed para el rollback
+			anim_speed = 0;
 			
-			attack_frame = 7;	// startup (cuadros 0 a 3)
+			attack_frame = 7;
 			
 			hsp = 0;
 			vsp = 0;
 			}
 		break;
 		
-		//-------------------------------------------------------------
-		//--- STARTUP + GOLPE (cuadros 0 -> 4 | hitbox en el cuadro 4) ---
-		//-------------------------------------------------------------
 		case 0:
 			{
 			attack_frame--;
 			
-			// Throws (solo si el personaje tiene agarre)
 			if (has_grab && state_time <= throw_input_leniency && input_pressed(INPUT.attack_heavy))
 				{
 				attack_start(attacks[$ "throw"]);
 				return;
 				}
 			
-			// Recorrido de la preparación
 			if (attack_frame == 5) then anim_frame = 1;
 			if (attack_frame == 3) then anim_frame = 2;
 			if (attack_frame == 1) then anim_frame = 3;
 			
-			// Impacto -> cuadro 4
 			if (attack_frame == 0)
 				{
 				anim_frame = 4;
@@ -56,7 +47,6 @@ function demon_light_ground(_override_phase)
 			}
 		break;
 		
-		// Recuperación (cuadros 4 -> 8)
 		case 1:
 			{
 			attack_frame--;
@@ -68,7 +58,6 @@ function demon_light_ground(_override_phase)
 			
 			player_move();
 			
-			// Fin del ataque
 			if (attack_frame <= 0)
 				{
 				attack_stop();

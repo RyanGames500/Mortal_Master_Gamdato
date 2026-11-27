@@ -1,12 +1,7 @@
-/*
-Congelado de Danny estilo MK9 (nuestro).
-Solo dibuja: usa frozen, frz_age y frz_break, que se cuentan en player_update.
-*/
-#macro ICE_SPREAD		10		// frames que tarda el hielo en cubrir todo el cuerpo
-#macro ICE_BREAK_LEN	60		// frames que duran los pedazos al romperse
-#macro ICE_SHARDS		26		// cuántos pedazos salen al romperse
+#macro ICE_SPREAD		10
+#macro ICE_BREAK_LEN	60
+#macro ICE_SHARDS		26
 
-//Dibuja el hielo encima del jugador (lo llama player_draw)
 function ice_draw()
 	{
 	var _s = sprite_scale;
@@ -27,14 +22,12 @@ function ice_draw()
 		shader_set_uniform_f(_u_center, _cx, _cy);
 		shader_set_uniform_f(_u_radius, _rad);
 		
-		//Costra: la silueta corrida un pixel para los 4 lados
 		shader_set_uniform_f(_u_flat, 1);
 		draw_sprite_ext(anim_sprite, anim_frame, x + _s, y, _xs, _s, 0, c_white, 1);
 		draw_sprite_ext(anim_sprite, anim_frame, x - _s, y, _xs, _s, 0, c_white, 1);
 		draw_sprite_ext(anim_sprite, anim_frame, x, y + _s, _xs, _s, 0, c_white, 1);
 		draw_sprite_ext(anim_sprite, anim_frame, x, y - _s, _xs, _s, 0, c_white, 1);
 		
-		//El cuerpo hecho hielo
 		shader_set_uniform_f(_u_flat, 0);
 		draw_sprite_ext(anim_sprite, anim_frame, x, y, _xs, _s, 0, c_white, 1);
 		shader_reset();
@@ -43,7 +36,6 @@ function ice_draw()
 		var _xo = sprite_get_xoffset(anim_sprite);
 		var _yo = sprite_get_yoffset(anim_sprite);
 		
-		//Brillitos que se prenden y se apagan
 		if (_a >= ICE_SPREAD && _rw.top >= 0)
 			{
 			draw_set_colour(c_white);
@@ -63,7 +55,6 @@ function ice_draw()
 				}
 			}
 		
-		//Vaho frío que sube
 		if (_rw.top >= 0)
 			{
 			draw_set_colour(make_colour_rgb(150, 255, 200));
@@ -82,7 +73,6 @@ function ice_draw()
 			draw_set_alpha(1);
 			}
 		
-		//Escarcha que salta donde pegó la bola
 		draw_set_colour(make_colour_rgb(200, 255, 225));
 		for (var _i = 0; _i < 18 && _a < 70; _i++)
 			{
@@ -94,7 +84,6 @@ function ice_draw()
 		draw_set_colour(c_white);
 		}
 	
-	//Se rompió el hielo: pedazos que caen al piso
 	if (frz_break >= 0)
 		{
 		var _hs = sprites[$ "hitstun_ground"];

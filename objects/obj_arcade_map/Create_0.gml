@@ -1,6 +1,6 @@
 phase_t = 0;
 art = spr_arcade_map;
-mode = 0;							// 0 siguiente pelea · 1 game over · 2 victoria · 3 continuar
+mode = 0;
 travel_from = -2;
 travel_frames = 0;
 

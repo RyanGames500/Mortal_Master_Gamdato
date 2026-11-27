@@ -1,15 +1,4 @@
-/*
-Mando en los menus (nuestro).
-En vez de editar cada menu, el mando "aprieta" las mismas teclas que los menus ya leen
-(keyboard_key_press / keyboard_key_release). Asi todo menu que lee teclado funciona con mando.
-Cada menu llama pad_menu_pump(modo) una vez por frame desde su Step.
-  modo 0 = menu principal (flechas, Enter, Esc, Supr)
-  modo 1 = seleccion de personaje (A, D, J, K, Esc)
-  modo 2 = arcade (J, Esc)
-Necesita input_pad_find(), que esta en el script input_collect_local.
-*/
 
-//Suelta las teclas que el mando apreto antes
 function pad_keys_release()
 	{
 	if (!variable_global_exists("pad_keys_held")) then global.pad_keys_held = [];
@@ -20,7 +9,6 @@ function pad_keys_release()
 	global.pad_keys_held = [];
 	}
 
-//Aprieta una tecla y la anota para soltarla en el siguiente frame
 function pad_key_tap(_key)
 	{
 	if (_key < 0) then return;
@@ -28,8 +16,6 @@ function pad_key_tap(_key)
 	array_push(global.pad_keys_held, _key);
 	}
 
-//True al apretar una direccion (0 arriba, 1 abajo, 2 izquierda, 3 derecha) con cruceta o stick.
-//Si se mantiene, repite como lo hace el teclado.
 function pad_dir_pressed(_pad, _dir)
 	{
 	static _next = [0, 0, 0, 0];
@@ -66,7 +52,6 @@ function pad_dir_pressed(_pad, _dir)
 	return false;
 	}
 
-//Se llama una vez por frame al inicio del Step de cada menu
 function pad_menu_pump(_mode)
 	{
 	static _stamp = -1;

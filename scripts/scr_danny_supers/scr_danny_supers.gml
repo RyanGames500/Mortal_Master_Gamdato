@@ -1,23 +1,18 @@
-/*
-Supers de Danny (nuestro).
-  danny_super_lotus    Super 1: LOTO QUÍMICO (2 barras): lo lanza, lo persigue, lo enrolla en la cadena y lo clava de cabeza
-  danny_super_clones   Super 2: CLONES DE GAS (toda la barra, cinemático)
-*/
 #macro DANNY_GREEN		make_colour_rgb(90, 255, 160)
 
-// Super 1
-#macro DANNY_LO_LAUNCH	26		// qué tan alto lo manda la patada (launch_speed del motor)
-#macro DANNY_LO_DELAY	6		// frames que espera Danny antes de saltar tras él
-#macro DANNY_LO_JMULT	1.2		// multiplica el salto normal de Danny (jump_vsp del motor)
-#macro DANNY_LO_BEHIND	80		// qué tan detrás del rival apunta el salto
-#macro DANNY_LO_HOLD	24		// frames arriba agarrándolo antes de caer
-#macro DANNY_LO_SNAP	8		// frames que tarda en jalarlo hacia él
-#macro DANNY_LO_FALLG	0.55	// gravedad de la caída (x la gravedad normal): más lenta para que se vea el giro
-#macro DANNY_LO_SPIN	7		// frames por cada vuelta del giro
-#macro DANNY_LO_STUCK	12		// frames clavado de cabeza antes del golpe final
-#macro DANNY_LO_DMG		18		// daño del estrellón final
+#macro DANNY_LO_LAUNCH	26
+#macro DANNY_LO_DELAY	6
+#macro DANNY_LO_JMULT	1.2
+#macro DANNY_LO_BEHIND	80
+#macro DANNY_LO_HOLD	24
+#macro DANNY_LO_SNAP	8
+#macro DANNY_LO_FALLG	0.3
+#macro DANNY_LO_FALLA	0.09
+#macro DANNY_LO_IMPLAG	16
+#macro DANNY_LO_SPIN	7
+#macro DANNY_LO_STUCK	12
+#macro DANNY_LO_DMG		18
 
-// Super 2
 #macro DANNY_CL_FIRST	12
 #macro DANNY_CL_GAP		20
 #macro DANNY_CL_COUNT	8
@@ -25,7 +20,6 @@ Supers de Danny (nuestro).
 #macro DANNY_CL_LIFE	18
 #macro DANNY_CL_CHARGE	26
 
-/* ---------------- COMUNES ---------------- */
 function danny_super_hit(_v, _dmg, _lag)
 	{
 	with (_v)
@@ -52,7 +46,6 @@ function danny_super_victim()
 	return _v;
 	}
 
-//Deja al rival quieto en hitstun mientras dura la secuencia (si lo atrapó en el aire, lo baja al piso)
 function danny_super_hold(_v)
 	{
 	with (_v)
@@ -88,14 +81,7 @@ function danny_super_release(_v, _dmg, _vsp, _hsp)
 		}
 	}
 
-/* ---------------- SUPER 1: LOTO QUÍMICO ---------------- */
-/*
-Fases: 0 = preparación, 1 = patada alta (golpe real), 2 = espera, 3 = salta tras él,
-       4 = lo agarra arriba, 5 = caen girando, 6 = clavado, 7 = estrellón (hitbox real), 8 = rebote, 9 = recuperación.
-Mientras lo tiene agarrado (4 a 7), Danny dibuja al rival y luego a sí mismo encima (drawn_by).
-*/
 
-//Pega al rival a Danny (misma posición, de cabeza) (_k = 1 exacto, menos = suave)
 function danny_lotus_pose(_k = 1, _ang = 180)
 	{
 	var _v = dn_sv;
@@ -120,7 +106,6 @@ function danny_lotus_pose(_k = 1, _ang = 180)
 		}
 	}
 
-//El estrellón: hitbox real del motor con derribo, donde está el rival
 function danny_lotus_slam_hit()
 	{
 	var _v = dn_sv;
@@ -128,18 +113,17 @@ function danny_lotus_slam_hit()
 	_v.image_angle = 0;
 	_v.drawn_by = noone;
 	image_angle = 0;
-	attack_connected = false;		// el motor solo deja pegar si attack_connected es false
+	attack_connected = false;
 	var _hx = (_v.x - x) * facing;
 	var _hy = (_v.y - 30) - y;
 	var _hb = hitbox_create(_hx, _hy, 2.0, 2.0, DANNY_LO_DMG, 3);
 	_hb.hitlag = 10;
 	_hb.hitstun = 60;
 	_hb.knockdown = true;
-	_hb.launch_speed = 10;
+	_hb.launch_speed = 15;
 	_hb.knockback = 10;
 	}
 
-//Si se corta con el rival agarrado, lo suelta para que caiga normal
 function danny_lotus_release()
 	{
 	image_angle = 0;
@@ -178,7 +162,7 @@ function danny_super_lotus(_override_phase)
 			attack_connected = false;
 			super_invuln = true;
 			super_lock = false;
-			super_nofreeze = true;		// el rival sube solo con la patada, sin congelarse
+			super_nofreeze = true;
 			dn_spin = false;
 			dn_face0 = facing;
 			ex_glow_color = DANNY_GREEN;
@@ -188,6 +172,7 @@ function danny_super_lotus(_override_phase)
 		case ATTACK_PHASE.stop:
 			{
 			if (attack_phase >= 4 && attack_phase <= 7) then danny_lotus_release();
+			if (instance_exists(dn_sv) && dn_sv.drawn_by == id) then dn_sv.drawn_by = noone;
 			image_angle = 0;
 			super_invuln = false;
 			super_lock = false;
@@ -196,7 +181,6 @@ function danny_super_lotus(_override_phase)
 			}
 		break;
 
-		// 0 = preparación (intocable)
 		case 0:
 			{
 			attack_frame--;
@@ -209,7 +193,7 @@ function danny_super_lotus(_override_phase)
 				attack_phase = 1;
 				attack_frame = 0;
 				attack_connected = false;
-				super_invuln = false;		// si falla o lo bloquean, queda vendido
+				super_invuln = false;
 				hsp = 6 * facing;
 				var _hb = hitbox_create(110, -90, 1.6, 1.6, 4, 10);
 				_hb.hitlag = 3;
@@ -222,7 +206,6 @@ function danny_super_lotus(_override_phase)
 			}
 		break;
 
-		// 1 = patada alta: el motor lanza al rival
 		case 1:
 			{
 			attack_frame++;
@@ -235,7 +218,11 @@ function danny_super_lotus(_override_phase)
 				if (_v != noone && _v.state != PLAYER_STATE.blockstun)
 					{
 					dn_sv = _v;
-					super_lock = true;		// no puede morir hasta el estrellón
+					_v.drawn_by = id;
+					dn_kfx_f = obj_game.game_frame;
+					dn_kx = _v.x;
+					dn_ky = (_v.bbox_top + _v.bbox_bottom) * 0.5;
+					super_lock = true;
 					super_invuln = true;
 					attack_phase = 2;
 					attack_frame = 0;
@@ -243,19 +230,18 @@ function danny_super_lotus(_override_phase)
 				else
 					{
 					attack_phase = 9;
-					attack_frame = 40;		// lo bloquearon
+					attack_frame = 40;
 					}
 				break;
 				}
 			if (attack_frame > 14)
 				{
 				attack_phase = 9;
-				attack_frame = 30;		// falló
+				attack_frame = 30;
 				}
 			}
 		break;
 
-		// 2 = termina la patada mientras el rival vuela solo
 		case 2:
 			{
 			attack_frame++;
@@ -269,9 +255,9 @@ function danny_super_lotus(_override_phase)
 				attack_frame = 30;
 				break;
 				}
+			if (attack_frame >= 5 && _v2.drawn_by == id) then _v2.drawn_by = noone;
 			if (attack_frame >= DANNY_LO_DELAY)
 				{
-				//Salta con el salto del motor hacia la espalda del rival
 				vsp = -abs(jump_vsp) * DANNY_LO_JMULT;
 				var _air = abs(vsp) / grav;
 				var _tx = clamp(_v2.x + dn_face0 * DANNY_LO_BEHIND, 100, room_width - 100);
@@ -284,7 +270,6 @@ function danny_super_lotus(_override_phase)
 			}
 		break;
 
-		// 3 = sube tras él; en lo más alto lo agarra
 		case 3:
 			{
 			attack_frame++;
@@ -311,10 +296,11 @@ function danny_super_lotus(_override_phase)
 					}
 				hsp = 0;
 				vsp = 0;
-				facing = -dn_face0;		// quedó detrás: lo abraza por la espalda
+				facing = -dn_face0;
 				anim_sprite = spr_danny_light_aerial;
 				anim_frame = 0;
 				dn_fx_in = 0;
+				dn_gfx_f = obj_game.game_frame;
 				danny_super_hit(_v3, 3, 6);
 				attack_phase = 4;
 				attack_frame = 0;
@@ -322,7 +308,6 @@ function danny_super_lotus(_override_phase)
 			}
 		break;
 
-		// 4 = arriba: lo jala hacia él, los voltea de cabeza y lo enrolla
 		case 4:
 			{
 			attack_frame++;
@@ -345,21 +330,22 @@ function danny_super_lotus(_override_phase)
 			if (attack_frame >= DANNY_LO_HOLD)
 				{
 				dn_spin = true;
+				vsp = 2;
 				attack_phase = 5;
 				attack_frame = 0;
 				}
 			}
 		break;
 
-		// 5 = caen juntos de cabeza, girando, con gravedad más suave
 		case 5:
 			{
 			attack_frame++;
 			hsp = 0;
-			vsp += grav * DANNY_LO_FALLG;
+			vsp = min(40, vsp + grav * (DANNY_LO_FALLG + attack_frame * DANNY_LO_FALLA));
 			y += vsp;
 			image_angle = 180;
-			facing = (((attack_frame div DANNY_LO_SPIN) mod 2) == 0) ? -dn_face0 : dn_face0;
+			var _per = max(2, DANNY_LO_SPIN - attack_frame div 5);
+			facing = (((attack_frame div _per) mod 2) == 0) ? -dn_face0 : dn_face0;
 			danny_lotus_pose(1, 180);
 			var _v5 = dn_sv;
 			if (!instance_exists(_v5))
@@ -369,7 +355,6 @@ function danny_super_lotus(_override_phase)
 				attack_frame = 0;
 				break;
 				}
-			//¿Ya tocó el piso con la cabeza?
 			var _hs5 = _v5.sprites[$ "hitstun_aerial"];
 			var _head = _v5.y + (sprite_get_yoffset(_hs5) - sprite_get_bbox_top(_hs5)) * _v5.sprite_scale;
 			if (_head >= obj_ground.y)
@@ -383,14 +368,16 @@ function danny_super_lotus(_override_phase)
 				dn_bx = _v5.x;
 				dn_by = obj_ground.y;
 				super_hit_fx = 16;
-				obj_game.cam_shake = max(obj_game.cam_shake, 24);
+				obj_game.cam_shake = max(obj_game.cam_shake, 32);
+				dn_imp_f = obj_game.game_frame;
+				hitlag_frame = DANNY_LO_IMPLAG;
+				with (_v5) hitlag_frame = max(hitlag_frame, DANNY_LO_IMPLAG);
 				attack_phase = 6;
 				attack_frame = 0;
 				}
 			}
 		break;
 
-		// 6 = clavado de cabeza un instante
 		case 6:
 			{
 			attack_frame++;
@@ -407,7 +394,6 @@ function danny_super_lotus(_override_phase)
 			}
 		break;
 
-		// 7 = estrellón: si el motor le pega, Danny rebota
 		case 7:
 			{
 			attack_frame++;
@@ -444,7 +430,6 @@ function danny_super_lotus(_override_phase)
 			}
 		break;
 
-		// 8 = rebote: cae con la gravedad normal
 		case 8:
 			{
 			attack_frame++;
@@ -463,7 +448,6 @@ function danny_super_lotus(_override_phase)
 			}
 		break;
 
-		// 9 = recuperación (vulnerable)
 		case 9:
 			{
 			attack_frame--;
@@ -482,7 +466,6 @@ function danny_super_lotus(_override_phase)
 		}
 	}
 
-/* ---------------- SUPER 2: CLONES DE GAS ---------------- */
 function danny_clone_data(_k)
 	{
 	static _d = [
@@ -712,7 +695,6 @@ function danny_super_clones(_override_phase)
 		}
 	}
 
-/* ---------------- DIBUJO ---------------- */
 function danny_ghost(_spr, _img, _x, _y, _xs, _ys, _a)
 	{
 	var _s = sprite_scale;
@@ -747,7 +729,6 @@ function danny_spark(_x, _y, _a)
 	draw_set_colour(c_white);
 	}
 
-//La cadena química enrollada alrededor del rival (_u = qué tanto ya lo enrolló)
 function danny_chain_draw(_v, _u, _t)
 	{
 	var _s = sprite_scale;
@@ -766,45 +747,176 @@ function danny_chain_draw(_v, _u, _t)
 	draw_set_colour(c_white);
 	}
 
-//Efectos de los supers (lo llama danny_draw_extra). Devuelve true si ya dibujó a Danny
+function danny_lotus_flash(_col, _a)
+	{
+	if (_a <= 0) return;
+	var _cx = camera_get_view_x(camera_index);
+	var _cy = camera_get_view_y(camera_index);
+	draw_set_colour(_col);
+	draw_set_alpha(_a);
+	draw_rectangle(_cx - 50, _cy - 50, _cx + camera_get_view_width(camera_index) + 50, _cy + camera_get_view_height(camera_index) + 50, false);
+	draw_set_alpha(1);
+	draw_set_colour(c_white);
+	}
+
+function danny_lotus_white(_v, _yo = 0)
+	{
+	gpu_set_fog(true, c_white, 0, 0);
+	draw_sprite_ext(_v.anim_sprite, _v.anim_frame, _v.x, _v.y + _yo, _v.sprite_scale * _v.facing, _v.sprite_scale, _v.image_angle, c_white, 1);
+	gpu_set_fog(false, c_white, 0, 0);
+	}
+
+function danny_lotus_ghost(_spr, _img, _x, _y, _xs, _ys, _ang, _a)
+	{
+	gpu_set_fog(true, DANNY_GREEN, 0, 0);
+	draw_sprite_ext(_spr, _img, _x, _y, _xs, _ys, _ang, c_white, _a);
+	gpu_set_fog(false, c_white, 0, 0);
+	}
+
+function danny_lotus_fx_back()
+	{
+	var _s = sprite_scale;
+	var _gf = obj_game.game_frame;
+
+	var _ek = _gf - dn_kfx_f;
+	if (_ek >= 0 && _ek < 12)
+		{
+		var _rk = _ek * 4.5 * _s;
+		draw_set_colour(make_colour_rgb(220, 255, 235));
+		draw_set_alpha(1 - _ek / 12);
+		for (var _w = 0; _w < 4; _w++) draw_circle(dn_kx, dn_ky, _rk + _w, true);
+		draw_set_alpha(1);
+		draw_set_colour(c_white);
+		danny_spark(dn_kx, dn_ky, _ek);
+		}
+
+	var _eg = _gf - dn_gfx_f;
+	if (_eg >= 0 && _eg < 14 && instance_exists(dn_sv))
+		{
+		var _rg = _eg * 3 * _s;
+		draw_set_colour(DANNY_GREEN);
+		draw_set_alpha(1 - _eg / 14);
+		for (var _w2 = 0; _w2 < 3; _w2++) draw_circle(x, y - 40 * _s, _rg + _w2, true);
+		draw_set_alpha(1);
+		draw_set_colour(c_white);
+		}
+
+	if (state == PLAYER_STATE.attacking && attack_script == danny_super_lotus && attack_phase == 3)
+		{
+		for (var _i = 1; _i <= 4; _i++)
+			{
+			danny_lotus_ghost(anim_sprite, anim_frame, x - hsp * _i * 2, y - vsp * _i * 2, _s * facing, _s, 0, 0.35 * (1 - _i / 5));
+			}
+		}
+
+	var _ei = _gf - dn_imp_f;
+	if (_ei >= 0 && _ei < 90)
+		{
+		var _ca = (_ei < 60) ? 1 : (1 - (_ei - 60) / 30);
+		draw_set_colour(make_colour_rgb(20, 15, 15));
+		draw_set_alpha(_ca);
+		for (var _c = 0; _c < 10; _c++)
+			{
+			var _sd = fatality_rnd(_c, 120) * 2 - 1;
+			var _len = (20 + fatality_rnd(_c, 121) * 57) * _s;
+			var _ex = dn_bx + _sd * _len;
+			var _ey = dn_by + 2 + abs(_sd) * 3 * _s;
+			for (var _w3 = 0; _w3 < 3; _w3++) draw_line(dn_bx, dn_by + _w3, _ex, _ey + _w3);
+			var _mx = lerp(dn_bx, _ex, 0.6);
+			draw_line(_mx, dn_by, _mx + _sd * 4 * _s, dn_by + 3 * _s);
+			}
+		draw_set_alpha(1);
+
+		for (var _r = 0; _r < 3; _r++)
+			{
+			var _er = _ei - _r * 6;
+			if (_er <= 0 || _er >= 30) continue;
+			var _rr = _er * 7 * _s;
+			draw_set_colour(make_colour_rgb(120, 255, 190));
+			draw_set_alpha(1 - _er / 30);
+			for (var _w4 = 0; _w4 < 5; _w4++) draw_ellipse(dn_bx - _rr - _w4, dn_by - _rr * 0.18 - _w4 * 0.3, dn_bx + _rr + _w4, dn_by + _rr * 0.18 + _w4 * 0.3, true);
+			}
+		draw_set_alpha(1);
+
+		var _ga = _ei - DANNY_LO_IMPLAG;
+		if (_ga >= 0 && _ga < 55)
+			{
+			draw_set_colour(make_colour_rgb(50, 200, 110));
+			for (var _p = 0; _p < 26; _p++)
+				{
+				var _vy0 = 2 + fatality_rnd(_p, 131) * 5;
+				var _px = dn_bx + (fatality_rnd(_p, 130) - 0.5) * 20 * _s + (fatality_rnd(_p, 132) - 0.5) * _ga * 3;
+				var _py = dn_by - 10 - _vy0 * (1 - power(0.96, _ga)) / 0.04;
+				var _pr = (5 + fatality_rnd(_p, 133) * 5) * _s * 0.8 + _ga * 0.4;
+				draw_set_alpha(0.43 * (1 - _ga / 55));
+				draw_circle(_px, _py, _pr, false);
+				}
+			draw_set_alpha(1);
+			}
+		draw_set_colour(c_white);
+		}
+	}
+
 function danny_supers_draw()
 	{
 	var _s = sprite_scale;
 	var _drawn = false;
 
-	//--- Super 1: con el rival agarrado, dibuja rival -> Danny -> cadena (Danny siempre adelante) ---
+	danny_lotus_fx_back();
+
+	if (state == PLAYER_STATE.attacking && attack_script == danny_super_lotus
+		&& attack_phase == 2 && instance_exists(dn_sv) && dn_sv.drawn_by == id)
+		{
+		danny_lotus_white(dn_sv);
+		}
+
 	if (state == PLAYER_STATE.attacking && attack_script == danny_super_lotus
 		&& attack_phase >= 4 && attack_phase <= 6 && instance_exists(dn_sv))
 		{
 		var _v = dn_sv;
+		var _ei2 = obj_game.game_frame - dn_imp_f;
 
-		//Sombra
 		draw_sprite_ext(spr_player_shadow, 0, x, obj_ground.y - 20, _s, _s, 0, c_white, 1);
 
-		//El rival (atrás)
-		pal_swap_set(_v.palette_sprite, _v.current_pal, false);
-		draw_sprite_ext(_v.anim_sprite, _v.anim_frame, _v.x, _v.y, _v.sprite_scale * _v.facing, _v.sprite_scale, _v.image_angle, c_white, 1);
-		pal_swap_reset();
+		if (attack_phase == 5 && vsp > 4)
+			{
+			for (var _t = 1; _t <= 4; _t++)
+				{
+				var _al = 0.35 * (1 - _t / 5);
+				danny_lotus_ghost(_v.anim_sprite, _v.anim_frame, _v.x, _v.y - vsp * _t * 1.2, _v.sprite_scale * _v.facing, _v.sprite_scale, _v.image_angle, _al);
+				danny_lotus_ghost(anim_sprite, anim_frame, x, y - vsp * _t * 1.2, _s * facing, _s, image_angle, _al);
+				}
+			}
 
-		//Danny (adelante)
+		if (attack_phase == 6 && _ei2 >= 0 && _ei2 < 6)
+			{
+			danny_lotus_white(_v);
+			}
+		else
+			{
+			pal_swap_set(_v.palette_sprite, _v.current_pal, false);
+			draw_sprite_ext(_v.anim_sprite, _v.anim_frame, _v.x, _v.y, _v.sprite_scale * _v.facing, _v.sprite_scale, _v.image_angle, c_white, 1);
+			pal_swap_reset();
+			}
+
 		pal_swap_set(palette_sprite, current_pal, false);
 		draw_sprite_ext(anim_sprite, anim_frame, x, y, _s * facing, _s, image_angle, c_white, 1);
 		pal_swap_reset();
 
-		//La cadena envolviendo a los dos
 		var _u = (attack_phase == 4) ? clamp(attack_frame / 18, 0, 1) : 1;
 		danny_chain_draw(_v, _u, attack_frame);
 
-		//Líneas de velocidad mientras caen
 		if (attack_phase == 5)
 			{
-			draw_set_colour(make_colour_rgb(150, 255, 200));
-			draw_set_alpha(0.5);
-			for (var _k = 0; _k < 6; _k++)
+			draw_set_colour(make_colour_rgb(160, 255, 210));
+			draw_set_alpha(0.55);
+			var _nl = 6 + min(10, attack_frame div 3);
+			var _ll = 110 + attack_frame * 3;
+			for (var _k = 0; _k < _nl; _k++)
 				{
-				var _lx = x - 70 + _k * 28;
-				var _ly = y - 320 + ((attack_frame * 12 + _k * 37) mod 60);
-				draw_rectangle(_lx, _ly, _lx + 2, _ly + 110, false);
+				var _lx = x - 110 + _k * (220 / _nl);
+				var _ly = y - 320 - attack_frame * 2 + ((attack_frame * 20 + _k * 37) mod 80);
+				draw_rectangle(_lx, _ly, _lx + 2, _ly + _ll, false);
 				}
 			draw_set_alpha(1);
 			draw_set_colour(c_white);
@@ -812,7 +924,6 @@ function danny_supers_draw()
 		_drawn = true;
 		}
 
-	//Impacto contra el piso: charco, salpicadura verde, polvo y chispa
 	if (dn_imp >= 0)
 		{
 		var _pw = min(_s * 24, dn_imp * _s);
@@ -831,7 +942,6 @@ function danny_supers_draw()
 		danny_spark(dn_bx, dn_by - 20, dn_imp div 2);
 		}
 
-	//--- Super 2: los clones ---
 	if (state == PLAYER_STATE.attacking && attack_script == danny_super_clones && attack_phase == 3)
 		{
 		var _t = attack_frame;
@@ -862,7 +972,6 @@ function danny_supers_draw()
 			}
 		}
 
-	//El shuriken final volando
 	if (state == PLAYER_STATE.attacking && attack_script == danny_super_clones && attack_phase == 4
 		&& attack_frame >= DANNY_CL_CHARGE && attack_frame < DANNY_CL_CHARGE + 8 && instance_exists(dn_sv))
 		{
@@ -871,10 +980,14 @@ function danny_supers_draw()
 		draw_sprite_ext(spr_danny_shuriken, (attack_frame div 2) mod 4, _sx2, y - 20, _s * facing, _s, 0, c_white, 1);
 		}
 
-	//Chispa de cada golpe
 	danny_spark(dn_hx, dn_hy, dn_hit_t);
 
-	//Explosión del gas
+	var _fe = obj_game.game_frame - dn_imp_f;
+	if (_fe >= 0 && _fe < 3) then danny_lotus_flash(c_white, 0.85);
+	else if (_fe >= 3 && _fe < 10) then danny_lotus_flash(make_colour_rgb(120, 255, 190), 0.3 * (1 - (_fe - 3) / 7));
+	var _fg = obj_game.game_frame - dn_gfx_f;
+	if (_fg >= 0 && _fg < 10) then danny_lotus_flash(DANNY_GREEN, 0.25 * (1 - _fg / 10));
+
 	if (dn_boom >= 0)
 		{
 		danny_gas(dn_bx, dn_by, dn_boom, 50, 90);

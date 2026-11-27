@@ -9,7 +9,6 @@ function scar_light_aerial(_override_phase)
 			anim_frame = 0;
 			anim_speed = 0;
 			
-			// Startup: 4 frames para alzar la espada (subimágenes 0 y 1)
 			attack_frame = 4;
 			}
 		break;
@@ -20,14 +19,12 @@ function scar_light_aerial(_override_phase)
 			
 			if (attack_frame == 2) then anim_frame = 1;
 			
-			// Instante del tajo
 			if (attack_frame <= 0)
 				{
-				anim_frame = 2; // Frame 2: Tajo descendente con llamas
+				anim_frame = 2;
 				attack_phase = 1;
 				attack_frame = 14;
 				
-				// Hitbox aérea
 				var _hitbox = hitbox_create(146, -5, 1, 1.9, 5, 5);
 				_hitbox.knockback = 2;
 				_hitbox.hitstun = 16;
@@ -50,7 +47,6 @@ function scar_light_aerial(_override_phase)
 			{
 			attack_frame--;
 			
-			// Recorrido de disipación de llamas (frames 3, 4 y 5)
 			if (attack_frame == 10) then anim_frame = 3;
 			if (attack_frame == 6)  then anim_frame = 4;
 			if (attack_frame == 2)  then anim_frame = 5;

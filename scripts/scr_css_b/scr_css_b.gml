@@ -139,10 +139,9 @@ function css_b_fighter(_spr, _frame, _x, _feet, _h, _s, _flip, _pal_spr, _pal_id
 	if (_use_pal) then pal_swap_reset();
 	}
 
-//Qué columna de paleta usa cada char en la selección (igual que en la pelea)
 function css_b_pal(_char_id, _mirror)
 	{
-	if (_char_id == 8) return _mirror ? 2 : 1;	// Danny: tóxico normal, bata de lab en espejo
+	if (_char_id == 8) return _mirror ? 2 : 1;
 	return _mirror ? 1 : 0;
 	}
 

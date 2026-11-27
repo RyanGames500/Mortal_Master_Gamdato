@@ -9,7 +9,7 @@ function saori_special_divekick(_override_phase)
 			anim_frame = 0;
 			anim_speed = 0;
 			
-			attack_frame = 2; // Pausa mínima en el aire para arranque instantáneo
+			attack_frame = 2;
 			
 			hsp = 1 * facing;
 			vsp = -1;
@@ -26,7 +26,6 @@ function saori_special_divekick(_override_phase)
 				attack_phase = 1;
 				attack_frame = 20;
 				
-				// CAÍDA RÁPIDA: Velocidad diagonal explosiva hacia el piso
 				hsp = 14 * facing;
 				vsp = 16;
 				
@@ -51,7 +50,7 @@ function saori_special_divekick(_override_phase)
 			if (bbox_bottom >= obj_ground.y)
 				{
 				attack_phase = 2;
-				attack_frame = 5; // Landing lag corto para mantener la fluidez
+				attack_frame = 5;
 				
 				hsp = 4 * facing;
 				vsp = 0;

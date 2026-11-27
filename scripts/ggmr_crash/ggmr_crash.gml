@@ -1,8 +1,5 @@
 ///@category GGMR
 ///@param {string} messages		The messages to display
-/*
-Crashes the game and displays the given messages.
-*/
 function ggmr_crash()
 	{
 	var _output = "[GGMR Crash]";

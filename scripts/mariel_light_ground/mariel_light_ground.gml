@@ -1,42 +1,33 @@
 function mariel_light_ground(_override_phase)
 	{
-	//Phases
 	var _phase = !is_undefined(_override_phase) ? _override_phase : attack_phase;
 	switch (_phase)
 		{
-		//Init
 		case ATTACK_PHASE.start:
 			{
-			//Animation
 			anim_sprite = spr_mariel_light_ground; 
 			anim_frame = 0;
-			anim_speed = 0; // Determinista: cero image_speed para el rollback
+			anim_speed = 0;
 			
-			attack_frame = 5; // Startup del 1er golpe
+			attack_frame = 5;
 			
 			hsp = 0;
 			vsp = 0;
 			}
 		break;
 		
-		//-------------------------------------------------------------
-		//--- PRIMER GOLPE (Frames 0 -> 4 | Hitbox en Frame 2) --------
-		//-------------------------------------------------------------
 		case 0:
 			{
 			attack_frame--;
 			
-			// Throws
 			if (state_time <= throw_input_leniency && input_pressed(INPUT.attack_heavy))
 				{
 				attack_start(attacks[$ "throw"]);
 				return;
 				}
 			
-			// Transición de startup
 			if (attack_frame == 3) then anim_frame = 1;
 			
-			// Impacto del 1er golpe -> Frame 2 (estela)
 			if (attack_frame == 0)
 				{
 				anim_frame = 2; 
@@ -51,7 +42,6 @@ function mariel_light_ground(_override_phase)
 			}
 		break;
 		
-		// Endlag 1er Golpe (Frames 3 y 4)
 		case 1:
 			{
 			attack_frame--;
@@ -61,7 +51,6 @@ function mariel_light_ground(_override_phase)
 			
 			player_move();
 			
-			// Cancelación al 2do Golpe
 			if (attack_frame < 8 && attack_connected)
 				{
 				if (input_pressed(INPUT.attack_light, true))
@@ -70,7 +59,7 @@ function mariel_light_ground(_override_phase)
 					
 					anim_frame = 5; 
 					attack_phase = 2;
-					attack_frame = 5;   // Startup hasta el primer impacto del golpe 2
+					attack_frame = 5;
 					hsp = 7 * facing;
 					}
 				}
@@ -83,19 +72,15 @@ function mariel_light_ground(_override_phase)
 			}
 		break;
 		
-		//-------------------------------------------------------------
-		//--- SEGUNDO GOLPE, PARTE 1 (Frames 5 -> 6 | Impacto alto) ----
-		//-------------------------------------------------------------
 		case 2:
 			{
 			attack_frame--;
 			
-			// Impacto alto -> Frame 6 (estela sobre la cabeza)
 			if (attack_frame == 0)
 				{
 				anim_frame = 6; 
 				attack_phase = 3;
-				attack_frame = 8;   // Tiempo hasta el gancho
+				attack_frame = 8;
 				
 				var _hitbox = hitbox_create(55, -85, 1, 0.5, 2, 4);
 				_hitbox.knockback = 4;
@@ -105,9 +90,6 @@ function mariel_light_ground(_override_phase)
 			}
 		break;
 		
-		//-------------------------------------------------------------
-		//--- SEGUNDO GOLPE, PARTE 2 (Frames 7 -> 10 | Gancho) ----------
-		//-------------------------------------------------------------
 		case 3:
 			{
 			attack_frame--;
@@ -116,14 +98,12 @@ function mariel_light_ground(_override_phase)
 			if (attack_frame == 4) then anim_frame = 8;
 			if (attack_frame == 2) then anim_frame = 9;
 			
-			// Gancho -> Frame 10 (estela grande)
 			if (attack_frame == 0)
 				{
 				anim_frame = 10; 
 				attack_phase = 4;
 				attack_frame = 10;
 				
-				// Se libera la conexión para que el gancho pueda pegar tras el golpe alto
 				attack_connected = false;
 				
 				var _hitbox = hitbox_create(93, -54, 1.2, 0.4, 3, 4);
@@ -134,7 +114,6 @@ function mariel_light_ground(_override_phase)
 			}
 		break;
 		
-		// Endlag 2do Golpe (Frames 11 y 12)
 		case 4:
 			{
 			attack_frame--;
@@ -148,7 +127,6 @@ function mariel_light_ground(_override_phase)
 				}
 			player_move();
 			
-			// Cancelación al 3er Golpe
 			if (attack_frame < 8 && attack_connected)
 				{
 				if (input_pressed(INPUT.attack_light, true))
@@ -157,7 +135,7 @@ function mariel_light_ground(_override_phase)
 					
 					anim_frame = 13; 
 					attack_phase = 5;
-					attack_frame = 4;   // Startup del remate
+					attack_frame = 4;
 					hsp = 10 * facing;
 					}
 				}
@@ -170,16 +148,12 @@ function mariel_light_ground(_override_phase)
 			}
 		break;
 		
-		//-------------------------------------------------------------
-		//--- TERCER GOLPE (Frames 13 -> 17 | Impacto en Frame 15) ------
-		//-------------------------------------------------------------
 		case 5:
 			{
 			attack_frame--;
 			
 			if (attack_frame == 2) then anim_frame = 14;
 			
-			// Impacto del remate -> Frame 15 (estela hacia arriba)
 			if (attack_frame == 0)
 				{
 				anim_frame = 15; 
@@ -202,7 +176,6 @@ function mariel_light_ground(_override_phase)
 			}
 		break;
 		
-		// Endlag Final (Frames 16 y 17)
 		case 6:
 			{
 			attack_frame--;
@@ -216,7 +189,6 @@ function mariel_light_ground(_override_phase)
 				}
 			player_move();
 			
-			// Fin del combo
 			if (attack_frame <= 0)
 				{
 				attack_stop();

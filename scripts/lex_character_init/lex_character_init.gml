@@ -1,6 +1,5 @@
 function lex_character_init()
 	{
-	//Properties
 	character_name = "LEX";
 	walk_speed = 4;           
 	dash_speed = 9;           
@@ -16,13 +15,10 @@ function lex_character_init()
 	
 	sprite_scale = 6;
 	
-	//Environmental collision box
 	sprite_index = spr_lex_ecb;
 	
-	//Palette
 	palette_sprite = spr_lex_palette;
 	
-	//Gameplay sprites
 	sprites[$ "idle"			] = spr_lex_idle;
 	sprites[$ "win"				] = spr_lex_win;
 	sprites[$ "crouch"			] = spr_lex_crouch;
@@ -43,7 +39,6 @@ function lex_character_init()
 	sprites[$ "getup"			] = spr_lex_idle;
 	sprites[$ "throw_victim"	] = spr_mayel_lanzado;
 	
-	//Attack scripts
 	attacks[$ "light_ground"	] = lex_light_ground;
 	attacks[$ "medium_ground"	] = lex_medium_ground;
 	attacks[$ "medium_aerial"	] = lex_medium_aerial;
@@ -54,14 +49,11 @@ function lex_character_init()
 	attacks[$ "heavy_crouch"	] = lex_heavy_crouch;
 	attacks[$ "heavy_aerial"	] = lex_heavy_aerial;
 	
-	//Fatalities
 	fat_cabeza = spr_lex_fat_cabeza;
 	fat_cuerpo = spr_lex_fat_cuerpo;
 	fat_pies = spr_generic_fat_pies;
 
-	//sprite_inicial
 	anim_sprite = sprites[$ "idle"];
-	//Passive script
 	passive = lex_passive;
 	}
 

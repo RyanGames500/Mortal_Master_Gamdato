@@ -20,8 +20,6 @@ function intro_ease(_t)
 	return _t * _t * (3 - 2 * _t);
 	}
 
-// Variante 0 o 1 de cada jugador. Sale de intro_count (que vive en obj_game y se guarda en el rollback),
-// los personajes y el stage, asi que las dos PCs y los replays ven exactamente lo mismo.
 function intro_variant(_pnum)
 	{
 	var _n = obj_game.intro_count * 5 + obj_game.p1_select * 13 + obj_game.p2_select * 7 + obj_game.stage_id * 3 + _pnum;
@@ -33,7 +31,6 @@ function intro_start(_pnum)
 	return (_pnum == 0) ? INTRO_B : INTRO_C;
 	}
 
-// ---------- constructores de pasos ----------
 function intro_fx(_s, _at, _d, _x0, _y0, _x1, _y1, _o = {})
 	{
 	var _r = { s: _s, at: _at, d: _d, x0: _x0, y0: _y0, x1: _x1, y1: _y1, arc: 0, fps: 12, still: false, sc: 1 };
@@ -42,8 +39,6 @@ function intro_fx(_s, _at, _d, _x0, _y0, _x1, _y1, _o = {})
 	return _r;
 	}
 
-// _k: "walk" | "pose" | "drop" | "jump" | "fade"   _s: nombre del sprite ("" = idle del personaje)
-// fy = altura de vuelo (solo "walk"): entra volando a esa altura y baja al final
 function intro_step(_k, _s, _d, _o = {})
 	{
 	var _r = { k: _k, s: _s, d: _d, fps: 9, loop: false, hold: false, shake: -1, land: false, dust: false, dx: 0, h: 380, wind: 0, trail: false, fy: 0, fx: [] };
@@ -52,17 +47,15 @@ function intro_step(_k, _s, _d, _o = {})
 	return _r;
 	}
 
-// ---------- LAS INTROS: 2 por personaje (v = 0 o 1) ----------
-// wind = frames que aguanta la pose antes de moverse (suspenso)   trail = polvo de pasos al correr
 function intro_get_seq(_cid, _v)
 	{
 	switch (_cid)
 		{
-		case 1: // JOE: corre como en sus ataques
+		case 1:
 			if (_v == 0) return [ intro_step("walk", "spr_blocky_runkick", 40, { fps: 9, land: true, trail: true }) ];
 			return [ intro_step("walk", "spr_blocky_runpunch", 40, { fps: 9, land: true, trail: true }) ];
 		
-		case 2: // LEX: camina y dispara dos veces
+		case 2:
 			if (_v == 0) return [ intro_step("walk", "spr_lex_walk", 45, { fps: 6, loop: true }),
 				intro_step("pose", "spr_lex_shotgun", 34, { wind: 10, shake: 16 }),
 				intro_step("pose", "spr_lex_shotgun", 30, { wind: 6, shake: 10 }) ];
@@ -71,35 +64,35 @@ function intro_get_seq(_cid, _v)
 				intro_step("pose", "spr_lex_shot2", 26, { shake: 8 }),
 				intro_step("pose", "spr_lex_shot2", 26, { shake: 8 }) ];
 		
-		case 3: // BLITSEN
+		case 3:
 			if (_v == 0) return [ intro_step("walk", "spr_blitsen_walk", 45, { loop: true }),
 				intro_step("pose", "spr_blitsen_summon", 56, { wind: 10, shake: 34 }) ];
 			return [ intro_step("walk", "spr_blitsen_walk", 45, { loop: true }),
 				intro_step("pose", "spr_blitsen_super_whip", 58, { fps: 24, wind: 8, shake: 26 }) ];
 		
-		case 4: // SAORI: driver kick
+		case 4:
 			if (_v == 0) return [ intro_step("drop", "spr_saori_special_divekick", 30, { dx: 300, land: true }),
 				intro_step("pose", "spr_saori_special_divekick", 14, { hold: true }) ];
 			return [ intro_step("jump", "spr_saori_special_divekick", 40, { dx: 560, h: 380, land: true }),
 				intro_step("pose", "spr_saori_special_divekick", 12, { hold: true }) ];
 		
-		case 5: // SCAR
+		case 5:
 			if (_v == 0) return [ intro_step("walk", "spr_scar_walk", 70, { fps: 6, loop: true }) ];
 			return [ intro_step("jump", "spr_scar_jump", 45, { dx: 560, h: 300, land: true }) ];
 		
-		case 6: // BRAD
+		case 6:
 			if (_v == 0) return [ intro_step("walk", "spr_brad_Roll", 40, { fps: 12, loop: true, land: true, trail: true }) ];
 			return [ intro_step("walk", "spr_brad_walk", 60, { loop: true }) ];
 		
-		case 7: // MAYEL: vuela alto (fy) y baja al final
+		case 7:
 			if (_v == 0) return [ intro_step("walk", "spr_mayel_fly", 70, { loop: true, fy: 300 }) ];
 			return [ intro_step("walk", "spr_mayel_walk", 45, { loop: true }),
 				intro_step("pose", "spr_mayel_win", 60, { wind: 8 }) ];
 		
-		case 8: // DANNY: dash
+		case 8:
 			return [ intro_step("walk", "spr_danny_dash", 40, { fps: 12, loop: true, land: true, trail: true }) ];
 		
-		case 9: // MARIEL: culazos mas pausados
+		case 9:
 			if (_v == 0) return [ intro_step("walk", "spr_mariel_walk", 40, { loop: true }),
 				intro_step("pose", "spr_mariel_culazo", 44, { fps: 9, shake: 24 }),
 				intro_step("pose", "spr_mariel_culazo", 44, { fps: 9, shake: 24 }),
@@ -107,30 +100,28 @@ function intro_get_seq(_cid, _v)
 			return [ intro_step("walk", "spr_mariel_walk", 40, { loop: true }),
 				intro_step("pose", "spr_mariel_special_super", 72, { fps: 14, wind: 8, shake: 36 }) ];
 		
-		case 10: // DEMON: el proyectil sale del mismo punto que en el juego (x 151, y -82)
+		case 10:
 			return [ intro_step("walk", "spr_demon_walk", 45, { loop: true }),
 				intro_step("pose", "spr_demon_especial2", 56, { fps: 15, wind: 10, fx: [
 					intro_fx("spr_demon_projectile", 17, 40, 151, -82, 750, -82, { fps: 9 }) ] }) ];
 		
-		case 11: // BEAR
+		case 11:
 			if (_v == 0) return [ intro_step("walk", "spr_bear_walk", 55, { fps: 7, loop: true }),
 				intro_step("pose", "spr_bear_taunt", 60, { fps: 13, wind: 6, shake: 20 }) ];
 			return [ intro_step("drop", "spr_bear_jump", 32, { land: true }) ];
 		
-		case 12: // NINJA (sin sprites propios)
+		case 12:
 			if (_v == 0) return [ intro_step("fade", "", 40) ];
 			return [ intro_step("drop", "", 28, { land: true }) ];
 		}
 	return [ intro_step("walk", "", 60) ];
 	}
 
-// Camara de la cinematica: encuadre normal de pelea, fijo (sin zoom ni plano del stage). Solo se le suma el temblor.
 function intro_cam(_t)
 	{
 	return { cx: room_width div 2, vw: global.view_w * global.cam_zoom_eff, shake: intro_shake(_t) };
 	}
 
-// Temblor: aterrizajes (land) y golpes (shake) de los pasos
 function intro_shake(_t)
 	{
 	var _amp = 0;
@@ -161,11 +152,9 @@ function intro_bars(_t)
 
 function intro_fade(_t)
 	{
-	// solo entra desde negro al principio
 	return (_t < 20) ? (1 - _t / 20) : 0;
 	}
 
-// Polvo de aterrizaje: el mismo efecto que usas cuando un char cae al piso (spr_effect_landing_dust, 0.2 por frame)
 function intro_landing_dust(_p, _age)
 	{
 	if (_age < 0) then return;
@@ -174,7 +163,6 @@ function intro_landing_dust(_p, _age)
 	draw_sprite_ext(spr_effect_landing_dust, _idx, _p.xstart, obj_ground.y, _p.facing, 1, 0, c_white, 1);
 	}
 
-// Polvo de pasos al correr (el mismo spr_effect_step_dust de tu dash)
 function intro_step_dust(_x, _facing, _age)
 	{
 	if (_age < 0) then return;
@@ -183,7 +171,6 @@ function intro_step_dust(_x, _facing, _age)
 	draw_sprite_ext(spr_effect_step_dust, _idx, _x, obj_ground.y, _facing, 1, 0, c_white, 1);
 	}
 
-// Dibuja al jugador durante la cinematica. true = ya lo dibujo; false = dibujo normal
 function intro_player_draw(_p)
 	{
 	var _t = intro_t();
@@ -195,7 +182,6 @@ function intro_player_draw(_p)
 	
 	if (_t < _cur) then return true;
 	
-	// paso activo
 	var _act = -1, _t0 = 0;
 	for (var _i = 0; _i < array_length(_seq); _i++)
 		{
@@ -226,7 +212,6 @@ function intro_player_draw(_p)
 				_x = lerp(_p.xstart + _dir * 640, _p.xstart, intro_ease(_u));
 				if (_st.fy > 0)
 					{
-					// vuela alto y baja al final
 					var _fh = 1 - intro_ease((_u - 0.55) / 0.45);
 					_y = _p.y - _st.fy * _fh;
 					_sh = 1 - 0.6 * _fh;
@@ -283,7 +268,6 @@ function intro_player_draw(_p)
 			}
 		}
 	
-	// efectos extra y polvo (pueden ocurrir aunque el paso ya termino)
 	_cur = intro_start(_n);
 	for (var _j = 0; _j < array_length(_seq); _j++)
 		{

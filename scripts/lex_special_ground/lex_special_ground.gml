@@ -15,7 +15,6 @@ function lex_special_ground(_override_phase)
 			}
 		break;
 
-		// --- GOLPE 1: JAB RÁPIDO ---
 		case 0:
 			{
 			attack_frame--;
@@ -33,7 +32,7 @@ function lex_special_ground(_override_phase)
 
 			if (attack_frame <= 0)
 				{
-				attack_connected = false; // RESET DE COLISIÓN ESTILO BLOCKY
+				attack_connected = false;
 				
 				anim_frame = 5;
 				attack_phase = 1;
@@ -45,7 +44,6 @@ function lex_special_ground(_override_phase)
 			}
 		break;
 
-		// --- GOLPE 2: RECTO DE DERECHA ---
 		case 1:
 			{
 			attack_frame--;
@@ -64,7 +62,7 @@ function lex_special_ground(_override_phase)
 
 			if (attack_frame <= 0)
 				{
-				attack_connected = false; // RESET DE COLISIÓN ESTILO BLOCKY
+				attack_connected = false;
 				
 				anim_frame = 11;
 				attack_phase = 2;
@@ -76,7 +74,6 @@ function lex_special_ground(_override_phase)
 			}
 		break;
 
-		// --- GOLPE 3: GIRO DE CODO ---
 		case 2:
 			{
 			attack_frame--;
@@ -94,7 +91,7 @@ function lex_special_ground(_override_phase)
 
 			if (attack_frame <= 0)
 				{
-				attack_connected = false; // RESET DE COLISIÓN ESTILO BLOCKY
+				attack_connected = false;
 				
 				anim_frame = 16;
 				attack_phase = 3;
@@ -106,7 +103,6 @@ function lex_special_ground(_override_phase)
 			}
 		break;
 
-		// --- GOLPE 4: REMATE FINAL ---
 		case 3:
 			{
 			attack_frame--;
@@ -121,10 +117,9 @@ function lex_special_ground(_override_phase)
 			if (attack_frame == 16)
 				{
 				var _hitbox = hitbox_create(63, -45, 1, 0.9, 10, 8);
-				// --- AJUSTES DE REMATE VIOLENTO ---
-				_hitbox.knockback = 3;       // Empuje base alto
-				_hitbox.launch_speed = 30;    // Impulso de salida violento
-				_hitbox.hitstun = 40;         // Mantiene al rival incapacitado durante el vuelo
+				_hitbox.knockback = 3;
+				_hitbox.launch_speed = 30;
+				_hitbox.hitstun = 40;
 				_hitbox.hitlag = 6;
 				}
 

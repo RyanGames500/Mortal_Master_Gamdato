@@ -1,7 +1,4 @@
 ///@category GGMR
-/*
-Returns true if you have gotten a game start packet from the leader lobby already.
-*/
 function ggmr_lobby_session_is_started()
 	{
 	with (obj_ggmr_lobby) 

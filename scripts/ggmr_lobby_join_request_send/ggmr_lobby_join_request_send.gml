@@ -1,10 +1,6 @@
 ///@category GGMR
 ///@param {string} ip		The IP address to send a request to
 ///@param {int} port		The port to send a request to
-/*
-Sends a join request to the given ip and port. You will automatically join that person's lobby if they accept the request.
-Only works if you have no one else in your lobby and are the lobby leader.
-*/
 function ggmr_lobby_join_request_send()
 	{
 	with (obj_ggmr_lobby) 

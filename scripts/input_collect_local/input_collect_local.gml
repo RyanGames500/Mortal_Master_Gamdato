@@ -1,4 +1,3 @@
-/* Devuelve el indice del primer mando conectado, o -1 si no hay (nuestro) */
 function input_pad_find()
 	{
 	var _n = gamepad_get_device_count();
@@ -9,7 +8,6 @@ function input_pad_find()
 	return -1;
 	}
 
-/* Lista de mandos conectados, en orden de indice (nuestro) */
 function input_pad_list()
 	{
 	var _l = [];
@@ -21,12 +19,6 @@ function input_pad_list()
 	return _l;
 	}
 
-/*
-Mando que le toca a cada jugador (nuestro). _p2 = true para el jugador 2 del VS local.
-VS local de 2 humanos: con 2 mandos, el primero es de P1 y el segundo de P2.
-Con 1 solo mando, ver LOCAL_VS_SINGLE_PAD_P2. Con 0, los dos usan teclado.
-Fuera del VS de 2 humanos, el primer mando es del jugador 1.
-*/
 function input_pad_for(_p2)
 	{
 	var _l = input_pad_list();
@@ -44,23 +36,15 @@ function input_pad_for(_p2)
 
 ///@param {buffer} buffer			The buffer to collect inputs in
 ///@param {int} player_number		The player to collect inputs for
-/*
-Stores a player's current inputs in the specified buffer.
-Si es la CPU (arcade), se llama a <cpu_input_script>. En LOCAL VS de 2 humanos, el segundo jugador usa flechas y su mando.
-Please note: By default, inputs are accumulated instead of overwriting what is in the buffer already. This ensures inputs do not get dropped if the netcode freezes the game.
-*/
 function input_collect_local(_buffer, _player_number)
 	{
 	pad_keys_release();
 	buffer_seek(_buffer, buffer_seek_start, 0);
 	
-	// Entrenamiento: grabar y repetir (nuestro)
 	if (global.training)
 		{
-		// mientras grabas, P1 se queda quieto (tus controles manejan al dummy)
 		if (global.training_rec_state == 1 && _player_number == 0) then return;
 		
-		// repitiendo: el dummy usa lo grabado
 		if (global.training_rec_state == 2 && _player_number == 1)
 			{
 			training_rec_play(_buffer);
@@ -68,7 +52,6 @@ function input_collect_local(_buffer, _player_number)
 			}
 		}
 	
-	// Entrenamiento: el dummy (jugador 2) segun el modo elegido (nuestro)
 	if (global.training && _player_number == 1 && global.training_dummy != 5 && global.training_rec_state != 1)
 		{
 		training_dummy_input(_buffer);
@@ -82,19 +65,14 @@ function input_collect_local(_buffer, _player_number)
 		return;
 		}
 	
-	// En el VS de 2 humanos (y en el entrenamiento con JUGADOR 2), el segundo jugador usa los controles de P2.
-	// Mientras grabas, el dummy lo manejas con los controles de P1.
-	// Online no: ahi cada uno usa los suyos de siempre.
 	var _p2 = ((_vs || global.training) && _player_number == 1 && global.training_rec_state != 1);
 	
-	//Input local vars
 	var _stick_dir = STICK_DIR.neutral;
 	var _attack_light = false;
 	var _attack_heavy = false;
 	var _pause = false;
 	var _attack_light2 = false;
 	
-	//Mando (nuestro)
 	var _pad = input_pad_for(_p2);
 	static _last_pad = [-2, -2];
 	var _slot = _p2 ? 1 : 0;
@@ -104,7 +82,6 @@ function input_collect_local(_buffer, _player_number)
 		show_debug_message("MANDO J" + string(_slot + 1) + ": indice " + string(_pad) + (_pad >= 0 ? " - " + gamepad_get_description(_pad) : " (ninguno)"));
 		}
 	
-	//Direccion del teclado
 	var _rl = 0;
 	var _ud = 0;
 	if (_p2)
@@ -118,7 +95,6 @@ function input_collect_local(_buffer, _player_number)
 		_ud = sign(keyboard_check(ord("S")) - keyboard_check(ord("W")));
 		}
 	
-	//El teclado manda: el mando solo suma cuando el teclado esta en neutro (stick o cruceta)
 	if (_pad >= 0)
 		{
 		if (_rl == 0)
@@ -145,7 +121,6 @@ function input_collect_local(_buffer, _player_number)
 			}
 		}
 	
-	//Touch pad direction (solo jugador 1 / online)
 	if (!_p2 && instance_exists(obj_mobile_controls) && obj_mobile_controls.active)
 		{
 		if (obj_mobile_controls.pad_h != 0) then _rl = obj_mobile_controls.pad_h;
@@ -163,10 +138,8 @@ function input_collect_local(_buffer, _player_number)
 	else if (abs(angle_difference(_angle, 225)) <= 22.5) then _stick_dir = STICK_DIR.backward_down;
 	else if (abs(angle_difference(_angle, 270)) <= 22.5) then _stick_dir = STICK_DIR.down;
 	
-	//Botones
 	if (_p2)
 		{
-		// P2 en teclado: numpad 1 / 2 / 3, o , . / (codigos 188 / 190 / 191) si no hay numpad. Pausa: numpad 0
 		_attack_light  = keyboard_check_pressed(vk_numpad1) || keyboard_check_pressed(188) || (_pad >= 0 && gamepad_button_check_pressed(_pad, gp_face1));
 		_attack_light2 = keyboard_check_pressed(vk_numpad2) || keyboard_check_pressed(190) || (_pad >= 0 && gamepad_button_check_pressed(_pad, gp_face3));
 		_attack_heavy  = keyboard_check_pressed(vk_numpad3) || keyboard_check_pressed(191) || (_pad >= 0 && gamepad_button_check_pressed(_pad, gp_face2));
@@ -179,7 +152,6 @@ function input_collect_local(_buffer, _player_number)
 		_pause = keyboard_check_pressed(vk_backspace) || (_pad >= 0 && gamepad_button_check_pressed(_pad, gp_start));
 		_attack_light2 = keyboard_check_pressed(ord("K")) || (_pad >= 0 && gamepad_button_check_pressed(_pad, gp_face3));
 		
-		//Touch pad attacks. The object already delivers a one-frame edge, just like keyboard_check_pressed.
 		if (instance_exists(obj_mobile_controls) && obj_mobile_controls.active)
 			{
 			_attack_light = _attack_light || obj_mobile_controls.light_pressed;
@@ -198,15 +170,12 @@ if (global.online_mode && instance_exists(obj_game) && obj_game.olm_open)
 	_pause = false;
 	}
 
-	//Accumulate inputs in the buffer
-	//Inputs will only be reset to the default values when the system decides to reset
 	if (_stick_dir != STICK_DIR.neutral) then buffer_poke(_buffer, 0, buffer_u8, _stick_dir);
 	if (_attack_light) then buffer_poke(_buffer, 1, buffer_bool, _attack_light);
 	if (_attack_heavy) then buffer_poke(_buffer, 2, buffer_bool, _attack_heavy);
 	if (_pause) then buffer_poke(_buffer, 3, buffer_bool, _pause);
 	if (_attack_light2) then buffer_poke(_buffer, 4, buffer_bool, _attack_light2);
 	
-	// Entrenamiento: mientras grabas, se guardan los inputs del dummy (nuestro)
 	if (global.training && global.training_rec_state == 1 && _player_number == 1) then training_rec_capture(_buffer);
 	
 	return;

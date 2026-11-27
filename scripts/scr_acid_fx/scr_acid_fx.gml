@@ -1,14 +1,14 @@
-#macro ACID_LAND_MIN_X	520		// límite izquierdo del punto de caída (coordenadas de pantalla, 0-1280)
-#macro ACID_LAND_MAX_X	1100	// límite derecho
-#macro ACID_FX_TOTAL	290		// duración del final cuando hay remate al ácido (normal = 150)
-#macro ACID_UP			26		// frames subiendo
-#macro ACID_HOLD		14		// frames fuera de pantalla, arriba
-#macro ACID_FALL		30		// frames cayendo hasta el charco
-#macro ACID_FLY			(ACID_UP + ACID_HOLD + ACID_FALL)	// total hasta tocar el ácido
-#macro ACID_SINK		40		// frames de hundimiento
-#macro ACID_SURFACE_Y	430		// altura del agua respecto a la cámara
-#macro ACID_DIST		140		// cuánto se desplaza de lado mientras sube y cae
-#macro ACID_TOP_MARGIN	200		// qué tan arriba sale de la pantalla
+#macro ACID_LAND_MIN_X	520
+#macro ACID_LAND_MAX_X	1100
+#macro ACID_FX_TOTAL	290
+#macro ACID_UP			26
+#macro ACID_HOLD		14
+#macro ACID_FALL		30
+#macro ACID_FLY			(ACID_UP + ACID_HOLD + ACID_FALL)
+#macro ACID_SINK		40
+#macro ACID_SURFACE_Y	430
+#macro ACID_DIST		140
+#macro ACID_TOP_MARGIN	200
 
 function acid_fx_pose(_v)
 	{
@@ -105,7 +105,6 @@ function acid_fx_draw_particles()
 	var _px = 6;
 	var _cols = [make_colour_rgb(201, 255, 138), make_colour_rgb(140, 255, 74), make_colour_rgb(79, 175, 42)];
 	
-	// Columna de agua del impacto
 	if (_age0 < 10)
 		{
 		var _h = floor((260 * sin(pi * _age0 / 10)) / _px) * _px;
@@ -116,7 +115,6 @@ function acid_fx_draw_particles()
 		draw_rectangle(_wx - 6, _wy - _h, _wx + 6, _wy, false);
 		}
 	
-	// Anillos que se expanden sobre la superficie
 	for (var r = 0; r < 3; r++)
 		{
 		var _a = _age0 - (r * 12);
@@ -134,7 +132,6 @@ function acid_fx_draw_particles()
 			}
 		}
 	
-	// Gotas: trayectoria fija por índice, calculada con la edad
 	for (var i = 0; i < 16; i++)
 		{
 		var _da = _age0 - ((i mod 4) * 2);
@@ -150,7 +147,6 @@ function acid_fx_draw_particles()
 		draw_rectangle(_dx, _dy, _dx + _sz, _dy + _sz, false);
 		}
 	
-	// Burbujas que suben mientras se hunde
 	for (var b = 0; b < 8; b++)
 		{
 		var _ba = _age0 - (12 + (b * 6));
@@ -169,9 +165,6 @@ function acid_fx_draw_particles()
 	}
 	
 	
-	/*
-Punto X donde cae el cuerpo al ácido. Se limita a la zona de pantalla donde el fondo es ácido.
-*/
 function acid_fx_land_x(_v)
 	{
 	var _cam_x = view_fit_vx();

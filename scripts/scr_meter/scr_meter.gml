@@ -1,6 +1,5 @@
 
 
-//Nivel actual de barra (0 a 3). Se llama desde el jugador.
 function meter_level()
 	{
 	return floor(meter / METER_LEVEL_SIZE);
@@ -16,13 +15,11 @@ function meter_pay(_cost)
 	meter = max(meter - _cost, 0);
 	}
 
-//True si los dos botones se pulsaron casi a la vez (versión EX)
 function input_ex_pair(_a, _b)
 	{
 	return (inputs[@ _a] <= EX_BUTTON_WINDOW && inputs[@ _b] <= EX_BUTTON_WINDOW);
 	}
 
-//Consume los botones para que el EX no se dispare dos veces
 function input_ex_consume()
 	{
 	inputs[@ INPUT.attack_light]  = input_store_max;
@@ -31,7 +28,6 @@ function input_ex_consume()
 	}
 	
 
-//Temblor, pausa corta y brillo de color al activar un EX (nuestro)
 function ex_activation_fx()
 	{
 	obj_game.cam_shake = max(obj_game.cam_shake, 5);
@@ -48,7 +44,6 @@ function ex_activation_fx()
 		}
 	}
 	
-//True si el ataque actual es un normal que puede cancelarse en especial (nuestro)
 function attack_cancelable_normal()
 	{
 	return (attack_script == attacks[$ "light_ground"]
@@ -57,7 +52,6 @@ function attack_cancelable_normal()
 		 || attack_script == attacks[$ "medium_crouch"]);
 	}
 
-//True si mi ataque conecto Y el rival esta en hitstun (no bloqueado) (nuestro)
 function attack_hit_confirmed()
 	{
 	if (!attack_connected) then return false;
@@ -74,7 +68,6 @@ function attack_hit_confirmed()
 	return _hit;
 	}
 	
-//True si el personaje puede lanzar un especial ahora (incluye el cancel de normales) (nuestro)
 function special_state_ok()
 	{
 	return (state == PLAYER_STATE.idle ||
@@ -89,7 +82,7 @@ function hp_heal(_amount)
 	{
 	var _old = hp;
 	hp = min(hp + _amount, hp_top);
-	if (hp_prev < hp) then hp_prev = hp;	// que la barra no muestre la curacion como dano
+	if (hp_prev < hp) then hp_prev = hp;
 	return hp - _old;
 	}
 	
@@ -97,7 +90,6 @@ function special_button_ok(_btn, _pair_btn)
 	{
 	if (meter_can_pay(METER_COST_EX))
 		{
-		// con barra para EX: espera la ventana por si llega el segundo boton
 		return (inputs[@ _btn] == EX_BUTTON_WINDOW && inputs[@ _pair_btn] > EX_BUTTON_WINDOW);
 		}
 	return input_pressed(_btn);

@@ -1,10 +1,5 @@
-/*
-This is the character init script for Scar.
-It is called once at the start of the game and sets up all character-specific values.
-*/
 function scar_character_init()
 	{
-	//Properties
 	character_name = "SCAR";
 	walk_speed = 3;
 	dash_speed = 10;
@@ -19,19 +14,13 @@ function scar_character_init()
 	hp_prev = hp_max;
 	
 	sprite_scale = 6;
-	//dara tamaño personalizado a cada har desd aqui
-	//meter_max = 100; /150 default 100:perzonalizdo
 	
-	//Environmental collision box
 	sprite_index = spr_scar_ecb;
 	
-	//Palette
 	palette_sprite = spr_scar_palette;
 
-	//hurtbox
 	hurtbox_sprite = spr_scar_hurtbox;
 
-	//Gameplay sprites
 	sprites[$ "idle"			] = spr_scar_idle;
 	sprites[$ "win"				] = spr_scar_win;	
 	sprites[$ "crouch"			] = spr_scar_crouch;
@@ -53,7 +42,6 @@ function scar_character_init()
 	sprites[$ "getup"			] = spr_scar_idle;
 	sprites[$ "throw_victim"	] = spr_mayel_lanzado;
 	
-	//Attack scripts
 	attacks[$ "light_ground"	] = scar_light_ground;
 	attacks[$ "medium_ground"	] = scar_medium_ground;
 	attacks[$ "medium_aerial"	] = scar_medium_aerial;
@@ -65,15 +53,12 @@ function scar_character_init()
 	attacks[$ "heavy_aerial"	] = scar_heavy_aerial;
 	attacks[$ "throw"			] = scar_throw;
 
-	//Fatalities
 	fat_cabeza = spr_scar_fat_cabeza;
 	fat_cuerpo = spr_scar_fat_cuerpo;
 	fat_pies = spr_generic_fat_pies;
 
-	//sprite_inicial
 	anim_sprite = sprites[$ "idle"];
 
-	//Passive script
 	passive = scar_passive;
 	}
 

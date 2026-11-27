@@ -1,13 +1,7 @@
-/*
-This is the character init script for Blitsen.
-It is called once at the start of the game and sets up all character-specific values.
-*/
 function blitsen_character_init()
 	{
-	//Properties
 	character_name = "BLITSEN";
 	
-	// --- STATS DE ZONER AGIL ---
 	walk_speed = 8;
 	dash_speed = 16;
 	dash_time = 20;
@@ -22,16 +16,12 @@ function blitsen_character_init()
 	
 	sprite_scale = 5.5;
 	
-	//Environmental collision box
 	sprite_index = spr_blitsen_ecb;
 	
-	//Palette
 	palette_sprite = spr_blitsen_palette;
 
-	//hurtbox
 	hurtbox_sprite = spr_blitsen_hurtbox;
 
-	//Gameplay sprites
 	sprites[$ "idle"			] = spr_blitsen_idle;
 	sprites[$ "win"				] = spr_blitsen_win;	
 	sprites[$ "crouch"			] = spr_blitsen_crouch;
@@ -52,7 +42,6 @@ function blitsen_character_init()
 	sprites[$ "getup"			] = spr_blitsen_idle;
 	sprites[$ "throw_victim"	] = spr_mayel_lanzado;
 	
-	//Attack scripts
 	attacks[$ "light_ground"	] = blitsen_light_ground;
 	attacks[$ "medium_ground"	] = blitsen_medium_ground;
 	attacks[$ "medium_aerial"	] = blitsen_medium_aerial;
@@ -63,15 +52,12 @@ function blitsen_character_init()
 	attacks[$ "heavy_crouch"	] = blitsen_heavy_crouch;
 	attacks[$ "heavy_aerial"	] = blitsen_heavy_aerial;
 
-	//Fatalities
 	fat_cabeza = spr_blitsen_fat_cabeza;
 	fat_cuerpo = spr_blitsen_fat_cuerpo;
 	fat_pies = spr_generic_fat_pies;
 	fat_lengua = spr_blitsen_fat_lengua;	
 
-	//sprite_inicial
 	anim_sprite = sprites[$ "idle"];
 
-	//Passive script
 	passive = blitsen_passive;
 	}

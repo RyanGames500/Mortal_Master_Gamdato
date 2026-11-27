@@ -9,29 +9,26 @@ function mayel_heavy_aerial(_override_phase)
 			anim_frame = 0;
 			anim_speed = 0;
 			
-			attack_frame = 8; // Startup aéreo
+			attack_frame = 8;
 			}
 		break;
 		
-		// Startup -> Impacto
 		case 0:
 			{
 			attack_frame--;
 			
 			if (attack_frame == 4) then anim_frame = 1;
 			
-			// Hitbox de Impacto (Frames 2 y 3 visuales)
 			if (attack_frame <= 0)
 				{
 				anim_frame = 2;
 				attack_phase = 1;
-				attack_frame = 18; // Endlag aéreo
+				attack_frame = 18;
 				
-				// HITBOX SPIKE / OVERHEAD (X=35 frente al pecho/pies, Y=-15)
 				var _hitbox = hitbox_create(56, 41, 0.5, 0.8, 14, 5);
 				_hitbox.knockback = 18;
 				_hitbox.hitlag = 12;
-				_hitbox.hit_angle = 280; // Estampa al enemigo contra el suelo
+				_hitbox.hit_angle = 280;
 				}
 			
 			vsp += grav;
@@ -45,7 +42,6 @@ function mayel_heavy_aerial(_override_phase)
 			}
 		break;
 		
-		// Endlag Aéreo (Mapeo exacto sub-imágenes 3, 4 y 5)
 		case 1:
 			{
 			attack_frame--;
@@ -57,7 +53,6 @@ function mayel_heavy_aerial(_override_phase)
 			vsp += grav;
 			player_move();
 			
-			// Cancelar aterrizaje al tocar suelo
 			if (bbox_bottom >= obj_ground.y)
 				{
 				attack_stop();

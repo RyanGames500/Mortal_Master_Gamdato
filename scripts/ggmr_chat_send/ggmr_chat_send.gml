@@ -1,12 +1,5 @@
 ///@category GGMR
 ///@param {int/string/struct} message		A preset message index, custom message string, or message struct from <ggmr_chat_message_create>
-/*
-Sends a message to everyone you are currently connected to.
-This function can be used in 3 ways, depending on the data type of the argument:
-	- int: Sends the preset message at the specified index
-	- string: Sends the string as a custom message, as long as custom messages are enabled
-	- struct: Sends the struct generated from <ggmr_chat_message_create>
-*/
 function ggmr_chat_send()
 	{
 	with (obj_ggmr_chat)
@@ -23,7 +16,6 @@ function ggmr_chat_send()
 				_message = ggmr_chat_message_create(_message);
 				}
 		
-			//Send a packet to everyone
 			buffer_reset(chat_packet, false);
 			buffer_write(chat_packet, buffer_string, json_stringify(_message));
 			buffer_resize(chat_packet, buffer_tell(chat_packet));
@@ -33,14 +25,12 @@ function ggmr_chat_send()
 		
 				ggmr_log("Sending chat message to ", _connection);
 		
-				//Do not send to blank net_connections
 				if (_connection.ip != GGMR_BLANK_IP && _connection.port != GGMR_BLANK_PORT) 
 					{
 					ggmr_net_send(GGMR_PACKET_TYPE.chat_message, chat_packet, k);
 					}
 				}
 			
-			//Add the message to your own message history
 			ggmr_chat_message_record(_message);
 		
 			return _message;

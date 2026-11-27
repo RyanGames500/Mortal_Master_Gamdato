@@ -1,31 +1,22 @@
-// ============================================================
-// Remate de stage: RAÍZ (Blitsen Jungle). Todo es SOLO DIBUJO.
-// Todo se calcula con el reloj  _t = ROOT_FX_TOTAL - obj_game.ending_frame
-// (variable que ya se guarda en el rollback). Nada de random().
-// ============================================================
-#macro ROOT_UP				24		// frames que tarda el char en subir
-#macro ROOT_GROW_START		10		// frame en que empieza a crecer la raíz
-#macro ROOT_GROW			24		// frames que tarda la raíz en llegar al char
-#macro ROOT_CATCH			(ROOT_GROW_START + ROOT_GROW)	// frame en que lo agarra
-#macro ROOT_HOLD			54		// frames quieto, agarrado
+#macro ROOT_UP				24
+#macro ROOT_GROW_START		10
+#macro ROOT_GROW			24
+#macro ROOT_CATCH			(ROOT_GROW_START + ROOT_GROW)
+#macro ROOT_HOLD			54
 #macro ROOT_PULL_START		(ROOT_CATCH + ROOT_HOLD)
-#macro ROOT_PULL			14		// frames que tarda en bajar (antes 28: ahora es el doble de rápido)
+#macro ROOT_PULL			14
 #macro ROOT_PULL_END		(ROOT_PULL_START + ROOT_PULL)
-#macro ROOT_FX_TOTAL		230		// duración total del final con remate de raíz
-#macro ROOT_HOVER_H			560		// qué tan alto sube sobre el piso (antes 380)
-#macro ROOT_DIST			90		// cuánto se desplaza de lado mientras sube
+#macro ROOT_FX_TOTAL		230
+#macro ROOT_HOVER_H			560
+#macro ROOT_DIST			90
 #macro ROOT_LAND_MIN_X		260
 #macro ROOT_LAND_MAX_X		1020
 
-// Colores de sangre (oscuro -> claro)
 #macro ROOT_BLOOD_A			make_colour_rgb(92, 8, 12)
 #macro ROOT_BLOOD_B			make_colour_rgb(150, 14, 20)
 #macro ROOT_BLOOD_C			make_colour_rgb(200, 28, 32)
 
 
-/*
-Punto X donde queda la raíz. Se limita a la zona visible de la pantalla.
-*/
 function root_fx_land_x(_v)
 	{
 	var _cam_x = camera_get_view_x(camera_index);
@@ -34,9 +25,6 @@ function root_fx_land_x(_v)
 	}
 
 
-/*
-Pose del cuerpo según el reloj. clip = true cuando ya se está hundiendo (se recorta en el piso).
-*/
 function root_fx_pose(_v)
 	{
 	var _t = ROOT_FX_TOTAL - obj_game.ending_frame;
@@ -49,21 +37,18 @@ function root_fx_pose(_v)
 
 	if (_t < ROOT_UP)
 		{
-		// Sube, desviándose hacia el punto de la raíz
 		var _u = _t / ROOT_UP;
 		_p.x = lerp(_v.acid_x, _lx, _u);
 		_p.y = lerp(_v.acid_y, _hover, 1 - sqr(1 - _u));
 		}
 	else if (_t < ROOT_PULL_START)
 		{
-		// Arriba, agarrado. Un balanceo mínimo que se congela al ser atrapado
 		var _tb = min(_t, ROOT_CATCH);
 		_p.x = _lx;
 		_p.y = _hover + (sin(_tb * 0.25) * 3);
 		}
 	else
 		{
-		// Jalón hacia el suelo (rápido, acelera)
 		var _s = clamp((_t - ROOT_PULL_START) / ROOT_PULL, 0, 1);
 		var _spr = variable_struct_exists(_v.sprites, _p.key) ? _v.sprites[$ _p.key] : _v.anim_sprite;
 		var _end_y = _gy + (sprite_get_yoffset(_spr) * _v.sprite_scale) + 10;
@@ -77,9 +62,6 @@ function root_fx_pose(_v)
 	}
 
 
-/*
-Dibuja el cuerpo. Con clip se recorta en la línea del piso (como si entrara en la tierra).
-*/
 function root_fx_draw_body(_v, _pose)
 	{
 	var _spr = variable_struct_exists(_v.sprites, _pose.key) ? _v.sprites[$ _pose.key] : _v.anim_sprite;
@@ -109,11 +91,6 @@ function root_fx_draw_body(_v, _pose)
 	}
 
 
-/*
-Gotas de sangre. Trayectoria fija por índice (sin random): posición = f(edad).
-_x,_y origen · _age edad en frames · _count gotas · _seed variación · _spd fuerza
-_gy piso: las gotas se quedan manchando el suelo al llegar
-*/
 function root_fx_blood(_x, _y, _age, _count, _seed, _spd, _gy)
 	{
 	if (_age < 0) then return;
@@ -147,22 +124,15 @@ function root_fx_blood(_x, _y, _age, _count, _seed, _spd, _gy)
 	}
 
 
-/*
-Sangre que sale por DETRÁS (del hueco del suelo y de la raíz).
-Se dibuja antes que el cuerpo y la raíz.
-*/
 function root_fx_blood_back(_v, _pose, _t)
 	{
 	var _gy = obj_ground.y;
 	var _lx = root_fx_land_x(_v);
 
-	// Chorros del hueco mientras lo jala hacia abajo
 	root_fx_blood(_lx, _gy, _t - ROOT_PULL_START, 22, 3, 1.15, _gy + 14);
 	root_fx_blood(_lx, _gy, _t - (ROOT_PULL_START + 5), 16, 40, 0.8, _gy + 14);
-	// Segundo chorro cuando termina de hundirse
 	root_fx_blood(_lx, _gy, _t - ROOT_PULL_END, 18, 77, 1.0, _gy + 14);
 
-	// Mancha en el suelo que se expande después del hundimiento
 	var _a = _t - ROOT_PULL_END;
 	if (_a > 0)
 		{
@@ -178,19 +148,14 @@ function root_fx_blood_back(_v, _pose, _t)
 	}
 
 
-/*
-Sangre que sale del cuerpo (por delante del cuerpo): golpe al ser atrapado y goteo.
-*/
 function root_fx_blood_front(_v, _pose, _t)
 	{
 	var _gy = obj_ground.y;
 	var _spr = variable_struct_exists(_v.sprites, _pose.key) ? _v.sprites[$ _pose.key] : _v.anim_sprite;
 	var _mid = _pose.y - (sprite_get_yoffset(_spr) * _v.sprite_scale * 0.5);
 
-	// Salpicadura al ser atrapado
 	root_fx_blood(_pose.x, _mid, _t - ROOT_CATCH, 20, 11, 0.9, _gy + 14);
 
-	// Goteo mientras está agarrado (cae hasta el suelo y mancha)
 	if (_t >= ROOT_CATCH && _t < ROOT_PULL_START + 10)
 		{
 		for (var d = 0; d < 7; d++)
@@ -209,9 +174,6 @@ function root_fx_blood_front(_v, _pose, _t)
 	}
 
 
-/*
-Tierra y hojas que saltan donde sale la raíz y donde se la traga.
-*/
 function root_fx_burst(_x, _y, _age, _count)
 	{
 	if (_age < 0 || _age >= 40) then return;
@@ -235,9 +197,6 @@ function root_fx_burst(_x, _y, _age, _count)
 	}
 
 
-/*
-Dibuja la raíz: 3 hilos continuos (filas de 6px pegadas) desde el suelo hasta el cuerpo.
-*/
 function root_fx_draw_root(_v, _pose, _t)
 	{
 	var _gy = obj_ground.y;
@@ -246,14 +205,12 @@ function root_fx_draw_root(_v, _pose, _t)
 	var _spr = variable_struct_exists(_v.sprites, _pose.key) ? _v.sprites[$ _pose.key] : _v.anim_sprite;
 	var _mid = _pose.y - (sprite_get_yoffset(_spr) * _v.sprite_scale * 0.5);
 	
-	// Cuánto de la raíz se ve: crece hasta atrapar, y se retrae al terminar de hundirse
 	var _g = clamp((_t - ROOT_GROW_START) / ROOT_GROW, 0, 1);
 	_g = 1 - sqr(1 - _g);
 	var _ret = clamp((_t - ROOT_PULL_END) / 10, 0, 1);
 	_g *= (1 - _ret);
 	if (_g <= 0) then return;
 	
-	// Tierra levantada en la base
 	root_fx_burst(_lx, _gy, _t - ROOT_GROW_START, 14);
 	root_fx_burst(_lx, _gy, _t - ROOT_PULL_END, 14);
 	draw_set_alpha(1);
@@ -262,7 +219,7 @@ function root_fx_draw_root(_v, _pose, _t)
 	draw_set_color(make_colour_rgb(112, 64, 34));
 	draw_rectangle(floor((_lx - 18) / _px) * _px, _gy - 12, floor((_lx + 18) / _px) * _px, _gy - 6, false);
 	
-	var _ts = min(_t, ROOT_CATCH);	// el serpenteo se congela al atrapar
+	var _ts = min(_t, ROOT_CATCH);
 	var _wrap = clamp((_t - (ROOT_CATCH - 10)) / 10, 0, 1);
 	var _c_dark = make_colour_rgb(40, 22, 14);
 	var _c_mid = make_colour_rgb(84, 48, 26);
@@ -275,7 +232,7 @@ function root_fx_draw_root(_v, _pose, _t)
 		var _bx = _lx + (_off * 12);
 		var _tx = _pose.x + (_off * 16 * _wrap);
 		var _ty = _mid + (_off * 18 * _wrap);
-		var _n = max(1, ceil(abs(_gy - _ty) / _px));	// una fila por cada 6px: sin huecos
+		var _n = max(1, ceil(abs(_gy - _ty) / _px));
 		var _len = ceil(_n * _g);
 		
 		for (var k = 0; k <= _len; k++)
@@ -285,7 +242,6 @@ function root_fx_draw_root(_v, _pose, _t)
 			var _x = floor((lerp(_bx, _tx, _f) + _sway) / _px) * _px;
 			var _y = floor(lerp(_gy, _ty, _f) / _px) * _px;
 			
-			// Grosor: más gruesa abajo, más fina arriba (en múltiplos de 6px)
 			var _w = (_f < 0.35) ? _px * 3 : ((_f < 0.7) ? _px * 2 : _px * 2);
 			var _hw = _w * 0.5;
 			
@@ -296,7 +252,6 @@ function root_fx_draw_root(_v, _pose, _t)
 			draw_set_color(_c_light);
 			draw_rectangle(_x - _hw + 2, _y, _x - _hw + 2 + _px * 0.5, _y + _px, false);
 			
-			// Hojitas de vez en cuando
 			if (k mod 9 == 4)
 				{
 				draw_set_color(_c_leaf);
@@ -309,10 +264,6 @@ function root_fx_draw_root(_v, _pose, _t)
 	}
 
 
-/*
-Se llama desde obj_background_manager (Draw) justo después de la capa con acid_fx.
-Orden: sangre de atrás -> raíz -> cuerpo -> sangre del cuerpo.
-*/
 function root_fx_draw_layer()
 	{
 	if (obj_game.game_meta_state != GAME_META_STATE.ending) then return;

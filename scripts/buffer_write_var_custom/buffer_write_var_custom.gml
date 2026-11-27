@@ -4,17 +4,6 @@
 ///@param {int|buffer_type} type			The data type of the variable
 ///@param {any} value						The variable's current value
 ///@param {buffer_type} [inner_type]    	The data type of any data inside the variable (if the variable is a data structure)
-/*
-Writes a variable to a buffer. This is primarily designed to be used in conjunction with <instance_load_all_vars> / <game_state_load_objects_init>.
-The "type" can be:
-	- Any of the built in "buffer_" constants
-	- sbuffer_custom_undefined
-	- buffer_custom_array
-	- buffer_custom_list
-	- buffer_custom_map
-	- buffer_custom_struct
-Please note: As of version 1.3.0, this function is no longer used in the base engine.
-*/
 function buffer_write_var_custom()
 	{
     var _b = argument[0];
@@ -23,10 +12,8 @@ function buffer_write_var_custom()
 	var _val = argument[3];
 	var _inner = argument_count > 4 ? argument[4] : undefined;
 	
-	//Name
 	buffer_write(_b, buffer_string, _name);
 	
-	//Type & Value
 	switch (_type)
 	    {
 	    case buffer_custom_undefined:

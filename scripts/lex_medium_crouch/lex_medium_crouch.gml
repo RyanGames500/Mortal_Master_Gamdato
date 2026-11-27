@@ -24,7 +24,7 @@ function lex_medium_crouch(_override_phase)
 
 			if (attack_frame <= 0)
 				{
-				anim_frame = 3; // Fogonazo activo
+				anim_frame = 3;
 				attack_phase = 1;
 				attack_frame = 16;
 

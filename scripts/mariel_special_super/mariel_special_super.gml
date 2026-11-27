@@ -16,7 +16,6 @@ function mariel_special_super(_override_phase)
 			}
 		break;
 		
-		//Pose: frames 0 -> 5
 		case 0:
 			{
 			attack_frame--;
@@ -38,7 +37,6 @@ function mariel_special_super(_override_phase)
 			}
 		break;
 		
-		//Aura: frames 6 -> 12
 		case 1:
 			{
 			attack_frame--;
@@ -56,14 +54,13 @@ function mariel_special_super(_override_phase)
 				attack_phase = 2;
 				attack_frame = 6;
 				hsp = 8 * facing;
-				rage_frames = 180; // Rage corto garantizado: 3 s (se amplía si conecta)
+				rage_frames = 180;
 				}
 			
 			player_move();
 			}
 		break;
 		
-		//Embestida y golpe: frames 13 -> 14
 		case 2:
 			{
 			attack_frame--;
@@ -85,12 +82,10 @@ function mariel_special_super(_override_phase)
 			}
 		break;
 		
-		//Endlag: frames 15 -> 17
 		case 3:
 			{
 			attack_frame--;
 			
-			//Premio si conectó: rage largo (10 s) y recupera más rápido
 			if (attack_connected)
 				{
 				if (rage_frames < 600) then rage_frames = 600;

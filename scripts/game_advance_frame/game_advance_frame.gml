@@ -1,16 +1,10 @@
 ///@param {real} _dummy		Unused, required because with_synced_object expects a parameter to pass through.
-/*
-Callback used with with_synced_object to advance intro animation during the starting state.
-*/
 function game_advance_intro_anim(_dummy)
 	{
 	anim_frame += (anim_speed * anim_speed_default);
 	}
 
 ///@param {real} _dummy		Unused, required because with_synced_object expects a parameter to pass through.
-/*
-Callback used with with_synced_object to set players idle once the starting countdown ends.
-*/
 function game_set_player_idle(_dummy)
 	{
 	player_state_set(PLAYER_STATE.idle);
@@ -18,17 +12,12 @@ function game_set_player_idle(_dummy)
 
 ///@param {array} inputs_array		An array of buffers that contain the inputs for the corresponding players
 ///@param {int} [relative_frame]	The relative frame number of the current frame.
-/*
-Advance the entire game by a single frame (Rollback-Safe Architecture).
-*/
 function game_advance_frame(_inputs_array, _relative_frame = undefined)
 	{
 	with (obj_game)
 		{
-		// NUEVO: true si este frame es una re-simulación de rollback (la música no debe cambiar)
 		var _in_rollback = instance_exists(obj_ggmr_session) && ggmr_session_is_in_rollback();
 		
-		// 1. Manejo del Pause
 		if (game_paused)
 			{
 			for (var i = 0; i < array_length(_inputs_array); i++)
@@ -43,8 +32,6 @@ function game_advance_frame(_inputs_array, _relative_frame = undefined)
 			return;
 			}
 		
-		// 2. Grabado de Replays
-		// No se graba el selector de personajes ni de escenario, el replay empieza en la pelea
 		if (global.replay_record && !global.replay_mode && game_meta_state != GAME_META_STATE.char_select)
 			{
 			if (_relative_frame != undefined && instance_number(obj_ggmr_session) > 0)
@@ -61,11 +48,9 @@ function game_advance_frame(_inputs_array, _relative_frame = undefined)
 				}
 			}
 
-		/* ---------------------------------------------------------------- */
 		#region STATE: Character Select
 		if (game_meta_state == GAME_META_STATE.char_select)
 			{
-			// --- GESTIÓN DE MÚSICA CSS ---
 			if (!_in_rollback)
 				{
 				var _stage_inst = instance_find(obj_stage_manager, 0);
@@ -84,10 +69,9 @@ function game_advance_frame(_inputs_array, _relative_frame = undefined)
 			var _buf0 = _inputs_array[@ 0];
 			var _tr_p1_ready = p1_css_ready;			
 			var _dir0    = buffer_peek(_buf0, 0, buffer_u8);
-			var _atk0    = buffer_peek(_buf0, 1, buffer_bool); // Confirmar
-			var _cancel0 = buffer_peek(_buf0, 2, buffer_bool); // Deseleccionar
+			var _atk0    = buffer_peek(_buf0, 1, buffer_bool);
+			var _cancel0 = buffer_peek(_buf0, 2, buffer_bool);
 			
-			// --- PROCESAR P1 ---
 			if (!p1_css_ready)
 				{
 				if (_dir0 != p1_css_last_dir)
@@ -163,7 +147,6 @@ function game_advance_frame(_inputs_array, _relative_frame = undefined)
 					}
 				}
 
-			// --- ARCADE
 			if (!global.online_mode && !global.replay_mode)
 				{
 				if (global.arcade_mode == 1 && p1_css_ready)
@@ -205,15 +188,13 @@ function game_advance_frame(_inputs_array, _relative_frame = undefined)
 					}
 				}
 
-			// --- CONFIRMACIÓN Y TRANSICIÓN ---
 			if (p1_css_ready && p2_css_ready)
 				{
-				// Primero el jugador 1 elige el escenario, y después arranca la cuenta atrás
 				if (stage_step == 0)
 					{
 					stage_step = 1;
 					stage_cursor = stage_id;
-					stage_atk_prev = _atk0;		// hay que soltar el botón antes de poder confirmar
+					stage_atk_prev = _atk0;
 					p1_css_last_dir = _dir0;
 					}
 				else if (stage_step == 1)
@@ -272,12 +253,11 @@ function game_advance_frame(_inputs_array, _relative_frame = undefined)
 			else
 				{
 				css_start_timer = -1;
-				stage_step = 0;		// si alguien cancela, se vuelve a elegir el escenario
+				stage_step = 0;
 				}
 			}
 		#endregion
 
-		/* ---------------------------------------------------------------- */
 		#region STATE: Starting (Cuenta regresiva / Intros / "ROUND X")
 		if (game_meta_state == GAME_META_STATE.starting)
 			{
@@ -299,8 +279,6 @@ function game_advance_frame(_inputs_array, _relative_frame = undefined)
 					}
 				}
 
-			// Saltar la cinematica con cualquier boton de ataque (J/K/L del P1, o los del P2).
-			// Va dentro de la simulacion (usa los inputs del frame), asi que es seguro con rollback y online.
 			if (starting_frame > INTRO_END && (INTRO_LEN - (starting_frame - INTRO_END)) > 40)
 				{
 				for (var _si = 0; _si < array_length(_inputs_array); _si++)
@@ -325,7 +303,6 @@ function game_advance_frame(_inputs_array, _relative_frame = undefined)
 			}
 		#endregion
 
-		/* ---------------------------------------------------------------- */
 		#region STATE: Running (Loop de combate activo)
 		else if (game_meta_state == GAME_META_STATE.running)
 			{
@@ -344,12 +321,9 @@ function game_advance_frame(_inputs_array, _relative_frame = undefined)
 			}
 		#endregion
 
-		/* ---------------------------------------------------------------- */
 		#region STATE: Round Restart (Transición entre rondas)
 		else if (game_meta_state == GAME_META_STATE.round_restart)
 			{
-			// --- DETENER MÚSICA AL FINALIZAR EL ROUND ---
-			// Apenas se declara el K.O. / Fin de ronda, detenemos el audio para que quede en silencio durante la pantalla de victoria/reset.
 			if (!_in_rollback)
 				{
 				var _stage_inst = instance_find(obj_stage_manager, 0);
@@ -430,11 +404,9 @@ function game_advance_frame(_inputs_array, _relative_frame = undefined)
 			}
 		#endregion
 
-		/* ---------------------------------------------------------------- */
 		#region STATE: Ending 
 		else if (game_meta_state == GAME_META_STATE.ending)
 			{
-			// Garantizar que la música se apague en el fin de la partida completa
 			if (!_in_rollback)
 				{
 				var _stage_inst = instance_find(obj_stage_manager, 0);

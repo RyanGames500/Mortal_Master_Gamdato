@@ -1,9 +1,3 @@
-/*
-Super 1 de Joe: GRAN PUÑO (nuestro). Doble media luna + medium, cuesta 2 barras.
-Usa spr_blocky_super_fist: frames 0-2 = carga, 3-6 = puño de fuego, 7-8 = recuperacion.
-Fases: 0 = carga corta, 1 = embestida con puño de fuego, 2 = recuperacion.
-Invulnerable hasta la recuperacion; si falla, la recuperacion es larga y castigable.
-*/
 function blocky_super_fist(_override_phase)
 	{
 	var _phase = !is_undefined(_override_phase) ? _override_phase : attack_phase;
@@ -29,7 +23,6 @@ function blocky_super_fist(_override_phase)
 			}
 		break;
 		
-		// Carga corta (despues de la pausa): el puño brilla en el hombro
 		case 0:
 			{
 			attack_frame--;
@@ -56,7 +49,6 @@ function blocky_super_fist(_override_phase)
 				_dust.owner        = id;
 				obj_game.cam_shake = max(obj_game.cam_shake, 8);
 				
-				// Puño de fuego: hitbox grande, mucho daño y manda a volar
 				var _hitbox = hitbox_create(190, -6, 2.6, 1.3, 45, 26);
 				_hitbox.hitlag = 22;
 				_hitbox.launch_speed = 22;
@@ -70,7 +62,6 @@ function blocky_super_fist(_override_phase)
 			}
 		break;
 		
-		// Embestida: el fuego se anima en bucle; al conectar explota, si falla termina con recuperacion larga
 		case 1:
 			{
 			attack_frame--;
@@ -108,7 +99,6 @@ function blocky_super_fist(_override_phase)
 			}
 		break;
 		
-		// Recuperacion (vulnerable)
 		case 2:
 			{
 			attack_frame--;

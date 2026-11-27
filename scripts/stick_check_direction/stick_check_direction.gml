@@ -1,15 +1,9 @@
 ///@param {int} dir_enum		The direction to check, from the STICK_DIR enum
 ///@param {int} [stick_dir]		The current direction of the stick
-/*
-Checks if the current direction of the player's stick matches a value from the STICK_DIR enum.
-The values are corrected for if the player is facing left or right.
-*/
 function stick_check_direction(_dir_enum, _stick_dir = undefined)
 	{
-	//Default value
 	if (is_undefined(_stick_dir)) then _stick_dir = inputs[@ INPUT.stick_dir];
 	
-	//Flip directions if the player is facing left
 	if (facing == -1)
 		{
 		if (_stick_dir == STICK_DIR.backward) then _stick_dir = STICK_DIR.forward;
@@ -20,7 +14,6 @@ function stick_check_direction(_dir_enum, _stick_dir = undefined)
 		else if (_stick_dir == STICK_DIR.forward_down) then _stick_dir = STICK_DIR.backward_down;
 		}
 	
-	//Check numbers
 	switch (_dir_enum)
 		{
 		case STICK_DIR.backward:

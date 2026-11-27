@@ -1,12 +1,5 @@
-//********SETUP*********
-//The following variables must be populated specific to your project.
 #define TexturePageSize 2048. 
-//Your texture page size. Make sure it's actually exporting at the size you 
-//set it if things seem funky. 
 #define ColorCount 64. 
-//How tall is your color palette? You could set this to the tallest one and
-//leave it, but if you are experiencing performances issues, there are some
-//ways to make this work a bit more efficiently.
 #define PixelSize 1./TexturePageSize
 #define PalHeight ColorCount * PixelSize
 #define Transparent vec4(.0,.0,.0,.0)

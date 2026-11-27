@@ -1,4 +1,3 @@
-//Hover
 if (point_in_rectangle(mouse_x, mouse_y, bbox_left, bbox_top, bbox_right, bbox_bottom))
 	{
 	hover_time = min(++hover_time, 6);
@@ -6,7 +5,6 @@ if (point_in_rectangle(mouse_x, mouse_y, bbox_left, bbox_top, bbox_right, bbox_b
 		{
 		clicked = true;
 		
-		//Load a replay file and start the game
 		if (file_exists(replay_filename))
 			{
 			buffer_delete(global.replay_buffer);

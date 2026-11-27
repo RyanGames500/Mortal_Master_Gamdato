@@ -1,55 +1,45 @@
-/*
-Fatalities de los personajes (nuestro).
-El golpe se marca con  _hitbox.fatality = FATALITY.xxx  (igual que acid_finisher).
-Si ese golpe mata en la ronda que gana la pelea, sale el fatality en vez del KO normal.
-La animación se calcula SOLO con el tiempo del final (ending_frame), igual que el ácido:
-no se crean objetos ni se guarda nada extra, así el rollback no se puede desincronizar.
-*/
 enum FATALITY { none, decapitar, explotar, congelar, columna, estallido, lengua, flor, mutar }
 
-#macro FATAL_FX_TOTAL		300		// duración del final con fatality (normal = KO_HOLD_FRAMES)
-#macro FATAL_DECAP_STAND	45		// frames que el cuerpo se queda parado echando sangre
-#macro FATAL_DECAP_FALL		8		// frames por cada imagen de la caída
-#macro FATAL_HEAD_VX		5		// qué tan rápido sale la cabeza hacia atrás
-#macro FATAL_BONES			10		// cuántos pedazos salen al explotar
+#macro FATAL_FX_TOTAL		300
+#macro FATAL_DECAP_STAND	45
+#macro FATAL_DECAP_FALL		8
+#macro FATAL_HEAD_VX		5
+#macro FATAL_BONES			10
 #macro FATAL_BLOOD_COL		make_colour_rgb(165, 18, 18)
 #macro FATAL_BLOOD_DARK		make_colour_rgb(110, 8, 8)
-#macro FATAL_ICE_FREEZE		14		// cuánto tarda en congelarse
-#macro FATAL_ICE_HOLD		50		// cuánto se queda congelado antes de romperse
-#macro FATAL_ICE_CHUNK		6		// tamaño de los pedazos de hielo (pixeles del sprite)
+#macro FATAL_ICE_FREEZE		14
+#macro FATAL_ICE_HOLD		50
+#macro FATAL_ICE_CHUNK		6
 #macro FATAL_ICE_COL		make_colour_rgb(140, 200, 255)
 #macro FATAL_ICE_GLOW		make_colour_rgb(60, 110, 160)
-#macro FATAL_TROPHY_HOLD	50		// cuánto se queda congelado en el golpe antes de levantar la cabeza
-#macro FATAL_BURST_FRZ		18		// cuánto tarda en congelarse por dentro antes de reventar
-#macro FATAL_BURST_GROW		8		// cuánto tardan en salir todos los picos
-//¿Se puede hacer este fatality? _v = el que muere, _a = el que pega
+#macro FATAL_TROPHY_HOLD	50
+#macro FATAL_BURST_FRZ		18
+#macro FATAL_BURST_GROW		8
 function fatality_can(_v, _a, _type)
 	{
 	if (_type == FATALITY.none) return false;
-	if (_v.fatal_type != FATALITY.none) return false;		// ya le están haciendo uno
-	if (_v.no_fatality) return false;						// jefes: nunca
-	if ((_type == FATALITY.decapitar || _type == FATALITY.explotar) && !sprite_exists(_v.fat_cabeza)) return false;	// el rival necesita su arte
+	if (_v.fatal_type != FATALITY.none) return false;
+	if (_v.no_fatality) return false;
+	if ((_type == FATALITY.decapitar || _type == FATALITY.explotar) && !sprite_exists(_v.fat_cabeza)) return false;
 	if (_type == FATALITY.decapitar && !sprite_exists(_v.fat_cuerpo)) return false;
 	if (_type == FATALITY.explotar && !sprite_exists(_v.fat_pies)) return false;
 	if (_type == FATALITY.columna && (!sprite_exists(_v.fat_cabeza) || !sprite_exists(_v.fat_cuerpo) || !is_array(_a.fat_hand_win) || !variable_struct_exists(_a.sprites, "win"))) return false;
 	if (_type == FATALITY.lengua && !sprite_exists(_v.fat_cuerpo)) return false;	
 	if (_type == FATALITY.flor && !sprite_exists(_v.fat_cuerpo)) return false;
 	if (_type == FATALITY.mutar && !sprite_exists(_v.fat_pies)) return false;	
-	if (global.training) return global.training_fat;		// entrenamiento: sin rondas ni candados (F6)
+	if (global.training) return global.training_fat;
 	var _wins = (_a.player_number == 0) ? obj_game.p1_wins : obj_game.p2_wins;
-	if (_wins < obj_game.rounds_to_win - 1) return false;	// solo en el golpe que gana la pelea
+	if (_wins < obj_game.rounds_to_win - 1) return false;
 	if (!fatality_unlocked(_a, _type)) return false;
 	return true;
 	}
 
-//Paso siguiente: aquí van los desbloqueos. Por ahora todos están libres para probar.
 function fatality_unlocked(_a, _type)
 	{
 	return true;
 	}
 
 
-//Arranca el fatality en _v (el que muere). _hb = el hitbox que lo mató.
 function fatality_start(_v, _hb)
 	{
 	with (_v)
@@ -59,7 +49,7 @@ function fatality_start(_v, _hb)
 		fatal_y = y;
 		fatal_dir = _hb.owner.facing;
 		fatal_launch = max(_hb.launch_speed, 24);
-		fatal_spr = anim_sprite;	// el sprite que tenía al recibir el golpe (para el congelado)
+		fatal_spr = anim_sprite;
 		fatal_img = anim_frame;
 		fatal_face = facing;
 		hsp = 0;
@@ -69,8 +59,8 @@ function fatality_start(_v, _hb)
 		{
 		with (_hb.owner)
 			{
-			fatal_trophy = true;					// el atacante levanta el trofeo
-			fatal_hold = FATAL_TROPHY_HOLD;			// primero se queda congelado en el golpe
+			fatal_trophy = true;
+			fatal_hold = FATAL_TROPHY_HOLD;
 			fatal_hold_spr = anim_sprite;
 			fatal_hold_img = anim_frame;
 			}
@@ -84,17 +74,14 @@ function fatality_start(_v, _hb)
 		_a.fatal_tongue = true;
 		_a.fatal_bx = _tx - _a.facing * _reach;
 		}		
-	_hb.hitlag = 0;	// instantáneo: nadie se congela
+	_hb.hitlag = 0;
 	}
 
-//Número "al azar" fijo: siempre da lo mismo para el mismo _i y _k (solo se usa para dibujar)
 function fatality_rnd(_i, _k)
 	{
 	return frac(abs(sin(_i * 12.9898 + _k * 78.233) * 43758.5453));
 	}
 
-//Dónde está un pedazo que salió disparado, _t frames después (con gravedad y rebotes).
-//t_rest = en qué frame se quedó quieto (para dejar la imagen que traía al caer).
 function fatality_piece(_x0, _y0, _vx, _vy, _g, _floor, _t, _bounce)
 	{
 	var _x = _x0;
@@ -102,10 +89,9 @@ function fatality_piece(_x0, _y0, _vx, _vy, _g, _floor, _t, _bounce)
 	var _hx = _vx;
 	var _hy = _vy;
 	var _tt = _t;
-	var _spent = 0;	// tiempo que ya pasó en vuelos anteriores
+	var _spent = 0;
 	for (var _b = 0; _b < 3; _b++)
 		{
-		//tiempo hasta tocar el piso:  y + hy*t + g*t*t/2 = piso
 		var _a = _g * 0.5;
 		var _c = _y - _floor;
 		var _land = (-_hy + sqrt(max(_hy * _hy - 4 * _a * _c, 0))) / (2 * _a);
@@ -119,13 +105,12 @@ function fatality_piece(_x0, _y0, _vx, _vy, _g, _floor, _t, _bounce)
 		_tt -= _land;
 		_spent += _land;
 		if (!_bounce || _impact < 8) break;
-		_hy = -_impact * 0.3;	//rebote chiquito
+		_hy = -_impact * 0.3;
 		_hx *= 0.5;
 		}
 	return { x: _x, y: _floor, flying: false, t_rest: _spent };
 	}
 
-//Una gota de sangre (roja en el aire, oscura en el piso)
 function fatality_blood(_x, _y, _vx, _vy, _t)
 	{
 	var _p = fatality_piece(_x, _y, _vx, _vy, 1.2, obj_ground.y, _t, false);
@@ -134,7 +119,6 @@ function fatality_blood(_x, _y, _vx, _vy, _t)
 	}
 
 
-//Dibuja el fatality del jugador _v (lo llama player_draw)
 function fatality_draw(_v)
 	{
 	var _t = fatality_time(_v);
@@ -142,9 +126,9 @@ function fatality_draw(_v)
 	var _s = _v.sprite_scale;
 	var _gy = obj_ground.y;
 	var _fx = _v.fatal_x;
-	var _dir = _v.fatal_dir;	// hacia dónde fue el golpe (lejos del atacante)
-	var _face = -_dir;			// el rival miraba al atacante
-	var _g = _v.grav;			// la gravedad normal del char
+	var _dir = _v.fatal_dir;
+	var _face = -_dir;
+	var _g = _v.grav;
 	var _hh = sprite_exists(_v.fat_cabeza) ? sprite_get_height(_v.fat_cabeza) * _s * 0.5 : 0;
 	
 	if (_v.fatal_type == FATALITY.decapitar)
@@ -154,13 +138,11 @@ function fatality_draw(_v)
 		var _img = (_t < FATAL_DECAP_STAND) ? 0 : min(sprite_get_number(_body) - 1, 1 + (_t - FATAL_DECAP_STAND) div FATAL_DECAP_FALL);
 		var _h = fatality_piece(_fx, _neck - _hh, FATAL_HEAD_VX * _dir, -_v.fatal_launch, _g, _gy - _hh, _t, true);
 		
-		//Cuerpo y cabeza: con la paleta del rival
 		pal_swap_set(_v.palette_sprite, _v.current_pal, false);
 		draw_sprite_ext(_body, _img, _fx, _gy, _s * _face, _s, 0, c_white, 1);
 		draw_sprite_ext(_v.fat_cabeza, (_h.flying ? _t : _h.t_rest) div 4, _h.x, _h.y, _s * _face, _s, 0, c_white, 1);
 		pal_swap_reset();
 		
-		//Fuente de sangre del cuello mientras está parado
 		for (var _e = 0; _e < FATAL_DECAP_STAND && _e <= _t; _e++)
 			{
 			for (var _k = 0; _k < 3; _k++)
@@ -178,13 +160,11 @@ function fatality_draw(_v)
 		var _fi = (_t < 18) ? (_t div 6) : (1 + ((_t div 6) mod 2));
 		var _h = fatality_piece(_fx, _gy - _tall * 0.85, 4 * _dir, -32, _g, _gy - _hh, _t, true);
 		
-		//Pies y cabeza: con la paleta del rival
 		pal_swap_set(_v.palette_sprite, _v.current_pal, false);
 		draw_sprite_ext(_feet, min(_fi, sprite_get_number(_feet) - 1), _fx, _gy, _s * _face, _s, 0, c_white, 1);
 		draw_sprite_ext(_v.fat_cabeza, (_h.flying ? _t : _h.t_rest) div 4, _h.x, _h.y, _s * _face, _s, 0, c_white, 1);
 		pal_swap_reset();
 		
-		//Huesos genéricos (sin paleta, sirven para todos)
 		var _bones = [spr_fat_hueso1, spr_fat_hueso2, spr_fat_hueso3, spr_fat_hueso4];
 		for (var _i = 0; _i < 16; _i++)
 			{
@@ -197,7 +177,6 @@ function fatality_draw(_v)
 			draw_sprite_ext(_spr, (_p.flying ? _t : _p.t_rest) div _spd, _p.x, _p.y, _s * _side, _s, 0, c_white, 1);
 			}
 		
-		//Explosión de sangre (más grande)
 		for (var _i = 0; _i < 260; _i++)
 			{
 			var _ang = fatality_rnd(_i, 6) * 2 * pi;
@@ -205,14 +184,12 @@ function fatality_draw(_v)
 			fatality_blood(_fx + cos(_ang) * 14, _cy + sin(_ang) * 26, cos(_ang) * _sp * 0.75, sin(_ang) * _sp - 10, _t);
 			}
 		
-		//Chorro de los pies
 		var _ftop = _gy - sprite_get_height(_feet) * _s * 0.9;
 		for (var _e = 0; _e < 50 && _e <= _t; _e += 2)
 			{
 			fatality_blood(_fx, _ftop, (fatality_rnd(_e, 8) - 0.5) * 4, -7 - fatality_rnd(_e, 9) * 6, _t - _e);
 			}
 		
-		//Destello rojo al explotar
 		fatality_flash(make_colour_rgb(255, 40, 30), _age, 8);
 		}
 	else if (_v.fatal_type == FATALITY.congelar)
@@ -221,7 +198,7 @@ function fatality_draw(_v)
 		var _img = _v.fatal_img;
 		var _f = _v.fatal_face;
 		var _y = _v.fatal_y;
-		var _k = clamp(_t / FATAL_ICE_FREEZE, 0, 1);	// qué tan congelado está (0 a 1)
+		var _k = clamp(_t / FATAL_ICE_FREEZE, 0, 1);
 		var _shatter = FATAL_ICE_FREEZE + FATAL_ICE_HOLD;
 		var _sw = sprite_get_width(_spr) * _s;
 		var _sh = sprite_get_height(_spr) * _s;
@@ -229,10 +206,8 @@ function fatality_draw(_v)
 		
 		if (_t < _shatter)
 			{
-			//Tiembla justo antes de romperse
 			var _shk = (_t > _shatter - 14) ? ((((floor(_t * 2)) mod 2) == 0) ? 6 : -6) : 0;
 			
-			//1) Normal con su paleta  2) azul hielo sólido encima  3) brillo
 			pal_swap_set(_v.palette_sprite, _v.current_pal, false);
 			draw_sprite_ext(_spr, _img, _fx + _shk, _y, _s * _f, _s, 0, c_white, 1);
 			pal_swap_reset();
@@ -246,7 +221,6 @@ function fatality_draw(_v)
 			draw_set_colour(make_colour_rgb(230, 250, 255));
 			if (_t < FATAL_ICE_FREEZE)
 				{
-				//Escarcha que sube desde los pies
 				for (var _i = 0; _i < 14; _i++)
 					{
 					var _r = _i + floor(_t) * 14;
@@ -257,7 +231,6 @@ function fatality_draw(_v)
 				}
 			else
 				{
-				//Brillitos de hielo
 				for (var _i = 0; _i < 8; _i++)
 					{
 					if ((floor(_t) + _i * 7) mod 20 >= 5) continue;
@@ -270,7 +243,6 @@ function fatality_draw(_v)
 			}
 		else
 			{
-			//Se rompe: el sprite congelado se parte en cubitos que salen volando
 			var _b = _t - _shatter;
 			var _ch = FATAL_ICE_CHUNK;
 			var _xo = sprite_get_xoffset(_spr);
@@ -284,7 +256,6 @@ function fatality_draw(_v)
 			var _half = _ch * _s * 0.5;
 			var _n = 0;
 			
-			//Sangre que sale al romperse (detrás de los cubitos)
 			var _mid = _top + _sh * 0.5;
 			for (var _i = 0; _i < 120; _i++)
 				{
@@ -299,20 +270,18 @@ function fatality_draw(_v)
 					{
 					_n++;
 					var _rel = ((_cx + _ch * 0.5) - (_l + _r2) * 0.5) / _w;
-					var _wx = _fx + (_cx + _ch * 0.5 - _xo) * _s * _f;	// centro del pedazo
+					var _wx = _fx + (_cx + _ch * 0.5 - _xo) * _s * _f;
 					var _wy = _y + (_cy + _ch * 0.5 - _yo) * _s;
 					var _vx = (_rel * 20 * _f) + (fatality_rnd(_n, 1) - 0.5) * 10 + 6 * _dir;
 					var _vy = -10 - fatality_rnd(_n, 2) * 18 - (1 - (_cy - _tp) / _hg) * 8;
 					var _p = fatality_piece(_wx, _wy, _vx, _vy, _g, _gy - _half, _b, true);
 					var _rot = _p.flying ? (_b * (fatality_rnd(_n, 3) * 20 + 8)) : (floor(fatality_rnd(_n, 5) * 4) * 90);
-					//draw_sprite_general gira desde la esquina: la corrijo para que gire desde el centro
 					var _ox = _half * _f;
 					var _oy = _half;
 					var _dx = _ox * dcos(_rot) + _oy * dsin(_rot);
 					var _dy = -_ox * dsin(_rot) + _oy * dcos(_rot);
 					var _px = _p.x - _dx;
 					var _py = _p.y - _dy;
-					//Cada 5to pedazo es carne congelada (rojo), los demás hielo
 					var _col = ((_n mod 5) == 0) ? FATAL_GIBS_RED : FATAL_ICE_LIGHT;
 					draw_sprite_general(_spr, _img, _cx, _cy, _ch, _ch, _px, _py, _s * _f, _s, _rot, c_white, c_white, c_white, c_white, 1);
 					fatality_solid(_col, 0.8);
@@ -320,7 +289,6 @@ function fatality_draw(_v)
 					fatality_solid_end();
 					}
 				}
-			//Huesos congelados que salen volando entre los cubitos
 			var _bones = [spr_fat_hueso1, spr_fat_hueso2, spr_fat_hueso3, spr_fat_hueso4];
 			for (var _i = 0; _i < 8; _i++)
 				{
@@ -332,12 +300,10 @@ function fatality_draw(_v)
 				var _bspd = 3 + floor(fatality_rnd(_i, 25) * 3);
 				var _bimg = (_bp.flying ? _b : _bp.t_rest) div _bspd;
 				draw_sprite_ext(_bspr, _bimg, _bp.x, _bp.y, _s * _side, _s, 0, c_white, 1);
-				//escarcha encima
 				fatality_solid(FATAL_ICE_LIGHT, 0.35);
 				draw_sprite_ext(_bspr, _bimg, _bp.x, _bp.y, _s * _side, _s, 0, c_white, 0.35);
 				fatality_solid_end();
 				}			
-			//Polvo de hielo
 			if (_b < 30)
 				{
 				draw_set_colour(make_colour_rgb(230, 250, 255));
@@ -351,13 +317,11 @@ function fatality_draw(_v)
 					}
 				}
 			
-			//Destello blanco al romperse
 			fatality_flash(c_white, _age - fatality_impact_age(FATALITY.congelar), 8);
 			}
 		}
 	else if (_v.fatal_type == FATALITY.columna)
 		{
-		//Cuerpo sin cabeza: igual que la decapitación
 		var _body = _v.fat_cuerpo;
 		var _neck = _gy + (sprite_get_bbox_top(_body) - sprite_get_yoffset(_body)) * _s;
 		var _img = (_t < FATAL_DECAP_STAND) ? 0 : min(sprite_get_number(_body) - 1, 1 + (_t - FATAL_DECAP_STAND) div FATAL_DECAP_FALL);
@@ -365,7 +329,6 @@ function fatality_draw(_v)
 		draw_sprite_ext(_body, _img, _fx, _gy, _s * _face, _s, 0, c_white, 1);
 		pal_swap_reset();
 		
-		//Fuente de sangre del cuello mientras está parado
 		for (var _e = 0; _e < FATAL_DECAP_STAND && _e <= _t; _e++)
 			{
 			for (var _k = 0; _k < 3; _k++)
@@ -374,7 +337,6 @@ function fatality_draw(_v)
 				fatality_blood(_fx, _neck, (fatality_rnd(_i, 1) - 0.5) * 4.4 + _dir, -(14 + fatality_rnd(_i, 2) * 12), _t - _e);
 				}
 			}
-		//Explosión de sangre al arrancarla
 		for (var _i = 0; _i < 60; _i++)
 			{
 			var _ang = fatality_rnd(_i, 31) * 2 * pi;
@@ -389,10 +351,9 @@ function fatality_draw(_v)
 		var _img = _v.fatal_img;
 		var _f = _v.fatal_face;
 		var _y = _v.fatal_y;
-		var _k = clamp(_t / FATAL_BURST_FRZ, 0, 1);	// se va congelando por dentro
+		var _k = clamp(_t / FATAL_BURST_FRZ, 0, 1);
 		var _shk = (_t > FATAL_BURST_FRZ - 8 && _t < FATAL_BURST_FRZ) ? ((((floor(_t * 2)) mod 2) == 0) ? 6 : -6) : 0;
 		
-		//El cuerpo del rival (su hurtbox) para saber dónde salen los picos
 		var _hb = _v.hurtbox_sprite;
 		var _hl = sprite_get_bbox_left(_hb);
 		var _ht = sprite_get_bbox_top(_hb);
@@ -401,7 +362,6 @@ function fatality_draw(_v)
 		var _hxo = sprite_get_xoffset(_hb);
 		var _hyo = sprite_get_yoffset(_hb);
 		
-		//El cuerpo, tieso y un poco azulado
 		pal_swap_set(_v.palette_sprite, _v.current_pal, false);
 		draw_sprite_ext(_spr, _img, _fx + _shk, _y, _s * _f, _s, 0, c_white, 1);
 		pal_swap_reset();
@@ -411,7 +371,6 @@ function fatality_draw(_v)
 		
 		if (_t < FATAL_BURST_FRZ)
 			{
-			//Escarcha alrededor del cuerpo
 			draw_set_colour(make_colour_rgb(230, 250, 255));
 			for (var _i = 0; _i < 8; _i++)
 				{
@@ -426,7 +385,6 @@ function fatality_draw(_v)
 			var _b = _t - FATAL_BURST_FRZ;
 			var _kb = clamp(_b / FATAL_BURST_GROW, 0, 1);
 			
-			//Explosión de sangre al reventar
 			var _mid = _y + (_ht + _hh2 * 0.45 - _hyo) * _s;
 			for (var _i = 0; _i < 120; _i++)
 				{
@@ -435,7 +393,6 @@ function fatality_draw(_v)
 				fatality_blood(_fx + cos(_ang) * 8, _mid + sin(_ang) * 20, cos(_ang) * _sp, sin(_ang) * _sp - 6, _b);
 				}
 			
-			//Picos en pixel art: se dibujan a escala 1 en un lienzo chico y luego se agrandan como los sprites
 			var _C = 128;
 			var _surf = surface_create(_C, _C);
 			surface_set_target(_surf);
@@ -445,7 +402,7 @@ function fatality_draw(_v)
 			for (var _i = 0; _i < _n; _i++)
 				{
 				var _sp2 = _list[_i];
-				var _kk = clamp(_kb * _n - _i * 0.6, 0, 1);	// salen uno tras otro, rapidito
+				var _kk = clamp(_kb * _n - _i * 0.6, 0, 1);
 				if (_kk <= 0) continue;
 				var _px = _C * 0.5 + (_hl + _sp2[0] * _hw - _hxo);
 				var _py = _C * 0.5 + (_ht + _sp2[1] * _hh2 - _hyo);
@@ -465,11 +422,9 @@ function fatality_draw(_v)
 				draw_rectangle(floor(_px) - 1, floor(_py) - 1, floor(_px), floor(_py), false);
 				}
 			surface_reset_target();
-			//Se agranda con el centro del lienzo en el rival (se voltea solo si mira al otro lado)
 			draw_surface_ext(_surf, _fx - (_C * 0.5) * _s * _f, _y - (_C * 0.5) * _s, _s * _f, _s, 0, c_white, 1);
 			surface_free(_surf);
 			
-			//Destello azul al reventar
 			fatality_flash(make_colour_rgb(220, 245, 255), _age - fatality_impact_age(FATALITY.estallido), 5);
 			}
 		}	
@@ -485,7 +440,6 @@ function fatality_draw(_v)
 		pal_swap_set(_v.palette_sprite, _v.current_pal, false);
 		if (_t < FATAL_TG_FLY)
 			{
-			//Sale volando hasta quedar justo donde llega la lengua
 			var _u = _t / FATAL_TG_FLY;
 			var _kd = _v.sprites[$ "knockdown"];
 			var _xx = lerp(_fx, _tx, _u);
@@ -498,19 +452,16 @@ function fatality_draw(_v)
 			}
 		else if (_t < FATAL_TG_START + FATAL_TG_HIT)
 			{
-			//Parado y mareado
 			draw_sprite_ext(_idle, (_t div 8) mod sprite_get_number(_idle), _tx, _iy, _s * _face, _s, 0, c_white, 1);
 			}
 		else if (_t < _tc)
 			{
-			//Con la lengua pegada: en hitstun y temblando
 			var _hs = _v.sprites[$ "hitstun_ground"];
 			var _shk = (((_t div 2) mod 2) == 0) ? 4 : -4;
 			draw_sprite_ext(_hs, 0, _tx + _shk, fatality_ground_y(_hs, _s), _s * _face, _s, 0, c_white, 1);
 			}
 		else
 			{
-			//Sin cabeza: igual que la decapitación
 			var _b = _t - _tc;
 			var _body = _v.fat_cuerpo;
 			var _img = (_b < FATAL_DECAP_STAND) ? 0 : min(sprite_get_number(_body) - 1, 1 + (_b - FATAL_DECAP_STAND) div FATAL_DECAP_FALL);
@@ -518,7 +469,6 @@ function fatality_draw(_v)
 			}
 		pal_swap_reset();
 		
-		//Estrellitas del mareo
 		if (_t >= FATAL_TG_FLY + FATAL_TG_LIE && _t < FATAL_TG_START + FATAL_TG_HIT)
 			{
 			var _top = _iy - (sprite_get_yoffset(_idle) - sprite_get_bbox_top(_idle)) * _s - 20;
@@ -532,7 +482,6 @@ function fatality_draw(_v)
 				}
 			}
 		
-		//Sangre del cuello: explosión + fuente
 		if (_t >= _tc)
 			{
 			var _b2 = _t - _tc;
@@ -563,23 +512,20 @@ function fatality_draw(_v)
 		}	
 	draw_set_colour(c_white);
 	}
-#macro FATAL_SLOW_FRAMES	60		// igual que la cámara lenta del KO en game_advance_frame
-#macro FATAL_DARK			0.45	// qué tan oscuro se pone el fondo (0 = nada, 1 = negro)
+#macro FATAL_SLOW_FRAMES	60
+#macro FATAL_DARK			0.45
 
-//Frames desde que empezó el fatality de _v (en entrenamiento lleva su propio contador)
 function fatality_age(_v)
 	{
 	if (global.training) return _v.fatal_timer;
 	return FATAL_FX_TOTAL - obj_game.ending_frame;
 	}
 
-//¿Se está viendo el fatality de este jugador?
 function fatality_on(_v)
 	{
 	return (_v.fatal_type != FATALITY.none && (global.training || obj_game.game_meta_state == GAME_META_STATE.ending));
 	}
 
-//¿Hay un fatality en pantalla?
 function fatality_active()
 	{
 	with (obj_player)
@@ -589,7 +535,6 @@ function fatality_active()
 	return false;
 	}
 
-//Reloj del fatality, frenado igual que la cámara lenta (los primeros 60 frames van a 1/3)
 function fatality_time(_v)
 	{
 	var _age = fatality_age(_v);
@@ -597,7 +542,6 @@ function fatality_time(_v)
 	return (FATAL_SLOW_FRAMES / 3) + (_age - FATAL_SLOW_FRAMES);
 	}
 
-//Oscurece un poco el fondo durante el fatality (se dibuja detrás de los personajes)
 function fatality_draw_dark()
 	{
 	var _age = -1;
@@ -606,7 +550,7 @@ function fatality_draw_dark()
 		if (fatality_on(id)) then _age = fatality_age(id);
 		}
 	if (_age < 0) return;
-	draw_set_alpha(FATAL_DARK * clamp(_age / 12, 0, 1));	// entra suave en 12 frames
+	draw_set_alpha(FATAL_DARK * clamp(_age / 12, 0, 1));
 	draw_set_colour(c_black);
 	draw_rectangle(camera_get_view_x(camera_index), camera_get_view_y(camera_index),
 	camera_get_view_x(camera_index) + camera_get_view_width(camera_index),
@@ -615,7 +559,6 @@ function fatality_draw_dark()
 	draw_set_colour(c_white);
 	}
 	
-//Música del fatality 
 function fatality_music_play()
 	{
 	if (obj_game.fatal_music != -1 && audio_is_playing(obj_game.fatal_music)) return;
@@ -628,17 +571,15 @@ function fatality_music_stop()
 	obj_game.fatal_music = -1;
 	}
 	
-#macro FATAL_ICE_LIGHT		make_colour_rgb(175, 225, 255)	// azul hielo claro (color sólido)
-#macro FATAL_GIBS_RED		make_colour_rgb(150, 20, 25)	// pedazos rojos
+#macro FATAL_ICE_LIGHT		make_colour_rgb(175, 225, 255)
+#macro FATAL_GIBS_RED		make_colour_rgb(150, 20, 25)
 
-//Convierte un tiempo del fatality (frenado) en frames reales (para saber en qué frame pasa algo)
 function fatality_age_of(_t)
 	{
 	if (_t < FATAL_SLOW_FRAMES / 3) return round(_t * 3);
 	return round(FATAL_SLOW_FRAMES + (_t - FATAL_SLOW_FRAMES / 3));
 	}
 
-//Frame real en que pasa el golpe fuerte de cada fatality (para el temblor y el destello)
 function fatality_impact_age(_type)
 	{
 	if (_type == FATALITY.congelar) return fatality_age_of(FATAL_ICE_FREEZE + FATAL_ICE_HOLD);
@@ -649,14 +590,13 @@ function fatality_impact_age(_type)
 	return 1;
 	}
 
-//Temblor de cámara en el momento fuerte. Se llama desde game_advance_frame y el training.
 function fatality_shake()
 	{
 	with (obj_player)
 		{
 		if (!fatality_on(id)) continue;
-		if (fatal_type == FATALITY.lengua) continue;	// la lengua: sin temblor
-		if (fatal_type == FATALITY.flor) continue;	// la flor: sin temblor		
+		if (fatal_type == FATALITY.lengua) continue;
+		if (fatal_type == FATALITY.flor) continue;
 		if (fatality_age(id) == fatality_impact_age(fatal_type))
 			{
 			obj_game.cam_shake = max(obj_game.cam_shake, (fatal_type == FATALITY.decapitar) ? 26 : 40);
@@ -664,7 +604,6 @@ function fatality_shake()
 		}
 	}
 
-//Destello de pantalla que se apaga en unos frames
 function fatality_flash(_col, _age_from_impact, _len)
 	{
 	if (_age_from_impact < 0 || _age_from_impact >= _len) return;
@@ -676,7 +615,6 @@ function fatality_flash(_col, _age_from_impact, _len)
 	draw_set_alpha(1);
 	}
 
-//Dibuja un sprite (o un pedazo) pintado de un color sólido, con transparencia
 function fatality_solid(_col, _alpha)
 	{
 	gpu_set_fog(true, _col, 0, 0);
@@ -688,7 +626,6 @@ function fatality_solid_end()
 	draw_set_alpha(1);
 	}	
 	
-//El otro jugador 
 function fatality_killer(_v)
 	{
 	with (obj_player)
@@ -698,17 +635,15 @@ function fatality_killer(_v)
 	return noone;
 	}
 
-//Dibuja la columna colgando desde (_x, _y)
 function fatality_draw_spine(_x, _y, _s, _t)
 	{
-	var _rot = sin(_t * 0.15) * 8;	// se mece
+	var _rot = sin(_t * 0.15) * 8;
 	var _spr = asset_get_index("spr_fat_columna");
 	if (_spr != -1 && sprite_exists(_spr))
 		{
 		draw_sprite_ext(_spr, 0, _x, _y, _s, _s, _rot, c_white, 1);
 		return;
 		}
-	//Placeholder: vértebras dibujadas con código
 	for (var _i = 0; _i < 7; _i++)
 		{
 		var _cx = _x + sin(_t * 0.15 + _i * 0.5) * _i * 1.6;
@@ -722,7 +657,6 @@ function fatality_draw_spine(_x, _y, _s, _t)
 		}
 	}	
 	
-//Dónde está la mano del que hace el trofeo (va suave entre frame y frame)
 function fatality_hand(_a)
 	{
 	var _h0 = _a.fat_hand_hit;
@@ -735,7 +669,6 @@ function fatality_hand(_a)
 		var _f = min(_a.anim_frame, _n - 1);
 		var _i = floor(_f);
 		_u = frac(_f);
-		//Del golpe a la primera pose también va suave
 		_h0 = (_i == 0) ? _a.fat_hand_hit : _list[_i - 1];
 		_h1 = _list[_i];
 		if (_i == 0) then _u = min(1, _f + _u);
@@ -744,7 +677,6 @@ function fatality_hand(_a)
 	return [lerp(_h0[0], _h1[0], _u), lerp(_h0[1], _h1[1], _u)];
 	}
 
-//Dibuja la cabeza con la columna en la mano (detrás de los personajes; lo llama el fondo)
 function fatality_draw_trophy()
 	{
 	with (obj_player)
@@ -759,14 +691,13 @@ function fatality_draw_trophy()
 		var _hand = fatality_hand(_a);
 		var _hx = _a.x + _hand[0] * _a.sprite_scale * _a.facing;
 		var _hy = _a.y + _hand[1] * _a.sprite_scale;
-		var _cy = _hy - 6 * _s;	// la cabeza va arriba del puño
+		var _cy = _hy - 6 * _s;
 		
 		fatality_draw_spine(_hx - 2 * _s * _a.facing, _cy + _hh, _s, _t);
 		pal_swap_set(palette_sprite, current_pal, false);
 		draw_sprite_ext(fat_cabeza, 0, _hx, _cy, -_s * fatal_dir, _s, 0, c_white, 1);
 		pal_swap_reset();
 		
-		//Gotas que caen de la columna
 		draw_set_colour(FATAL_BLOOD_COL);
 		var _bot = _cy + _hh + 7 * 18;
 		for (var _k = 0; _k < 3; _k++)
@@ -778,7 +709,6 @@ function fatality_draw_trophy()
 		}
 	}
 
-//Picos de hielo que salen desde adentro del cuerpo: [% ancho de la hurtbox, % alto, ángulo, largo en pixeles del sprite]
 function fatality_burst_spikes()
 	{
 	static _list = [
@@ -788,22 +718,20 @@ function fatality_burst_spikes()
 	return _list;
 	}
 
-#macro FATAL_TG_REACH	87	// píxeles del sprite de Blitsen hasta donde llega la lengua
-#macro FATAL_TG_FLY		26	// el rival vuela
-#macro FATAL_TG_LIE		12	// se queda acostado
-#macro FATAL_TG_START	50	// se levanta mareado y en este momento Blitsen saca la lengua
-#macro FATAL_TG_HIT		28	// la lengua lo toca y se queda pegada (inicio del frame 11)
-#macro FATAL_TG_CATCH	56	// ¡zas! le arranca la cabeza (inicio del frame 12)
-#macro FATAL_TG_BITE	80	// se la come (inicio del frame 18)
+#macro FATAL_TG_REACH	87
+#macro FATAL_TG_FLY		26
+#macro FATAL_TG_LIE		12
+#macro FATAL_TG_START	50
+#macro FATAL_TG_HIT		28
+#macro FATAL_TG_CATCH	56
+#macro FATAL_TG_BITE	80
 
-//Cuánto dura cada frame de la lengua (el 11 es el que se queda pegado)
 function fatality_tongue_durs()
 	{
 	static _dur = [3,3,3,3,3,3,2,2,2,2,2,28,4,4,4,4,4,4,5,5,4];
 	return _dur;
 	}
 
-//En qué frame de la lengua va (-1 = todavía no o ya terminó)
 function fatality_tongue_frame(_tt)
 	{
 	var _dur = fatality_tongue_durs();
@@ -816,7 +744,6 @@ function fatality_tongue_frame(_tt)
 	return -1;
 	}
 
-//Cuándo empieza el frame _f de la lengua
 function fatality_tongue_start(_f)
 	{
 	var _dur = fatality_tongue_durs();
@@ -825,13 +752,11 @@ function fatality_tongue_start(_f)
 	return _sum;
 	}
 
-//Y del origen de un sprite para que sus pies toquen el piso
 function fatality_ground_y(_spr, _s)
 	{
 	return obj_ground.y - (sprite_get_bbox_bottom(_spr) + 1 - sprite_get_yoffset(_spr)) * _s;
 	}
 
-//Dibuja a Blitsen haciendo el fatality (lo llama player_draw de Blitsen)
 function fatality_draw_tongue()
 	{
 	var _v = noone;
@@ -843,13 +768,12 @@ function fatality_draw_tongue()
 	
 	var _t = fatality_time(_v);
 	var _s = sprite_scale;
-	var _bx = lerp(x, fatal_bx, clamp(_t / FATAL_TG_FLY, 0, 1));	// se acomoda si el rival iba a quedar contra la pared
+	var _bx = lerp(x, fatal_bx, clamp(_t / FATAL_TG_FLY, 0, 1));
 	var _by = y;
 	var _f = fatality_tongue_frame(_t - FATAL_TG_START);
 	
 	draw_sprite_ext(spr_player_shadow, 0, _bx, obj_ground.y - 20, _s, _s, 0, c_white, 1);
 	
-	//Blitsen
 	pal_swap_set(palette_sprite, current_pal, false);
 	if (_f >= 0)
 		{
@@ -866,7 +790,6 @@ function fatality_draw_tongue()
 		}
 	pal_swap_reset();
 	
-	//Cabeza del rival en la punta de la lengua (frames 12 al 17)
 	static _tip = [[82,-5],[73,-11],[69,-10],[44,-2],[33,-4],[25,-5]];
 	if (_f >= 12 && _f <= 17)
 		{
@@ -876,7 +799,6 @@ function fatality_draw_tongue()
 		pal_swap_reset();
 		}
 	
-	//Gotas que caen de la cabeza mientras la jala
 	for (var _i = 12; _i <= 17; _i++)
 		{
 		var _p2 = _tip[_i - 12];
@@ -887,7 +809,6 @@ function fatality_draw_tongue()
 			}
 		}
 	
-	//La mordida: sangre en la boca
 	var _bb = _t - (FATAL_TG_START + FATAL_TG_BITE);
 	if (_bb >= 0)
 		{
@@ -903,21 +824,20 @@ function fatality_draw_tongue()
 	draw_set_colour(c_white);
 	}
 	
-#macro FATAL_FLOR_HIT		14	// tiembla en hitstun y empiezan las lianas
-#macro FATAL_FLOR_GREEN		70	// ya está todo verde y enrollado
-#macro FATAL_FLOR_POP		74	// ¡pop! sale la cabeza
-#macro FATAL_FLOR_GROW		78	// empieza a crecer el tallo
-#macro FATAL_FLOR_OPEN		32	// lo que tarda en abrirse la flor
-#macro FATAL_FLOR_CLOSE		140	// empieza a cerrarse
-#macro FATAL_FLOR_SHUT		15	// lo que tarda en cerrarse
-#macro FATAL_FLOR_DIS		158	// el cuerpo se empieza a deshacer
-#macro FATAL_FLOR_DIS_LEN	37	// lo que tarda en deshacerse
-#macro FATAL_FLOR_STEM		14	// largo del tallo (pixeles del sprite)
+#macro FATAL_FLOR_HIT		14
+#macro FATAL_FLOR_GREEN		70
+#macro FATAL_FLOR_POP		74
+#macro FATAL_FLOR_GROW		78
+#macro FATAL_FLOR_OPEN		32
+#macro FATAL_FLOR_CLOSE		140
+#macro FATAL_FLOR_SHUT		15
+#macro FATAL_FLOR_DIS		158
+#macro FATAL_FLOR_DIS_LEN	37
+#macro FATAL_FLOR_STEM		14
 #macro FATAL_FLOR_COL		make_colour_rgb(70, 160, 50)
 #macro FATAL_VINE_DARK		make_colour_rgb(46, 120, 40)
 #macro FATAL_VINE_LIGHT		make_colour_rgb(110, 190, 60)
 
-//Dibuja un sprite del rival con su paleta, pintado de verde (_k de 0 a 1), desde la fila _cut para abajo
 function fatality_green_sprite(_v, _spr, _img, _x, _y, _face, _k, _cut)
 	{
 	var _s = _v.sprite_scale;
@@ -939,8 +859,6 @@ function fatality_green_sprite(_v, _spr, _img, _x, _y, _face, _k, _cut)
 		}
 	}
 
-//Lianas enrolladas en el sprite, en cuadritos del tamaño de los pixeles (_hfrac = qué tanto han subido)
-//Mide fila por fila dónde empieza y termina el dibujo de un frame (se mide una vez y se guarda)
 function fatality_rows(_spr, _img)
 	{
 	if (!variable_global_exists("fat_rows")) then global.fat_rows = {};
@@ -983,7 +901,6 @@ function fatality_rows(_spr, _img)
 	return _res;
 	}
 
-//Lianas enrolladas pegadas a la silueta, en cuadritos del tamaño de los pixeles
 function fatality_vines(_spr, _img, _x, _y, _face, _s, _hfrac, _cut)
 	{
 	var _rw = fatality_rows(_spr, _img);
@@ -1009,7 +926,6 @@ function fatality_vines(_spr, _img, _x, _y, _face, _s, _hfrac, _cut)
 	draw_set_colour(c_white);
 	}
 
-//La flor: tu sprite si existe, si no la de prueba (_g = 0 cerrada, 1 abierta)
 function fatality_flower(_x, _y, _s, _g)
 	{
 	var _spr = asset_get_index("spr_blitsen_fat_flor");
@@ -1036,7 +952,6 @@ function fatality_flower(_x, _y, _s, _g)
 	draw_set_colour(c_white);
 	}
 
-//El fatality completo "Conviértete en planta"
 function fatality_draw_flor(_v, _t)
 	{
 	var _s = _v.sprite_scale;
@@ -1048,7 +963,6 @@ function fatality_draw_flor(_v, _t)
 	
 	if (_t < FATAL_FLOR_POP)
 		{
-		//Parado en hitstun, se pone verde y suben las lianas
 		var _hs = _v.sprites[$ "hitstun_ground"];
 		var _hy = fatality_ground_y(_hs, _s);
 		var _shk = (_t < FATAL_FLOR_HIT + 30) ? ((((_t div 2) mod 2) == 0) ? 4 : -4) : 0;
@@ -1057,7 +971,6 @@ function fatality_draw_flor(_v, _t)
 		return;
 		}
 	
-	//Sin cabeza, todo verde; al final se deshace de arriba para abajo
 	var _body = _v.fat_cuerpo;
 	var _yo = sprite_get_yoffset(_body);
 	var _bt = sprite_get_bbox_top(_body);
@@ -1068,7 +981,6 @@ function fatality_draw_flor(_v, _t)
 	fatality_vines(_body, 0, _fx, _gy, _face, _s, 0.95, _cut);
 	var _ny = _gy + (_bt - _yo) * _s;
 	
-	//Tallo y flor
 	if (_t >= FATAL_FLOR_GROW && _t < FATAL_FLOR_DIS + 10)
 		{
 		var _stem = floor(min(1, (_t - FATAL_FLOR_GROW) / 14) * FATAL_FLOR_STEM);
@@ -1082,13 +994,11 @@ function fatality_draw_flor(_v, _t)
 			}
 		}
 	
-	//La cabeza sale volando (verde)
 	var _tp = _t - FATAL_FLOR_POP;
 	var _hh = sprite_get_height(_v.fat_cabeza) * _s * 0.5;
 	var _h = fatality_piece(_fx, _ny - _hh, FATAL_HEAD_VX * _dir, -_v.fatal_launch, _v.grav, _gy - _hh, _tp, true);
 	fatality_green_sprite(_v, _v.fat_cabeza, (_h.flying ? _tp : _h.t_rest) div 4, _h.x, _h.y, _face, 0.9, 0);
 	
-	//Chispazo del pop: sangre y pedacitos verdes
 	for (var _i = 0; _i < 40; _i++)
 		{
 		var _ang = fatality_rnd(_i, 15) * 2 * pi;
@@ -1105,7 +1015,6 @@ function fatality_draw_flor(_v, _t)
 			}
 		}
 	
-	//Hojas que se sueltan mientras se deshace
 	for (var _e = FATAL_FLOR_DIS; _e <= min(_t, FATAL_FLOR_DIS + FATAL_FLOR_DIS_LEN); _e += 2)
 		{
 		var _ce = _bt + (_bb + 1 - _bt) * ((_e - FATAL_FLOR_DIS) / FATAL_FLOR_DIS_LEN);
@@ -1124,13 +1033,12 @@ function fatality_draw_flor(_v, _t)
 	draw_set_colour(c_white);
 	}
 
-#macro FATAL_MUT_START		14		// tiembla en hitstun y empieza a mutar
-#macro FATAL_MUT_FULL		110		// ya está todo hinchado y verde
-#macro FATAL_MUT_BURST		116		// ¡revienta!
-#macro FATAL_MUT_BLISTERS	10		// cuántas ampollas le salen
+#macro FATAL_MUT_START		14
+#macro FATAL_MUT_FULL		110
+#macro FATAL_MUT_BURST		116
+#macro FATAL_MUT_BLISTERS	10
 #macro FATAL_MUT_GOO		make_colour_rgb(80, 255, 140)
 
-//Fatality "Mutación" de Danny
 function fatality_draw_mutar(_v, _t)
 	{
 	var _s = _v.sprite_scale;
@@ -1147,7 +1055,6 @@ function fatality_draw_mutar(_v, _t)
 		var _yo = sprite_get_yoffset(_hs);
 		var _u = clamp((_t - FATAL_MUT_START) / (FATAL_MUT_FULL - FATAL_MUT_START), 0, 1);
 		
-		//Se hincha a tirones
 		var _jerk = 0;
 		if (_t >= FATAL_MUT_START)
 			{
@@ -1166,7 +1073,6 @@ function fatality_draw_mutar(_v, _t)
 		var _x = _fx + _shk;
 		var _y = _gy - (sprite_get_bbox_bottom(_hs) + 1 - _yo) * _s * _sh;
 		
-		//El cuerpo con su paleta, y encima el verde
 		pal_swap_set(_v.palette_sprite, _v.current_pal, false);
 		draw_sprite_ext(_hs, 0, _x, _y, _s * _face * _sw, _s * _sh, 0, c_white, 1);
 		pal_swap_reset();
@@ -1181,7 +1087,6 @@ function fatality_draw_mutar(_v, _t)
 		var _ps = _s * _sw;
 		var _pv = _s * _sh;
 		
-		//El shuriken clavado en el pecho
 		var _row = _rw.top + floor((_rw.bot - _rw.top) * 0.3);
 		if (_rw.R[_row] >= 0)
 			{
@@ -1189,7 +1094,6 @@ function fatality_draw_mutar(_v, _t)
 			draw_sprite_ext(spr_danny_shuriken, 0, _x + _c * _ps * _face, _y + (_row - _yo) * _pv, _s * _face, _s, 0, c_white, 1);
 			}
 		
-		//Ampollas que crecen y laten
 		for (var _i = 0; _i < FATAL_MUT_BLISTERS; _i++)
 			{
 			var _appear = _i / FATAL_MUT_BLISTERS;
@@ -1217,7 +1121,6 @@ function fatality_draw_mutar(_v, _t)
 				}
 			}
 		
-		//Burbujitas que suben del cuerpo
 		draw_set_colour(make_colour_rgb(150, 255, 190));
 		for (var _e = max(FATAL_MUT_START, _t - 24); _e <= _t; _e++)
 			{
@@ -1236,18 +1139,15 @@ function fatality_draw_mutar(_v, _t)
 		return;
 		}
 	
-	//¡Revienta!
 	var _a = _t - FATAL_MUT_BURST;
 	var _tall = sprite_get_height(_v.sprites[$ "idle"]) * _s;
 	var _cy = _gy - _tall * 0.5;
 	var _hh = sprite_get_height(_v.fat_cabeza) * _s * 0.5;
 	
-	//Charco verde
 	var _pw = min(_s * 24, _a * _s * 0.5);
 	draw_set_colour(make_colour_rgb(40, 170, 100));
 	draw_rectangle(_fx - _pw * 0.5, _gy - _s * 0.5, _fx + _pw * 0.5, _gy, false);
 	
-	//Los pies que quedaron (verdosos)
 	var _feet = _v.fat_pies;
 	var _fi = min((_a < 18) ? (_a div 6) : (1 + ((_a div 6) mod 2)), sprite_get_number(_feet) - 1);
 	pal_swap_set(_v.palette_sprite, _v.current_pal, false);
@@ -1257,11 +1157,9 @@ function fatality_draw_mutar(_v, _t)
 	draw_sprite_ext(_feet, _fi, _fx, _gy, _s * _face, _s, 0, c_white, 0.5);
 	gpu_set_fog(false, c_white, 0, 0);
 	
-	//La cabeza mutada sale volando
 	var _h = fatality_piece(_fx, _gy - _tall * 0.85, 3 * _dir, -16, _v.grav, _gy - _hh, _a, true);
 	fatality_green_sprite(_v, _v.fat_cabeza, (_h.flying ? _a : _h.t_rest) div 4, _h.x, _h.y, _face, 0.6, 0);
 	
-	//Huesos
 	var _bones = [spr_fat_hueso1, spr_fat_hueso2, spr_fat_hueso3, spr_fat_hueso4];
 	for (var _i = 0; _i < 8; _i++)
 		{
@@ -1274,7 +1172,6 @@ function fatality_draw_mutar(_v, _t)
 		draw_sprite_ext(_spr, (_p.flying ? _a : _p.t_rest) div _spd, _p.x, _p.y, _s * _side, _s, 0, c_white, 1);
 		}
 	
-	//Lluvia de líquido verde con sangre
 	for (var _i = 0; _i < 160; _i++)
 		{
 		var _ang = fatality_rnd(_i, 41) * 2 * pi;

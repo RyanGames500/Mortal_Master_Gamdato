@@ -2,11 +2,6 @@
 ///@param {asset} object_index		The object
 ///@param {function} function		The function to run on each instance of the object
 ///@param {any} [argument]			The optional argument to pass to the function
-/*
-Loops through instances of the given object in order of sync id, and executes a function for each.
-You can optionally pass a single argument to the function.
-Please note: The function will be executed from the scope of the synced instance, not from the scope of the instance calling the function.
-*/
 function with_synced_object()
 	{
 	with (obj_sync_id_system)
@@ -29,7 +24,6 @@ function with_synced_object()
 		var _array = [];
 		var _source = sync_grid[# SYNC_GRID.structs, _index];
 		
-		//Copy the array in case the array is changed during the loop
 		array_copy(_array, 0, _source, 0, array_length(_source));
 		var _len = array_length(_array);
 		for (var m = 0; m < _len; m++) 

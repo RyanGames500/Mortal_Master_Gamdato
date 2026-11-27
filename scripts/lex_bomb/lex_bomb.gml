@@ -45,7 +45,6 @@ function lex_bomb(_override_phase)
 					_hitbox.custom_draw = lex_bomb_hitbox_draw;
 					_hitbox.facing = facing;
 					
-					// Trayectoria parabolica perrrooooooooooooooooooooooo
 					_hitbox.vsp = -6;
 					
 					if (stick_check_direction(STICK_DIR.backward_any))

@@ -1,29 +1,26 @@
-#macro ARCADE_FIGHTS		99		// peleas totales: ARCADE_FIGHTS menos los jefes son normales
-#macro ARCADE_CONTINUES		3		// cuántas veces puedes continuar si pierdes
+#macro ARCADE_FIGHTS		99
+#macro ARCADE_CONTINUES		3
 #macro ARCADE_CHAR_DEMON	10
 #macro ARCADE_CHAR_BEAR		11
-#macro ARCADE_BOSS_STAGE	6		// escenario de los jefes (cámbialo por el que quieras)
-#macro ARCADE_NORMAL_STAGES	6		// escenarios 0..5 rotan; el 6 queda para los jefes
-#macro ARCADE_BONUS_EVERY	3		// sale un evento cada 3 peleas ganadas
+#macro ARCADE_BOSS_STAGE	6
+#macro ARCADE_NORMAL_STAGES	6
+#macro ARCADE_BONUS_EVERY	3
 
-global.arcade_mode = 0;			// 0 = no hay arcade · 1 = eligiendo personaje · 2 = arcade en curso · 3 = survival
+global.arcade_mode = 0;
 global.arcade = undefined;
 
-/* Escenario de cada pelea normal, en orden (ids de stage_get) */
 function arcade_stage_for(_i)
 	{
 	var _s = [0, 1, 2, 3, 4, 5];
 	return _s[_i mod array_length(_s)];
 	}
 
-/* Nombre del personaje por id */
 function arcade_char_name(_id)
 	{
 	var _n = ["", "JOE", "LEX", "BLITSEN", "SAORI", "SCAR", "BRAD", "MAYEL", "DANNY", "MARIEL", "DEMON", "BEAR"];
 	return _n[clamp(_id, 0, array_length(_n) - 1)];
 	}
 
-/* Textos de la historia: uno por pelea. REESCRÍBELOS con tu historia */
 function arcade_story(_i)
 	{
 	var _opp = global.arcade.fights[clamp(_i, 0, array_length(global.arcade.fights) - 1)].opp;
@@ -44,14 +41,12 @@ function arcade_story(_i)
 	return _t[clamp(_i, 0, array_length(_t) - 1)];
 	}
 
-/* Textos del final */
 function arcade_text_end(_won)
 	{
 	if (_won) then return "You rescued your children. The island fades behind you.";
 	return "Your journey ends here...";
 	}
 
-/* Posiciones de los puntos del mapa en pantalla (1280x720). Se reparten sobre 8 puntos de referencia */
 function arcade_nodes(_n)
 	{
 	var _w = [[170, 530], [330, 460], [470, 520], [620, 420], [760, 480], [900, 370], [1010, 280], [1120, 200]];
@@ -67,13 +62,11 @@ function arcade_nodes(_n)
 	return _out;
 	}
 
-/* True si hay un arcade en curso en una partida local normal */
 function arcade_active()
 	{
 	return (global.arcade_mode == 2 && !is_undefined(global.arcade) && !global.online_mode && !global.replay_mode);
 	}
 
-/* Pelea que toca ahora */
 function arcade_fight()
 	{
 	var _a = global.arcade;
@@ -81,7 +74,6 @@ function arcade_fight()
 	return _a.fights[min(_a.index, array_length(_a.fights) - 1)];
 	}
 
-/* Arma el arcade con el personaje elegido: sortea rivales y deja a Demon y Bear al final */
 function arcade_begin(_p1)
 	{
 	var _pool = [];
@@ -131,7 +123,6 @@ function arcade_begin(_p1)
 	global.arcade_mode = 2;
 	}
 
-/* Se llama al terminar una pelea: _won = true si ganó el jugador */
 function arcade_match_result(_won)
 	{
 	var _a = global.arcade;
@@ -143,7 +134,6 @@ function arcade_match_result(_won)
 	_a.hp_last = 99999;
 	_a.notice = "";
 	
-	// Pelea secreta: no cuenta continuaciones ni avanza el mapa
 	if (!is_undefined(_a.side))
 		{
 		if (_won) then _a.notice = _a.side.notice;
@@ -179,14 +169,12 @@ function arcade_match_result(_won)
 		}
 	}
 	
-/* Peleas secretas del arcade. Para agregar otra, añade una entrada aquí */
 global.arcade_secrets = [
 	{ id: "ninja", opp: 12, stage: 3, need_stage: 4, need_omen: true,
 	  notice: "RED NINJA DEFEATED",
 	  text: "You fought without taking a single hit. A red shadow moves between the trees and cuts you off." },
 ];
 
-/* Mide si el jugador 1 recibió daño y si hubo silueta (solo lectura; no toca la simulación) */
 function arcade_track_damage()
 	{
 	var _a = global.arcade;
@@ -201,7 +189,6 @@ function arcade_track_damage()
 		}
 	}
 
-/* ¿Ya se ofreció este secreto en este arcade? */
 function arcade_secret_seen(_a, _id)
 	{
 	for (var _i = 0; _i < array_length(_a.seen); _i++)
@@ -211,7 +198,6 @@ function arcade_secret_seen(_a, _id)
 	return false;
 	}
 
-/* Primer secreto cuya condición se cumple y que aún no se ofreció, o undefined */
 function arcade_secret_pick(_a, _stage, _omen)
 	{
 	for (var _i = 0; _i < array_length(global.arcade_secrets); _i++)
@@ -225,25 +211,21 @@ function arcade_secret_pick(_a, _stage, _omen)
 	return undefined;
 	}
 	
-/* Nivel de la CPU (0 a 100) según la pelea del arcade. Fuera del arcade siempre es 100 */
 function arcade_cpu_level()
 	{
 	if (survival_active()) then return survival_cpu_level();
 	if (!arcade_active()) then return 100;
 	var _a = global.arcade;
 	
-	// Pelea secreta: difícil
 	if (!is_undefined(_a.side)) then return 85;
 	
 	var _n = array_length(_a.fights);
 	var _i = min(_a.index, _n - 1);
 	var _opp = _a.fights[_i].opp;
 	
-	// Jefes
 	if (_opp == ARCADE_CHAR_BEAR) then return 100;
 	if (_opp == ARCADE_CHAR_DEMON) then return 92;
 	
-	// Peleas normales: suben de 25 a 85
 	var _normals = max(_n - 2, 2);
 	return round(lerp(25, 85, _i / (_normals - 1)));
 	}

@@ -2,9 +2,9 @@ varying vec2 v_vTexcoord;
 varying vec4 v_vColour;
 varying vec2 v_vWorld;
 
-uniform vec2 u_center;   // donde pegó la bola
-uniform float u_radius;  // hasta donde ha llegado el hielo
-uniform float u_flat;    // 1 = costra (color liso), 0 = cuerpo de hielo
+uniform vec2 u_center;
+uniform float u_radius;
+uniform float u_flat;
 
 void main()
 {

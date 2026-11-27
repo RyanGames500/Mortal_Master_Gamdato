@@ -1,4 +1,3 @@
-//Star background
 draw_set_color(c_white);
 var i = 0;
 repeat (500)

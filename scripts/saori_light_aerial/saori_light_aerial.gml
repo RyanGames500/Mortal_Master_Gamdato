@@ -48,7 +48,6 @@ function saori_light_aerial(_override_phase)
 			if (attack_frame == 6)  then anim_frame = 3;
 			if (attack_frame == 3)  then anim_frame = 4;
 			
-			// CANCELACIÓN AÉREA: Si presiona el botón durante la ventana activa del golpe
 			if (attack_frame <= 12)
 				{
 				if (input_pressed(INPUT.attack_light2))

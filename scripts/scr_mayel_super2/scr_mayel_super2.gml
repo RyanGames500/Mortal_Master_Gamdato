@@ -1,57 +1,40 @@
-/*
-Super 2 de Mayel: JONRON DE MARTILLO (nuestro). Doble media luna + heavy, 3 barras. Solo en el piso.
-Mayel carga el martillo con un aura morada y batea al rival: el golpe usa launch_speed + knockdown, o sea que el
-engine lo manda a volar con su propia fisica. Mayel espera un momento, SALTA con su salto normal, lo alcanza
-arriba, lo atrapa y le mete el combo con sus golpes normales (jab, jab, patada, patada, jab fuerte) DOS veces.
-El ultimo golpe es un martillazo con launch_speed hacia abajo + knockdown: el engine lo tira al piso (flash, grietas y trozos).
-Si el bateo falla, lo bloquean, o no lo alcanza, se corta y Mayel queda castigable.
-Despues del bateo el rival no puede morir hasta el golpe final (super_lock).
-Usa funciones de scr_mayel_super (ese script debe seguir existiendo).
-Fases: 0 = carga, 1 = bateo, 7 = espera mientras el rival vuela, 2 = salto y lo atrapa, 3 = combo,
-6 = alza el martillo, 8 = golpe final, 4 = recuperacion arriba, 5 = fallo.
-*/
 
-//--- CARGA Y BATEO ---
-#macro MS2_CHARGE_T		26		//frames de carga con el aura
-#macro MS2_SWING_T		12		//frames del bateo (ventana para pegar)
-#macro MS2_DMG_BAT		3		//dano del bateo
-#macro MS2_BAT_LAG		3		//congelado del bateo
-#macro MS2_LAUNCH		32		//launch_speed del bateo: que tan alto vuela el rival (mas grande = mas alto)
-#macro MS2_MISS_LAG		36		//si falla, lo bloquean o no lo alcanza
-//--- SALTO ---
-#macro MS2_JUMP_DELAY	12		//frames que Mayel espera (viendo volar al rival) antes de saltar
-#macro MS2_JUMP_MULT	1.2		//1.0 = el salto normal de Mayel (su jump_vsp); 1.2 = mas alto
-#macro MS2_FLOAT_V		6		//desde que velocidad de subida empieza a flotar arriba
-#macro MS2_FLOAT_G		0.5		//gravedad al flotar (mas chico = flota mas tiempo, 1 = sin flotar)
-#macro MS2_CATCH_V		8		//solo lo atrapa cuando Mayel sube mas lento que esto (cerca de lo mas alto)
-#macro MS2_CATCH_DY		160		//a que distancia vertical lo atrapa
-#macro MS2_SETTLE		10		//frames que se queda suspendido frente al rival antes de empezar el combo
-#macro MS2_HOLD_X		100		//distancia del rival delante de Mayel
-#macro MS2_RIVAL_DY		0		//altura del rival respecto a Mayel (0 = al mismo nivel)
-//--- COMBO Y GOLPE FINAL ---
-#macro MS2_STEP			2		//frames por cuadro de animacion del combo (mas grande = mas lento)
-#macro MS2_MOVES		5		//cuantos golpes tiene un combo (la tabla de mayel_s2_move)
-#macro MS2_COMBOS		2		//cuantas veces repite el combo
-#macro MS2_RECOIL		14		//cuanto retrocede el rival con cada golpe
-#macro MS2_FINAL_WIND	22		//pausa con el martillo en alto antes del golpe final
-#macro MS2_DMG_SPIKE	15		//dano del golpe final
-#macro MS2_SPIKE_V		34		//launch_speed hacia abajo del golpe final (mas grande = mas rapido cae)
-#macro MS2_SPIKE_HSP	5		//empuje hacia adelante al caer
-#macro MS2_SPIKE_LAG	5		//congelado del golpe final
-#macro MS2_END_LAG		20		//frames que Mayel queda flotando arriba antes de caer
-//--- EFECTOS ---
-#macro MS2_FX_LIFE		70		//duracion de grietas y trozos de piso
-#macro MS2_FLASH_T		7		//frames del flash blanco que cubre la pantalla
-#macro MS2_FLASH_ALPHA	0.9		//que tan blanco es el flash (0 a 1)
-#macro MS2_CHUNKS		14		//trozos de piso que salen volando
-#macro MS2_PIX			6		//tamano del pixel de los efectos
+#macro MS2_CHARGE_T		26
+#macro MS2_SWING_T		12
+#macro MS2_DMG_BAT		3
+#macro MS2_BAT_LAG		3
+#macro MS2_LAUNCH		32
+#macro MS2_MISS_LAG		36
+#macro MS2_JUMP_DELAY	12
+#macro MS2_JUMP_MULT	1.2
+#macro MS2_FLOAT_V		6
+#macro MS2_FLOAT_G		0.5
+#macro MS2_CATCH_V		8
+#macro MS2_CATCH_DY		160
+#macro MS2_SETTLE		10
+#macro MS2_HOLD_X		100
+#macro MS2_RIVAL_DY		0
+#macro MS2_STEP			2
+#macro MS2_MOVES		5
+#macro MS2_COMBOS		2
+#macro MS2_RECOIL		14
+#macro MS2_FINAL_WIND	22
+#macro MS2_DMG_SPIKE	15
+#macro MS2_SPIKE_V		34
+#macro MS2_SPIKE_HSP	5
+#macro MS2_SPIKE_LAG	5
+#macro MS2_END_LAG		20
+#macro MS2_FX_LIFE		70
+#macro MS2_FLASH_T		7
+#macro MS2_FLASH_ALPHA	0.9
+#macro MS2_CHUNKS		14
+#macro MS2_PIX			6
 #macro MS2_COL_CRACK	make_colour_rgb(45, 30, 26)
 #macro MS2_COL_ROCK1	make_colour_rgb(150, 110, 80)
 #macro MS2_COL_ROCK2	make_colour_rgb(106, 74, 58)
 #macro MS2_COL_AURA1	make_colour_rgb(150, 60, 210)
 #macro MS2_COL_AURA2	make_colour_rgb(225, 160, 255)
 
-// El otro jugador (nuestro)
 function mayel_s2_rival()
 	{
 	var _r = noone;
@@ -66,8 +49,6 @@ function mayel_s2_rival()
 	return _r;
 	}
 
-// Tabla del combo (nuestro). spr = sprite, frames = cuadros que muestra, hit = cual de esos cuadros es el impacto,
-// dmg = dano, sy = altura de la chispa respecto al rival
 function mayel_s2_move(_i)
 	{
 	switch (_i)
@@ -80,7 +61,6 @@ function mayel_s2_move(_i)
 		}
 	}
 
-// Polvo en el piso (nuestro)
 function mayel_s2_dust(_x, _y)
 	{
 	var _vfx = instance_create_layer(_x, _y, "VFX_Layer", obj_vfx);
@@ -91,7 +71,6 @@ function mayel_s2_dust(_x, _y)
 	_vfx.owner        = id;
 	}
 
-// Pone al rival agarrado delante de Mayel en hitstun, centrado en (_cx + _off, _cy) (nuestro)
 function mayel_s2_place(_r, _cx, _cy, _off)
 	{
 	mayel_s1_hold(_r);
@@ -101,7 +80,6 @@ function mayel_s2_place(_r, _cx, _cy, _off)
 	_r.y = _p[1];
 	}
 
-// Aura morada de la carga (hitbox "proxy" que solo dibuja) (nuestro)
 function mayel_s2_aura_spawn()
 	{
 	var _h = hitbox_create(0, 0, 0.1, 0.1, 0, 1);
@@ -150,7 +128,6 @@ function mayel_s2_aura_draw()
 	draw_set_colour(c_white);
 	}
 
-// Flash blanco + chispazo en un punto (hitbox "proxy" que solo dibuja). Si _ground es true tambien grietas y trozos (nuestro)
 function mayel_s2_fx_spawn(_x, _y, _ground)
 	{
 	var _h = hitbox_create(0, 0, 0.1, 0.1, 0, 1);
@@ -168,11 +145,9 @@ function mayel_s2_fx_spawn(_x, _y, _ground)
 	_h.custom_draw = mayel_s2_fx_draw;
 	}
 
-// Igual pero ESPERA a que el rival toque el piso y ahi explota el efecto (nuestro)
 function mayel_s2_land_spawn(_target)
 	{
 	mayel_s2_fx_spawn(0, 0, true);
-	// el proxy recien creado es la ultima hitbox que hicimos
 	var _h = instance_find(obj_hitbox, instance_number(obj_hitbox) - 1);
 	_h.fx_wait = true;
 	_h.fx_target = _target;
@@ -216,7 +191,6 @@ function mayel_s2_fx_draw()
 	
 	if (fx_ground)
 		{
-		// Grietas que se abren por el piso hacia los dos lados
 		draw_set_alpha(_alpha);
 		var _segR = [[1,0],[1,0],[1,1],[1,0],[2,0],[1,-1],[1,0],[2,1],[1,0],[2,0]];
 		var _segL = [[1,0],[2,0],[1,-1],[1,0],[1,1],[2,0],[1,0],[1,-1],[2,0],[1,0]];
@@ -237,7 +211,6 @@ function mayel_s2_fx_draw()
 				}
 			}
 		
-		// Trozos de piso rotos
 		for (var _k = 0; _k < MS2_CHUNKS; _k++)
 			{
 			var _vx = (((_k * 7) mod 13) - 6) * 1.6;
@@ -255,7 +228,6 @@ function mayel_s2_fx_draw()
 			}
 		}
 	
-	// Chispazo blanco
 	if (_t < 10)
 		{
 		var _sa = 1 - (_t / 10);
@@ -273,7 +245,6 @@ function mayel_s2_fx_draw()
 		draw_circle(fx_x, fx_y, 40 + (_t * 6), false);
 		}
 	
-	// Flash blanco rapido que cubre toda la pantalla
 	if (_t < MS2_FLASH_T)
 		{
 		var _cam = camera_index;
@@ -306,13 +277,13 @@ function mayel_super_jonron(_override_phase)
 			attack_connected = false;
 			super_invuln = false;
 			super_lock = false;
-			ms2_age = 0;			// contador (aura y salto)
-			ms2_settle = 0;			// frames suspendido arriba antes del combo
-			ms2_caught = false;		// ya atrapo al rival en el aire
-			ms2_landfx = false;		// ya se preparo el efecto del impacto en el piso
-			ms2_hitn = 0;			// golpes dados en total (cuenta los dos combos)
-			ms2_cd = 0;				// contador dentro de cada golpe
-			ms2_rec = 0;			// retroceso del rival por el ultimo golpe
+			ms2_age = 0;
+			ms2_settle = 0;
+			ms2_caught = false;
+			ms2_landfx = false;
+			ms2_hitn = 0;
+			ms2_cd = 0;
+			ms2_rec = 0;
 			ex_glow_color = make_colour_rgb(190, 90, 255);
 			mayel_s2_aura_spawn();
 			}
@@ -320,7 +291,6 @@ function mayel_super_jonron(_override_phase)
 		
 		case ATTACK_PHASE.stop:
 			{
-			// Si algo corta el super a medias y el rival esta atrapado, cae normal y no se queda congelado
 			if (attack_phase == 2 || attack_phase == 3 || attack_phase == 6 || attack_phase == 8)
 				{
 				var _rs = mayel_s2_rival();
@@ -341,7 +311,6 @@ function mayel_super_jonron(_override_phase)
 			}
 		break;
 		
-		// 0 = carga con el aura morada (martillo en alto)
 		case 0:
 			{
 			attack_frame--;
@@ -355,7 +324,6 @@ function mayel_super_jonron(_override_phase)
 			
 			if (attack_frame <= 0)
 				{
-				// BATEO: launch_speed + knockdown, el engine hace el vuelo
 				anim_frame = 2;
 				attack_phase = 1;
 				attack_frame = MS2_SWING_T;
@@ -371,7 +339,6 @@ function mayel_super_jonron(_override_phase)
 			}
 		break;
 		
-		// 1 = bateo: si conecta el rival sale volando (knockdown del engine); si lo bloquean o falla se corta
 		case 1:
 			{
 			attack_frame--;
@@ -384,7 +351,6 @@ function mayel_super_jonron(_override_phase)
 			if (attack_connected)
 				{
 				var _r = mayel_s2_rival();
-				// conecto de verdad si el rival quedo en knockdown (si lo bloquea no entra a ese estado)
 				if (_r != noone && _r.state == PLAYER_STATE.knockdown)
 					{
 					super_invuln = true;
@@ -401,7 +367,6 @@ function mayel_super_jonron(_override_phase)
 					break;
 					}
 				
-				// lo bloquearon: se corta
 				anim_frame = 4;
 				attack_phase = 5;
 				attack_frame = MS2_MISS_LAG;
@@ -417,7 +382,6 @@ function mayel_super_jonron(_override_phase)
 			}
 		break;
 		
-		// 7 = el rival ya va volando (lo hace el engine); Mayel espera un momento y salta
 		case 7:
 			{
 			attack_frame--;
@@ -428,7 +392,6 @@ function mayel_super_jonron(_override_phase)
 			
 			if (attack_frame <= 0)
 				{
-				// salto de Mayel
 				ms2_age = 0;
 				ms2_settle = 0;
 				ms2_caught = false;
@@ -440,7 +403,6 @@ function mayel_super_jonron(_override_phase)
 			}
 		break;
 		
-		// 2 = Mayel salta, alcanza al rival que viene volando, lo atrapa y se queda suspendido frente a el
 		case 2:
 			{
 			ms2_age++;
@@ -449,12 +411,10 @@ function mayel_super_jonron(_override_phase)
 			
 			if (!ms2_caught)
 				{
-				// arriba la gravedad se suaviza: flota en vez de frenarse en seco
 				vsp += (vsp > -MS2_FLOAT_V) ? (grav * MS2_FLOAT_G) : grav;
 				player_move();
 				anim_frame = min(ms2_age div 3, 6);
 				
-				// lo atrapa cuando esta cerca y Mayel ya va lento (cerca de lo mas alto)
 				if (_r != noone && _r.state == PLAYER_STATE.knockdown
 					&& vsp >= -MS2_CATCH_V && abs(_r.y - y) < MS2_CATCH_DY)
 					{
@@ -471,7 +431,6 @@ function mayel_super_jonron(_override_phase)
 					mayel_s1_spark(_r.x, _r.y - 30, 0);
 					obj_game.cam_shake = max(obj_game.cam_shake, 6);
 					}
-				// no lo alcanzo: se corta y Mayel cae
 				else if ((vsp > 2 && bbox_bottom >= obj_ground.y) || ms2_age > 80 || _r == noone)
 					{
 					super_lock = false;
@@ -482,7 +441,6 @@ function mayel_super_jonron(_override_phase)
 				}
 			else
 				{
-				// atrapado: suspendido frente al rival, que se acomoda suave en su lugar
 				vsp = 0;
 				anim_frame = 6;
 				if (_r != noone)
@@ -505,7 +463,6 @@ function mayel_super_jonron(_override_phase)
 			}
 		break;
 		
-		// 3 = COMBO con los golpes normales de Mayel (se repite MS2_COMBOS veces); el rival se queda en el aire recibiendo
 		case 3:
 			{
 			hsp = 0;
@@ -527,7 +484,6 @@ function mayel_super_jonron(_override_phase)
 			anim_sprite = _m.spr;
 			anim_frame = _m.frames[_fi];
 			
-			// impacto de este golpe
 			if (ms2_cd == (_m.hit * MS2_STEP))
 				{
 				var _dmg = _m.dmg;
@@ -543,7 +499,6 @@ function mayel_super_jonron(_override_phase)
 			
 			ms2_cd++;
 			
-			// termino este golpe: sigue el siguiente o el golpe final
 			if (ms2_cd >= (_n * MS2_STEP))
 				{
 				ms2_cd = 0;
@@ -559,7 +514,6 @@ function mayel_super_jonron(_override_phase)
 			}
 		break;
 		
-		// 6 = alza el martillo (pausa dramatica) y lanza el golpe final
 		case 6:
 			{
 			attack_frame--;
@@ -576,11 +530,9 @@ function mayel_super_jonron(_override_phase)
 			
 			if (attack_frame <= 0)
 				{
-				// ya puede matar: se quitan los candados antes del golpe final
 				super_lock = false;
 				super_invuln = false;
 				
-				// GOLPE FINAL: launch_speed negativo = lo manda hacia abajo con el knockdown del engine
 				anim_frame = 2;
 				attack_phase = 8;
 				attack_frame = 12;
@@ -596,7 +548,6 @@ function mayel_super_jonron(_override_phase)
 			}
 		break;
 		
-		// 8 = el golpe final; cuando conecta el rival cae solo con la fisica del engine
 		case 8:
 			{
 			attack_frame--;
@@ -610,7 +561,6 @@ function mayel_super_jonron(_override_phase)
 			
 			if (attack_connected && _r != noone && _r.state == PLAYER_STATE.knockdown)
 				{
-				// conecto: se prepara el efecto del impacto en el piso
 				if (!ms2_landfx)
 					{
 					ms2_landfx = true;
@@ -623,13 +573,11 @@ function mayel_super_jonron(_override_phase)
 				break;
 				}
 			
-			// mientras no conecta el rival sigue agarrado frente a Mayel
 			if (_r != noone && _r.state == PLAYER_STATE.hitstun_aerial)
 				{
 				mayel_s2_place(_r, x, y + MS2_RIVAL_DY, MS2_HOLD_X);
 				}
 			
-			// por si el golpe no llego a conectar: se suelta al rival para que no se quede congelado
 			if (attack_frame <= 0)
 				{
 				if (_r != noone && _r.state == PLAYER_STATE.hitstun_aerial)
@@ -651,7 +599,6 @@ function mayel_super_jonron(_override_phase)
 			}
 		break;
 		
-		// 4 = recuperacion arriba (vulnerable), despues cae normal con el engine
 		case 4:
 			{
 			attack_frame--;
@@ -669,7 +616,6 @@ function mayel_super_jonron(_override_phase)
 			}
 		break;
 		
-		// 5 = fallo (castigable): cae con la gravedad del engine
 		case 5:
 			{
 			attack_frame--;

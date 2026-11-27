@@ -1,8 +1,5 @@
 ///@category GGMR
 ///@param {int} ip			The IP to compare
-/*
-Returns true if the lobby you are in currently has the same IP address.
-*/
 function ggmr_lobby_equals(_ip)
 	{
 	with (obj_ggmr_lobby)

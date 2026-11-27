@@ -1,6 +1,5 @@
 custom_timer++;
 
-//Sending heartbeats to other net_connections
 if (custom_timer > custom_heartbeat_interval) 
 	{
 	custom_timer = 0;
@@ -17,24 +16,19 @@ if (custom_timer > custom_heartbeat_interval)
 		}
 	}
 
-//Remove any net_connections that we haven't gotten a heartbeat from in a while
 for (var i = 0; i < ds_list_size(custom_heartbeat_list); i++)
 	{
 	var _key = custom_heartbeat_list[| i].key;
-	//Make sure the connection still exists
 	if (is_undefined(ds_map_find_value(obj_ggmr_net.net_connections, _key))) 
 		{
 		ds_list_delete(custom_heartbeat_list, i);
 		i--;
 		continue;
 		}
-	//Check heartbeat time
 	custom_heartbeat_list[| i].heartbeat += 1;
 	
 	if (custom_heartbeat_list[| i].heartbeat > custom_heartbeat_timeout) 
 		{
-		//Disconnect them
-		//ggmr_net_connection_delete(_key);
 		ds_list_delete(custom_heartbeat_list, i);
 		i--;
 		continue;

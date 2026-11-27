@@ -9,28 +9,25 @@ function player_round_reset()
 	state_time = 0;
 
 	anim_sprite = sprites[$ "idle"];
-	//sprite_index = anim_sprite;
 	anim_frame = 0;
 	anim_speed = anim_speed_default;
 
 	x = xstart;
 	y = ystart;
 	facing = (player_number == 0) ? 1 : -1;
-	image_angle = 0;	// que nadie empiece la ronda de cabeza (super de Danny)
+	image_angle = 0;
 	drawn_by = noone;
 	player_move();
 
 	hp = hp_max;
 	hp_prev = hp_max;
 
-	// Reset de índices de sonido e impactos para la ronda 2
 	sound_hit_light_index = 0;
 	sound_hit_heavy_index = 0;
 	attack_connected = false;
 	npc_seq = -1;
 	npc_linger = 0;
 	npc_back = -1;
-	//Pose de victoria
 	win_pose = false;
 	win_wait = 0;
 	fatal_type = FATALITY.none;
@@ -40,7 +37,6 @@ function player_round_reset()
 	fatal_tongue = false;
 	frz_age = 0;
 	frz_break = -1;
-	//Danny: que no empiece la ronda escondido ni con efectos de la ronda pasada
 	if (variable_instance_exists(id, "swap_hide"))
 		{
 		swap_hide = false;
@@ -55,5 +51,8 @@ function player_round_reset()
 		dn_hit_t = -1;
 		dn_imp = -1;
 		dn_spin = false;
+		dn_kfx_f = -999;
+		dn_gfx_f = -999;
+		dn_imp_f = -999;
 		}
 	}

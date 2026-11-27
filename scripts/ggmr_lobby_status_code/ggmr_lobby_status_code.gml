@@ -1,11 +1,4 @@
 ///@category GGMR
-/*
-Returns one of the following status codes:
-	- GGMR_LOBBY_STATUS.ok : The number of players and spectators in the lobby is valid to start a match with
-	- GGMR_LOBBY_STATUS.too_few_players : There are less than 2 players
-	- GGMR_LOBBY_STATUS.too_many_players : There are more players than GGMR_PLAYERS_MAX
-	- GGMR_LOBBY_STATUS.too_many_spectators : There are more spectators than GGMR_SPECTATORS_MAX
-*/
 function ggmr_lobby_status_code()
 	{
 	with (obj_ggmr_lobby) 
@@ -32,7 +25,6 @@ function ggmr_lobby_status_code()
 				}
 			}
 		
-		//Check the number of members of each type
 		if (_num_players < GGMR_PLAYERS_MIN) then return GGMR_LOBBY_STATUS.too_few_players;
 		if (_num_players > GGMR_PLAYERS_MAX) then return GGMR_LOBBY_STATUS.too_many_players;
 		if (_num_spectators > GGMR_SPECTATORS_MAX) then return GGMR_LOBBY_STATUS.too_many_spectators;

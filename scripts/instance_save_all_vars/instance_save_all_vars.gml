@@ -1,10 +1,6 @@
 ///@category GGMR
 ///@param {buffer} buffer							The buffer to save the data to
 ///@param {int} [number_of_extra_variables]			The number of extra variables that will be saved
-/*
-Saves all of the instance variables of the calling instance into the buffer.
-You can optionally specify the number of "extra variables" that you want to save after the function is run, so that the "total variables" number written to the start of the buffer will be correct for <instance_load_all_vars>.
-*/
 function instance_save_all_vars()
 	{
 	var _b = argument[0];
@@ -13,25 +9,20 @@ function instance_save_all_vars()
 	var _val = 0;
 	var _name = "";
 	
-	//Number of vars
 	var _num_builtins = 13;
 	var _num = array_length(_vars) + _num_builtins + _extra;
 	buffer_write(_b, buffer_u16, _num);
 	
-	//Loop through all variables
 	for (var i = 0; i < array_length(_vars); i++) 
 		{
 		_name = _vars[@ i];
 		_val = variable_instance_get(id, _name);
 		
-		//Variable name
 		buffer_write(_b, buffer_string, _name);
 		
-		//Type & Value
 		buffer_write_auto(_b, _val);
 		}
 		
-	//Builtin variables
 	buffer_write_var(_b, "x", buffer_f32, x);
 	buffer_write_var(_b, "y", buffer_f32, y);
 	buffer_write_var(_b, "xstart", buffer_f32, xstart);

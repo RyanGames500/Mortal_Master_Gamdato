@@ -1,33 +1,24 @@
-/*
-Super 1 de Brad (nuestro): SIERRA DE BOLA (2 barras). Doble media luna + medium. Se puede lanzar en el suelo o en el aire.
-Usa los sprites que ya tiene: spr_brad_roll_ini (se hace bola / se desenrolla) y spr_brad_Roll (la bola rodando).
-Fases: 0 = preparacion, 1 = rodada (suelo) o picada (aire), la unica parte que puede fallar,
-       2 = bola pegada al rival girando y golpeando, 3 = rebote, caida y patinada, 4 = recuperacion.
-Si la rodada o la picada falla o la bloquean, el super se corta ahi y Brad queda vendido.
-Si conecta, el rival no puede salir ni morir hasta el ultimo golpe (super_lock).
-*/
 
-#macro SR_WINDUP		12		//frames de preparacion
-#macro SR_RUN_SPEED		24		//velocidad de la rodada en el suelo (px por frame)
-#macro SR_RUN_T			24		//frames maximos de la rodada antes de dar por fallado
-#macro SR_DIVE_T		10		//frames que tarda la picada en llegar al rival (en el aire)
-#macro SR_DIVE_MAX		36		//velocidad maxima de la picada
-#macro SR_DMG1			5		//daño del golpe inicial
-#macro SR_DMG_TICK		1		//daño de cada golpe mientras gira
-#macro SR_TICKS			6		//cuantos golpes mientras gira (el ultimo es el remate)
-#macro SR_TICK_T		8		//frames entre golpes
-#macro SR_DMG_FINAL		20		//daño del remate
-#macro SR_OFF			110		//que tan pegada queda la bola al rival (mas alto = mas lejos)
-#macro SR_AMP			30		//cuanto sube y baja la bola mientras gira
-#macro SR_FINAL_V		14		//impulso hacia arriba del rival en el remate
-#macro SR_FINAL_KNOCK	16		//empuje horizontal del rival en el remate
-#macro SR_MISS_LAG		30		//recuperacion si falla o la bloquean
-#macro SR_END_LAG		24		//recuperacion despues del remate
-#macro SR_PIX			6		//tamaño de cada "pixel" de las chispas
+#macro SR_WINDUP		12
+#macro SR_RUN_SPEED		24
+#macro SR_RUN_T			24
+#macro SR_DIVE_T		10
+#macro SR_DIVE_MAX		36
+#macro SR_DMG1			5
+#macro SR_DMG_TICK		1
+#macro SR_TICKS			6
+#macro SR_TICK_T		8
+#macro SR_DMG_FINAL		20
+#macro SR_OFF			110
+#macro SR_AMP			30
+#macro SR_FINAL_V		14
+#macro SR_FINAL_KNOCK	16
+#macro SR_MISS_LAG		30
+#macro SR_END_LAG		24
+#macro SR_PIX			6
 #macro SR_COL_SPARK1	make_colour_rgb(255, 255, 200)
 #macro SR_COL_SPARK2	make_colour_rgb(190, 255, 80)
 
-/* Devuelve el rival de Brad (noone si no hay) */
 function brad_sr_rival()
 	{
 	var _r = noone;
@@ -38,7 +29,6 @@ function brad_sr_rival()
 	return _r;
 	}
 
-/* True si Brad puede lanzar el super en el aire: saltando, o en un golpe aereo que ya conecto (nuestro) */
 function brad_super_air_ok()
 	{
 	if (bbox_bottom >= obj_ground.y) then return false;
@@ -47,7 +37,6 @@ function brad_super_air_ok()
 	return false;
 	}
 
-/* Engancha al rival cuando conecta: guarda los datos y lo pasa a un estado sin escape. Se llama desde Brad. */
 function brad_sr_lock()
 	{
 	var _v = brad_sr_rival();
@@ -76,7 +65,6 @@ function brad_sr_lock()
 	brad_sr_fx_spawn();
 	}
 
-/* Mantiene al rival congelado en el lugar indicado. Se llama desde Brad. */
 function brad_sr_hold(_x, _y)
 	{
 	var _v = brad_sr_rival();
@@ -89,7 +77,6 @@ function brad_sr_hold(_x, _y)
 	_v.hitlag_frame = max(_v.hitlag_frame, 2);
 	}
 
-/* Un golpe mientras gira (no el ultimo): daño, contador de hits, temblor y sonido. Se llama desde Brad. */
 function brad_sr_hit(_dmg)
 	{
 	var _v = brad_sr_rival();
@@ -107,13 +94,12 @@ function brad_sr_hit(_dmg)
 	if (!ggmr_session_is_in_rollback()) then hit_sfx_play(snd_hit_heavy);
 	}
 
-/* El remate: el rival sale volando en knockdown. Se llama desde Brad. */
 function brad_sr_finish()
 	{
 	var _v = brad_sr_rival();
 	var _dir = sr_dir;
 	
-	super_lock = false;			// desde aqui el remate SI puede matar
+	super_lock = false;
 	super_hit_fx = 16;
 	obj_game.cam_shake = max(obj_game.cam_shake, 26);
 	if (!ggmr_session_is_in_rollback()) then hit_sfx_play(snd_hit_heavy);
@@ -140,7 +126,6 @@ function brad_sr_finish()
 		}
 	}
 
-/* Crea el dibujo de la bola por encima del rival y las chispas. Solo dibuja, no pega. Se llama desde Brad. */
 function brad_sr_fx_spawn()
 	{
 	var _f = hitbox_create(0, 0, 0.1, 0.1, 0, 4000);
@@ -168,7 +153,6 @@ function brad_sr_fx_draw()
 	{
 	if (owner.attack_phase != 2) then return;
 	
-	// La bola de Brad se dibuja otra vez encima del rival (con la paleta de Brad) para que siempre se vea pegada a el
 	pal_swap_set(owner.palette_sprite, owner.current_pal, false);
 	draw_sprite_ext(spr_brad_Roll, owner.anim_frame, owner.x, owner.y, owner.sprite_scale * owner.facing, owner.sprite_scale, 0, c_white, 1);
 	pal_swap_reset();
@@ -180,7 +164,6 @@ function brad_sr_fx_draw()
 		}
 	if (_v == noone) then return;
 	
-	// Chispas en el punto de contacto
 	var _cx = _v.x - (owner.sr_dir * 30);
 	var _cy = _v.y;
 	for (var i = 0; i < 8; i++)
@@ -216,7 +199,6 @@ function brad_super_roll(_override_phase)
 			super_lock = false;
 			ex_glow_color = make_colour_rgb(110, 255, 90);
 			
-			// Datos del super (nuestros)
 			sr_air = (bbox_bottom < obj_ground.y);
 			sr_x = 0;
 			sr_ry0 = 0;
@@ -233,7 +215,6 @@ function brad_super_roll(_override_phase)
 			super_invuln = false;
 			super_lock = false;
 			
-			// Si lo cortan mientras gira, suelta al rival para que caiga
 			if (attack_phase == 2)
 				{
 				var _vs = brad_sr_rival();
@@ -251,7 +232,6 @@ function brad_super_roll(_override_phase)
 			}
 		break;
 		
-		// Preparacion: se hace bola (intocable)
 		case 0:
 			{
 			attack_frame--;
@@ -264,9 +244,9 @@ function brad_super_roll(_override_phase)
 				anim_sprite = spr_brad_Roll;
 				anim_frame = 0;
 				attack_phase = 1;
-				attack_frame = 0;		// desde aqui cuenta hacia arriba
+				attack_frame = 0;
 				attack_connected = false;
-				super_invuln = false;		// desde aqui, si falla o la bloquean, queda vendido
+				super_invuln = false;
 				
 				var _vd = brad_sr_rival();
 				if (_vd != noone)
@@ -277,7 +257,6 @@ function brad_super_roll(_override_phase)
 				
 				if (!sr_air)
 					{
-					// En el suelo: sale rodando, con golpe bajo (como su rodada normal)
 					hsp = SR_RUN_SPEED * facing;
 					
 					var _dust = instance_create_layer(x, obj_ground.y, "VFX_Layer", obj_vfx);
@@ -296,7 +275,6 @@ function brad_super_roll(_override_phase)
 					}
 				else
 					{
-					// En el aire: baja en picada apuntando al rival
 					var _tx = x + (facing * 200);
 					var _ty = y + 200;
 					if (_vd != noone)
@@ -318,7 +296,6 @@ function brad_super_roll(_override_phase)
 			}
 		break;
 		
-		// Rodada o picada: si conecta limpio sigue el super; si no, se corta
 		case 1:
 			{
 			if (attack_connected)
@@ -329,13 +306,12 @@ function brad_super_roll(_override_phase)
 					hsp = 0;
 					vsp = 0;
 					attack_phase = 2;
-					attack_frame = 0;		// desde aqui cuenta hacia arriba
+					attack_frame = 0;
 					super_invuln = true;
-					super_lock = true;		// el rival no puede morir hasta el remate
+					super_lock = true;
 					}
 				else
 					{
-					// la bloquearon
 					sr_lag = SR_MISS_LAG;
 					attack_phase = 3;
 					attack_frame = 0;
@@ -350,7 +326,6 @@ function brad_super_roll(_override_phase)
 			var _end1 = sr_air ? (SR_DIVE_T + 6) : SR_RUN_T;
 			if (attack_frame >= _end1 || (sr_air && bbox_bottom >= obj_ground.y))
 				{
-				// fallo: cae, patina y queda vendido
 				sr_lag = SR_MISS_LAG;
 				attack_phase = 3;
 				attack_frame = 0;
@@ -358,12 +333,10 @@ function brad_super_roll(_override_phase)
 			}
 		break;
 		
-		// Bola pegada al rival: gira sobre el y lo golpea hasta el remate
 		case 2:
 			{
 			var _t = attack_frame;
 			
-			// Brad se acomoda pegado al rival y despues sube y baja un poco mientras gira
 			var _k = min(1, (_t + 1) / 4);
 			var _tx2 = sr_x - (sr_dir * SR_OFF);
 			var _ty2 = sr_ry0 + (SR_AMP * sin(_t * 0.5));
@@ -373,17 +346,14 @@ function brad_super_roll(_override_phase)
 			anim_sprite = spr_brad_Roll;
 			anim_frame = _t mod 8;
 			
-			// Rival: se queda en su lugar y tiembla
 			var _jx = ((_t mod 2) == 0) ? 5 : -5;
 			brad_sr_hold(sr_x + _jx, sr_ry0);
 			
-			// Golpes
 			if (((_t + 1) mod SR_TICK_T) == 0)
 				{
 				var _n = (_t + 1) div SR_TICK_T;
 				if (_n >= SR_TICKS)
 					{
-					// Remate: el rival sale volando y la bola rebota hacia atras
 					brad_sr_finish();
 					hsp = -sr_dir * 10;
 					vsp = -12;
@@ -403,7 +373,6 @@ function brad_super_roll(_override_phase)
 			}
 		break;
 		
-		// Rebote, caida y patinada hasta frenar (vulnerable)
 		case 3:
 			{
 			attack_frame++;
@@ -428,7 +397,6 @@ function brad_super_roll(_override_phase)
 			}
 		break;
 		
-		// Recuperacion (vulnerable): se desenrolla y pasa a idle
 		case 4:
 			{
 			attack_frame--;

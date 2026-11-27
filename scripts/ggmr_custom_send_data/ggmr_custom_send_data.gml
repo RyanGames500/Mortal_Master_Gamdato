@@ -2,14 +2,6 @@
 ///@param {int} connection_id				The connection to send to
 ///@param {buffer_type} buffer_type			The data type
 ///@param {any} value						The value
-/*
-Adds the given data to a packet and send it to the connection.
-You can have any number of data type / value argument pairs.
-For example:
-	- ggmr_custom_send_data(0, buffer_string, "Hello World!", buffer_bool, true);
-	
-Warning: By default, PFE sends custom data as buffer_string values in the JSON format. Using any other method may cause existing objects to ggmr_crash.
-*/
 function ggmr_custom_send_data()
 	{
 	with (obj_ggmr_custom) 

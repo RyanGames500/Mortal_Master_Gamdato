@@ -1,10 +1,5 @@
-/*
-This is the character init script for DANNY.
-It is called once at the start of the game and sets up all character-specific values.
-*/
 function danny_character_init()
 	{
-	//Properties
 	character_name = "DANNY";
 	walk_speed = 4;
 	dash_speed = 13;
@@ -19,20 +14,13 @@ function danny_character_init()
 	hp_prev = hp_max;
 	
 	sprite_scale = 6;
-	//dara tamaño personalizado a cada har desd aqui
-	//meter_max = 100; /150 default 100:perzonalizdo
 	
-	//Environmental collision box
 	sprite_index = spr_danny_ecb;
 	
-	//Palette
 	palette_sprite = spr_danny_palette;
-	//Paleta (nuestro): normal = tóxico (columna 1), espejo = bata de lab (columna 2). La 0 es el azul viejo y no se usa
 	current_pal = (current_pal == 0) ? 1 : 2;
-	//hurtbox
 	hurtbox_sprite = spr_danny_hurtbox;
 
-	//Gameplay sprites
 	sprites[$ "idle"			] = spr_danny_idle;
 	sprites[$ "win"				] = spr_danny_win;	
 	sprites[$ "crouch"			] = spr_danny_crouch;
@@ -53,9 +41,7 @@ function danny_character_init()
 	sprites[$ "grabbed_carry"	] = spr_danny_grabbed_throw1;
 	sprites[$ "getup"			] = spr_danny_idle;
 	sprites[$ "throw_victim"	] = spr_mayel_lanzado;
-	//sprites[$ "wall"			] = spr_danny_wall;
 
-	//Attack scripts
 	attacks[$ "light_ground"	] = danny_light_ground;
 	attacks[$ "medium_ground"	] = danny_medium_ground;
 	attacks[$ "medium_aerial"	] = danny_medium_aerial;
@@ -68,18 +54,14 @@ function danny_character_init()
 	attacks[$ "throw"			] = blocky_throw;
 
 
-	//Fatalities
 	fat_cabeza = spr_danny_fat_cabeza;
 	fat_cuerpo = spr_danny_fat_cuerpo;
 	fat_pies = spr_generic_fat_pies;
 
-	//sprite_inicial
 	anim_sprite = sprites[$ "idle"];
 
-	//Passive script
 	passive = danny_passive;
 	
-	//Movilidad ninja 
 	draw_extra = danny_draw_extra;
 	wall_used = false;
 	wall_side = 1;
@@ -91,7 +73,6 @@ function danny_character_init()
 	dn_fx_out = -1;
 	dn_out_x = 0;
 	dn_fx_in = -1;
-	//Supers (nuestro)
 	dn_sv = noone;
 	dn_vx = 0;
 	dn_vy = 0;
@@ -112,6 +93,11 @@ function danny_character_init()
 	dn_spin = false;
 	dn_face0 = 1;
 	dn_vh = 0;
+	dn_kfx_f = -999;
+	dn_gfx_f = -999;
+	dn_imp_f = -999;
+	dn_kx = 0;
+	dn_ky = 0;
 	super_nofreeze = false;	
 	}
 

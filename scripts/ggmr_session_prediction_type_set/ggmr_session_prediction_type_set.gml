@@ -1,8 +1,5 @@
 ///@category GGMR
 ///@param {int} type		The prediction type, from the GGMR_PREDICTION_TYPE enum
-/*
-Sets the prediction type of the session.
-*/
 function ggmr_session_prediction_type_set()
 	{
 	with (obj_ggmr_session) 

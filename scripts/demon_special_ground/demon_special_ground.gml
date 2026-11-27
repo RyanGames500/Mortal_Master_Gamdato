@@ -16,7 +16,6 @@ function demon_special_ground(_override_phase)
 			}
 		break;
 		
-		//Preparacion (frames 0 a 2) y golpe (frame 3)
 		case 0:
 			{
 			attack_frame--;
@@ -43,7 +42,6 @@ function demon_special_ground(_override_phase)
 			}
 		break;
 		
-		//Recuperacion (frames 4 a 7)
 		case 1:
 			{
 			attack_frame--;

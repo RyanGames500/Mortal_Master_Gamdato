@@ -6,9 +6,6 @@
 ///@func pal_swap_init_system(shader, [html5 sprite shader], [html5 surface shader])
 function pal_swap_init_system(_shader, _html5_sprite_shader, _html5_surface_shader) {
 
-	//Initiates the palette system.  Call once at the beginning of your game somewhere.
-	//IMPORTANT: if you plan on using this for HTML5, you need to specify your two HTML5 
-  //shader assets
 	var _swapper = {
   	shader: noone,
   	html5: false,
@@ -32,7 +29,6 @@ function pal_swap_init_system(_shader, _html5_sprite_shader, _html5_surface_shad
 	_swapper.html5 = os_browser != browser_not_a_browser;
 	
 	if(!_swapper.html5) {
-		//Init non-html5 mode
 		_swapper.shader = _shader;
 		_swapper.texel_size[rps_type_standard] = shader_get_uniform(_shader, "u_pixelSize");
 		_swapper.uvs[rps_type_standard] = shader_get_uniform(_shader, "u_Uvs");
@@ -74,7 +70,6 @@ function pal_swap_set(_pal_sprite, _pal_index, _is_surface) {
 	var _mode = rps_type_standard;
 	
 	if(!_is_surface) {   
-		//Using a sprite based palette
 		if(_swapper.html5)	{
 			shader_set(_swapper.html5_sprite);
 			_mode = rps_type_html5_sprite;
@@ -93,7 +88,6 @@ function pal_swap_set(_pal_sprite, _pal_index, _is_surface) {
 	  shader_set_uniform_f(_swapper.uvs[_mode], _UVs[0] + _texel_hx, _UVs[1] + _texel_hy, _UVs[2], _UVs[3]);
 	  shader_set_uniform_f(_swapper.index[_mode], _pal_index);
 	} else {   
-		//Using a surface based palette
 		if(_swapper.html5) {
 			shader_set(_swapper.html5_surface);
 			_mode = rps_type_html5_surface;
@@ -115,24 +109,20 @@ function pal_swap_set(_pal_sprite, _pal_index, _is_surface) {
 
 /// @func pal_swap_reset();
 function pal_swap_reset() {
-	//Resets the shader
 	if(shader_current() != -1) shader_reset();
 }
 
 
 ///@func pal_swap_layer_init();  
-// Should be called once before setting up any layers to pal swap.
 function pal_swap_layer_init() {
 	ds_map_clear(global.retro_pal_swapper.layer_map);
 	ds_priority_clear(global.retro_pal_swapper.layer_priority);
 	ds_priority_clear(global.retro_pal_swapper.layer_temp_priority);
 }
 
-// @func pal_swap_set_layer(pal_sprite, pal_index, layer_index, pal_is_surface)
-//draws the specified layer using the specified palette in the specified event.
 function pal_swap_set_layer(_pal_sprite, _pal_index, _layer_index, _pal_is_surface) {
 	var _data = ds_map_find_value(global.retro_pal_swapper.layer_map,_layer_index);
-	if(_data == undefined) return;  //Swapping not enabled on this layer
+	if(_data == undefined) return;
   
 	global.retro_pal_swapper.layer_map[? _layer_index] = {sprite: _pal_sprite, index: _pal_index, is_surf: _pal_is_surface};
 }

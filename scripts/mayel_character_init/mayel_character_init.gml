@@ -1,41 +1,30 @@
-/*
-This is the character init script for Mayel.
-It is called once at the start of the game and sets up all character-specific values.
-*/
 function mayel_character_init()
 	{
-	//Properties
 	character_name = "MAYEL";
-	walk_speed = 6;            // Caminata rapida para ajustar distancias finas
-	dash_speed = 15;           // Dash explosivo para entrar
-	dash_time  = 22;           // Dash más corto y compacto
-	jump_hsp   = 9;            // Excelente impulso horizontal en el aire
-	jump_vsp   = -25;          // Salto rapido
+	walk_speed = 6;
+	dash_speed = 15;
+	dash_time  = 22;
+	jump_hsp   = 9;
+	jump_vsp   = -25;
 	grav = 1.2;
 	
 	has_backdash = false;
 	has_grab     = true;
 	has_boomerang = true;
 	
-	// --- SALUD Y ESCALA ---
-	hp_max  = 130;             // Un poco menos de vida (130 en lugar de 150) por tener hurtbox pequeña
+	hp_max  = 130;
 	hp      = hp_max;
 	hp_prev = hp_max;
 	
-	sprite_scale = 5.5;          // Si el estándar es 6, ponle 5 para acentuar su tamaño pequeño
+	sprite_scale = 5.5;
 	
-	//meter_max = 100;         // Si quieres que llene su barra de super/especial más rápido que los demás
 	
-	//Environmental collision box
 	sprite_index = spr_mayel_ecb;
 	
-	//Palette
 	palette_sprite = spr_mayel_palette;
 	
-	//hurtbox
 	hurtbox_sprite = spr_mayel_hurtbox;
 	
-	//Gameplay sprites
 	sprites[$ "idle"			] = spr_mayel_idle;
 	sprites[$ "win"				] = spr_mayel_win
 	sprites[$ "crouch"			] = spr_mayel_crouch;
@@ -57,7 +46,6 @@ function mayel_character_init()
 	sprites[$ "getup"			] = spr_mayel_idle;
 	sprites[$ "throw_victim"	] = spr_mayel_lanzado;
 	
-	//Attack scripts
 	attacks[$ "light_ground"	] = mayel_light_ground;
 	attacks[$ "medium_ground"	] = mayel_medium_ground;
 	attacks[$ "medium_aerial"	] = mayel_medium_aerial;
@@ -69,15 +57,12 @@ function mayel_character_init()
 	attacks[$ "heavy_aerial"	] = mayel_heavy_aerial;
 	attacks[$ "throw"			] = mayel_throw;
 
-	//Fatalities
 	fat_cabeza = spr_mayel_fat_cabeza;
 	fat_cuerpo = spr_mayel_fat_cuerpo;
 	fat_pies = spr_generic_fat_pies;
 
-	//sprite_inicial
 	anim_sprite = sprites[$ "idle"];
 
-	//Passive script
 	passive = mayel_passive;
 	}
 

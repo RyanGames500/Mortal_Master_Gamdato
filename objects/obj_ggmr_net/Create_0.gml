@@ -1,8 +1,4 @@
 ///@category GGMR
-/*
-This object stores all of the networking connections used by the other GGMR objects.
-It is persistent, and should never be directly placed in a room (this would cause duplicates if the room is left and then switched back to).
-*/
 ggmr_logger_init();
 
 if (instance_number(obj_ggmr_net) > 1) 
@@ -14,29 +10,22 @@ if (instance_number(obj_ggmr_net) > 1)
 
 randomize();
 
-//Ports
-//net_port = GGMR_PORT;
-net_port = GGMR_PORT + ((prueba_instancia_num() == 2) ? 1 : 0);	//pruebas: la 2da ventana usa otro puerto
-//Sockets
+net_port = GGMR_PORT + ((prueba_instancia_num() == 2) ? 1 : 0);
 net_socket = network_create_socket_ext(network_socket_udp, net_port);
 if (net_socket == -1)
 	{
 	ggmr_error("Unable to create socket on port ", net_port);
 	}
 
-//Connections
 net_connections = ds_map_create();
 net_connections_counter = 0;
 
-//Pings
 net_ping_timer = GGMR_NET_PING_INTERVAL;
 net_ping_buffer = buffer_create(1, buffer_fixed, 1);
 net_ping_compare = current_time;
 
-//Packets
 net_temp_packet_buffer = buffer_create(1, buffer_grow, 1);
 
-//Double Packets
 net_double_packets = ds_list_create();
 
 /* Copyright 2024 Springroll Games / Yosi */

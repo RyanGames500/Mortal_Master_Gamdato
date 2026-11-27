@@ -1,9 +1,6 @@
 ///@category GGMR
 ///@param {int} player_number		The remote player to register input delay for
 ///@param {int} input_delay			The number of frames of input delay that player is using
-/*
-Stores the input delay a specific remote player is using.
-*/
 function ggmr_session_input_delay_remote_register()
 	{
 	with (obj_ggmr_session)
@@ -12,7 +9,6 @@ function ggmr_session_input_delay_remote_register()
 		var _delay = argument[1];
 		session_client_list[| _number][@ GGMR_CLIENT.input_delay] = clamp(_delay, GGMR_INPUT_DELAY_MIN, GGMR_INPUT_DELAY_MAX);
 		
-		//If all input delays have already been registered, you cannot change them
 		if (!session_input_delay_remote_received_all)
 			{
 			session_input_delay_remote_received_all = true;
@@ -32,7 +28,6 @@ function ggmr_session_input_delay_remote_register()
 					}
 				}
 				
-			//Calculate average
 			session_input_delay_remote_average = round(session_input_delay_remote_average / _remote_players);
 			}
 		return;

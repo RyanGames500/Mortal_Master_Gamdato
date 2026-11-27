@@ -4,8 +4,6 @@ function save_current_replay()
 		{
 		if (global.replay_mode) exit;
 		
-		// Encabezado: [255 = formato nuevo][p1_select][p2_select][stage_id][online]
-		// El replay empieza en la pelea, así que los personajes y el escenario se guardan aquí
 		var _save_buf = buffer_create(1, buffer_grow, 1);
 		buffer_write(_save_buf, buffer_u8, 255);
 		buffer_write(_save_buf, buffer_u8, obj_game.p1_select);
@@ -31,11 +29,6 @@ function save_current_replay()
 	}
 	
 ///@param {string} file		The replay file to open
-/*
-Opens a replay file and reads its header into globals.
-Format: [255][p1_select][p2_select][stage_id][was_online], then per frame: inputs P1, inputs P2, hash.
-Returns true if the file is a valid replay of the current format.
-*/
 function replay_open(_file)
 	{
 	if (variable_global_exists("replay_buffer") && buffer_exists(global.replay_buffer))
@@ -54,7 +47,6 @@ function replay_open(_file)
 	var _version = buffer_read(global.replay_buffer, buffer_u8);
 	if (_version != 255)
 		{
-		// Formato viejo (incluía el selector de personajes): ya no se puede reproducir
 		buffer_delete(global.replay_buffer);
 		global.replay_buffer = buffer_create(1, buffer_grow, 1);
 		return false;

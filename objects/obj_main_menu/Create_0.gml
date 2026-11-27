@@ -1,14 +1,9 @@
-/*
-This object handles the main menu and the online lobby.
-*/
 
 randomize();
 lobby_code = "Not Set Yet";
-//Create the online connection
 ggmr_net_init();
 ggmr_lobby_init(global.online_name, function() { main_menu_ui_refresh(); });
 
-//Load members if you are returning from a match
 if (global.online_lobby_members != "")
 	{
 	ggmr_lobby_members_load(global.online_lobby_members);
@@ -18,7 +13,6 @@ main_menu_ui_refresh();
 
 previous_number_of_players = 1;
 
-//Star background
 stars = array_create(500, 0);
 var i = 0;
 repeat (500)
@@ -27,7 +21,6 @@ repeat (500)
 	i++;
 	}
 
-//Fetch news
 if (global.news == "Could not contact the matchmaking server!")
 	{
 	var _b = buffer_create(1, buffer_grow, 1);

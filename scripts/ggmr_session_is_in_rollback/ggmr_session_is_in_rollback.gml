@@ -1,7 +1,4 @@
 ///@category GGMR
-/*
-Returns true if the session is currently resimulating frames that were rolled back.
-*/
 function ggmr_session_is_in_rollback()
 	{
 	with (obj_ggmr_session)

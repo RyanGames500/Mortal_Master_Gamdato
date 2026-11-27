@@ -14,7 +14,6 @@ function brad_throw_ex(_override_phase)
 			}
 		break;
 		
-		//--- STARTUP ---
 		case 0:
 			{
 			attack_frame--;
@@ -38,7 +37,6 @@ function brad_throw_ex(_override_phase)
 			}
 		break;
 		
-		//--- SUJECION INICIAL ---
 		case 1:
 			{
 			attack_frame--;
@@ -86,7 +84,6 @@ function brad_throw_ex(_override_phase)
 			}
 		break;
 		
-		//--- MARTILLEO: levanta y estrella 3 veces ---
 		case 2:
 			{
 			attack_frame--;
@@ -101,7 +98,6 @@ function brad_throw_ex(_override_phase)
 					}
 				}
 			
-			// Tech del rival: se suelta y se aborta
 			if (_other_player != noone && attack_frame < 55 && _other_player.state != PLAYER_STATE.grabbed)
 				{
 				_other_player.being_carried = false;
@@ -112,11 +108,10 @@ function brad_throw_ex(_override_phase)
 				break;
 				}
 			
-			// Posicion del rival: 0 = en las manos, 1 = en el piso
 			var _t = 0;
 			var _in_down = false;
-			var _down_n = 0;		// frames que faltan para el impacto (4..0)
-			var _rise_p = -1;		// progreso de subida de Brad (0..1), -1 = no esta subiendo
+			var _down_n = 0;
+			var _rise_p = -1;
 			var _hits = [40, 26, 12];
 			for (var i = 0; i < 3; i++)
 				{
@@ -132,7 +127,6 @@ function brad_throw_ex(_override_phase)
 					_t = 1 - ((_h - attack_frame) / 6);
 					}
 				
-				// Brad sube durante 9 frames despues de cada estrellada 1 y 2
 				if (i < 2 && attack_frame < _h && attack_frame >= _h - 9)
 					{
 					_rise_p = (_h - 1 - attack_frame) / 8;
@@ -172,8 +166,6 @@ function brad_throw_ex(_override_phase)
 				_other_player.anim_frame = _victim_frame;
 				}
 			
-			// Animacion de Brad segun tu sprite:
-			// 7-10 = brazos arriba, 11-12 = brazos abajo (golpe), 13 = final
 			if (attack_frame > 44)
 				{
 				if (attack_frame == 53) then anim_frame = 8;
@@ -193,7 +185,6 @@ function brad_throw_ex(_override_phase)
 				anim_frame = 10;
 				}
 			
-			// --- ESTRELLADAS 1 y 2 ---
 			if (attack_frame == 40 || attack_frame == 26)
 				{
 				var _dmg = (attack_frame == 40) ? 6 : 8;
@@ -217,7 +208,6 @@ function brad_throw_ex(_override_phase)
 					_vfx.lifetime     = sprite_get_number(spr_effect_landing_dust) / _vfx.anim_speed;
 					_vfx.owner        = id;
 					
-					// Si murio con la estrellada: se suelta y cae a knockdown
 					if (_other_player.hp <= 0)
 						{
 						_other_player.being_carried = false;
@@ -241,7 +231,6 @@ function brad_throw_ex(_override_phase)
 				obj_game.cam_shake = max(obj_game.cam_shake, 6);
 				}
 			
-			// --- ESTRELLADA 3 (REMATE): el hitbox lo derriba ---
 			if (attack_frame == 12)
 				{
 				anim_frame = 13;
@@ -287,7 +276,6 @@ function brad_throw_ex(_override_phase)
 			}
 		break;
 		
-		//--- ENDLAG ---
 		case 3:
 			{
 			attack_frame--;

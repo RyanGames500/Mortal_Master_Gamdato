@@ -1,11 +1,6 @@
 ///@category GGMR
 ///@param {string} local_member_name		The name of the first local player
 ///@param {function} [reset_callback]		The function to run when the lobby is reset
-/*
-Creates the lobby, and adds a local player with the given name.
-There is an optional argument for the "reset_callback", which is a function that will be run when the lobby is reset.
-This is useful if you want the lobby UI to be cleared when the lobby is reset, for example.
-*/
 function ggmr_lobby_init()
 	{
 	var _name = argument[0];

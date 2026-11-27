@@ -1,8 +1,5 @@
 ///@category GGMR
 ///@param {int} port		The ingoing port to change to
-/*
-Changes the ingoing port of the current <obj_ggmr_net> instance.
-*/
 function ggmr_net_port_change()
 	{
 	with (obj_ggmr_net)
@@ -10,7 +7,6 @@ function ggmr_net_port_change()
 		var _p = argument[0];
 		ggmr_assert(_p >= 0 && _p <= 65535, "[ggmr_net_port_change] Invalid port number ", _p);
 		
-		//Recreate the socket on the new port
 		if (net_port != _p)
 			{
 			net_port = _p;

@@ -1,8 +1,5 @@
 ///@category GGMR
 ///@param {int} relative_frame		The relative frame number
-/*
-Converts a relative frame number to an absolute frame number.
-*/
 function ggmr_session_frame_absolute()
 	{
 	with (obj_ggmr_session) 

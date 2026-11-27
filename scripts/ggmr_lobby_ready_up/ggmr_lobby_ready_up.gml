@@ -1,16 +1,11 @@
 ///@category GGMR
 ///@param {bool} [ready]		Whether you are ready or not
-/*
-Toggles your ready status and sends an update packet to the lobby leader.
-This can only be used if the lobby is in the idle state.
-*/
 function ggmr_lobby_ready_up()
 	{
 	with (obj_ggmr_lobby) 
 		{
 		if (lobby_state == GGMR_LOBBY_STATE.idle)
 			{
-			//Toggle or directly set the ready flag
 			if (argument_count > 0)
 				{
 				lobby_members[| lobby_member_number][@ GGMR_LOBBY_MEMBER.ready] = argument[0];
@@ -26,7 +21,6 @@ function ggmr_lobby_ready_up()
 				} 
 			else 
 				{
-				//Send a ready up packet
 				buffer_seek(lobby_buffer, buffer_seek_start, 0);
 				buffer_write(lobby_buffer, buffer_u8, lobby_member_number);
 				buffer_write(lobby_buffer, buffer_bool, lobby_members[| lobby_member_number][@ GGMR_LOBBY_MEMBER.ready]);

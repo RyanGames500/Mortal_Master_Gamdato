@@ -1,13 +1,10 @@
 function demon_proyectil(_override_phase)
 	{
-	//Phases
 	var _phase = !is_undefined(_override_phase) ? _override_phase : attack_phase;
 	switch (_phase)
 		{
-		//Init
 		case ATTACK_PHASE.start:
 			{
-			//Animation
 			anim_sprite = spr_demon_especial2;
 			anim_frame = 0;
 			anim_speed = 0;
@@ -19,12 +16,10 @@ function demon_proyectil(_override_phase)
 			}
 		break;
 		
-		//Startup (frames 0 a 6) - el proyectil sale en el frame 7
 		case 0:
 			{
 			attack_frame--;
 			
-			//Animation (frames de 2 y 1 alternados)
 			var _t = 11 - attack_frame;
 			if (_t == 2) then anim_frame = 1;
 			if (_t == 3) then anim_frame = 2;
@@ -33,14 +28,12 @@ function demon_proyectil(_override_phase)
 			if (_t == 8) then anim_frame = 5;
 			if (_t == 9) then anim_frame = 6;
 			
-			//Dispara en el frame 7, desde la boca
 			if (attack_frame <= 0)
 				{
 				anim_frame = 7;
 				attack_phase = 1;
 				attack_frame = 27;
 				
-				//No se puede lanzar otro si ya hay uno en pantalla
 				var _exists = false;
 				with (obj_hitbox)
 					{
@@ -65,24 +58,19 @@ function demon_proyectil(_override_phase)
 					}
 				}
 			
-			//Movement
 			player_move();
 			}
 		break;
 		
-		//Recuperacion (frames 7 a 9, 9 frames cada uno)
 		case 1:
 			{
 			attack_frame--;
 			
-			//Animation
 			if (attack_frame == 18) then anim_frame = 8;
 			if (attack_frame == 9)  then anim_frame = 9;
 			
-			//Movement
 			player_move();
 			
-			//Stop
 			if (attack_frame <= 0)
 				{
 				attack_stop();
@@ -95,13 +83,7 @@ function demon_proyectil(_override_phase)
 
 function demon_proyectil_hitbox_draw()
 	{
-	//Outline
-	//draw_sprite_ext(spr_blocky_hadoken_projectile, lifetime div 5, x + owner.sprite_scale, y, owner.sprite_scale * facing, owner.sprite_scale, 0, c_black, 1.0);
-	//draw_sprite_ext(spr_blocky_hadoken_projectile, lifetime div 5, x - owner.sprite_scale, y, owner.sprite_scale * facing, owner.sprite_scale, 0, c_black, 1.0);
-	//draw_sprite_ext(spr_blocky_hadoken_projectile, lifetime div 5, x, y + owner.sprite_scale, owner.sprite_scale * facing, owner.sprite_scale, 0, c_black, 1.0);
-	//draw_sprite_ext(spr_blocky_hadoken_projectile, lifetime div 5, x, y - owner.sprite_scale, owner.sprite_scale * facing, owner.sprite_scale, 0, c_black, 1.0);
 	
-	//Draw the projectile
 	palette_shader_texture_set(owner.palette_sprite, owner.player_number + 1)
 	draw_sprite_ext(spr_demon_projectile, lifetime div 5, x, y, owner.sprite_scale * facing, owner.sprite_scale, 0, c_white, 1.0);
 	shader_reset();
@@ -109,26 +91,21 @@ function demon_proyectil_hitbox_draw()
 
 function demon_proyectil_hitbox_update()
 	{
-	//Lifetime
 	if (owner.hitlag_frame <= 0 && --lifetime < 0)
 		{
 		instance_destroy();
 		return;
 		}
 	
-	//Position
 	x += hsp;
 	
-	//Colliding with other projectiles will destroy both projectiles
 	var _hitboxes = instance_place_array(x, y, obj_hitbox);
 	for (var i = 0; i < array_length(_hitboxes); i++)
 		{
 		var _hitbox = _hitboxes[@ i];
 		
-		//You can't hit your own hurtboxes
 		if (_hitbox.owner != owner)
 			{
-			//Check that the hitbox is a projectile
 			if (_hitbox.destroy_on_stop)
 				{
 				to_be_destroyed = true;
@@ -137,23 +114,17 @@ function demon_proyectil_hitbox_update()
 			}
 		}
 	
-	//Colliding with hurtboxes
 	var _hurtboxes = instance_place_array(x, y, obj_hurtbox);
 	for (var i = 0; i < array_length(_hurtboxes); i++)
 		{
 		var _hurtbox = _hurtboxes[@ i];
 		
-		//You can't hit your own hurtboxes
 		if (_hurtbox.owner != owner)
 			{
-			// Si la ronda no está en ejecución o el rival ya no tiene vida, ignorar colisión
 			if (_hurtbox.owner.hp <= 0 || obj_game.game_meta_state != GAME_META_STATE.running) then continue;
-			// Rival ya derribado: el proyectil lo atraviesa (igual que los golpes normales)
 			if (_hurtbox.owner.state == PLAYER_STATE.knockdown || _hurtbox.owner.state == PLAYER_STATE.acostado) then continue;
-			// Rage: los proyectiles no le hacen daño
 			if (destroy_on_stop && _hurtbox.owner.rage_frames > 0) then continue;
 
-			//Hitboxes that can only hit grounded opponents
 			if (grounded_only)
 				{
 				if (_hurtbox.owner.bbox_bottom < obj_ground.y) then continue;
@@ -161,11 +132,9 @@ function demon_proyectil_hitbox_update()
 			
 			with (_hurtbox.owner)
 				{
-				// Posición de los efectos sobre el cuerpo del golpeado
 				var _vfx_x = x - (other.facing * 12);
 				var _vfx_y = clamp(other.y, bbox_top + 8, bbox_bottom - 8);
 				
-				//Blocking (alto / medio)
 				if ((state == PLAYER_STATE.walk_backward || state == PLAYER_STATE.blockstun) && stick_check_direction(STICK_DIR.backward) && !other.low)
 					{
 					player_state_set(PLAYER_STATE.blockstun);
@@ -183,7 +152,6 @@ function demon_proyectil_hitbox_update()
 					_block_vfx.lifetime     = sprite_get_number(_block_vfx.sprite_index) / _block_vfx.anim_speed;
 					_block_vfx.owner        = other.owner;
 					}
-				//Blocking (bajo)
 				else if ((state == PLAYER_STATE.crouch || state == PLAYER_STATE.blockstun) && stick_check_direction(STICK_DIR.backward_down) && !other.high)
 					{
 					player_state_set(PLAYER_STATE.blockstun);
@@ -201,13 +169,11 @@ function demon_proyectil_hitbox_update()
 					_block_vfx.lifetime     = sprite_get_number(_block_vfx.sprite_index) / _block_vfx.anim_speed;
 					_block_vfx.owner        = other.owner;
 					}
-				//Hit
 				else
 					{
 					attack_stop();
 					var _was_frozen = frozen;
 					
-					// Sonido de impacto
 					var _snd_heavy_list = [snd_hit_heavy, snd_hit_heavy_2, snd_hit_heavy_3];
 					var _snd_light_list = [snd_hit_light, snd_hit_light_2, snd_hit_light_3];
 					if (other.damage > 8)
@@ -221,7 +187,6 @@ function demon_proyectil_hitbox_update()
 						other.owner.sound_hit_light_index = (other.owner.sound_hit_light_index + 1) % array_length(_snd_light_list);
 						}
 					
-					// Chispa de impacto (determinista, sin random)
 					var _hit_sprites = [spr_effect_spark, spr_effect_spark2];
 					var _spark = instance_create_layer(_vfx_x, _vfx_y, "VFX_Layer", obj_vfx);
 					_spark.sprite_index = _hit_sprites[(obj_game.game_frame + other.owner.player_number) mod 2];
@@ -230,7 +195,6 @@ function demon_proyectil_hitbox_update()
 					_spark.lifetime     = sprite_get_number(_spark.sprite_index) / _spark.anim_speed;
 					_spark.owner        = other.owner;
 					
-					// Sangre
 					if (other.launch_speed > 0)
 						{
 						blood_spray(_vfx_x, _vfx_y, other.facing, clamp(round(other.damage * 1.5), 8, 26), 0.5, 2, other.hitlag);
@@ -240,7 +204,6 @@ function demon_proyectil_hitbox_update()
 						blood_spray(_vfx_x, _vfx_y, other.facing, clamp(round(other.damage * 1.2), 3, 14), 1, 0.7, other.hitlag);
 						}
 					
-					// Reacción de hitstun (suelo / remate o límite / aire)
 					if (bbox_bottom >= obj_ground.y && other.launch_speed == 0)
 						{
 						air_hits = 0;
@@ -252,7 +215,6 @@ function demon_proyectil_hitbox_update()
 						}
 					else if (other.knockdown || air_hits >= air_hit_limit)
 						{
-						// Remate o límite de combo: sale volando y cae acostado
 						air_hits = 0;
 						player_state_set(PLAYER_STATE.knockdown);
 						anim_sprite = sprites[$ "knockdown"];
@@ -269,7 +231,6 @@ function demon_proyectil_hitbox_update()
 						vsp = -other.launch_speed;
 						}
 					
-					// Daño final (se calcula antes para saber si es el golpe mortal)
 					var _final_damage = other.damage * max(0.4, 1 - 0.2 * max(air_hits - 1, 0));
 					
 					if (other.acid_finisher && (obj_game.stage_has_acid || obj_game.stage_has_root || obj_game.stage_has_ceiling) && ceil(hp - _final_damage) <= 0)
@@ -302,12 +263,10 @@ function demon_proyectil_hitbox_update()
 						}
 					frozen = false;
 					
-					// Cámara: los golpes que lanzan o tiran al suelo tiemblan fuerte
 					var _shake = other.shake;
 					if (other.launch_speed > 0 || other.knockdown) then _shake = max(_shake, SHAKE_HEAVY);
 					obj_game.cam_shake = max(obj_game.cam_shake, _shake);
 					
-					// Líneas de acción
 					if (other.damage > 10)
 						{
 						var _action_lines = instance_create_layer(x, y, "VFX_Layer", obj_vfx_action_lines);
@@ -316,15 +275,12 @@ function demon_proyectil_hitbox_update()
 					}
 				}
 			
-			//Projectiles are destroyed on hit
 			to_be_destroyed = true;
 			}
 		}
 	
-	//Other destruction checks
 	if (to_be_destroyed)
 		{
-		//VFX
 		var _vfx = instance_create_layer(x, y, "VFX_Layer", obj_vfx);
 		_vfx.sprite_index = spr_demon_projectile_explod;
 		_vfx.image_xscale = owner.sprite_scale * facing;

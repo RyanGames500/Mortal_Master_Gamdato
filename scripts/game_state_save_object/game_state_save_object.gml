@@ -4,10 +4,6 @@
 ///@param {int} id_map						The map to save the instance ids in
 ///@param {int} number						The number of instances that have already been saved
 ///@param {function/script} function		The function or script to run to save the data for each instance
-/*
-Saves data for all instances of the given object into the given buffer, using the passed function or script.
-Returns the number of instances saved in total.
-*/
 function game_state_save_object()
 	{
 	var _obj = argument[0];
@@ -21,14 +17,11 @@ function game_state_save_object()
 		{
 		with (instance_find(_obj, i))
 			{
-			//Object Index
 			buffer_write(_b, buffer_s16, object_index);
 		
-			//Total size
 			var _start_pos = buffer_tell(_b);
 			buffer_write(_b, buffer_u64, 0);
 		
-			//Run Function
 			if (is_method(_func))
 				{
 				var _method = method(id, _func);
@@ -39,10 +32,8 @@ function game_state_save_object()
 				script_execute(_func, _b);
 				}
 		
-			//Go back and add the buffer size
 			buffer_poke(_b, _start_pos, buffer_u64, (buffer_tell(_b) - _start_pos));
 		
-			//ID
 			_ids[? string(real(id))] = _num;
 			_num++;
 			}

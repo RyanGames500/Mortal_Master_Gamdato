@@ -20,17 +20,14 @@ function saori_light_crouch(_override_phase)
 			{
 			attack_frame--;
 
-			// Pre-impacto (apoyo de manos)
 			if (attack_frame == 2) then anim_frame = 1;
 
-			// Instante del golpe
 			if (attack_frame <= 0)
 				{
-				anim_frame = 2; // Frame 2: Impacto con destello
+				anim_frame = 2;
 				attack_phase = 1;
-				attack_frame = 12; // Duración total de recuperación (ligero agachado)
+				attack_frame = 12;
 
-				// Hitbox alineado al pie en posición agachada (X: 36, Y: 18)
 				var _hitbox = hitbox_create(74, 5, 0.7, 1, 5, 4);
 				_hitbox.knockback = 4;
 				}
@@ -43,7 +40,6 @@ function saori_light_crouch(_override_phase)
 			{
 			attack_frame--;
 
-			// Recorrido exacto de frames (3, 4, 5 y 6)
 			if (attack_frame == 9) then anim_frame = 3;
 			if (attack_frame == 6) then anim_frame = 4;
 			if (attack_frame == 4) then anim_frame = 5;

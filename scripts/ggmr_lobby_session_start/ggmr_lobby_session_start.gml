@@ -1,21 +1,16 @@
 ///@category GGMR
-/*
-Sends packets to the other players telling them to start the game. Only works if you are the lobby leader.
-*/
 function ggmr_lobby_session_start()
 	{
 	with (obj_ggmr_lobby) 
 		{
 		if (is_lobby_leader) 
 			{
-			//Make sure the numbers of players and spectators is correct
 			if (ggmr_lobby_status_code() != GGMR_LOBBY_STATUS.ok)
 				{
 				ggmr_error("There are either too many players or spectators to start the game!");
 				return false;
 				}
 			
-			//Send starting times to remote players
 			var _remote_players = [];
 			for (var i = 0; i < ds_list_size(lobby_members); i++) 
 				{

@@ -1,10 +1,5 @@
-/*
-This is the passive script for Bear.
-It is run every frame and allows motion input attacks to be performed.
-*/
 function bear_passive()
 	{
-	//--- SUPER (3 barras): doble media luna + fuerte. Cancela cualquier ataque que ya conecto (golpe o bloqueo) ---
 	if (attack_script != bear_super_beam && super_state_ok())
 		{
 		if (meter_can_pay(METER_COST_SUPER_MAX) && input_pressed(INPUT.attack_light2) && super_motion_check())
@@ -18,13 +13,10 @@ function bear_passive()
 			}
 		}
 	
-	// Si ya estamos en el super no se dispara nada mas
 	if (attack_script == bear_super_beam) then return;
 	
-	// Solo desde estados donde se puede lanzar un especial (incluye cancel de normales)
 	if (!special_state_ok()) then return;
 	
-	//--- Aliento de fuego: media vuelta (adelante, abajo-adelante, abajo, abajo-atrás, atrás) + ligero ---
 	if (input_motion_check([STICK_DIR.backward, STICK_DIR.forward]))
 		{
 		if (input_pressed(INPUT.attack_light2))
@@ -39,7 +31,6 @@ function bear_passive()
 			}
 		}
 	
-	//--- Zarpazo + onda: cuarto de círculo (abajo, abajo-adelante, adelante) + medio ---
 	if (input_motion_check([STICK_DIR.down, STICK_DIR.forward_down, STICK_DIR.forward]))
 		{
 		if (input_pressed(INPUT.attack_light2))
@@ -54,7 +45,6 @@ function bear_passive()
 			}
 		}
 	
-	//--- Misiles: abajo, atrás + fuerte ---
 	if (input_motion_check([STICK_DIR.down, STICK_DIR.backward]))
 		{
 		if (input_pressed(INPUT.attack_heavy))
@@ -69,7 +59,6 @@ function bear_passive()
 			}
 		}
 	
-	//--- Embestida: atrás, adelante + fuerte ---
 	if (input_motion_check([STICK_DIR.backward, STICK_DIR.forward]))
 		{
 		if (input_pressed(INPUT.attack_heavy))
@@ -84,7 +73,6 @@ function bear_passive()
 			}
 		}
 	
-	//--- Burla (prueba): abajo, abajo + debil, solo parado, sin barra ---
 	if (input_motion_check([STICK_DIR.down, STICK_DIR.down]))
 		{
 		if (input_pressed(INPUT.attack_light))

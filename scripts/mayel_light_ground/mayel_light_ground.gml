@@ -1,49 +1,39 @@
 function mayel_light_ground(_override_phase)
 	{
-	//Phases
 	var _phase = !is_undefined(_override_phase) ? _override_phase : attack_phase;
 	switch (_phase)
 		{
-		//Init
 		case ATTACK_PHASE.start:
 			{
-			//Animation
 			anim_sprite = spr_mayel_light_ground; 
 			anim_frame = 0;
-			anim_speed = 0; // Determinista: cero image_speed para el rollback
+			anim_speed = 0;
 			
-			attack_frame = 5; // Startup del primer golpe
+			attack_frame = 5;
 			
 			hsp = 0;
 			vsp = 0;
 			}
 		break;
 		
-		//-------------------------------------------------------------
-		//--- PRIMER GOLPE (Jab 1: Sub-imágenes 0 -> 4) ---------------
-		//-------------------------------------------------------------
 		case 0:
 			{
 			attack_frame--;
 			
-			// Option Select: Option Select para agarres
 			if (state_time <= throw_input_leniency && input_pressed(INPUT.attack_heavy))
 				{
 				attack_start(attacks[$ "throw"]);
 				return;
 				}
 			
-			// Transición fluida de startup
 			if (attack_frame == 3) then anim_frame = 1;
 			
-			// Impacto del 1er golpe -> Frame 2 visual
 			if (attack_frame == 0)
 				{
 				anim_frame = 2; 
 				attack_phase = 1;
 				attack_frame = 10;
 				
-				// Hitbox adaptada al tamaño de Mayel
 				var _hitbox = hitbox_create(76, 8, 0.5, 0.5, 3, 4);
 				_hitbox.knockback = 5;
 				}
@@ -52,7 +42,6 @@ function mayel_light_ground(_override_phase)
 			}
 		break;
 		
-		// Endlag 1er Golpe (Sub-imágenes 3 y 4)
 		case 1:
 			{
 			attack_frame--;
@@ -62,7 +51,6 @@ function mayel_light_ground(_override_phase)
 			
 			player_move();
 			
-			// Cancelación al 2do Golpe
 			if (attack_frame < 8 && attack_connected)
 				{
 				if (input_pressed(INPUT.attack_light, true))
@@ -84,9 +72,6 @@ function mayel_light_ground(_override_phase)
 			}
 		break;
 		
-		//-------------------------------------------------------------
-		//--- SEGUNDO GOLPE (Jab 2: Sub-imágenes 5 -> 8) --------------
-		//-------------------------------------------------------------
 		case 2:
 			{
 			attack_frame--;
@@ -95,7 +80,6 @@ function mayel_light_ground(_override_phase)
 			if (attack_frame == 5) then anim_frame = 7;
 			if (attack_frame == 2) then anim_frame = 8;
 			
-			// Impacto del 2do golpe
 			if (attack_frame == 0)
 				{
 				anim_frame = 7; 
@@ -110,7 +94,6 @@ function mayel_light_ground(_override_phase)
 			}
 		break;
 		
-		// Endlag 2do Golpe (Sub-imágenes 7 y 8)
 		case 3:
 			{
 			attack_frame--;
@@ -124,7 +107,6 @@ function mayel_light_ground(_override_phase)
 				}
 			player_move();
 			
-			// Cancelación al 3er Golpe (Remate con Martillo)
 			if (attack_frame < 8 && attack_connected)
 				{
 				if (input_pressed(INPUT.attack_light, true))
@@ -146,26 +128,21 @@ function mayel_light_ground(_override_phase)
 			}
 		break;
 		
-		//-------------------------------------------------------------
-		//--- TERCER GOLPE (Remate Martillo: Sub-imágenes 9 -> 18) ----
-		//-------------------------------------------------------------
 		case 4:
 			{
 			attack_frame--;
 			
 			if (attack_frame == 2) then anim_frame = 10;
 			
-			// Impacto del Remate de Martillo -> Frame 11 y 12
 			if (attack_frame == 0)
 				{
 				anim_frame = 13; 
 				attack_phase = 5;
 				
-				// HITBOX DE REMATE: lanzador de juggle (el rival queda en el aire)
 				var _hitbox = hitbox_create(139, 18, 1, 0.5, 5, 6);
-				_hitbox.knockback = 4;       // Empuje horizontal bajo para poder seguirlo
-				_hitbox.launch_speed = 25;   // Velocidad de despegue
-				_hitbox.hitstun = 40;        // Que no se recupere antes de caer
+				_hitbox.knockback = 4;
+				_hitbox.launch_speed = 25;
+				_hitbox.hitstun = 40;
 				_hitbox.angle = 35;
 				
 				if (attack_connected)
@@ -182,7 +159,6 @@ function mayel_light_ground(_override_phase)
 			}
 		break;
 		
-		// Endlag Final del Martillo (Sub-imágenes 13 a 18)
 		case 5:
 			{
 			attack_frame--;
@@ -201,7 +177,6 @@ function mayel_light_ground(_override_phase)
 				}
 			player_move();
 			
-			// CANCEL DE SALTO: si el remate conectó y mantienes arriba, salta tras el rival
 			if (attack_connected && stick_check_direction(STICK_DIR.up_any))
 				{
 				attack_stop();
@@ -213,13 +188,12 @@ function mayel_light_ground(_override_phase)
 					{
 					hsp = 0;
 					}
-				vsp = -25;   // igual que el launch_speed del remate, para subir junto al rival
+				vsp = -25;
 				anim_frame = 0;
 				player_state_set(PLAYER_STATE.aerial);
 				break;
 				}
 			
-			// Fin del combo
 			if (attack_frame <= 0)
 				{
 				attack_stop();

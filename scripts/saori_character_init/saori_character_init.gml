@@ -1,10 +1,5 @@
-/*
-This is the character init script for Saori.
-It is called once at the start of the game and sets up all character-specific values.
-*/
 function saori_character_init()
 	{
-	// Properties
 	character_name = "SAORI";
 	
 	walk_speed = 9;             
@@ -22,19 +17,13 @@ function saori_character_init()
 	
 	has_grab = true;
 	sprite_scale = 6;
-	//dara tamaño personalizado a cada har desd aqui
-	//meter_max = 100; /150 default 100:perzonalizdo
 	
-	//Environmental collision box
 	sprite_index = spr_saori_ecb;
 	
-	//Palette
 	palette_sprite = spr_saori_palette;
 
-	//hurtbox
 	hurtbox_sprite = spr_saori_hurtbox;
 
-	//Gameplay sprites
 	sprites[$ "idle"			] = spr_saori_idle;
 	sprites[$ "win"				] = spr_saori_win;	
 	sprites[$ "crouch"			] = spr_saori_crouch;
@@ -56,7 +45,6 @@ function saori_character_init()
 	sprites[$ "getup"			] = spr_saori_idle;
 	sprites[$ "throw_victim"	] = spr_mayel_lanzado;
 	
-	//Attack scripts
 	attacks[$ "light_ground"	] = saori_light_ground;
 	attacks[$ "medium_ground"	] = saori_medium_ground;
 	attacks[$ "medium_aerial"	] = saori_medium_aerial;
@@ -66,17 +54,13 @@ function saori_character_init()
 	attacks[$ "heavy_ground"	] = saori_heavy_ground;
 	attacks[$ "heavy_crouch"	] = saori_heavy_crouch;
 	attacks[$ "heavy_aerial"	] = saori_heavy_aerial;
-	//attacks[$ "throw"			] = blocky_throw;
 
-	//Fatalities
 	fat_cabeza = spr_saori_fat_cabeza;
 	fat_cuerpo = spr_saori_fat_cuerpo;
 	fat_pies = spr_generic_fat_pies;
 
-	//sprite_inicial
 	anim_sprite = sprites[$ "idle"];
 
-	//Passive script
 	passive = saori_passive;
 	}
 

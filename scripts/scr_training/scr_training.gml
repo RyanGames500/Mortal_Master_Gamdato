@@ -1,34 +1,31 @@
-/* Modo entrenamiento (nuestro). Solo offline: nunca online ni en replay. */
-global.training = false;			// true = estamos en el modo entrenamiento
-global.training_dummy = 0;			// 0 parado, 1 agachado, 2 saltando, 3 bloquea parado, 4 bloquea agachado, 5 lo controla el jugador 2
+global.training = false;
+global.training_dummy = 0;
 global.training_dummy_names = ["STANDING", "CROUCHING", "JUMPING", "BLOCK STANDING", "BLOCK CROUCHING", "PLAYER 2"];
-global.training_inf_hp = true;		// true = la vida se rellena sola cuando vuelves a estar libre
-global.training_inf_meter = true;	// true = la barra siempre esta llena
-global.training_framedata = true;	// true = muestra el frame meter y el dano
-global.training_fd = undefined;		// datos medidos de cada jugador (se crean solos)
-global.training_cdmg = [0, 0];		// dano acumulado del combo que recibe cada jugador
-global.training_bar = [[], []];		// cuadritos del frame meter de cada jugador
-global.training_bar_idle = 0;		// frames seguidos con los dos en neutral
-global.training_bar_total = 0;		// frames totales de la secuencia que se muestra
-global.training_adv = [0, 0];		// ventaja que se muestra a la derecha de cada fila
-global.training_inputs = true;		// true = muestra el historial de inputs
-global.training_inp = [[], []];		// filas del historial de inputs de cada jugador
-global.training_last_dmg = 0;		// dano del ultimo golpe que conecto
-global.training_combo_dmg = 0;		// dano total del combo actual
-global.training_max_dmg = 0;		// dano de combo mas alto de la sesion
-global.training_rec_state = 0;		// 0 nada, 1 grabando, 2 repitiendo
-global.training_rec = [];			// frames grabados del dummy
-global.training_rec_pos = 0;		// frame actual de la repeticion
-global.training_ml_open = false;		// true = lista de movimientos abierta
-global.training_ml_idx = 0;			// personaje que se esta viendo
+global.training_inf_hp = true;
+global.training_inf_meter = true;
+global.training_framedata = true;
+global.training_fd = undefined;
+global.training_cdmg = [0, 0];
+global.training_bar = [[], []];
+global.training_bar_idle = 0;
+global.training_bar_total = 0;
+global.training_adv = [0, 0];
+global.training_inputs = true;
+global.training_inp = [[], []];
+global.training_last_dmg = 0;
+global.training_combo_dmg = 0;
+global.training_max_dmg = 0;
+global.training_rec_state = 0;
+global.training_rec = [];
+global.training_rec_pos = 0;
+global.training_ml_open = false;
+global.training_ml_idx = 0;
 global.training_ml_names = ["BEAR", "BLITSEN", "JOE", "BRAD", "DANNY", "DEMON", "LEX", "MARIEL", "MAYEL", "SAORI", "SCAR", "NINJA"];
-global.training_fdb = [];			// frame data guardado de cada movimiento (se llena solo)
-global.training_ml_tab = 0;			// 0 = especiales, 1 = normales
-global.training_fat = false;		// true = cualquier golpe con fatality lo hace al instante (F6)
-/* Entradas del dummy (jugador 2) segun el modo elegido. Se llama desde input_collect_local. */
+global.training_fdb = [];
+global.training_ml_tab = 0;
+global.training_fat = false;
 function training_dummy_input(_buffer)
 	{
-	// hacia donde mira el dummy (para saber cual es "atras")
 	var _f = 1;
 	with (obj_player)
 		{
@@ -55,7 +52,6 @@ function training_dummy_input(_buffer)
 	if (_dir != STICK_DIR.neutral) then buffer_poke(_buffer, 0, buffer_u8, _dir);
 	}
 
-/* Reinicia posiciones y estados de los dos jugadores (igual que entre rondas). Se llama desde obj_game. */
 function training_reset()
 	{
 	fatality_music_stop();		
@@ -85,7 +81,6 @@ function training_reset()
 	global.training_rec_pos = 0;
 	}
 
-/* Devuelve el jugador numero _n (0 o 1), o noone si no existe */
 function training_player(_n)
 	{
 	var _r = noone;
@@ -96,7 +91,6 @@ function training_player(_n)
 	return _r;
 	}
 
-/* True si el jugador esta en un estado neutral (puede actuar) */
 function training_state_free(_p)
 	{
 	var _s = _p.state;
@@ -105,20 +99,15 @@ function training_state_free(_p)
 		 || _s == PLAYER_STATE.dash || _s == PLAYER_STATE.dash_left);
 	}
 
-/* Datos medidos de un jugador */
 function training_fd_new()
 	{
 	return {
-		// seguimiento del ataque actual
 		on: false, script: -1, name: "", frame: 0, startup: -1, seg: [], on_now: false, gap: 0, proj: false,
-		// seguimiento de la ventaja
 				prev_conn: false, adv_on: false, adv_def: noone, adv_script: -1, adv_count: 0, adv_ta: -1, adv_td: -1, adv_kind: 1, adv_label: "",
-		// lo que se midio
 		d_startup: "-", d_active: "-", d_recovery: "-", d_hit: "-", d_block: "-", d_dmg: "-", d_hits: "-", d_combo: "-"
 		};
 	}
 
-/* Que hitboxes tiene el jugador ahora: 1 = golpe normal, 2 = proyectil (suma los dos si hay ambos) */
 function training_fd_hitbox_kind(_p)
 	{
 	var _kind = 0;
@@ -137,7 +126,6 @@ function training_fd_hitbox_kind(_p)
 	return _kind;
 	}
 
-/* Mide el frame data de los dos jugadores. Se llama cada frame de combate desde training_update. */
 function training_fd_update()
 	{
 	if (is_undefined(global.training_fd)) then global.training_fd = [training_fd_new(), training_fd_new()];
@@ -149,7 +137,6 @@ function training_fd_update()
 		if (_p == noone || _o == noone) then continue;
 		var _fd = global.training_fd[_n];
 		
-		// --- 1) Conecto un golpe (hit o bloqueo)? ---
 		var _conn = _p.attack_connected;
 		if (_conn && !_fd.prev_conn)
 			{
@@ -161,7 +148,6 @@ function training_fd_update()
 			_fd.d_combo = string(global.training_cdmg[_o.player_number]);
 			_fd.d_hits = string(_o.combo_hits);
 			
-			// numeros que se muestran en el bloque de dano
 			global.training_last_dmg = _dmg;
 			global.training_combo_dmg = global.training_cdmg[_o.player_number];
 			global.training_max_dmg = max(global.training_max_dmg, global.training_combo_dmg);
@@ -200,7 +186,6 @@ function training_fd_update()
 				_fd.adv_td = -1;
 				}
 			}
-		// Guarda el dano (y KD / agarre) del movimiento para la lista de movimientos
 		if (_conn && !_fd.prev_conn && script_exists(_p.attack_script))
 			{
 			var _rec = training_fdb_get(_p.attack_script, true);
@@ -209,13 +194,12 @@ function training_fd_update()
 			}			
 		_fd.prev_conn = _conn;
 		
-		// --- 2) Ventaja: frames hasta que cada uno puede actuar, contados desde que termina el hitlag ---
 		if (_fd.adv_on)
 			{
 			var _d = _fd.adv_def;
 			if (_p.state == PLAYER_STATE.attacking && _p.attack_script != _fd.adv_script)
 				{
-				_fd.adv_on = false;		// el atacante empezo otro ataque (cancel): no se mide
+				_fd.adv_on = false;
 				}
 			else if (_p.hitlag_frame <= 0 && _d.hitlag_frame <= 0)
 				{
@@ -234,7 +218,6 @@ function training_fd_update()
 						var _rec2 = training_fdb_get(_fd.adv_script, true);
 						if (_fd.adv_kind == 2) then _rec2.blk = _txt; else _rec2.hit = _txt;
 						}					
-					// numeros que se muestran a la derecha del frame meter
 					global.training_adv[_n] = _adv;
 					global.training_adv[1 - _n] = -_adv;
 					
@@ -247,15 +230,12 @@ function training_fd_update()
 				}
 			}
 		
-		// El combo del rival termina cuando vuelve a estar libre
 		if (training_state_free(_o)) then global.training_cdmg[_o.player_number] = 0;
 		
-		// --- 3) Startup / activos / recuperacion del ataque actual ---
 		if (_p.state == PLAYER_STATE.attacking)
 			{
 			if (!_fd.on || _fd.script != _p.attack_script)
 				{
-				// ataque nuevo
 				_fd.on = true;
 				_fd.script = _p.attack_script;
 				_fd.name = script_exists(_p.attack_script) ? script_get_name(_p.attack_script) : "?";
@@ -276,7 +256,6 @@ function training_fd_update()
 				_fd.adv_on = false;
 				}
 			
-			// los frames de hitlag no cuentan
 			if (_p.hitlag_frame <= 0)
 				{
 				_fd.frame++;
@@ -310,7 +289,6 @@ function training_fd_update()
 			}
 		else if (_fd.on)
 			{
-			// el ataque termino: se guardan los numeros
 			_fd.on = false;
 			if (array_length(_fd.seg) > 0)
 				{
@@ -336,7 +314,6 @@ function training_fd_update()
 				_fd.d_recovery = string(_fd.frame);
 				}
 			
-			// Guarda startup / activos / recuperacion para la lista de movimientos
 			if (script_exists(_fd.script))
 				{
 				var _rec3 = training_fdb_get(_fd.script, true);
@@ -348,23 +325,21 @@ function training_fd_update()
 		}
 	}
 
-/* Color de cada tipo de cuadrito del frame meter (nuestro) */
 function training_bar_color(_t)
 	{
 	switch (_t)
 		{
-		case 1:	return make_colour_rgb(70, 220, 110);		// startup
-		case 2:	return make_colour_rgb(230, 50, 60);		// activo
-		case 3:	return make_colour_rgb(245, 170, 30);		// recuperacion
-		case 4:	return make_colour_rgb(205, 200, 245);		// stun
+		case 1:	return make_colour_rgb(70, 220, 110);
+		case 2:	return make_colour_rgb(230, 50, 60);
+		case 3:	return make_colour_rgb(245, 170, 30);
+		case 4:	return make_colour_rgb(205, 200, 245);
 		}
-	return make_colour_rgb(44, 44, 52);						// neutral / vacio
+	return make_colour_rgb(44, 44, 52);
 	}
 
-/* Agrega un cuadrito a cada fila. Si la barra esta llena, se corre hacia la izquierda. */
 function training_bar_push(_ta, _tb)
 	{
-	if (array_length(global.training_bar[0]) >= 50)		// 50 = cuadritos visibles (igual que en training_draw_bars)
+	if (array_length(global.training_bar[0]) >= 50)
 		{
 		array_delete(global.training_bar[0], 0, 1);
 		array_delete(global.training_bar[1], 0, 1);
@@ -374,7 +349,6 @@ function training_bar_push(_ta, _tb)
 	global.training_bar_total++;
 	}
 
-/* Anota un cuadrito por frame para el frame meter (nuestro). Se llama desde training_update, despues de training_fd_update. */
 function training_bar_update()
 	{
 	if (is_undefined(global.training_fd)) then return;
@@ -382,7 +356,6 @@ function training_bar_update()
 	var _pl = [training_player(0), training_player(1)];
 	if (_pl[0] == noone || _pl[1] == noone) then return;
 	
-	// "ocupado" = atacando o en stun (golpeado, bloqueando, agarrado, en el piso)
 	var _busy = [false, false];
 	for (var _b = 0; _b < 2; _b++)
 		{
@@ -392,14 +365,12 @@ function training_bar_update()
 				  || _st == PLAYER_STATE.acostado);
 		}
 	
-	// los dos en neutral: la barra se queda quieta y a la vista
 	if (!_busy[0] && !_busy[1])
 		{
 		global.training_bar_idle++;
 		return;
 		}
 	
-	// empieza una accion: si hubo mucho neutral es una secuencia nueva, si no se pega a la anterior
 	if (global.training_bar_idle > 10)
 		{
 		global.training_bar = [[], []];
@@ -412,10 +383,9 @@ function training_bar_update()
 		}
 	global.training_bar_idle = 0;
 	
-	// con hitlag el juego esta congelado: no se anota nada
 	if (_pl[0].hitlag_frame > 0 || _pl[1].hitlag_frame > 0) then return;
 	
-	var _ts = [0, 0];		// 0 neutral, 1 startup, 2 activo, 3 recuperacion, 4 stun
+	var _ts = [0, 0];
 	for (var _n = 0; _n < 2; _n++)
 		{
 		var _fd = global.training_fd[_n];
@@ -433,7 +403,6 @@ function training_bar_update()
 	training_bar_push(_ts[0], _ts[1]);
 	}
 
-/* Anota el input de cada jugador este frame en su historial (nuestro). Se llama desde training_update. */
 function training_inputs_update()
 	{
 	for (var _n = 0; _n < 2; _n++)
@@ -443,9 +412,9 @@ function training_inputs_update()
 		
 		var _dir = _p.inputs[INPUT.stick_dir];
 		var _mask = 0;
-		if (_p.inputs[INPUT.attack_light] == 0) then _mask = _mask | 1;		// L = Light
-		if (_p.inputs[INPUT.attack_light2] == 0) then _mask = _mask | 2;	// M = Medium
-		if (_p.inputs[INPUT.attack_heavy] == 0) then _mask = _mask | 4;		// H = Heavy
+		if (_p.inputs[INPUT.attack_light] == 0) then _mask = _mask | 1;
+		if (_p.inputs[INPUT.attack_light2] == 0) then _mask = _mask | 2;
+		if (_p.inputs[INPUT.attack_heavy] == 0) then _mask = _mask | 4;
 		
 		var _rows = global.training_inp[_n];
 		if (array_length(_rows) > 0 && _rows[0].dir == _dir && _rows[0].mask == _mask)
@@ -460,10 +429,8 @@ function training_inputs_update()
 		}
 	}
 
-/* Cambia el estado de la grabacion: 0 nada, 1 grabar, 2 repetir (nuestro). Al empezar reinicia las posiciones. */
 function training_rec_set(_s)
 	{
-	// no se puede repetir si no hay nada grabado
 	if (_s == 2 && array_length(global.training_rec) == 0) then _s = 0;
 	
 	if (_s == 1) then global.training_rec = [];
@@ -473,18 +440,15 @@ function training_rec_set(_s)
 	global.training_rec_pos = 0;
 	}
 
-/* Pasa al siguiente estado: nada -> grabar -> repetir -> nada (nuestro). Lo usa el menu de pausa. */
 function training_rec_cycle()
 	{
 	training_rec_set((global.training_rec_state + 1) mod 3);
 	}
 
-/* Guarda los inputs de este frame del dummy mientras grabas (nuestro). Se llama desde input_collect_local. */
 function training_rec_capture(_buffer)
 	{
 	if (obj_game.game_meta_state != GAME_META_STATE.running) then return;
 	
-	// hacia donde mira el dummy: las direcciones se guardan relativas a eso
 	var _f = 1;
 	with (obj_player)
 		{
@@ -493,17 +457,15 @@ function training_rec_capture(_buffer)
 	
 	var _e = {
 		d: cpu_flip_dir(buffer_peek(_buffer, 0, buffer_u8), _f),
-		l: buffer_peek(_buffer, 1, buffer_bool),		// light
-		h: buffer_peek(_buffer, 2, buffer_bool),		// heavy
-		m: buffer_peek(_buffer, 4, buffer_bool)			// medium
+		l: buffer_peek(_buffer, 1, buffer_bool),
+		h: buffer_peek(_buffer, 2, buffer_bool),
+		m: buffer_peek(_buffer, 4, buffer_bool)
 		};
 	array_push(global.training_rec, _e);
 	
-	// maximo 30 segundos
 	if (array_length(global.training_rec) >= 1800) then global.training_rec_state = 0;
 	}
 
-/* Escribe en el buffer el input grabado de este frame (nuestro). Se llama desde input_collect_local para el dummy. */
 function training_rec_play(_buffer)
 	{
 	if (obj_game.game_meta_state != GAME_META_STATE.running) then return;
@@ -518,7 +480,6 @@ function training_rec_play(_buffer)
 	var _p2 = training_player(1);
 	var _f = (_p2 != noone) ? _p2.facing : 1;
 	
-	// termino la secuencia: espera a que el dummy quede libre y vuelve a empezar
 	if (global.training_rec_pos >= _n)
 		{
 		if (_p2 != noone && training_state_free(_p2)) then global.training_rec_pos = 0;
@@ -535,7 +496,6 @@ function training_rec_play(_buffer)
 	if (_e.m) then buffer_poke(_buffer, 4, buffer_bool, true);
 	}
 
-/* Se llama cada frame de combate desde game_advance_frame, antes de revisar los KO. Se llama desde obj_game. */
 function training_update()
 	{
 	if (keyboard_check_pressed(vk_f1)) then global.show_hitboxes = !global.show_hitboxes;
@@ -545,7 +505,6 @@ function training_update()
 	if (keyboard_check_pressed(vk_f5)) then training_rec_set((global.training_rec_state == 2) ? 0 : 2);
 	if (keyboard_check_pressed(vk_f6)) then global.training_fat = !global.training_fat;
 	
-	// Prueba de fatalities: cuando termina la animación, se reinicia solo
 	var _fat_done = false;
 	with (obj_player)
 		{
@@ -559,7 +518,6 @@ function training_update()
 		}
 	if (_fat_done) then training_reset();
 	fatality_shake();	
-	// Frame data: se mide ANTES de rellenar la vida (si no, se pierde el dano)
 	if (global.training_framedata)
 		{
 		training_fd_update();
@@ -570,13 +528,10 @@ function training_update()
 	
 	with (obj_player)
 		{
-		// barra siempre llena
 		if (global.training_inf_meter) then meter = meter_max;
 		
-		// nadie muere
 		if (hp < 1) then hp = 1;
 		
-		// la vida se rellena cuando el personaje vuelve a estar libre
 		if (global.training_inf_hp)
 			{
 			var _free = (state == PLAYER_STATE.idle || state == PLAYER_STATE.crouch
@@ -591,7 +546,6 @@ function training_update()
 		}
 	}
 
-/* Dibuja texto con sombra negra para que se lea sin fondo (solo dibujo). Usa la alineacion que ya este puesta. */
 function training_draw_txt(_x, _y, _txt, _sc, _col)
 	{
 	draw_set_color(c_black);
@@ -600,7 +554,6 @@ function training_draw_txt(_x, _y, _txt, _sc, _col)
 	draw_text_transformed(_x, _y, _txt, _sc, _sc, 0);
 	}
 
-/* Dibuja un numero de ventaja: verde si es positivo, rojo si es negativo, blanco si no (solo dibujo) */
 function training_draw_adv(_x, _y, _txt, _sc)
 	{
 	var _col = c_white;
@@ -613,7 +566,6 @@ function training_draw_adv(_x, _y, _txt, _sc)
 	return _x + (string_width(_txt) * _sc);
 	}
 
-/* Dibuja el frame meter de los dos jugadores, abajo en el centro (solo dibujo). Se llama desde training_draw_hud. */
 function training_draw_bars()
 	{
 	if (!global.training_framedata || is_undefined(global.training_fd)) then return;
@@ -705,7 +657,6 @@ function training_draw_bars()
 	draw_set_valign(fa_top);
 	}
 
-/* Dibuja una flecha apuntando hacia _ang (0 derecha, 90 arriba, 180 izquierda, 270 abajo) (solo dibujo) */
 function training_draw_arrow(_cx, _cy, _ang, _alpha, _r = 9)
 	{
 	var _tx = _cx + lengthdir_x(_r, _ang);
@@ -729,7 +680,6 @@ function training_draw_arrow(_cx, _cy, _ang, _alpha, _r = 9)
 	draw_set_alpha(1);
 	}
 
-/* Dibuja un boton redondo con su letra (solo dibujo) */
 function training_draw_btn(_cx, _cy, _col, _letter, _alpha, _r = 11)
 	{
 	var _t = 0.4 * (_r / 11);
@@ -747,7 +697,6 @@ function training_draw_btn(_cx, _cy, _col, _letter, _alpha, _r = 11)
 	draw_set_alpha(1);
 	}
 
-/* Dibuja el historial de inputs: P1 a la izquierda, P2 a la derecha solo si el dummy es JUGADOR 2 (solo dibujo) */
 function training_draw_inputs()
 	{
 	if (!global.training_inputs) then return;
@@ -840,7 +789,6 @@ function training_draw_inputs()
 	draw_set_valign(fa_top);
 	}
 
-/* Dibuja el bloque de dano, en el centro de arriba debajo del timer (solo dibujo). Se llama desde training_draw_hud. */
 function training_draw_damage()
 	{
 	if (!global.training_framedata) then return;
@@ -887,7 +835,6 @@ function training_draw_damage()
 	draw_set_valign(fa_top);
 	}
 
-/* Letrero de grabando / repitiendo, arriba al centro (solo dibujo). Se llama desde training_draw_hud. */
 function training_draw_rec()
 	{
 	if (global.training_rec_state == 0) then return;
@@ -933,7 +880,6 @@ function training_draw_rec()
 	draw_set_valign(fa_top);
 	}
 
-/* Todo lo que se dibuja del modo entrenamiento (solo dibujo). Se llama al final del Draw GUI de obj_game. */
 function training_draw_hud()
 	{
 	if (!global.training || obj_game.game_meta_state != GAME_META_STATE.running || obj_game.game_paused) then return;
@@ -951,10 +897,8 @@ function training_draw_hud()
 		}	
 	}
 
-/* Vuelve al menu principal desde una partida local (nuestro). Solo offline. */
 function game_exit_to_menu()
 	{
-	// Si venias del arcade, la partida del arcade se abandona
 	global.arcade_mode = 0;
 	global.arcade = undefined;
 	global.training = false;
@@ -963,7 +907,6 @@ function game_exit_to_menu()
 	room_goto(rm_main_menu);
 	}
 	
-/* Abre la lista de movimientos empezando en el personaje del jugador 1 (nuestro). Lo llama el menu de pausa. */
 function training_ml_show()
 	{
 	global.training_ml_open = true;
@@ -981,11 +924,6 @@ function training_ml_show()
 			}
 		}
 	}
-/*
-Movimientos de un personaje (nuestro). Cada fila: [nombre, comando en fichas, costo de barra, tipo].
-Tipo: 0 especial, 1 EX, 2 super. Costo: 100 = 1 barra.
-Fichas del comando: ver training_ml_draw_cmd. Sacado de los *_passive de cada personaje.
-*/
 function training_ml_data(_name)
 	{
 	var _qcf = "D DF F";
@@ -1078,7 +1016,6 @@ function training_ml_data(_name)
 	}
 
 
-/* Dibuja la lista de movimientos con su frame data (solo dibujo). Se llama desde pause_menu_draw. */
 function training_draw_movelist()
 	{
 	var _gw = display_get_gui_width();
@@ -1255,9 +1192,6 @@ function training_draw_movelist()
 	draw_set_valign(fa_top);
 	}
 	
-/* Dibuja un comando con iconos (nuestro). Fichas separadas por espacio:
-   F B D U DF DB UF UB = flechas (F = adelante, mirando a la derecha), L M H = botones, + y / = simbolos.
-   Devuelve la x donde termino. Solo dibujo. */
 function training_ml_draw_cmd(_x, _cy, _cmd)
 	{
 	var _s = _cmd + " ";
@@ -1314,7 +1248,6 @@ function training_ml_draw_cmd(_x, _cy, _cmd)
 	return _x;
 	}
 	
-/* Busca (o crea) el registro de frame data de un movimiento (nuestro). _fn = la funcion del ataque. */
 function training_fdb_get(_fn, _create)
 	{
 	for (var _i = 0; _i < array_length(global.training_fdb); _i++)
@@ -1327,7 +1260,6 @@ function training_fdb_get(_fn, _create)
 	return _e;
 	}	
 	
-/* Filas de golpes normales (nuestro): parado, agachado y aereo de L, M y H. _th = agarre o -1 si no tiene. */
 function training_ml_normals(_ls, _ms, _hs, _lc, _mc, _hc, _la, _ma, _ha, _th)
 	{
 	var _r = [
@@ -1345,7 +1277,6 @@ function training_ml_normals(_ls, _ms, _hs, _lc, _mc, _hc, _la, _ma, _ha, _th)
 	return _r;
 	}
 
-/* Golpes normales de un personaje (nuestro). Sacado de los *_character_init. */
 function training_ml_data_normals(_name)
 	{
 	switch (_name)

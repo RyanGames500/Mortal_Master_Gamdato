@@ -5,11 +5,11 @@ function bear_charge(_override_phase)
 		{
 		case ATTACK_PHASE.start:
 			{
-			anim_sprite = spr_bear_embestida;	// sprite nuestro: la hoja de 6 cuadros
+			anim_sprite = spr_bear_embestida;
 			anim_frame = 0;
 			anim_speed = 0;
 			
-			attack_frame = 14;	// preparación (cuadros 0 y 1)
+			attack_frame = 14;
 			
 			hsp = 0;
 			vsp = 0;
@@ -26,10 +26,8 @@ function bear_charge(_override_phase)
 				return;
 				}
 			
-			// La segunda pose de la preparación
 			if (attack_frame == 7) then anim_frame = 1;
 			
-			// Arranca la embestida
 			if (attack_frame == 0)
 				{
 				anim_frame = 2;
@@ -58,7 +56,6 @@ function bear_charge(_override_phase)
 			if (attack_frame == 16) then anim_frame = 4;
 			if (attack_frame == 8)  then anim_frame = 5;
 			
-			// Frena al final para que no corte de golpe (nuestro)
 			if (attack_frame < 8) then hsp *= 0.75;
 			
 			player_move();

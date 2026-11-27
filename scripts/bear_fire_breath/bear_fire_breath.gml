@@ -1,13 +1,11 @@
 function bear_fire_breath(_override_phase)
 	{
-	//Phases
 	var _phase = !is_undefined(_override_phase) ? _override_phase : attack_phase;
 	switch (_phase)
 		{
-		//Init
 		case ATTACK_PHASE.start:
 			{
-			anim_sprite = spr_bear_fireball;	// tu hoja del oso (7 cuadros)
+			anim_sprite = spr_bear_fireball;
 			anim_frame = 0;
 			anim_speed = 0;
 			
@@ -18,12 +16,10 @@ function bear_fire_breath(_override_phase)
 			}
 		break;
 		
-		//Startup: mano en la boca (cuadros 0 y 1)
 		case 0:
 			{
 			attack_frame--;
 			
-			// Throws (este ataque se lanza con ligero, así que el agarre usa el fuerte)
 			if (has_grab && state_time <= throw_input_leniency && input_pressed(INPUT.attack_heavy))
 				{
 				attack_start(attacks[$ "throw"]);
@@ -43,12 +39,10 @@ function bear_fire_breath(_override_phase)
 			}
 		break;
 		
-		//Active: 3 bolas de fuego (cuadros 2 -> 6)
 		case 1:
 			{
 			attack_frame--;
 			
-			//Shots
 			var _shot = -1;
 			if (attack_frame == 36) then _shot = 0;
 			if (attack_frame == 27) then _shot = 1;
@@ -58,11 +52,9 @@ function bear_fire_breath(_override_phase)
 				{
 				anim_frame = 3 + _shot;
 				
-				//Corta, media y lejana
 				var _speeds = [5, 8, 11];
 				var _lifts = [-9, -10, -11];
 				
-				//Boca: píxel de la hoja corregido por el origen real y la escala
 				var _x_off = (47 - sprite_get_xoffset(anim_sprite)) * sprite_scale;
 				var _y_off = (12 - sprite_get_yoffset(anim_sprite)) * sprite_scale;
 				
@@ -82,7 +74,6 @@ function bear_fire_breath(_override_phase)
 			
 			player_move();
 			
-			//Stop
 			if (attack_frame <= 0)
 				{
 				attack_stop();

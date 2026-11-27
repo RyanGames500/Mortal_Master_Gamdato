@@ -1,13 +1,5 @@
 ///@category GGMR
 ///@param [number]			The number of messages in the history to get
-/*
-Returns an array of all chat messages stored in the chat history.
-You can also specify a certain number of messages to get.
-Each message is a struct with the following properties:
-	- message : The string of the message.
-	- name : The string of the person who sent the message.
-	- time : An array with the hour, minute, and second of when the message was sent.
-*/
 function ggmr_chat_history()
 	{
 	with (obj_ggmr_chat)

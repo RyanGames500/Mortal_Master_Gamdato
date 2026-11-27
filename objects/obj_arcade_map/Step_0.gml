@@ -38,7 +38,6 @@ if (_ok && phase_t > travel_frames + 15)
 		}
 	else
 		{
-		// mode 2 = victoria: aquí puedes desbloquear personajes, por ejemplo character_unlock("...");
 		global.arcade_mode = 0;
 		global.arcade = undefined;
 		room_goto(rm_main_menu);

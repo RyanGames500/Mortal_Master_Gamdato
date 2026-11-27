@@ -3,23 +3,19 @@ function brad_medium_ground(_override_phase)
 	var _phase = !is_undefined(_override_phase) ? _override_phase : attack_phase;
 	switch (_phase)
 		{
-		//Init
 		case ATTACK_PHASE.start:
 			{
 			anim_sprite = spr_brad_medium_ground;
 			anim_frame = 0;
-			anim_speed = 0; // Determinista para Rollback Netcode
+			anim_speed = 0;
 			
-			attack_frame = 6; // Startup del 1er Golpe
+			attack_frame = 6;
 			
 			hsp = 0;
 			vsp = 0;
 			}
 		break;
 		
-		//-------------------------------------------------------------
-		//--- PRIMER GOLPE (Sub-imágenes 0 -> 8 | Hitbox en Frame 2) ---
-		//-------------------------------------------------------------
 		case 0:
 			{
 			attack_frame--;
@@ -30,15 +26,13 @@ function brad_medium_ground(_override_phase)
 				return;
 				}
 			
-			// Startup visual (Frames 0 y 1)
 			if (attack_frame == 3) then anim_frame = 1;
 			
-			// Impacto del 1er golpe -> Frame 2
 			if (attack_frame == 0)
 				{
 				anim_frame = 2;
 				attack_phase = 1;
-				attack_frame = 18; // 6 sub-imágenes de endlag (3-8) x 3 frames c/u
+				attack_frame = 18;
 				
 				var _hitbox = hitbox_create(95, -65, 1.1, 0.5, 4, 2);
 				_hitbox.knockback = 6;
@@ -48,7 +42,6 @@ function brad_medium_ground(_override_phase)
 			}
 		break;
 		
-		// Endlag 1er Golpe (Sub-imágenes 3, 4, 5, 6, 7, 8)
 		case 1:
 			{
 			attack_frame--;
@@ -70,7 +63,7 @@ function brad_medium_ground(_override_phase)
 					
 					anim_frame = 9;
 					attack_phase = 2;
-					attack_frame = 6; // Startup 2do golpe (2 sub-imágenes)
+					attack_frame = 6;
 					hsp = 7 * facing;
 					}
 				}
@@ -83,22 +76,17 @@ function brad_medium_ground(_override_phase)
 			}
 		break;
 		
-		//-------------------------------------------------------------
-		//--- SEGUNDO GOLPE (Sub-imágenes 9 -> 17 | Hitbox en Frame 11)
-		//-------------------------------------------------------------
 		case 2:
 			{
 			attack_frame--;
 			
-			// Startup visual (Frame 10)
 			if (attack_frame == 3) then anim_frame = 10;
 			
-			// Impacto del 2do golpe -> Frame 11
 			if (attack_frame == 0)
 				{
 				anim_frame = 11;
 				attack_phase = 3;
-				attack_frame = 18; // 6 sub-imágenes de endlag (12-17) x 3 frames c/u
+				attack_frame = 18;
 				
 				var _hitbox = hitbox_create(105, -35, 1.2, 0.4, 5, 5);
 				_hitbox.knockback = 7;
@@ -108,7 +96,6 @@ function brad_medium_ground(_override_phase)
 			}
 		break;
 		
-		// Endlag 2do Golpe (Sub-imágenes 12, 13, 14, 15, 16, 17)
 		case 3:
 			{
 			attack_frame--;
@@ -134,7 +121,7 @@ function brad_medium_ground(_override_phase)
 					
 					anim_frame = 18;
 					attack_phase = 4;
-					attack_frame = 3; // Startup del remate (1 sub-imagen: la 18)
+					attack_frame = 3;
 					hsp = 10 * facing;
 					}
 				}
@@ -147,14 +134,10 @@ function brad_medium_ground(_override_phase)
 			}
 		break;
 		
-		//-------------------------------------------------------------
-		//--- TERCER GOLPE / REMATE (Sub-imágenes 18 -> 24 | Hitbox Frame 19)
-		//-------------------------------------------------------------
 		case 4:
 			{
 			attack_frame--;
 			
-			// Impacto del Remate -> Frame 19
 			if (attack_frame == 0)
 				{
 				anim_frame = 19;
@@ -167,11 +150,11 @@ function brad_medium_ground(_override_phase)
 				
 				if (attack_connected)
 					{
-					attack_frame = 15; // 5 sub-imágenes de endlag (20-24) x 3 frames c/u
+					attack_frame = 15;
 					}
 				else
 					{
-					attack_frame = 24; // Castigo amplio si falla
+					attack_frame = 24;
 					}
 				}
 			
@@ -179,7 +162,6 @@ function brad_medium_ground(_override_phase)
 			}
 		break;
 		
-		// Endlag Final (Sub-imágenes 20, 21, 22, 23, 24)
 		case 5:
 			{
 			attack_frame--;

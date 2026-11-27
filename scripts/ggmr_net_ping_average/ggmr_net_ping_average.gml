@@ -1,8 +1,5 @@
 ///@category GGMR
 ///@param {int} connection_id		The connection to get the ping of
-/*
-Gets the average ping of the given connection.
-*/
 function ggmr_net_ping_average()
 	{
 	with (obj_ggmr_net) 

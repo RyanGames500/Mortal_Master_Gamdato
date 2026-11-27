@@ -1,6 +1,5 @@
 ///@description Rift / True Frame / Disconnecting
 
-//Calculating the rift
 var _remote_players = array_length(session_players_remote);
 var _average_remote_frame = 0;
 var _average_remote_frame_advantage = 0;
@@ -11,7 +10,6 @@ for (var i = 0; i < _remote_players; i++)
 	_average_remote_frame_advantage += session_client_list[| _number][@ GGMR_CLIENT.frame_advantage];
 	}
 
-//Find the averages
 _average_remote_frame /= _remote_players;
 _average_remote_frame_advantage /= _remote_players;
 session_frame_advantage = session_frame + (-_average_remote_frame);
@@ -25,14 +23,12 @@ for (var i = 0; i < GGMR_RIFT_ARRAY_SIZE; i++)
 	}
 session_rift = _rift_sum / GGMR_RIFT_ARRAY_SIZE;
 
-//Add in the remote input delay offset
 if (session_input_delay_remote_received_all)
 	{
 	session_rift += session_input_delay - session_input_delay_remote_average;
 	session_rift = clamp(session_rift, -GGMR_PREDICTION_FRAMES_MAX, GGMR_PREDICTION_FRAMES_MAX);
 	}
 
-//Get the input delay of other players
 if (!session_input_delay_remote_received_all && session_true_frame % 30 == 0)
 	{
 	buffer_reset(session_packet);
@@ -41,7 +37,6 @@ if (!session_input_delay_remote_received_all && session_true_frame % 30 == 0)
 		{
 		var _number = session_players_remote[@ i];
 		
-		//Don't count spectators
 		if (session_client_list[| _number][@ GGMR_CLIENT.client_type] != GGMR_CLIENT_TYPE.player) then continue;
 	
 		var _received = session_client_list[| _number][@ GGMR_CLIENT.input_delay];
@@ -53,10 +48,8 @@ if (!session_input_delay_remote_received_all && session_true_frame % 30 == 0)
 		}
 	}
 
-//True Frame
 session_true_frame++;
 
-//Disconnections - check every 60 frames
 if (session_true_frame % 60 == 0)
 	{
 	for (var i = 0; i < _remote_players; i++)
@@ -67,7 +60,6 @@ if (session_true_frame % 60 == 0)
 			{
 			session_state = GGMR_SESSION_STATE.disconnected;
 			
-			//Run the callback
 			session_callbacks.on_event(GGMR_EVENT.disconnect);
 			break;
 			}

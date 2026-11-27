@@ -4,25 +4,20 @@ phase_t++;
 var _pad = input_pad_find();
 var _mob = instance_exists(obj_mobile_controls) && obj_mobile_controls.active;
 
-// Confirmar (intro y resultado)
 var _ok = keyboard_check_pressed(ord("J")) || keyboard_check_pressed(vk_space) || keyboard_check_pressed(vk_enter)
 	|| mouse_check_button_pressed(mb_left) || device_mouse_check_button_pressed(0, mb_left)
 	|| (_pad >= 0 && (gamepad_button_check_pressed(_pad, gp_face1) || gamepad_button_check_pressed(_pad, gp_start)));
-// Cargar la barra: ligero (J / A)
 var _fill = keyboard_check_pressed(ord("J")) || (_pad >= 0 && gamepad_button_check_pressed(_pad, gp_face1))
 	|| (_mob && obj_mobile_controls.light_pressed);
-// Golpear: heavy (L / B)
 var _strike = keyboard_check_pressed(ord("L")) || (_pad >= 0 && gamepad_button_check_pressed(_pad, gp_face2))
 	|| (_mob && obj_mobile_controls.heavy_pressed);
 
-// Esc / Select = saltar el evento (sin premio y sin avanzar)
 if (keyboard_check_pressed(vk_escape) || (_pad >= 0 && gamepad_button_check_pressed(_pad, gp_select)))
 	{
 	room_goto(rm_arcade_map);
 	exit;
 	}
 
-// Particulas
 for (var _i = array_length(particles) - 1; _i >= 0; _i--)
 	{
 	var _p = particles[_i];
@@ -76,7 +71,6 @@ else if (phase == 1)
 			{
 			_b.strike--;
 			
-			// Momento del impacto
 			if (_b.strike == 12)
 				{
 				var _m = mats[_b.mat];
@@ -106,10 +100,10 @@ else if (phase == 1)
 					burst(_b.cx, floor_y - 60, 18, 7, _m.col2, 14);
 					burst(_b.cx, floor_y - 60, 30, 11, make_colour_rgb(210, 255, 220), 18);
 					_b.rub = _b.mat;
-					_b.mat = array_length(mats);		// el obstaculo desaparece
+					_b.mat = array_length(mats);
 					_b.bar = 0;
 					_b.cracks = 0;
-					_b.state = 2;						// gano: un solo obstaculo por evento
+					_b.state = 2;
 					}
 				else
 					{
@@ -126,7 +120,6 @@ else if (phase == 1)
 			}
 		}
 	
-	// Fin del reto (arcade: una sola cabina)
 	if (booths[0].state >= 2)
 		{
 		end_t++;
@@ -145,7 +138,7 @@ else
 		if (won)
 			{
 			global.arcade.continues++;
-			global.arcade.tym = min(booths[0].lvl + 1, array_length(mats) - 1);	// la proxima vez, el siguiente obstaculo
+			global.arcade.tym = min(booths[0].lvl + 1, array_length(mats) - 1);
 			}
 		room_goto(rm_arcade_map);
 		}

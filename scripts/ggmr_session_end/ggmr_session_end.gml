@@ -1,8 +1,4 @@
 ///@category GGMR
-/*
-Sets the session to the "end" state.
-During this state, the session waits for other players to confirm all of the previous frames, and then runs the "finish_game" callback.
-*/
 function ggmr_session_end()
 	{
 	with (obj_ggmr_session) 

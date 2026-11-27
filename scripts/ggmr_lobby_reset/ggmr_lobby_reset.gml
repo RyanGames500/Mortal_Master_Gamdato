@@ -1,7 +1,4 @@
 ///@category GGMR
-/*
-Resets all of the lobby values. If there are players in your lobby, it kicks them. If you are in someone else’s lobby, this makes you leave that lobby.
-*/
 function ggmr_lobby_reset()
 	{
 	with (obj_ggmr_lobby) 
@@ -9,7 +6,6 @@ function ggmr_lobby_reset()
 		lobby_state = GGMR_LOBBY_STATE.idle;
 		lobby_timer = 0;
 		
-		//Either leave the lobby, or kick every other member
 		if (!is_lobby_leader) 
 			{
 			ggmr_lobby_leave();
@@ -28,7 +24,6 @@ function ggmr_lobby_reset()
 			}
 		ds_list_clear(lobby_members);
 		
-		//Reset variables
 		is_lobby_leader = true;
 		lobby_member_number = 0;
 		ggmr_net_connection_delete_all();
@@ -36,7 +31,6 @@ function ggmr_lobby_reset()
 		lobby_joined_connection = -1;
 		lobby_joined_name = "";
 		
-		//Call the reset callback function
 		if (!is_undefined(lobby_reset_callback))
 			{
 			lobby_reset_callback();

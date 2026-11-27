@@ -1,16 +1,13 @@
 function mariel_medium_ground(_override_phase)
 	{
-	//Phases
 	var _phase = !is_undefined(_override_phase) ? _override_phase : attack_phase;
 	switch (_phase)
 		{
-		//Init
 		case ATTACK_PHASE.start:
 			{
-			//Animation
 			anim_sprite = spr_mariel_medium_ground;
 			anim_frame = 0;
-			anim_speed = 0; // Determinista para rollback
+			anim_speed = 0;
 			
 			attack_frame = 6;
 			
@@ -19,18 +16,13 @@ function mariel_medium_ground(_override_phase)
 			}
 		break;
 		
-		//-------------------------------------------------------------
-		//--- PATADA FRONTAL (frames 0 -> 6 | Hitbox en frame 3) ------
-		//-------------------------------------------------------------
 		case 0:
 			{
 			attack_frame--;
 			
-			// Startup (frames 1 y 2)
 			if (attack_frame == 4) then anim_frame = 1;
 			if (attack_frame == 2) then anim_frame = 2;
 			
-			// Impacto -> frame 3 (patada extendida)
 			if (attack_frame == 0)
 				{
 				anim_frame = 3;
@@ -45,7 +37,6 @@ function mariel_medium_ground(_override_phase)
 			}
 		break;
 		
-		// Endlag patada frontal (frames 4, 5, 6)
 		case 1:
 			{
 			attack_frame--;
@@ -56,7 +47,6 @@ function mariel_medium_ground(_override_phase)
 			
 			player_move();
 			
-			// Cancelación a la patada giratoria
 			if (attack_frame < 8 && attack_connected)
 				{
 				if (input_pressed(INPUT.attack_light2, true))
@@ -78,18 +68,13 @@ function mariel_medium_ground(_override_phase)
 			}
 		break;
 		
-		//-------------------------------------------------------------
-		//--- PATADA GIRATORIA (frames 7 -> 14 | Hitbox en frame 10) --
-		//-------------------------------------------------------------
 		case 2:
 			{
 			attack_frame--;
 			
-			// Giro (frames 8 y 9)
 			if (attack_frame == 9) then anim_frame = 8;
 			if (attack_frame == 5) then anim_frame = 9;
 			
-			// Impacto -> frame 10 (estela grande)
 			if (attack_frame == 0)
 				{
 				anim_frame = 10;
@@ -104,7 +89,6 @@ function mariel_medium_ground(_override_phase)
 			}
 		break;
 		
-		// Endlag giratoria (frames 11, 12, 13, 14)
 		case 3:
 			{
 			attack_frame--;
@@ -120,7 +104,6 @@ function mariel_medium_ground(_override_phase)
 				}
 			player_move();
 			
-			// Cancelación al nalgaso
 			if (attack_frame < 8 && attack_connected)
 				{
 				if (input_pressed(INPUT.attack_light2, true))
@@ -142,18 +125,13 @@ function mariel_medium_ground(_override_phase)
 			}
 		break;
 		
-		//-------------------------------------------------------------
-		//--- NALGASO (frames 15 -> 22 | Hitbox en frame 18) ----------
-		//-------------------------------------------------------------
 		case 4:
 			{
 			attack_frame--;
 			
-			// Carga (frames 16 y 17)
 			if (attack_frame == 4) then anim_frame = 16;
 			if (attack_frame == 2) then anim_frame = 17;
 			
-			// Impacto -> frame 18 (embestida horizontal)
 			if (attack_frame == 0)
 				{
 				anim_frame = 18;
@@ -168,7 +146,7 @@ function mariel_medium_ground(_override_phase)
 					}
 				else
 					{
-					attack_frame = 22; // Castigo si falla
+					attack_frame = 22;
 					}
 				}
 			
@@ -176,7 +154,6 @@ function mariel_medium_ground(_override_phase)
 			}
 		break;
 		
-		// Endlag final (frames 19 -> 22), por rangos para que sirva con ambas duraciones
 		case 5:
 			{
 			attack_frame--;
@@ -192,7 +169,6 @@ function mariel_medium_ground(_override_phase)
 				}
 			player_move();
 			
-			// Fin del combo
 			if (attack_frame <= 0)
 				{
 				attack_stop();

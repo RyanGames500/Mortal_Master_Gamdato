@@ -9,9 +9,6 @@
 ///@param {real} [variation]		The maximum variation in the length of the lines
 ///@param {color} [color]			The color of the lines
 ///@param {real} [random]			A number to randomize the lines with
-/*
-Draws actions lines centered around the given x and y.
-*/
 function draw_action_lines()
 	{
 	var _x = argument[0];

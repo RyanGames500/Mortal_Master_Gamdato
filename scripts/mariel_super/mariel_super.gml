@@ -1,48 +1,32 @@
-/*
-Super 1 de Mariel (nuestro): EMBESTIDA DEMOLEDORA (2 barras). Doble media luna + medium.
-Usa spr_mariel_dash, spr_mariel_run_agarrando, spr_mariel_jump_agarrando, spr_mariel_fall_agarrando y spr_mariel_agachada_agarrando.
-Sale corriendo con un agarre que NO se bloquea (se esquiva saltando encima o alejandose). Si falla, queda vendida.
-Si agarra: el rival real queda sobre sus manos (el codigo lo mueve), corre con el, salta, cae y lo estrella en el piso:
-el golpe lo da una hitbox del engine con knockback + knockdown. Salen escombros (dibujo, sin random).
-No puede morir hasta el golpe final (super_lock).
-Fases: 0 = preparacion, 1 = embestida con agarre, 2 = corre cargandolo, 3 = salta y cae cargandolo, 4 = estrellon, 5 = recuperacion, 6 = recuperacion si fallo.
-*/
 
-//--- EMBESTIDA Y AGARRE ---
-#macro MR1_WINDUP		10		//frames de preparacion (intocable)
-#macro MR1_DASH_V		15		//velocidad de la embestida
-#macro MR1_DASH_T		26		//frames maximos de la embestida (el alcance es ~ V x T)
-#macro MR1_GRAB_X		85		//donde esta el agarre delante de ella
-#macro MR1_DMG_GRAB		3		//dano del agarre
-//--- CARGANDOLO ---
-#macro MR1_CARRY_V		7		//velocidad corriendo con el rival
-#macro MR1_CARRY_T		22		//frames corriendo con el rival
-#macro MR1_JUMP_MULT	1.1		//multiplica el salto normal de ella (jump_vsp del engine)
-#macro MR1_JUMP_HSP		1.3		//multiplica la velocidad horizontal del salto normal de ella (jump_hsp del engine)
-#macro MR1_ANIM_STEP	3		//frames del juego por cada frame de las animaciones agarrando
-//--- POSE DEL RIVAL (en pixeles del sprite desde los pies de Mariel; x hacia adelante, y negativo = arriba) ---
-#macro MR1_CARRY_X		0		//corriendo (sprite run_agarrando): donde queda el rival acostado sobre sus manos
+#macro MR1_WINDUP		10
+#macro MR1_DASH_V		15
+#macro MR1_DASH_T		26
+#macro MR1_GRAB_X		85
+#macro MR1_DMG_GRAB		3
+#macro MR1_CARRY_V		7
+#macro MR1_CARRY_T		22
+#macro MR1_JUMP_MULT	1.1
+#macro MR1_JUMP_HSP		1.3
+#macro MR1_ANIM_STEP	3
+#macro MR1_CARRY_X		0
 #macro MR1_CARRY_Y		-50
-#macro MR1_JUMP_X		0		//subiendo (sprite jump_agarrando): donde queda el rival
+#macro MR1_JUMP_X		0
 #macro MR1_JUMP_Y		-50
-#macro MR1_FALL_X		-20		//cayendo (sprite fall_agarrando): donde queda el rival
+#macro MR1_FALL_X		-20
 #macro MR1_FALL_Y		-74
-#macro MR1_SLAM_X		20		//estrellado: donde queda el rival acostado en el piso
+#macro MR1_SLAM_X		20
 #macro MR1_SLAM_Y		0
-#macro MR1_RIVAL_FACE	1		//hacia donde mira el rival acostado: 1 = igual que ella, -1 = al reves (usa el que deje la cabeza hacia atras)
-//--- ESTRELLON (hitbox real del engine) ---
-#macro MR1_DMG_SLAM		25		//dano del estrellon
-#macro MR1_SLAM_LAG		12		//pausa al pegar
-#macro MR1_SLAM_LAUNCH	14		//launch_speed del golpe (cuanto sale hacia arriba)
-#macro MR1_SLAM_KNOCK	22		//knockback del golpe (distancia horizontal ~ 9 veces este valor)
-//--- ESCOMBROS (solo dibujo) ---
-#macro MR1_DEBRIS_N		16		//cantidad de pedazos
-#macro MR1_DEBRIS_T		46		//frames que duran
-//--- RECUPERACION ---
-#macro MR1_END_LAG		28		//recuperacion despues del estrellon
-#macro MR1_MISS_LAG		50		//recuperacion si el agarre falla
+#macro MR1_RIVAL_FACE	1
+#macro MR1_DMG_SLAM		25
+#macro MR1_SLAM_LAG		12
+#macro MR1_SLAM_LAUNCH	14
+#macro MR1_SLAM_KNOCK	22
+#macro MR1_DEBRIS_N		16
+#macro MR1_DEBRIS_T		46
+#macro MR1_END_LAG		28
+#macro MR1_MISS_LAG		50
 
-/* Devuelve al rival (el otro jugador). Se llama desde Mariel. */
 function mariel_s1_rival()
 	{
 	var _r = noone;
@@ -53,7 +37,6 @@ function mariel_s1_rival()
 	return _r;
 	}
 
-/* Cuando el agarre conecta: pasa al rival a un estado sin posibilidad de romper el agarre. Se llama desde Mariel. */
 function mariel_s1_lock()
 	{
 	var _v = mariel_s1_rival();
@@ -73,7 +56,6 @@ function mariel_s1_lock()
 		}
 	}
 
-/* Pone al rival en una pose sobre/frente a Mariel (_k = 1 exacto, menos = suave). Se llama desde Mariel. */
 function mariel_s1_pose(_dx, _dy, _k)
 	{
 	var _v = mariel_s1_rival();
@@ -98,14 +80,12 @@ function mariel_s1_pose(_dx, _dy, _k)
 		}
 	}
 
-/* El estrellon: hitbox del engine con knockdown, justo donde esta el rival. Se llama desde Mariel. */
 function mariel_s1_slam_hit()
 	{
 	var _v = mariel_s1_rival();
 	if (_v == noone) then return;
 	
 	_v.image_angle = 0;
-	// el engine solo deja pegar una hitbox si attack_connected es false (el agarre lo dejo en true)
 	attack_connected = false;
 	
 	var _hx = (_v.x - x) * facing;
@@ -118,7 +98,6 @@ function mariel_s1_slam_hit()
 	_hb.knockback = MR1_SLAM_KNOCK;
 	}
 
-/* Si el rival quedo agarrado, lo suelta para que caiga normal. Se llama desde Mariel. */
 function mariel_s1_release()
 	{
 	var _v = mariel_s1_rival();
@@ -142,7 +121,6 @@ function mariel_s1_release()
 		}
 	}
 
-/* Efectos del estrellon: temblor, flash y sonido. Se llama desde Mariel. */
 function mariel_s1_hit_fx()
 	{
 	obj_game.cam_shake = max(obj_game.cam_shake, 28);
@@ -150,13 +128,12 @@ function mariel_s1_hit_fx()
 	if (!ggmr_session_is_in_rollback()) then hit_sfx_play(snd_hit_heavy);
 	}
 
-/* Crea los escombros (solo dibujo, no pega). Sin random: cada pedazo sale segun su numero. */
 function mariel_s1_debris_spawn(_x, _y)
 	{
 	var _d = hitbox_create(0, 0, 0.1, 0.1, 0, 4000);
 	_d.x = -100000;
 	_d.y = -100000;
-	_d.destroy_on_stop = true;		// sigue vivo aunque el ataque termine
+	_d.destroy_on_stop = true;
 	_d.custom_update = mariel_s1_debris_update;
 	_d.custom_draw = mariel_s1_debris_draw;
 	_d.f_t = 0;
@@ -181,13 +158,12 @@ function mariel_s1_debris_draw()
 	
 	for (var i = 0; i < MR1_DEBRIS_N; i++)
 		{
-		var _ang = 25 + (i * (130 / (MR1_DEBRIS_N - 1)));			// abanico hacia arriba, de 25 a 155 grados
+		var _ang = 25 + (i * (130 / (MR1_DEBRIS_N - 1)));
 		var _sp = 9 + (((i * 7) mod 5) * 2.5);
 		var _px = d_x + (dcos(_ang) * _sp * f_t * 0.9);
 		var _py = d_y - 20 - (dsin(_ang) * _sp * f_t) + (0.35 * f_t * f_t);
 		var _sz = (1 + (i mod 3)) * _p;
 		
-		// se quedan en el piso
 		_py = min(_py, obj_ground.y);
 		_px = floor(_px / _p) * _p;
 		_py = floor(_py / _p) * _p;
@@ -220,7 +196,6 @@ function mariel_super_slam(_override_phase)
 			super_lock = false;
 			ex_glow_color = make_colour_rgb(255, 70, 40);
 			
-			// Datos del super (nuestros)
 			mr_lag = MR1_MISS_LAG;
 			mr_fall0 = -1;
 			}
@@ -228,7 +203,6 @@ function mariel_super_slam(_override_phase)
 		
 		case ATTACK_PHASE.stop:
 			{
-			// Si la cortan con el rival agarrado, lo suelta para que caiga
 			if (attack_phase == 2 || attack_phase == 3 || attack_phase == 4)
 				{
 				mariel_s1_release();
@@ -238,7 +212,6 @@ function mariel_super_slam(_override_phase)
 			}
 		break;
 		
-		// 0 = preparacion (intocable)
 		case 0:
 			{
 			attack_frame--;
@@ -248,11 +221,10 @@ function mariel_super_slam(_override_phase)
 			if (attack_frame <= 0)
 				{
 				attack_phase = 1;
-				attack_frame = 0;		// desde aqui cuenta hacia arriba
+				attack_frame = 0;
 				attack_connected = false;
-				super_invuln = false;		// desde aqui, si falla, queda vendida
+				super_invuln = false;
 				
-				// agarre: no se bloquea, solo pega a rivales en el piso (se esquiva saltando o alejandose)
 				var _gb = hitbox_create(MR1_GRAB_X, -60, 1.4, 1.0, MR1_DMG_GRAB, MR1_DASH_T + 2);
 				_gb.grab = true;
 				_gb.grounded_only = true;
@@ -265,7 +237,6 @@ function mariel_super_slam(_override_phase)
 			}
 		break;
 		
-		// 1 = embestida: si agarra sigue el super; si no, se corta
 		case 1:
 			{
 			if (attack_connected)
@@ -277,9 +248,9 @@ function mariel_super_slam(_override_phase)
 					hsp = 0;
 					vsp = 0;
 					attack_phase = 2;
-					attack_frame = 0;		// desde aqui cuenta hacia arriba
+					attack_frame = 0;
 					super_invuln = true;
-					super_lock = true;		// el rival no puede morir hasta el estrellon
+					super_lock = true;
 					}
 				else
 					{
@@ -298,7 +269,6 @@ function mariel_super_slam(_override_phase)
 			
 			if (attack_frame >= MR1_DASH_T)
 				{
-				// fallo: queda vendida
 				mr_lag = MR1_MISS_LAG;
 				attack_phase = 6;
 				attack_frame = mr_lag;
@@ -306,7 +276,6 @@ function mariel_super_slam(_override_phase)
 			}
 		break;
 		
-		// 2 = corre cargandolo (el rival queda sobre sus manos)
 		case 2:
 			{
 			attack_frame++;
@@ -315,22 +284,19 @@ function mariel_super_slam(_override_phase)
 			anim_frame = (attack_frame div MR1_ANIM_STEP) mod sprite_get_number(spr_mariel_run_agarrando);
 			player_move();
 			
-			// los primeros frames lo sube suave a sus manos; despues va pegado
 			mariel_s1_pose(MR1_CARRY_X, MR1_CARRY_Y, (attack_frame < 6) ? 0.4 : 1);
 			
 			if (attack_frame >= MR1_CARRY_T)
 				{
-				// salta con el rival (salto del engine: jump_vsp, jump_hsp y grav)
 				vsp = -abs(jump_vsp) * MR1_JUMP_MULT;
 				hsp = jump_hsp * MR1_JUMP_HSP * facing;
 				mr_fall0 = -1;
 				attack_phase = 3;
-				attack_frame = 0;		// desde aqui cuenta hacia arriba
+				attack_frame = 0;
 				}
 			}
 		break;
 		
-		// 3 = salta y cae cargandolo; al tocar el piso lo estrella
 		case 3:
 			{
 			attack_frame++;
@@ -350,27 +316,24 @@ function mariel_super_slam(_override_phase)
 			
 			player_move();
 			
-			// subiendo usa la pose del salto, cayendo usa la pose de la caida
 			if (vsp < 0) then mariel_s1_pose(MR1_JUMP_X, MR1_JUMP_Y, 1);
 			else mariel_s1_pose(MR1_FALL_X, MR1_FALL_Y, 1);
 			
 			if ((vsp > 0 && bbox_bottom >= obj_ground.y) || attack_frame > 100)
 				{
-				// ESTRELLON: lo deja en el piso y sale la hitbox real del engine (ya puede matar)
 				hsp = 0;
 				vsp = 0;
 				super_lock = false;
 				anim_sprite = spr_mariel_agachada_agarrando;
 				anim_frame = 0;
 				attack_phase = 4;
-				attack_frame = 0;		// desde aqui cuenta hacia arriba
+				attack_frame = 0;
 				mariel_s1_pose(MR1_SLAM_X, MR1_SLAM_Y, 1);
 				mariel_s1_slam_hit();
 				}
 			}
 		break;
 		
-		// 4 = estrellon: si conecta el engine lo manda a volar en knockdown
 		case 4:
 			{
 			attack_frame++;
@@ -388,7 +351,6 @@ function mariel_super_slam(_override_phase)
 				break;
 				}
 			
-			// mientras no lo golpee, el rival se queda estrellado en el piso
 			if (_v.state == PLAYER_STATE.hitstun_aerial)
 				{
 				mariel_s1_pose(MR1_SLAM_X, MR1_SLAM_Y, 1);
@@ -404,13 +366,11 @@ function mariel_super_slam(_override_phase)
 				break;
 				}
 			
-			// si la hitbox no le pego, la vuelve a crear
 			if (attack_frame == 2 || attack_frame == 4)
 				{
 				mariel_s1_slam_hit();
 				}
 			
-			// si despues de varios intentos no le pego: lo suelta y queda vendida
 			if (attack_frame >= 8)
 				{
 				mariel_s1_release();
@@ -422,7 +382,6 @@ function mariel_super_slam(_override_phase)
 			}
 		break;
 		
-		// 5 = recuperacion despues del estrellon (vulnerable)
 		case 5:
 			{
 			attack_frame--;
@@ -448,7 +407,6 @@ function mariel_super_slam(_override_phase)
 			}
 		break;
 		
-		// 6 = recuperacion si fallo el agarre (vulnerable)
 		case 6:
 			{
 			attack_frame--;

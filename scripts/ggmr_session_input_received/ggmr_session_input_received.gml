@@ -1,9 +1,6 @@
 ///@category GGMR
 ///@param {int} player_index			The player to mark as having received inputs
 ///@param {int} [absolute_frame]		The absolute frame to mark
-/*
-Marks the input as received for the given player & frame.
-*/
 function ggmr_session_input_received()
 	{
 	with (obj_ggmr_session) 

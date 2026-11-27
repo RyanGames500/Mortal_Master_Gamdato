@@ -2,11 +2,6 @@
 ///@param {resouce} sounds				The sound to play, or an array of sounds to choose a sound from
 ///@param {real} [pitch_shift]			The maximum amount of pitch shift
 ///@param {real} [x]					The x position the sound is being played from, for stereo
-/*
-Plays the given hit sound effect.
-The default amount of pitch shift is <hit_sound_pitch_variance>.
-You can optionally supply an x position, which will determine which side the sound is played on if setting().<stereo_sound_effects> is true.
-*/
 function hit_sfx_play()
 	{
 	var _snd = argument[0];
@@ -15,7 +10,6 @@ function hit_sfx_play()
 	
 	if (_snd != -1)
 		{
-		//Choose a random sound to play if an array is given
 		if (is_array(_snd))
 			{
 			_snd = _snd[@ prng_number(0, array_length(_snd) - 1)];

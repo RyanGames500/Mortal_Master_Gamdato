@@ -1,16 +1,12 @@
-/*
-Movilidad ninja de Danny (nuestro): salto de pared y cambio químico.
-*/
-#macro DANNY_WALL_HOLD	24		// frames máximos pegado a la pared
-#macro DANNY_WALL_SLIDE	1		// qué tan rápido se resbala
-#macro DANNY_WALL_HSP	11		// fuerza del impulso hacia el lado
-#macro DANNY_WALL_VSP	-20		// fuerza del impulso hacia arriba
-#macro DANNY_SWAP_DIST	110		// qué tan detrás del rival aparece
-#macro DANNY_SWAP_OUT	8		// frames antes de desaparecer
-#macro DANNY_SWAP_HIDE	12		// frames escondido
-#macro DANNY_SWAP_END	10		// recuperación al aparecer
+#macro DANNY_WALL_HOLD	24
+#macro DANNY_WALL_SLIDE	1
+#macro DANNY_WALL_HSP	11
+#macro DANNY_WALL_VSP	-20
+#macro DANNY_SWAP_DIST	110
+#macro DANNY_SWAP_OUT	8
+#macro DANNY_SWAP_HIDE	12
+#macro DANNY_SWAP_END	10
 
-//Cada frame, desde danny_passive: cuenta los efectos y revisa si se pega a la pared
 function danny_ninja_update()
 	{
 	if (dn_fx_wall >= 0 && ++dn_fx_wall > 40) then dn_fx_wall = -1;
@@ -39,7 +35,6 @@ function danny_ninja_update()
 		}
 	}
 
-//A) Pegado a la pared
 function danny_wall_cling(_override_phase)
 	{
 	var _phase = !is_undefined(_override_phase) ? _override_phase : attack_phase;
@@ -50,7 +45,7 @@ function danny_wall_cling(_override_phase)
 			anim_sprite = variable_struct_exists(sprites, "wall") ? sprites[$ "wall"] : sprites[$ "jump"];
 			anim_frame = 0;
 			anim_speed = 0;
-			facing = -wall_side;	// de espaldas a la pared
+			facing = -wall_side;
 			hsp = 0;
 			vsp = 0;
 			attack_frame = 0;
@@ -61,7 +56,7 @@ function danny_wall_cling(_override_phase)
 			{
 			attack_frame++;
 			vsp = DANNY_WALL_SLIDE;
-			player_move(wall_side, vsp);	// se empuja contra la pared para quedarse pegado
+			player_move(wall_side, vsp);
 			
 			if (bbox_bottom >= obj_ground.y)
 				{
@@ -69,7 +64,6 @@ function danny_wall_cling(_override_phase)
 				break;
 				}
 			
-			//Se impulsa
 			if (attack_frame > 2 && stick_check_direction(STICK_DIR.up_any))
 				{
 				wall_used = true;
@@ -83,7 +77,6 @@ function danny_wall_cling(_override_phase)
 				break;
 				}
 			
-			//Se cansó: se suelta
 			if (attack_frame >= DANNY_WALL_HOLD)
 				{
 				wall_used = true;
@@ -98,7 +91,6 @@ function danny_wall_cling(_override_phase)
 		}
 	}
 
-//C) Cambio químico: desaparece y aparece detrás del rival
 function danny_swap(_override_phase)
 	{
 	var _phase = !is_undefined(_override_phase) ? _override_phase : attack_phase;
@@ -120,11 +112,10 @@ function danny_swap(_override_phase)
 			{
 			attack_frame++;
 			
-			//Revienta la cápsula y desaparece
 			if (attack_frame == DANNY_SWAP_OUT)
 				{
 				swap_hide = true;
-				super_invuln = true;	// no le pueden pegar escondido
+				super_invuln = true;
 				dn_fx_out = 0;
 				dn_out_x = x;
 				
@@ -139,13 +130,11 @@ function danny_swap(_override_phase)
 					var _dir = sign(_r.x - x);
 					if (_dir == 0) then _dir = facing;
 					var _tx = _r.x + _dir * DANNY_SWAP_DIST;
-					//Rival pegado a la pared: no cabe detrás, aparece al frente
 					if (_tx < 60 || _tx > room_width - 60) then _tx = _r.x - _dir * DANNY_SWAP_DIST;
 					swap_tx = clamp(_tx, 60, room_width - 60);
 					}
 				}
 			
-			//Aparece
 			if (attack_frame == DANNY_SWAP_OUT + DANNY_SWAP_HIDE)
 				{
 				x = swap_tx;
@@ -169,7 +158,6 @@ function danny_swap(_override_phase)
 		}
 	}
 
-//Una nube de gas químico (solo dibujo)
 function danny_gas(_cx, _cy, _age, _n, _k)
 	{
 	if (_age < 0 || _age >= 40) return;
@@ -188,19 +176,16 @@ function danny_gas(_cx, _cy, _age, _n, _k)
 	draw_set_colour(c_white);
 	}
 
-//Efectos de Danny (lo llama player_draw). Devuelve true si no hay que dibujar el cuerpo
 function danny_draw_extra()
 	{
 	var _s = sprite_scale;
 	
-	//Vapor mientras está pegado y al impulsarse
 	if (state == PLAYER_STATE.attacking && attack_script == danny_wall_cling)
 		{
 		danny_gas(x + wall_side * 20, y, attack_frame mod 20, 4, 30);
 		}
 	danny_gas(dn_wall_x, dn_wall_y, dn_fx_wall, 14, 40);
 	
-	//Cápsula rota en el piso donde desapareció
 	if (dn_fx_out >= 0)
 		{
 		var _gy = obj_ground.y;

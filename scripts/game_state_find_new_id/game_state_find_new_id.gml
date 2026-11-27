@@ -2,9 +2,6 @@
 ///@param {int} id_map				The map containing the old ids
 ///@param {int} new_id_map			The map containing the new ids
 ///@param {id} id					The old id to conver to a new id.
-/*
-Gets the new id of the specified instance after the game state is loaded.
-*/
 function game_state_find_new_id()
 	{
 	var _ids = argument[0];

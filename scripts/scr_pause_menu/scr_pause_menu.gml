@@ -1,13 +1,10 @@
-/* Menu de pausa offline (nuestro). Solo para VS local, arcade y entrenamiento: online sigue con el "PAUSED" de siempre. */
 
-/* Opciones del menu segun el modo */
 function pause_menu_items()
 	{
 	if (global.training) then return ["resume", "moves", "dummy", "rec", "hp", "meter", "hitbox", "fd", "inputs", "reset", "exit"];
 	return ["resume", "moves", "exit"];
 	}
 
-/* Texto de cada opcion */
 function pause_menu_label(_id)
 	{
 	switch (_id)
@@ -27,7 +24,6 @@ function pause_menu_label(_id)
 	return _id;
 	}
 
-/* Navegacion del menu. Se llama desde obj_game (Step) mientras esta pausado y offline. */
 function pause_menu_update()
 	{
 	if (!variable_instance_exists(id, "pause_index")) then pause_index = 0;
@@ -43,7 +39,6 @@ function pause_menu_update()
 	var _ok = keyboard_check_pressed(vk_enter);
 	var _back = keyboard_check_pressed(vk_escape);
 	
-	// Mando
 	var _pad = input_pad_find();
 	if (_pad >= 0)
 		{
@@ -55,7 +50,6 @@ function pause_menu_update()
 		_back = _back || gamepad_button_check_pressed(_pad, gp_face2);
 		}
 	
-	// Tactil / mouse (nuestro): el primer toque nuevo de este frame, en coordenadas del GUI
 	var _tx = -1;
 	var _ty = -1;
 	for (var _t = 0; _t < 5; _t++)
@@ -68,11 +62,8 @@ function pause_menu_update()
 			}
 		}
 	
-	// Lista de movimientos abierta: solo se maneja ella (nuestro)
-	// Lista de movimientos abierta: solo se maneja ella (nuestro)
 	if (global.training_ml_open)
 		{
-		// tocar a los lados cambia de personaje, el centro cambia de pestana, y abajo en el centro vuelve
 		if (_tx >= 0)
 			{
 			var _gw = display_get_gui_width();
@@ -82,7 +73,6 @@ function pause_menu_update()
 			else global.training_ml_tab = 1 - global.training_ml_tab;
 			}
 		
-		// arriba / abajo cambian de pestana
 		if (_up || _down) then global.training_ml_tab = 1 - global.training_ml_tab;
 		
 		var _nn = array_length(global.training_ml_names);
@@ -92,7 +82,6 @@ function pause_menu_update()
 		return;
 		}
 	
-	// Tocar una fila la elige y la activa. "Salir al menu" pide dos toques: el primero la elige, el segundo la activa.
 	if (_tx >= 0)
 		{
 		var _rh = 48;
@@ -114,7 +103,6 @@ function pause_menu_update()
 	if (_up) then pause_index = (pause_index + _n - 1) mod _n;
 	if (_down) then pause_index = (pause_index + 1) mod _n;
 	
-	// Izquierda / derecha cambian el valor; Enter tambien (avanza al siguiente)
 	var _step = (_right ? 1 : 0) - (_left ? 1 : 0);
 	if (_ok) then _step = 1;
 	
@@ -176,7 +164,6 @@ function pause_menu_update()
 	if (_back) then game_paused = false;
 	}
 
-/* Dibuja el menu de pausa (solo dibujo). Se llama desde obj_game (Draw GUI) mientras esta pausado y offline. */
 function pause_menu_draw()
 	{
 	if (global.training_ml_open)

@@ -1,10 +1,5 @@
-/*
-This is the character init script for Brad.
-It is called once at the start of the game and sets up all character-specific values.
-*/
 function brad_character_init()
 	{
-	//Properties
 	character_name = "BRAD";
 	walk_speed = 2.5;
 	dash_speed = 9;
@@ -12,27 +7,21 @@ function brad_character_init()
 	jump_hsp = 7;
 	jump_vsp = -23;
 	grav = 1.2;
-	has_backdash = false; // Sin backdash: cada acercamiento es un compromiso real, sin escape fácil
+	has_backdash = false;
 	has_grab = true;
 	hp_max = 200;
 	hp = hp_max;
 	hp_prev = hp_max;
 	
 	sprite_scale = 6.5;
-	air_hit_limit = 2;   // pesado: lo juguean menos
-	//dara tamaño personalizado a cada har desd aqui
-	//meter_max = 100; /150 default 100:perzonalizdo
+	air_hit_limit = 2;
 	
-	//Environmental collision box
 	sprite_index = spr_brad_ecb;
 	
-	//Palette
 	palette_sprite = spr_brad_palette;
 
-	//hurtbox
 	hurtbox_sprite = spr_brad_hurtbox;
 
-	//Gameplay sprites
 	sprites[$ "idle"			] = spr_brad_idle;
 	sprites[$ "win"				] = spr_brad_win;		
 	sprites[$ "crouch"			] = spr_brad_crouch;
@@ -54,7 +43,6 @@ function brad_character_init()
 	sprites[$ "getup"			] = spr_brad_idle;
 	sprites[$ "throw_victim"	] = spr_mayel_lanzado;
 	
-	//Attack scripts
 	attacks[$ "light_ground"	] = brad_light_ground;
 	attacks[$ "medium_ground"	] = brad_medium_ground;
 	attacks[$ "medium_aerial"	] = brad_medium_aerial;
@@ -66,15 +54,12 @@ function brad_character_init()
 	attacks[$ "heavy_aerial"	] = brad_heavy_aerial;
 	attacks[$ "throw"			] = brad_throw_brainbuster;
 
-	//Fatalities
 	fat_cabeza = spr_brad_fat_cabeza;
 	fat_cuerpo = spr_brad_fat_cuerpo;
 	fat_pies = spr_generic_fat_pies;
 
-	//sprite_inicial
 	anim_sprite = sprites[$ "idle"];
 
-	//Passive script
 	passive = brad_passive;
 	}
 

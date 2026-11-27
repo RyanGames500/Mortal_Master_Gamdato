@@ -1,9 +1,8 @@
 function danny_frost_ball_hitbox_draw()
 	{
-	var _s = owner.sprite_scale;		// escala 1: pixeles del mismo tamaño que Danny
-	var _f = (lifetime div 2) mod sprite_get_number(spr_danny_shuriken);	// gira rápido
+	var _s = owner.sprite_scale;
+	var _f = (lifetime div 2) mod sprite_get_number(spr_danny_shuriken);
 	
-	//Estelita del químico
 	draw_set_colour(make_colour_rgb(80, 255, 180));
 	for (var _k = 1; _k <= 3; _k++)
 		{
@@ -15,6 +14,5 @@ function danny_frost_ball_hitbox_draw()
 	draw_set_alpha(1);
 	draw_set_colour(c_white);
 	
-	//El shuriken
 	draw_sprite_ext(spr_danny_shuriken, _f, x, y, _s * facing, _s, 0, c_white, 1.0);
 	}

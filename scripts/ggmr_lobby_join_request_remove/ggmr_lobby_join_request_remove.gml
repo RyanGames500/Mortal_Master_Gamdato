@@ -1,8 +1,5 @@
 ///@category GGMR
 ///@param {int} index		The index of the join request to remove
-/*
-Removes the join request at the given index from the list.
-*/
 function ggmr_lobby_join_request_remove()
 	{
 	with (obj_ggmr_lobby) 

@@ -1,45 +1,34 @@
-/*
-Super 2 de Saori (nuestro): COMBO AEREO (3 barras). Doble media luna + heavy.
-Usa los sprites que ya tiene: spr_saori_special_shoryu (DP), spr_saori_light_aerial (punos), spr_saori_medium_aerial (patadas),
-spr_saori_special_divekick (remate) y spr_saori_super_tumble (saltos entre golpes).
-Usa tambien funciones del Super 1 (scr_saori_super): saori_sq_rival, saori_sq_lock, saori_sq_hold y saori_sq_impact. NO borres ese script.
-Fases: 0 = preparacion, 1 = DP (la unica que puede fallar), 2 = sube con el rival, 3 = combo en el aire,
-       4 = remate, 5 = caida y recuperacion.
-Si el DP falla o lo bloquean, el super se corta ahi y Saori queda vendida.
-Si conecta, el rival no puede morir hasta el remate (super_lock).
-*/
 
-#macro SQ2_WINDUP		5		//frames de preparacion
-#macro SQ2_DP_ACTIVE	8		//frames que dura el golpe del DP
-#macro SQ2_DP_VSP		-16		//impulso hacia arriba del DP
-#macro SQ2_DP_GRAV		1		//cuanto frena el DP cada frame
-#macro SQ2_DMG_DP		10		//daño del DP
-#macro SQ2_DMG_HIT		5		//daño de cada golpe del combo
-#macro SQ2_DMG_FINAL	22		//daño del remate
-#macro SQ2_LIFT			12		//frames que tarda en subir con el rival despues del DP
-#macro SQ2_HITS			6		//cuantos golpes tiene el combo
-#macro SQ2_MOVE_T		4		//frames del salto entre un golpe y el siguiente
-#macro SQ2_HOLD_T		7		//frames que se queda en la pose de cada golpe
-#macro SQ2_DIST			120		//distancia horizontal entre Saori y el rival al golpear
-#macro SQ2_PUNCH_UP		10		//altura de Saori sobre el centro del rival al dar un puñetazo
-#macro SQ2_KICK_UP		60		//altura de Saori sobre el centro del rival al dar una patada
-#macro SQ2_BUMP			10		//cuanto sube el rival con cada golpe
-#macro SQ2_RISE_T		12		//frames que tarda en subir antes del remate
-#macro SQ2_WAIT_T		6		//frames que toma impulso antes de bajar
-#macro SQ2_DIVE_T		8		//frames de la picada final
-#macro SQ2_SIDE			200		//cuanto se aleja Saori al lado antes del remate
-#macro SQ2_UP			200		//cuanto sube Saori sobre el rival antes del remate
-#macro SQ2_FINAL_V		22		//velocidad con la que el rival cae al piso en el remate
-#macro SQ2_FINAL_KNOCK	10		//empuje horizontal del rival en el remate
-#macro SQ2_MISS_LAG		30		//recuperacion si el DP falla o lo bloquean
-#macro SQ2_END_LAG		28		//recuperacion despues del remate
+#macro SQ2_WINDUP		5
+#macro SQ2_DP_ACTIVE	8
+#macro SQ2_DP_VSP		-16
+#macro SQ2_DP_GRAV		1
+#macro SQ2_DMG_DP		10
+#macro SQ2_DMG_HIT		5
+#macro SQ2_DMG_FINAL	22
+#macro SQ2_LIFT			12
+#macro SQ2_HITS			6
+#macro SQ2_MOVE_T		4
+#macro SQ2_HOLD_T		7
+#macro SQ2_DIST			120
+#macro SQ2_PUNCH_UP		10
+#macro SQ2_KICK_UP		60
+#macro SQ2_BUMP			10
+#macro SQ2_RISE_T		12
+#macro SQ2_WAIT_T		6
+#macro SQ2_DIVE_T		8
+#macro SQ2_SIDE			200
+#macro SQ2_UP			200
+#macro SQ2_FINAL_V		22
+#macro SQ2_FINAL_KNOCK	10
+#macro SQ2_MISS_LAG		30
+#macro SQ2_END_LAG		28
 
-/* Remate: el rival cae al piso en knockdown. Se llama desde Saori. */
 function saori_s2_finish()
 	{
 	var _v = saori_sq_rival();
 	
-	super_lock = false;			// desde aqui el remate SI puede matar
+	super_lock = false;
 	super_hit_fx = 16;
 	obj_game.cam_shake = max(obj_game.cam_shake, 26);
 	if (!ggmr_session_is_in_rollback()) then hit_sfx_play(snd_hit_heavy);
@@ -85,7 +74,6 @@ function saori_super_combo(_override_phase)
 			super_lock = false;
 			ex_glow_color = make_colour_rgb(255, 60, 200);
 			
-			// Datos del super (nuestros, los mismos nombres que usa el Super 1)
 			sq_rx = 0;
 			sq_ry = 0;
 			sq_px = 0;
@@ -104,7 +92,6 @@ function saori_super_combo(_override_phase)
 			super_invuln = false;
 			super_lock = false;
 			
-			// Si lo cortan en medio del combo, suelta al rival para que caiga
 			if (attack_phase >= 2 && attack_phase <= 4)
 				{
 				var _vs = saori_sq_rival();
@@ -122,7 +109,6 @@ function saori_super_combo(_override_phase)
 			}
 		break;
 		
-		// Preparacion (intocable)
 		case 0:
 			{
 			attack_frame--;
@@ -131,7 +117,6 @@ function saori_super_combo(_override_phase)
 			
 			if (attack_frame <= 0)
 				{
-				// DP hacia el rival
 				var _va = saori_sq_rival();
 				var _dist = 0;
 				if (_va != noone)
@@ -145,9 +130,9 @@ function saori_super_combo(_override_phase)
 				
 				anim_frame = 1;
 				attack_phase = 1;
-				attack_frame = 0;		// desde aqui cuenta hacia arriba
+				attack_frame = 0;
 				attack_connected = false;
-				super_invuln = false;		// desde aqui, si falla o lo bloquean, queda vendida
+				super_invuln = false;
 				
 				var _hb = hitbox_create(76, -74, 0.9, 1.2, SQ2_DMG_DP, SQ2_DP_ACTIVE);
 				_hb.hitlag = 8;
@@ -159,7 +144,6 @@ function saori_super_combo(_override_phase)
 			}
 		break;
 		
-		// DP: si conecta limpio sigue el super; si no, se corta
 		case 1:
 			{
 			if (attack_connected)
@@ -170,13 +154,12 @@ function saori_super_combo(_override_phase)
 					hsp = 0;
 					vsp = 0;
 					attack_phase = 2;
-					attack_frame = 0;		// desde aqui cuenta hacia arriba
+					attack_frame = 0;
 					super_invuln = true;
-					super_lock = true;		// el rival no puede morir hasta el remate
+					super_lock = true;
 					}
 				else
 					{
-					// lo bloquearon: rebota y cae
 					hsp = -facing * 4;
 					vsp = -6;
 					sq_tumble = false;
@@ -198,7 +181,6 @@ function saori_super_combo(_override_phase)
 			
 			if (bbox_bottom >= obj_ground.y || attack_frame >= SQ2_DP_ACTIVE + 4)
 				{
-				// fallo: cae y queda vendida
 				sq_tumble = false;
 				sq_landed = false;
 				sq_lag = SQ2_MISS_LAG;
@@ -208,7 +190,6 @@ function saori_super_combo(_override_phase)
 			}
 		break;
 		
-		// Sube con el rival: el rival queda suspendido y Saori salta con la bolita hasta su primera posicion
 		case 2:
 			{
 			var _u2 = (attack_frame + 1) / SQ2_LIFT;
@@ -228,12 +209,11 @@ function saori_super_combo(_override_phase)
 			if (attack_frame >= SQ2_LIFT)
 				{
 				attack_phase = 3;
-				attack_frame = 0;		// desde aqui cuenta hacia arriba
+				attack_frame = 0;
 				}
 			}
 		break;
 		
-		// Combo en el aire: puñetazo, patada, puñetazo... saltando al otro lado en cada golpe
 		case 3:
 			{
 			var _cyc3 = SQ2_MOVE_T + SQ2_HOLD_T;
@@ -250,7 +230,6 @@ function saori_super_combo(_override_phase)
 			var _odd = ((_k mod 2) == 1);
 			var _oddp = ((_kp mod 2) == 1);
 			
-			// Posicion de este golpe (c) y del anterior (p). Los golpes pares salen del lado de donde vino, los impares del otro
 			var _sidec = ((_k mod 2) == 0) ? -sq_dir : sq_dir;
 			var _sidep = ((_kp mod 2) == 0) ? -sq_dir : sq_dir;
 			var _xc = clamp(sq_px + (_sidec * SQ2_DIST), 100, room_width - 100);
@@ -263,7 +242,6 @@ function saori_super_combo(_override_phase)
 			
 			if (_t3 < SQ2_MOVE_T)
 				{
-				// Salto al otro lado (el primer golpe sale directo)
 				var _u3 = (_t3 + 1) / SQ2_MOVE_T;
 				var _e3 = _u3 * _u3 * (3 - (2 * _u3));
 				x = lerp(_xp, _xc, _e3);
@@ -281,7 +259,6 @@ function saori_super_combo(_override_phase)
 				}
 			else
 				{
-				// Pose del golpe
 				x = _xc;
 				y = _yc;
 				var _h = _t3 - SQ2_MOVE_T;
@@ -297,29 +274,26 @@ function saori_super_combo(_override_phase)
 					}
 				}
 			
-			// Rival: suspendido, tiembla en cada impacto
 			var _jx = 0;
 			if (_t3 >= SQ2_MOVE_T && _t3 < (SQ2_MOVE_T + 3)) then _jx = ((_t3 mod 2) == 0) ? 8 : -8;
 			saori_sq_hold(sq_px + _jx, _pyk);
 			
-			// Impacto
 			if (_t3 == SQ2_MOVE_T) then saori_sq_impact(SQ2_DMG_HIT);
 			
 			attack_frame++;
 			}
 		break;
 		
-		// Remate: sube, toma impulso y baja en picada contra el rival
 		case 4:
 			{
 			var _lastk = SQ2_HITS - 1;
 			var _sidel = ((_lastk mod 2) == 0) ? -sq_dir : sq_dir;
 			var _pyl = sq_py - (_lastk * SQ2_BUMP);
-			var _fx = clamp(sq_px + (_sidel * SQ2_DIST), 100, room_width - 100);		// de donde sale
+			var _fx = clamp(sq_px + (_sidel * SQ2_DIST), 100, room_width - 100);
 			var _fy = _pyl - (((_lastk mod 2) == 1) ? SQ2_KICK_UP : SQ2_PUNCH_UP);
-			var _sx = clamp(sq_px + (_sidel * SQ2_SIDE), 100, room_width - 100);		// donde toma impulso
+			var _sx = clamp(sq_px + (_sidel * SQ2_SIDE), 100, room_width - 100);
 			var _sy = _pyl - SQ2_UP;
-			var _tx = clamp(sq_px + (_sidel * 80), 100, room_width - 100);			// donde pega
+			var _tx = clamp(sq_px + (_sidel * 80), 100, room_width - 100);
 			var _ty = _pyl - 40;
 			var _t4 = attack_frame;
 			var _hit4 = SQ2_RISE_T + SQ2_WAIT_T + SQ2_DIVE_T - 1;
@@ -328,7 +302,6 @@ function saori_super_combo(_override_phase)
 			
 			if (_t4 < SQ2_RISE_T)
 				{
-				// Sube con la bolita
 				var _u4 = (_t4 + 1) / SQ2_RISE_T;
 				var _e4 = _u4 * _u4 * (3 - (2 * _u4));
 				x = lerp(_fx, _sx, _e4);
@@ -338,7 +311,6 @@ function saori_super_combo(_override_phase)
 				}
 			else if (_t4 < (SQ2_RISE_T + SQ2_WAIT_T))
 				{
-				// Toma impulso (aqui encaja la pose nueva si la dibujas)
 				x = _sx;
 				y = _sy;
 				anim_sprite = spr_saori_special_divekick;
@@ -346,7 +318,6 @@ function saori_super_combo(_override_phase)
 				}
 			else
 				{
-				// Picada: acelera hasta pegarle
 				var _u5 = (_t4 - SQ2_RISE_T - SQ2_WAIT_T + 1) / SQ2_DIVE_T;
 				var _e5 = _u5 * _u5;
 				x = lerp(_sx, _tx, _e5);
@@ -376,7 +347,6 @@ function saori_super_combo(_override_phase)
 			}
 		break;
 		
-		// Caida y recuperacion (vulnerable): despues del remate, o si el DP fallo o lo bloquearon
 		case 5:
 			{
 			if (!sq_landed)
@@ -404,7 +374,6 @@ function saori_super_combo(_override_phase)
 					attack_frame = sq_lag;
 					hsp = hsp * 0.5;
 					vsp = 0;
-					// Aterriza agachada
 					anim_sprite = spr_saori_crouch;
 					anim_frame = 0;
 					anim_speed = 0;
@@ -414,7 +383,6 @@ function saori_super_combo(_override_phase)
 				{
 				attack_frame--;
 				
-				// Despues de unos frames agachada, se levanta a su idle animado
 				if (attack_frame == (sq_lag - 8))
 					{
 					anim_sprite = sprites[$ "idle"];

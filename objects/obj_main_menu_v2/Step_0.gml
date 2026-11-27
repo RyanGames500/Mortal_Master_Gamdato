@@ -1,12 +1,10 @@
 /// @description Navegación por Control / Teclado / Mouse / Touch y Red
 pad_menu_pump(0);
-// Disminuir temporizador del aviso emergente
 if (notice_timer > 0)
 	{
 	notice_timer--;
 	}
 
-// Refresh del Lobby Online
 var _current = ds_list_size(obj_ggmr_lobby.lobby_members);
 if (previous_number_of_players != _current)
 	{
@@ -14,7 +12,6 @@ if (previous_number_of_players != _current)
 	previous_number_of_players = _current;
 	}
 
-// Lógica de Inicio de Partida Online (alguien más en el lobby ya confirmó listo)
 if (ggmr_lobby_is_leader()) 
 	{
 	if (ggmr_lobby_everyone_is_ready() && ggmr_lobby_status_code() == GGMR_LOBBY_STATUS.ok) 
@@ -39,15 +36,11 @@ else
 		}
 	}
 
-// Bloqueo por Matchmaking Activo
 if (instance_exists(obj_matchmaking_search))
 	{
 	exit;
 	}
 
-// ==========================================
-// PUNTERO: mouse (PC) o dedo (Android / iOS)
-// ==========================================
 var _is_touch = (os_type == os_android || os_type == os_ios);
 var _ptr_x = device_mouse_x_to_gui(0);
 var _ptr_y = device_mouse_y_to_gui(0);
@@ -56,7 +49,6 @@ var _ptr_moved = (_ptr_x != ptr_last_x || _ptr_y != ptr_last_y);
 ptr_last_x = _ptr_x;
 ptr_last_y = _ptr_y;
 
-// Busca el rectangulo bajo el puntero (el ultimo registrado tiene prioridad)
 var _hit = undefined;
 if (_tap || (_ptr_moved && !_is_touch))
 	{
@@ -73,16 +65,13 @@ if (_tap || (_ptr_moved && !_is_touch))
 var _tap_hit = (_tap && !is_undefined(_hit)) ? _hit : undefined;
 var _hover_hit = (!_tap && !is_undefined(_hit)) ? _hit : undefined;
 
-// Cualquier toque que no sea sobre una "X" desarma el borrado de replays
 if (_tap && (is_undefined(_tap_hit) || _tap_hit.kind != "del"))
 	{
 	delete_armed = -1;
 	}
 
-// Modo Ingreso de Texto
 if (current_state == MENU_STATE.input_text)
 	{
-	// En celular abre el teclado virtual una sola vez al entrar
 	if (_is_touch && !text_kb_opened)
 		{
 		keyboard_virtual_show(kbv_type_default, kbv_returnkey_done, kbv_autocapitalize_none, false);
@@ -162,19 +151,16 @@ if (current_state == MENU_STATE.input_text)
 	exit;
 	}
 
-// Navegación por Teclado
 var _up = keyboard_check_pressed(ord("W")) || keyboard_check_pressed(vk_up);
 var _down = keyboard_check_pressed(ord("S")) || keyboard_check_pressed(vk_down);
 var _confirm = keyboard_check_pressed(vk_enter) || keyboard_check_pressed(ord("L"));
 var _back = keyboard_check_pressed(vk_escape);
 
-// Boton BACK tactil / mouse (vale para todas las pantallas)
 if (!is_undefined(_tap_hit) && _tap_hit.kind == "back")
 	{
 	_back = true;
 	}
 
-// --- RANKING DE SURVIVAL ---
 if (current_state == MENU_STATE.ranking)
 	{
 	lb_tick();
@@ -213,13 +199,11 @@ if (current_state == MENU_STATE.ranking)
 	exit;
 	}
 
-// --- 1. LOGICA DE NAVEGACION EN REPLAYS ---
 if (current_state == MENU_STATE.replays)
 	{
 	var _max_replays = array_length(replay_list);
 	var _delete_key = keyboard_check_pressed(vk_delete) || keyboard_check_pressed(vk_backspace);
 	
-	// Mouse / touch
 	if (!is_undefined(_hover_hit) && _hover_hit.kind == "item")
 		{
 		replay_index = _hover_hit.i;
@@ -309,12 +293,10 @@ if (current_state == MENU_STATE.replays)
 	exit; 
 	}
 
-// --- 1B. LÓGICA DE NAVEGACIÓN EN SETTINGS ---
 if (current_state == MENU_STATE.settings)
 	{
 	var _max_settings = array_length(settings_options);
 	
-	// Mouse / touch
 	if (!is_undefined(_hover_hit) && _hover_hit.kind == "item")
 		{
 		menu_index = _hover_hit.i;
@@ -330,7 +312,6 @@ if (current_state == MENU_STATE.settings)
 		if (_tap_hit.kind == "item")
 			{
 			menu_index = _tap_hit.i;
-			// Las filas de toggle / accion se confirman con un toque
 			if (_row_label == "ENABLE SCANLINES" || _row_label == "RECORD REPLAYS" || _row_label == "SET NAME" || _row_label == "BACK")
 				{
 				_confirm = true;
@@ -338,7 +319,6 @@ if (current_state == MENU_STATE.settings)
 			}
 		else if (_tap_hit.kind == "bar")
 			{
-			// 11 casillas: la primera (a la izquierda de las barras) = 0, luego 0.1 ... 1.0
 			menu_index = _tap_hit.i;
 			var _frac = clamp((_ptr_x - _tap_hit.l) / (_tap_hit.r - _tap_hit.l), 0, 0.999);
 			var _v = floor(_frac * 11) / 10;
@@ -438,10 +418,8 @@ if (current_state == MENU_STATE.settings)
 	exit;
 	}
 
-// --- Sala privada: armar las filas según el estado del lobby ---
 if (current_state == MENU_STATE.private_lobby)
 	{
-	// Aceptación automática opcional (el código de la sala hace de contraseña)
 	if (private_lobby_auto_accept && ggmr_lobby_is_leader()
 		&& ds_list_size(obj_ggmr_lobby.lobby_join_requests) > 0
 		&& ds_list_size(obj_ggmr_lobby.lobby_members) < GGMR_MEMBERS_MAX)
@@ -453,7 +431,6 @@ if (current_state == MENU_STATE.private_lobby)
 	menu_index = clamp(menu_index, 0, array_length(private_lobby_options) - 1);
 	}
 
-// --- 2. LÓGICA DE NAVEGACIÓN EN MENÚS ESTÁNDAR ---
 var _current_list = menu_options;
 if (current_state == MENU_STATE.online) _current_list = online_options;
 if (current_state == MENU_STATE.survival) _current_list = survival_options;
@@ -461,8 +438,7 @@ if (current_state == MENU_STATE.private_lobby) _current_list = private_lobby_opt
 if (current_state == MENU_STATE.settings) _current_list = settings_options;
 
 var _max_items = array_length(_current_list);
-menu_index = clamp(menu_index, 0, _max_items - 1);	// la demo tiene menos opciones
-// Mouse / touch
+menu_index = clamp(menu_index, 0, _max_items - 1);
 if (!is_undefined(_hover_hit) && _hover_hit.kind == "item")
 	{
 	menu_index = _hover_hit.i;
@@ -496,7 +472,7 @@ if (_confirm)
 			case "LOCAL VS":
 				global.replay_mode = false;
 				global.online_mode = false;
-				global.local_vs_human = true;		// dos humanos
+				global.local_vs_human = true;
 				ggmr_lobby_reset();
 				room_goto(rm_gameplay);
 			break;
@@ -504,7 +480,7 @@ if (_confirm)
 			case "ARCADE":
 				global.replay_mode = false;
 				global.online_mode = false;
-				global.local_vs_human = false;		// el rival es la CPU
+				global.local_vs_human = false;
 				global.arcade_mode = 1;
 				global.arcade = undefined;
 				ggmr_lobby_reset();
@@ -651,13 +627,11 @@ if (_confirm)
 			break;
 			
 			case "leave":
-				// Si eres invitado sales; si eres anfitrión echa a todos. Ambos casos los resuelve el motor.
 				ggmr_lobby_reset();
 				menu_index = 0;
 			break;
 			
 			case "back":
-				// Si hay alguien en la sala, salir limpiamente antes de volver
 				if (ds_list_size(obj_ggmr_lobby.lobby_members) > 1) then ggmr_lobby_reset();
 				current_state = MENU_STATE.online;
 				menu_index = 1;
@@ -666,7 +640,6 @@ if (_confirm)
 		}
 	}
 
-// Retroceder de pantalla con ESC o con el boton BACK
 if (_back)
 	{
 	if (current_state == MENU_STATE.online)

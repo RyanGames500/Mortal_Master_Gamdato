@@ -1,8 +1,5 @@
 ///@category GGMR
 ///@param {int} connection_id		The connection to delete
-/*
-Deletes the connection with the given id.
-*/
 function ggmr_net_connection_delete()
 	{
 	with (obj_ggmr_net) 

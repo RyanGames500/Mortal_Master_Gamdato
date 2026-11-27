@@ -1,6 +1,5 @@
 function mariel_character_init()
 	{
-	//Properties
 	character_name = "MARIEL";
 	walk_speed = 5;			
 	dash_speed = 11;		
@@ -16,16 +15,12 @@ function mariel_character_init()
 	
 	sprite_scale = 5.5;
 	
-	//Environmental collision box
 	sprite_index = spr_mariel_ecb;
 	
-	//Palette
 	palette_sprite = spr_mariel_palette;
 
-	//hurtbox
 	hurtbox_sprite = spr_mariel_hurtbox;
 
-	//Gameplay sprites
 	sprites[$ "idle"			] = spr_mariel_idle;
 	sprites[$ "win"				] = spr_mariel_win;	
 	sprites[$ "crouch"			] = spr_mariel_crouch;
@@ -46,7 +41,6 @@ function mariel_character_init()
 	sprites[$ "getup"			] = spr_mariel_idle;
 	sprites[$ "throw_victim"	] = spr_mayel_lanzado;
 	
-	//Attack scripts
 	attacks[$ "light_ground"	] = mariel_light_ground;
 	attacks[$ "medium_ground"	] = mariel_medium_ground;
 	attacks[$ "medium_aerial"	] = mariel_medium_aerial;
@@ -58,14 +52,11 @@ function mariel_character_init()
 	attacks[$ "heavy_aerial"	] = mariel_heavy_aerial;
 	attacks[$ "throw"			] = mayel_throw;
 	
-	//Fatalities
 	fat_cabeza = spr_mariel_fat_cabeza;
 	fat_cuerpo = spr_mariel_fat_cuerpo;
 	fat_pies = spr_generic_fat_pies;
 
-	//sprite_inicial
 	anim_sprite = sprites[$ "idle"];
-	//Passive script
 	passive = mariel_passive;
 	}
 

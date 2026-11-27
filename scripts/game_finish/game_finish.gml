@@ -1,7 +1,3 @@
-/*
-Called by the GGMR session when the match ends.
-The replay is already saved by save_current_replay (with its header), so this only goes back to the menu.
-*/
 function game_finish()
 	{
 	if (survival_active())

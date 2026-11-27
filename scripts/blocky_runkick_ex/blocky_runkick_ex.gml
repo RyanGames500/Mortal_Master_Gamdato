@@ -27,7 +27,6 @@ function blocky_runkick_ex(_override_phase)
 				attack_frame = 28;
 				hsp = 24 * facing;
 				
-				// polvo y temblor en el despegue
 				var _dust = instance_create_layer(x, obj_ground.y, "VFX_Layer", obj_vfx);
 				_dust.sprite_index = spr_effect_step_dust;
 				_dust.image_xscale = facing;
@@ -36,7 +35,6 @@ function blocky_runkick_ex(_override_phase)
 				_dust.owner        = id;
 				obj_game.cam_shake = max(obj_game.cam_shake, 4);
 				
-				// primera patada (no tira al piso para poder enlazar la segunda)
 				var _hitbox = hitbox_create(95, 18, 0.8, 1, 5, 15);
 				_hitbox.hitlag = 10;
 				_hitbox.launch_speed = 6;
@@ -60,7 +58,6 @@ function blocky_runkick_ex(_override_phase)
 			if (attack_frame == 10) then anim_frame = 5;
 			if (attack_frame == 5)  then anim_frame = 6;
 			
-			// segunda patada si la primera conecto
 			if (attack_frame == 14 && attack_connected)
 				{
 				attack_connected = false;

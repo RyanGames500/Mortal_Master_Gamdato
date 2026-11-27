@@ -1,9 +1,5 @@
 ///@category GGMR
 ///@param {int} absolute_frame			The frame to check
-/*
-Returns true if the given frame is running for the first time.
-Frames that were just confirmed will count as running for the first time even if the predicted inputs were the same as the confirmed inputs.
-*/
 function ggmr_session_frame_is_first_occurrence()
 	{
 	with (obj_ggmr_session) 

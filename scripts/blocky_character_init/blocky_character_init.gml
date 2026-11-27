@@ -1,10 +1,5 @@
-/*
-This is the character init script for Joe.
-It is called once at the start of the game and sets up all character-specific values.
-*/
 function blocky_character_init()
 	{
-	//Properties
 	character_name = "JOE";
 	walk_speed = 5;
 	dash_speed = 13;
@@ -19,19 +14,13 @@ function blocky_character_init()
 	hp_prev = hp_max;
 	
 	sprite_scale = 6;
-	//dara tamaño personalizado a cada har desd aqui
-	//meter_max = 100; /150 default 100:perzonalizdo
 	
-	//Environmental collision box
 	sprite_index = spr_blocky_ecb;
 	
-	//Palette
 	palette_sprite = spr_blocky_palette;
 
-	//hurtbox
 	hurtbox_sprite = spr_blocky_hurtbox;
 
-	//Gameplay sprites
 	sprites[$ "idle"			] = spr_blocky_idle;
 	sprites[$ "win"				] = spr_blocky_win;	
 	sprites[$ "crouch"			] = spr_blocky_crouch;
@@ -57,7 +46,6 @@ function blocky_character_init()
   	sprites[$ "prop_roca"		] = spr_blocky_lanza;
   	sprites[$ "prop_barril"		] = spr_blocky_lanza;	
 	
-	//Attack scripts
 	attacks[$ "light_ground"	] = blocky_light_ground;
 	attacks[$ "medium_ground"	] = blocky_light_ground2;
 	attacks[$ "medium_aerial"	] = blocky_medium_aerial;
@@ -69,19 +57,15 @@ function blocky_character_init()
 	attacks[$ "heavy_aerial"	] = blocky_heavy_aerial;
 	attacks[$ "throw"			] = blocky_throw;
 
-	//Fatalities
 	fat_cabeza = spr_blocky_fat_cabeza;
 	fat_cuerpo = spr_blocky_fat_cuerpo;
 	fat_pies = spr_blocky_fat_pies;
 
-	//Mano de Joe para el fatality columna (pixeles desde el origen del sprite)
-	fat_hand_hit = [20, -9];	// remate del combo light (frame 13)
+	fat_hand_hit = [20, -9];
 	fat_hand_win = [[-9, -9], [-9, -8], [-9, -8], [-10, -7], [-11, -30], [-12, -32], [-10, -31], [-10, -30]];
 
-	//sprite_inicial
 	anim_sprite = sprites[$ "idle"];
 
-	//Passive script
 	passive = blocky_passive;
 	}
 

@@ -20,11 +20,6 @@ function blitsen_light_crouch(_override_phase)
 			{
 			attack_frame--;
 			
-			//if (state_time <= throw_input_leniency && input_pressed(INPUT.attack_heavy))
-			//	{
-			//	attack_start(attacks[$ "throw"]);
-			//	return;
-			//	}
 			
 			if (attack_frame == 2) then anim_frame = 1;
 			

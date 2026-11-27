@@ -1,16 +1,13 @@
 function lex_medium_ground(_override_phase)
 	{
-	//Phases
 	var _phase = !is_undefined(_override_phase) ? _override_phase : attack_phase;
 	switch (_phase)
 		{
-		//Init
 		case ATTACK_PHASE.start:
 			{
-			//Animation
 			anim_sprite = spr_lex_medium_ground; 
 			anim_frame = 0;
-			anim_speed = 0; // Determinista: cero image_speed para el rollback
+			anim_speed = 0;
 			
 			attack_frame = 5;
 			
@@ -19,17 +16,12 @@ function lex_medium_ground(_override_phase)
 			}
 		break;
 		
-		//-------------------------------------------------------------
-		//--- PRIMER GOLPE (Sub-imágenes 0 -> 4 | Hitbox en Frame 2) ---
-		//-------------------------------------------------------------
 		case 0:
 			{
 			attack_frame--;
 			
-			// Transición de startup
 			if (attack_frame == 3) then anim_frame = 1;
 			
-			// Impacto del 1er golpe -> Frame 2 visual
 			if (attack_frame == 0)
 				{
 				anim_frame = 2; 
@@ -44,7 +36,6 @@ function lex_medium_ground(_override_phase)
 			}
 		break;
 		
-		// Endlag 1er Golpe (Sub-imágenes 3 y 4)
 		case 1:
 			{
 			attack_frame--;
@@ -54,7 +45,6 @@ function lex_medium_ground(_override_phase)
 			
 			player_move();
 			
-			// Cancelación al 2do Golpe
 			if (attack_frame < 8 && attack_connected)
 				{
 				if (input_pressed(INPUT.attack_light2, true))
@@ -76,9 +66,6 @@ function lex_medium_ground(_override_phase)
 			}
 		break;
 		
-		//-------------------------------------------------------------
-		//--- SEGUNDO GOLPE (Sub-imágenes 5 -> 11 | Hitbox en Frame 8) --
-		//-------------------------------------------------------------
 		case 2:
 			{
 			attack_frame--;
@@ -86,7 +73,6 @@ function lex_medium_ground(_override_phase)
 			if (attack_frame == 7) then anim_frame = 6;
 			if (attack_frame == 3) then anim_frame = 7;
 			
-			// Impacto del 2do golpe -> Frame 8 visual
 			if (attack_frame == 0)
 				{
 				anim_frame = 8; 
@@ -101,7 +87,6 @@ function lex_medium_ground(_override_phase)
 			}
 		break;
 		
-		// Endlag 2do Golpe (Sub-imágenes 9, 10 y 11)
 		case 3:
 			{
 			attack_frame--;
@@ -116,7 +101,6 @@ function lex_medium_ground(_override_phase)
 				}
 			player_move();
 			
-			// Cancelación al 3er Golpe (Remate)
 			if (attack_frame < 8 && attack_connected)
 				{
 				if (input_pressed(INPUT.attack_light2, true))
@@ -138,16 +122,12 @@ function lex_medium_ground(_override_phase)
 			}
 		break;
 		
-		//-------------------------------------------------------------
-		//--- TERCER GOLPE (Sub-imágenes 12 -> 17 | Hitbox en Frame 14) -
-		//-------------------------------------------------------------
 		case 4:
 			{
 			attack_frame--;
 			
 			if (attack_frame == 2) then anim_frame = 13;
 			
-			// Impacto del Remate -> Frame 14 visual
 			if (attack_frame == 0)
 				{
 				anim_frame = 14; 
@@ -170,7 +150,6 @@ function lex_medium_ground(_override_phase)
 			}
 		break;
 		
-		// Endlag Final (Sub-imágenes 15, 16 y 17)
 		case 5:
 			{
 			attack_frame--;
@@ -185,7 +164,6 @@ function lex_medium_ground(_override_phase)
 				}
 			player_move();
 			
-			// Fin del combo
 			if (attack_frame <= 0)
 				{
 				attack_stop();

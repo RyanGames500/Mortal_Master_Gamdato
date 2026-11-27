@@ -1,9 +1,5 @@
 ///@category GGMR
 ///@param {any} values		The values in the message
-/*
-Adds a GGMR message to the log and displays it in a debug message.
-If <GGMR_DEBUG_LOG> is set to false, this function does nothing.
-*/
 function ggmr_log()
 	{
 	if (GGMR_DEBUG_LOG) 

@@ -1,14 +1,10 @@
 ///@category GGMR
 ///@param {string} ip		The IP address of the connection
 ///@param {int} port		The port of the connection
-/*
-Adds a struct with the ip and port to the connections map and returns the id number. If there is already an existing struct, it returns the id of that one.
-*/
 function ggmr_net_connection_save()
 	{
 	with (obj_ggmr_net) 
 		{
-		//Check for existing net_connections
 		for (var k = ds_map_find_first(net_connections); k != undefined; k = ds_map_find_next(net_connections, k)) 
 			{
 			var _connection = net_connections[? k];
@@ -18,7 +14,6 @@ function ggmr_net_connection_save()
 				}
 			}
 		
-		//New net_connections
 		var _struct = 
 			{ 
 			ip : argument[0], 

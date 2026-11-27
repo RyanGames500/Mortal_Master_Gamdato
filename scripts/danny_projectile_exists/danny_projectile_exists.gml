@@ -1,7 +1,3 @@
-/*
-Devuelve true si Mayel ya tiene en pantalla un proyectil propio (boomerang o martillo).
-Los proyectiles son hitboxes con script propio (custom_update).
-*/
 function danny_projectile_exists()
 	{
 	var _found = false;
